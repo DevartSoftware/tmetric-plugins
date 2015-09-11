@@ -1,0 +1,7 @@
+node_modules/
+dist/
+*.js.map
+in-page-scripts/**/*.js
+extension-base/*.js
+chrome/*.js
+firefox/*.js
