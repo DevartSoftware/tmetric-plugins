@@ -33,7 +33,7 @@ class ExtensionBase
 
     private _timeEntries: Models.TimeEntry[];
 
-    private _currentIssue: IWebToolIssue;
+    private _currentIssue: Integrations.WebToolIssue;
 
     constructor(public url: string, public port: Firefox.Port)
     {

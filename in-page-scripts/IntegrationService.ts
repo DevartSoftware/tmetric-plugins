@@ -174,7 +174,7 @@ module Integrations {
             });
         }
 
-        static isSameIssue(oldIssue: WebToolIssue, newIssue: WebToolIssue) {
+        static isSameIssue(oldIssue: Integrations.WebToolIssue, newIssue: Integrations.WebToolIssue) {
             function normalizeServiceUrl(issue: WebToolIssue) {
                 var url = (issue.serviceUrl || '').trim();
                 if (url.length && url[url.length - 1] == '/') {
@@ -183,7 +183,7 @@ module Integrations {
                 return url;
             }
 
-            function normalizeName(issue: IWebToolIssue)
+            function normalizeName(issue: WebToolIssue)
             {
                 return (issue.issueName || '').trim();
             }
