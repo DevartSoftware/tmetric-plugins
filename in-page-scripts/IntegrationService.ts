@@ -183,9 +183,14 @@ module Integrations {
                 return url;
             }
 
+            function normalizeName(issue: IWebToolIssue)
+            {
+                return (issue.issueName || '').trim();
+            }
+    
             return oldIssue &&
                 oldIssue.issueId == newIssue.issueId &&
-                oldIssue.issueName == newIssue.issueName &&
+                normalizeName(oldIssue) == normalizeName(newIssue) &&
                 normalizeServiceUrl(oldIssue) == normalizeServiceUrl(newIssue);
         }
 

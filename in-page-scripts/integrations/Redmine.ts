@@ -11,16 +11,16 @@ module Integrations {
         matchSelector = 'body.controller-issues.action-show';
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
-            linkElement.classList.add('icon');
-            $$('#content .contextual').appendChild(linkElement);
+            var host = $$('#content .contextual');
+            if (host)
+            {
+                linkElement.classList.add('icon');
+                host.appendChild(linkElement);
+            }
         }
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
             var i: number;
-
-            if (!$$('#content .contextual')) {
-                return;
-            }
 
             // http://rm.devart.local/redmine/issues/58480
             // PROTOCOL = http://

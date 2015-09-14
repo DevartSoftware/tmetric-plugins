@@ -3,16 +3,14 @@
   "name": "devart-timer-button",
   "id": "timetracker@devart.com",
   "icon": {
-    "48": "icon.png",
-    "64": "icon-64.png"
+    "48": "icon.png"
   },
   "version": "0.1.0",
   "description": "Integrates Devart's Time Tracker with popular issue tracking tools.",
   "main": "index.js",
   "author": "Devart",
   "engines": {
-    "firefox": ">=38.0a1",
-    "fennec": ">=38.0a1"
+    "firefox": ">=38.0a1"
   },
   "license": "MIT",
   "offline_enabled": false,

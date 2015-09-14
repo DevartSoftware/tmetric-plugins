@@ -18,7 +18,7 @@ class ChromeExtension extends ExtensionBase
         // Inject content scripts in all already opened pages
         var contentScripts = (<ChromeExtensionManifest>chrome.runtime.getManifest()).content_scripts[0];
         var jsFiles = contentScripts.js;
-        var cssFiles = contentScripts.js;
+        var cssFiles = contentScripts.css;
         var runAt = contentScripts.run_at;
         chrome.tabs.query({}, tabs =>
             tabs.forEach(tab =>

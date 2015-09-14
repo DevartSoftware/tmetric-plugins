@@ -97,15 +97,14 @@ gulp.task('pre-package:firefox', ['compile:firefox'], function () {
     'css/*',
     'images/*',
     'images/firefox/*',
-    '!images/icon.png',
-    '!images/firefox/icon64.png'
+    '!images/icon.png'
   ])
     .pipe(flatten())
     .pipe(gulp.dest(outDirFirefox + 'data'));
 
   // We have to rename icon48.png to icon.png because of a bug in JPM
   // https://github.com/mozilla-jetpack/jpm/issues/197
-  var rootFiles = gulp.src(['firefox/package.json', 'images/icon.png', 'images/firefox/icon64.png'])
+  var rootFiles = gulp.src(['firefox/package.json', 'images/icon.png'])
     .pipe(gulp.dest(outDirFirefox));
 
   return merge(signalR, dataFiles).add(rootFiles);

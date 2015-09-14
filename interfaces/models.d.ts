@@ -91,4 +91,11 @@ declare module Models {
         WorkTask: WorkTask;
         StartTime: string;
     }
+    
+    interface TimeEntry {
+        WorkTask: WorkTask;
+        StartTime: string;
+        EndTime: string;
+        ProjectName: string;
+    }    
 }

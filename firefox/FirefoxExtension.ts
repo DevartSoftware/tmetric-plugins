@@ -1,4 +1,4 @@
-/// <reference path="../typings/firefox/firefox" />
+﻿/// <reference path="../typings/firefox/firefox" />
 /// <reference path="../extension-base/ExtensionBase" />
 
 import buttons = require('sdk/ui/button/action');

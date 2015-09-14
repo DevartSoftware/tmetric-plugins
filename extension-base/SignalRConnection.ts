@@ -20,8 +20,13 @@ class SignalRConnection
             this.url = url;
             this.hub = $.hubConnection(url);
             this.hubProxy = this.hub.createHubProxy('timeTrackerHub');
-            this.hubProxy.on('updateTimer',() =>
+            this.hubProxy.on('updateTimer',(accountId: number) =>
             {
+                if (this.userProfile && accountId != this.userProfile.ActiveAccountId)
+                {
+                    return;
+                }
+
                 var previousProfileId = this.userProfile.UserProfileId;
                 this.getProfile(
                     () =>
@@ -37,6 +42,16 @@ class SignalRConnection
                         }
                     });
             });
+
+            this.hubProxy.on('updateActiveAccount',(accountId: number) =>
+            {
+                if (this.userProfile && accountId != this.userProfile.ActiveAccountId)
+                {
+                    this.disconnect();
+                    this.connect();
+                }
+            });
+
             this.connect();
         });
 
@@ -178,16 +193,30 @@ class SignalRConnection
             });
     }
 
-    getTimer(done?: () => void): JQueryPromise<Models.Timer>
+    getTimer()
     {
-        done = done || (() => { });
-        return this.get<Models.Timer>('api/timer/' + this.userProfile.ActiveAccountId,
+        var requestAccountId = this.userProfile.ActiveAccountId;
+
+        this.get<Models.Timer>('api/timer/' + requestAccountId,
             result =>
             {
-                self.port.emit('updateTimer', result.data);
-                done();
+                if (this.userProfile.ActiveAccountId == requestAccountId)
+                {
+                    self.port.emit('updateTimer', result.data);
+                }
             },
             () => this.disconnect());
+
+        //var startTime = new Date();
+        //startTime = new Date(startTime.getFullYear(), startTime.getMonth(), startTime.getDate());
+        //var endTime = new Date(startTime.getFullYear(), startTime.getMonth(), startTime.getDate() + 1);
+        //this.get<Models.TimeEntry[]>('/api/timeentries/' + requestAccountId + '/' + this.userProfile.UserProfileId
+        //    + '?startTime=' + startTime.toJSON() + 'endTime=' + startTime.toJSON(),
+        //    result =>
+        //    {
+        //        var timeEntries = result.data;
+        //    },
+        //    () => this.disconnect());
     }
 
     callFail(fail?: AjaxCallback<any>)

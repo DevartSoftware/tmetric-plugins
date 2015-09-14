@@ -31,13 +31,16 @@ class ExtensionBase
 
     private _timer: Models.Timer;
 
-    private _currentIssue: Integrations.WebToolIssue;
+    private _timeEntries: Models.TimeEntry[];
+
+    private _currentIssue: IWebToolIssue;
 
     constructor(public url: string, public port: Firefox.Port)
     {
         // this.url = 'http://localhost:65341/';
 
         this.port.on('updateTimer', timer => this.setTimer(timer));
+        this.port.on('updateTracker', timeEntries => this.setTracker(timeEntries));
         this.port.emit('init', this.url);
     }
 
@@ -273,6 +276,12 @@ class ExtensionBase
         this._timer = timer;
         this.updateState();
         this.sendToTabs({ action: 'setTimer', data: timer });
+    }
+
+    private setTracker(timeEntries: Models.TimeEntry[])
+    {
+        this._timeEntries = timeEntries;
+        this.updateState();
     }
 
     private updateState()
