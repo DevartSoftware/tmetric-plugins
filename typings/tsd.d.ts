@@ -4,3 +4,4 @@
 /// <reference path="webrtc/MediaStream.d.ts" />
 /// <reference path="jquery/jquery.d.ts" />
 /// <reference path="signalr/signalr.d.ts" />
+/// <reference path="jasmine/jasmine.d.ts" />

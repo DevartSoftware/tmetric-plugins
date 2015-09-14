@@ -21,6 +21,7 @@
 		"in-page-scripts/integrations/Jira.ts",
 		"in-page-scripts/integrations/JiraAgile.ts",
 		"in-page-scripts/page.ts",
-		"in-page-scripts/utils.ts"
+		"in-page-scripts/utils.ts",
+		"specs/jira.spec.ts"
 	]
 }

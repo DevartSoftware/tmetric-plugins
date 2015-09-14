@@ -5,3 +5,4 @@ in-page-scripts/**/*.js
 extension-base/*.js
 chrome/*.js
 firefox/*.js
+specs/**/*.js
