@@ -106,7 +106,7 @@ class ExtensionBase {
                     url += '#/tracker/' + this._userProfile.ActiveAccountId + '/';
                 }
                 this.openPage(url);
-                this.showNotification('You should fix the timer');
+                this.showNotification('You should fix the timer.');
                 return;
             }
 
@@ -208,6 +208,34 @@ class ExtensionBase {
         action(true);
     }
 
+    updateState() {
+        var state = ButtonState.connect;
+        var text = 'Not Connected';
+        if (this._timer) {
+            if (this._timer.IsStarted) {
+                if (this.getDuration(this._timer) > 10 * 60 * 60000) {
+                    state = ButtonState.fixtimer;
+                    text = 'Started (Need User Action)\n'
+                    + 'It looks like you forgot to stop the timer';
+                }
+                else {
+                    state = ButtonState.stop;
+                    text = 'Started\n'
+                    + (this._timer.WorkTask.Description || '(No task description)');
+                }
+            }
+            else {
+                state = ButtonState.start;
+                text = 'Paused';
+            }
+            text += '\nToday Total - '
+            + this.durationToString(this.getDuration(this._timeEntries))
+            + ' hours';
+        }
+        this.buttonState = state;
+        this.setButtonIcon(state == ButtonState.stop || state == ButtonState.fixtimer ? 'active' : 'inactive', text);
+    }
+
     private normalizeUrl(url: string) {
         if (url) {
             var i = url.indexOf('#');
@@ -255,36 +283,6 @@ class ExtensionBase {
 
     private setProfile(profile: Models.UserProfile) {
         this._userProfile = profile;
-    }
-
-    private updateState() {
-
-        var state = ButtonState.connect;
-        var text = 'Not Connected';
-
-        if (this._timer) {
-            if (this._timer.IsStarted) {
-                if (this.getDuration(this._timer) > 10 * 60000) {
-                    state = ButtonState.fixtimer;
-                    text = 'Started (Need User Action)\n'
-                    + 'It looks like you forgot to stop the timer';
-                }
-                else {
-                    state = ButtonState.stop;
-                    text = 'Started\n'
-                    + (this._timer.WorkTask.Description || '(No task description)');
-                }
-            }
-            else {
-                state = ButtonState.start;
-                text = 'Paused';
-            }
-            text += '\nToday Total - '
-            + this.durationToString(this.getDuration(this._timeEntries))
-            + ' hours';
-        }
-        this.buttonState = state;
-        this.setButtonIcon(state == ButtonState.stop || state == ButtonState.fixtimer ? 'active' : 'inactive', text);
     }
 
     private getDuration(timer: Models.Timer): number

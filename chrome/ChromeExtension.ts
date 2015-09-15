@@ -88,6 +88,12 @@ class ChromeExtension extends ExtensionBase {
                     this.cleanUpTabInfo(allUrls);
                 });
             }, 60000);
+
+            var updateState = () => setTimeout(() => {
+                this.updateState();
+                updateState();
+            }, 60 - new Date().getSeconds());
+            updateState();
         });
 
         var updateCurrentTab = (canReset?: boolean) => {

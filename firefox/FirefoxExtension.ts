@@ -181,6 +181,12 @@ class FirefoxExtension extends ExtensionBase {
         tabs.on('pageshow', () => updateCurrentTab());
 
         updateCurrentTab();
+
+        var updateState = () => timers.setTimeout(() => {
+            this.updateState();
+            updateState();
+        }, 60 - new Date().getSeconds());
+        updateState();
     }
 
     dispose() {
