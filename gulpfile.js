@@ -96,8 +96,7 @@ gulp.task('pre-package:firefox', ['compile:firefox'], function () {
     'node_modules/jquery/dist/jquery.min.js',
     'css/*',
     'images/*',
-    'images/firefox/*',
-    '!images/icon.png'
+    'images/firefox/*'
   ])
     .pipe(flatten())
     .pipe(gulp.dest(outDirFirefox + 'data'));

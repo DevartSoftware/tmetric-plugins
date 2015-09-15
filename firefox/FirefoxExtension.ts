@@ -1,4 +1,4 @@
-﻿/// <reference path="../typings/firefox/firefox" />
+/// <reference path="../typings/firefox/firefox" />
 /// <reference path="../extension-base/ExtensionBase" />
 
 import buttons = require('sdk/ui/button/action');
@@ -18,8 +18,7 @@ var windowWatcher = chrome.Cc['@mozilla.org/embedcomp/window-watcher;1'].getServ
 var alertsService = chrome.Cc['@mozilla.org/alerts-service;1'].getService(chrome.Ci.nsIAlertsService);
 var promptService = chrome.Cc['@mozilla.org/embedcomp/prompt-service;1'].getService(chrome.Ci.nsIPromptService);
 
-class FirefoxExtension extends ExtensionBase
-{
+class FirefoxExtension extends ExtensionBase {
     loginWindow: Window;
 
     loginTabId: string;
@@ -34,8 +33,7 @@ class FirefoxExtension extends ExtensionBase
 
     attachedTabs = <{ [tabId: string]: Firefox.Worker }>{};
 
-    constructor()
-    {
+    constructor() {
         super(
             prefs.prefs['server'],
             pageWorker.Page({
@@ -47,52 +45,41 @@ class FirefoxExtension extends ExtensionBase
                 ],
             }).port);
 
-        tabs.on('close', tab =>
-        {
-            if (this.checkCloseTimeout)
-            {
+        tabs.on('close', tab => {
+            if (this.checkCloseTimeout) {
                 timers.clearTimeout(this.checkCloseTimeout);
             }
 
             this.checkCloseTimeout = timers.setTimeout(() => forEachLiveTab(), 60000);
         });
 
-        var forEachLiveTab = (action?: (worker: Firefox.Worker) => void) =>
-        {
+        var forEachLiveTab = (action?: (worker: Firefox.Worker) => void) => {
             this.checkCloseTimeout = null;
             var allUrls = <string[]>[];
             var allTabIds = {};
-            for (var i in tabs)
-            {
+            for (var i in tabs) {
                 allTabIds[tabs[i].id] = true;
                 allUrls.push(tabs[i].url);
             }
-            for (var i in this.attachedTabs)
-            {
-                if (!allTabIds[i])
-                {
+            for (var i in this.attachedTabs) {
+                if (!allTabIds[i]) {
                     delete this.attachedTabs[i];
                 }
-                else if (action)
-                {
+                else if (action) {
                     action(this.attachedTabs[i]);
                 }
             }
             this.cleanUpTabInfo(allUrls);
         }
 
-        this.sendToTabs = (message, tabId?) =>
-        {
-            if (tabId != null)
-            {
+        this.sendToTabs = (message, tabId?) => {
+            if (tabId != null) {
                 var worker = this.attachedTabs[tabId];
-                if (worker)
-                {
+                if (worker) {
                     worker.postMessage(message);
                 }
             }
-            else
-            {
+            else {
                 forEachLiveTab(worker => worker.postMessage(message));
             }
         };
@@ -102,7 +89,7 @@ class FirefoxExtension extends ExtensionBase
             './IntegrationService.js',
             './Redmine.js',
             './Jira.js',
-            './JIraAgile.js',
+            './JiraAgile.js',
             './page.js'
         ];
 
@@ -110,10 +97,8 @@ class FirefoxExtension extends ExtensionBase
             uri: './timer-link.css'
         });
 
-        var attachTab = (tab: Firefox.Tab) =>
-        {
-            if (tab.id == this.loginTabId)
-            {
+        var attachTab = (tab: Firefox.Tab) => {
+            if (tab.id == this.loginTabId) {
                 return; // Do not attach to login dialog
             }
 
@@ -121,8 +106,7 @@ class FirefoxExtension extends ExtensionBase
 
             var worker = tab.attach(<Firefox.TabOptions>{
                 contentScriptFile,
-                onMessage: (message: ITabMessage) =>
-                {
+                onMessage: (message: ITabMessage) => {
                     this.onTabMessage(message, worker.tab.id, worker.tab == this.getActiveTab());
                 }
             });
@@ -134,14 +118,11 @@ class FirefoxExtension extends ExtensionBase
         tabs.on('ready', tab => attachTab(tab));
 
         this.windowObserver = {
-            observe: (subject, topic, data) =>
-            {
-                if (this.loginWindow != null && topic == 'domwindowclosed')
-                {
+            observe: (subject, topic, data) => {
+                if (this.loginWindow != null && topic == 'domwindowclosed') {
                     var closedWindow = subject.QueryInterface(chrome.Ci.nsIDOMWindow);
 
-                    if (closedWindow == this.loginWindow)
-                    {
+                    if (closedWindow == this.loginWindow) {
                         this.loginWindow = null;
                         this.actionOnConnect();
                     }
@@ -154,29 +135,23 @@ class FirefoxExtension extends ExtensionBase
             id: 'startButton',
             label: 'Devart Time Tracker',
             icon: this.getIconSet('inactive'),
-            onClick: () =>
-            {
+            onClick: () => {
                 var tab = this.getActiveTab();
 
-                if (this.loginWindow != null)
-                {
+                if (this.loginWindow != null) {
                     this.loginWindow.focus();
                 }
-                else
-                {
+                else {
                     var window = utils.getMostRecentBrowserWindow();
-                    if (window && window.document)
-                    {
+                    if (window && window.document) {
                         this.startTimer(tab.url, tab.title);
                     }
                 }
             }
         });
 
-        var updateCurrentTab = (tab?: Firefox.Tab) =>
-        {
-            if (this.loginWindowPending)
-            {
+        var updateCurrentTab = (tab?: Firefox.Tab) => {
+            if (this.loginWindowPending) {
                 return;
             }
 
@@ -184,78 +159,63 @@ class FirefoxExtension extends ExtensionBase
 
             tab = tab || this.getActiveTab();
 
-            if (tab)
-            {
-                if (tab.id != this.loginTabId)
-                {
+            if (tab) {
+                if (tab.id != this.loginTabId) {
                     this.setCurrentTab(tab.url, tab.title);
                 }
             }
-            else if (canReset)
-            {
+            else if (canReset) {
                 this.setCurrentTab(null, null);
             }
         };
 
-        tabs.on('activate', tab =>
-        {
+        tabs.on('activate', tab => {
             if (!this.attachedTabs[tab.id] && tab.url && tab.url.indexOf('http') == 0 &&
-                (tab.readyState == "interactive" || tab.readyState == "complete"))
-            {
+                (tab.readyState == "interactive" || tab.readyState == "complete")) {
                 // Firefox does not attach to some tabs after browser session restore
                 attachTab(tab);
             }
 
             updateCurrentTab(tab);
         });
-        tabs.on('pageshow',() => updateCurrentTab());
+        tabs.on('pageshow', () => updateCurrentTab());
 
         updateCurrentTab();
     }
 
-    dispose()
-    {
-        if (this.windowObserver)
-        {
+    dispose() {
+        if (this.windowObserver) {
             windowWatcher.unregisterNotification(this.windowObserver);
             this.windowObserver = null;
         }
-        if (this.checkCloseTimeout)
-        {
+        if (this.checkCloseTimeout) {
             timers.clearTimeout(this.checkCloseTimeout);
             this.checkCloseTimeout = null;
         }
     }
 
-    showError(message: string)
-    {
+    showError(message: string) {
         promptService.alert(null, null, message);
     }
 
-    showNotification(message: string, title?: string)
-    {
+    showNotification(message: string, title?: string) {
         alertsService.showAlertNotification(self.data.url('icon.png'), title || 'Devart Time Tracker', message);
     }
 
-    showConfirmation(message: string)
-    {
+    showConfirmation(message: string) {
         return promptService.confirm(null, null, message);
     }
 
-    loadValue(key: string, callback: (value: any) => void)
-    {
+    loadValue(key: string, callback: (value: any) => void) {
         callback(storage.storage[key]);
     }
 
-    saveValue(key: string, value: any)
-    {
+    saveValue(key: string, value: any) {
         storage.storage[key] = value;
     }
 
-    showLoginDialog()
-    {
-        if (this.loginWindowPending)
-        {
+    showLoginDialog() {
+        if (this.loginWindowPending) {
             return;
         }
 
@@ -266,12 +226,10 @@ class FirefoxExtension extends ExtensionBase
         var left = 400;
         var top = 300;
 
-        if (window.screenX != null && window.outerWidth != null)
-        {
+        if (window.screenX != null && window.outerWidth != null) {
             left = window.screenX + (window.outerWidth - width) / 2;
         }
-        if (window.screenY != null && window.outerHeight != null)
-        {
+        if (window.screenY != null && window.outerHeight != null) {
             top = window.screenY + (window.outerHeight - height) / 2;
         }
 
@@ -288,8 +246,7 @@ class FirefoxExtension extends ExtensionBase
 
         var folder = '/'; // Pass folder in ReturnUrl (#60008)
         var folderIndex = this.url.indexOf('/', 10);
-        if (folderIndex > 0)
-        {
+        if (folderIndex > 0) {
             folder = this.url.substring(folderIndex);
         }
 
@@ -300,8 +257,7 @@ class FirefoxExtension extends ExtensionBase
 
         try {
             var popupWindow = window.open(url, 'LoginWindow', parameters);
-            popupWindow.onfocus = () =>
-            {
+            popupWindow.onfocus = () => {
                 popupWindow.onfocus = null;
 
                 // accessing firefox properties can trigger tab events, so do not reset pending flag before
@@ -311,48 +267,58 @@ class FirefoxExtension extends ExtensionBase
                 this.loginWindowPending = false;
             };
         }
-        catch (e)
-        {
+        catch (e) {
             this.loginWindowPending = false;
             throw e;
         }
     }
 
-    setButtonIcon(icon: string, tooltip: string)
-    {
+    setButtonIcon(icon: string, tooltip: string) {
         this.actionButton.icon = this.getIconSet(icon);
         this.actionButton.label = tooltip;
     }
 
-    getActiveTab(): Firefox.Tab
-    {
+    getActiveTab(): Firefox.Tab {
         // Try to get tab from active widow  (https://bugzilla.mozilla.org/show_bug.cgi?id=942511)
         var window = windows.browserWindows.activeWindow;
-        if (window != null)
-        {
+        if (window != null) {
             return window.tabs.activeTab;
         }
         return tabs.activeTab;
     }
 
-    getIconSet(icon: string): Firefox.IconSet
-    {
+    getIconSet(icon: string): Firefox.IconSet {
         return {
             '16': './' + icon + '16.png',
             '32': './' + icon + '32.png',
             '64': './' + icon + '64.png'
         };
     }
+
+    openPage(url: string) {
+        var window = windows.browserWindows.activeWindow;
+        if (window != null) {
+            var tab = this.getActiveTab();
+            if (tab && tab.url == url) {
+                return;
+            }
+            for (var i = window.tabs.length - 1; i >= 0; i--) {
+                if (window.tabs[i].url == url) {
+                    window.tabs[i].activate();
+                    return;
+                }
+            }
+        }
+        tabs.open(<Firefox.TabOpenOptions>{ url })
+    }
 }
 
 var extension: FirefoxExtension;
 
-export function main()
-{
+export function main() {
     extension = new FirefoxExtension();
 }
 
-export function onUnload()
-{
+export function onUnload() {
     extension.dispose();
 }

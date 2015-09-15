@@ -1,15 +1,12 @@
-﻿declare module Firefox
-{
-    interface ButtonDescriptor
-    {
+﻿declare module Firefox {
+    interface ButtonDescriptor {
         id: string;
         label: string;
         icon: string | IconSet;
         onClick: (state: any) => void;
     }
 
-    interface ActionButton
-    {
+    interface ActionButton {
         click(): void;
         state(target: "tab", state?: any): any;
         state(target: "window", state?: any): any;
@@ -24,13 +21,11 @@
         disabled: boolean;
     }
 
-    interface IconSet
-    {
+    interface IconSet {
         [size: string]: string;
     }
 
-    interface TabOpenOptions
-    {
+    interface TabOpenOptions {
         url: string;
         isPrivate?: boolean;
         inNewWindow?: boolean;
@@ -45,16 +40,14 @@
         onDeactivate?: TabCallback;
     }
 
-    interface Port
-    {
+    interface Port {
         emit(method: string, ...args: any[]): void;
         on(method: string, handler: (...args: any[]) => void): void;
         once(method: string, handler: (...args: any[]) => void): void;
         removeListener(method: string, handler: (...args: any[]) => void): void;
     }
 
-    interface WindowOpenOptions
-    {
+    interface WindowOpenOptions {
         url: string;
         isPrivate?: boolean;
         onOpen?: Function;
@@ -63,8 +56,7 @@
         onDeactivate?: Function;
     }
 
-    interface TabOptions
-    {
+    interface TabOptions {
         contentScriptFile?: string | string[];
         contentScript?: string | string[];
         contentScriptOptions?: any;
@@ -72,16 +64,14 @@
         onError?: Function;
     }
 
-    interface OpenDialogOptions
-    {
+    interface OpenDialogOptions {
         url: string;
         name?: string;
         features?: string;
         args?: any;
     }
 
-    interface PageModOptions
-    {
+    interface PageModOptions {
         include: string | RegExp | string[]| RegExp[];
         exclude?: string | RegExp | string[]| RegExp[];
         contentScriptFile?: string | string[];
@@ -94,13 +84,11 @@
         onAttach?: (worker: Worker) => void;
     }
 
-    interface HiddenFrameOptions
-    {
+    interface HiddenFrameOptions {
         onReady: Function;
     }
 
-    interface Worker
-    {
+    interface Worker {
         postMessage(data: any): void;
         destroy(): void;
         port: Port;
@@ -109,8 +97,7 @@
         on(eventName: string, handler: Function): void;
     }
 
-    interface PageWorkerOptions
-    {
+    interface PageWorkerOptions {
         contentURL?: string;
         allow?: { script: boolean };
         include?: string | RegExp | string[]| RegExp[];
@@ -121,15 +108,13 @@
         onMessage?: Function;
     }
 
-    interface HiddenFrame
-    {
+    interface HiddenFrame {
         element: HTMLFrameElement;
         on(eventName: 'ready', handler: HiddenFrameCallback);
         on(eventName: string, handler: HiddenFrameCallback);
     }
 
-    interface PageMod
-    {
+    interface PageMod {
         destroy();
         include: (string | RegExp)[];
         on(eventName: 'attach', handler: Function);
@@ -137,8 +122,7 @@
         on(eventName: string, handler: Function);
     }
 
-    interface Tab
-    {
+    interface Tab {
         pin();
         unpin();
         close(callback: Function);
@@ -163,8 +147,7 @@
         on(eventName: string, handler: TabCallback);
     }
 
-    interface BrowserWindows extends Array<BrowserWindow>
-    {
+    interface BrowserWindows extends Array<BrowserWindow> {
         activeWindow: BrowserWindow;
         open(options: string | WindowOpenOptions): BrowserWindow;
 
@@ -176,16 +159,14 @@
         on(eventName: string, handler: BrowserWindowCallback);
     }
 
-    interface BrowserWindow
-    {
+    interface BrowserWindow {
         activate();
         close(callback: Function);
         title: string;
         tabs: Tabs;
     }
 
-    interface Tabs
-    {
+    interface Tabs {
         [index: number]: Tab;
         activeTab: Firefox.Tab;
         length: number;
@@ -193,51 +174,43 @@
         on(eventName: string, handler: Firefox.TabCallback): void;
     }
 
-    interface SelfData
-    {
+    interface SelfData {
         load(name: string): string;
         url(name: string): string;
     }
 
-    interface Page
-    {
+    interface Page {
         destroy();
         postMessage(message: Object);
         port: Port;
     }
 
-    interface Modification
-    {
+    interface Modification {
     }
 
-    interface Style extends Modification
-    {
+    interface Style extends Modification {
         source: string[];
         uri: string[];
         type: string;
     }
 
-    interface StyleOptions
-    {
+    interface StyleOptions {
         uri?: string | string[];
         source?: string | string[];
         type?: string;
     }
 
-    interface nsIWindowWatcher
-    {
+    interface nsIWindowWatcher {
         registerNotification(aObserver: nsIObserver);
         unregisterNotification(aObserver: nsIObserver);
     }
 
-    interface nsIPromptService
-    {
+    interface nsIPromptService {
         alert(aParent: Window, aDialogTitle: string, aText: string);
         confirm(aParent: Window, aDialogTitle: string, aText: string): boolean;
     }
 
-    interface nsIAlertsService
-    {
+    interface nsIAlertsService {
         showAlertNotification(
             imageUrl: string,
             title: string,
@@ -250,13 +223,11 @@
             lang?: string)
     }
 
-    interface nsIObserver
-    {
+    interface nsIObserver {
         observe(aSubject: nsISupports, aTopic: string, aData: any);
     }
 
-    interface nsISupports
-    {
+    interface nsISupports {
         QueryInterface<T>(name: T): T;
     }
 
@@ -373,8 +344,34 @@ declare module 'sdk/content/mod' {
     function detach(modification: Firefox.Modification, target: Firefox.Tab): void;
 }
 
-interface Window
-{
+declare module 'sdk/tabs/utils' {
+    function activateTab(tab: Firefox.Tab, window: Firefox.BrowserWindow);
+    function getTabBrowser(window: Firefox.BrowserWindow): Object;
+    function getTabContainer(window: Firefox.BrowserWindow): Object;
+    function getTabs(window?: Firefox.BrowserWindow): Firefox.Tab[];
+    function getActiveTab(window?: Firefox.BrowserWindow): Firefox.Tab;
+    function getOwnerWindow(tab: Firefox.Tab): Firefox.BrowserWindow;
+    function openTab(window, url, options?: {inBackground: boolean, pinned: boolean}): Firefox.Tab;
+    function isTabOpen(tab): boolean;
+    function closeTab(tab: Firefox.Tab);
+    function getURI(tab: Firefox.Tab): string;
+    function getTabBrowserForTab(tab: Firefox.Tab): Object;
+    function getBrowserForTab(tab: Firefox.Tab): ObjectURLOptions;
+    function getTabId(tab: Firefox.Tab): any;
+    function getTabForId(id: any): Firefox.Tab;
+    function getTabTitle(tab: Firefox.Tab): string;
+    function setTabTitle(tab: Firefox.Tab, title: string)
+    function getTabContentWindow(tab: Firefox.Tab): Object;
+    function getAllTabContentWindows(): Object[];
+    function getTabForContentWindow(window: Object);
+    function getTabURL(tab: Firefox.Tab)
+    function setTabURL(tab: Firefox.Tab, url)
+    function getTabContentType(tab: Firefox.Tab)
+    function getSelectedTab(window: Object)
+    function getTabForBrowser(browser: Object)
+}
+
+interface Window {
     port: Firefox.Port;
     postMessage(message: any, targetOrigin?: string, ports?: any): void;
     on(eventName: string, param: any);

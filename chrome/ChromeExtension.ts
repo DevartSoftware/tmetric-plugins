@@ -15,6 +15,8 @@ class ChromeExtension extends ExtensionBase {
 
     checkCloseTimeout: number;
 
+    lastNotificationId: string;
+
     constructor() {
 
         super('https://tt.devart.com/', backgroundPort);
@@ -128,10 +130,16 @@ class ChromeExtension extends ExtensionBase {
     }
 
     showNotification(message: string, title?: string) {
+        if (this.lastNotificationId) {
+            chrome.notifications.clear(this.lastNotificationId, () => { });
+        }
         title = title || 'Devart Time Tracker';
         var type = 'basic';
         var iconUrl = 'images/icon.png';
-        chrome.notifications.create(null, { title, message, type, iconUrl }, null);
+        chrome.notifications.create(
+            null,
+            { title, message, type, iconUrl },
+            id => this.lastNotificationId = id);
     }
 
     showConfirmation(message: string) {
@@ -202,6 +210,24 @@ class ChromeExtension extends ExtensionBase {
             }
         });
         chrome.browserAction.setTitle({ title: tooltip });
+    }
+
+    openPage(url: string) {
+        chrome.windows.getLastFocused(window => {
+            chrome.tabs.query({ windowId: window.id, url: url.split('#')[0] }, tabs => {
+                tabs = (tabs || []).filter(tab => tab.url == url);
+                if (tabs.length > 0) {
+                    if (!tabs.some(tab => tab.active)) {
+                        chrome.tabs.update(tabs[tabs.length - 1].id, { active: true });
+                    }
+                }
+                else {
+                    chrome.windows.getLastFocused(window => {
+                        chrome.tabs.create({ active: true, windowId: window.id, url })
+                    })
+                }
+            });
+        });
     }
 }
 

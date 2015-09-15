@@ -1,8 +1,7 @@
 ﻿/// <reference path="../typings/signalr/signalr" />
 /// <reference path="../typings/firefox/firefox" />
 
-class SignalRConnection
-{
+class SignalRConnection {
     url: string;
 
     hub: HubConnection;
@@ -13,40 +12,31 @@ class SignalRConnection
 
     userProfile: Models.UserProfile;
 
-    constructor()
-    {
-        self.port.once('init',(url: string) =>
-        {
+    constructor() {
+        self.port.once('init', (url: string) => {
             this.url = url;
             this.hub = $.hubConnection(url);
             this.hubProxy = this.hub.createHubProxy('timeTrackerHub');
-            this.hubProxy.on('updateTimer',(accountId: number) =>
-            {
-                if (this.userProfile && accountId != this.userProfile.ActiveAccountId)
-                {
+            this.hubProxy.on('updateTimer', (accountId: number) => {
+                if (this.userProfile && accountId != this.userProfile.ActiveAccountId) {
                     return;
                 }
 
                 var previousProfileId = this.userProfile.UserProfileId;
                 this.getProfile(
-                    () =>
-                    {
-                        if (this.userProfile.UserProfileId != previousProfileId)
-                        {
+                    () => {
+                        if (this.userProfile.UserProfileId != previousProfileId) {
                             this.disconnect();
                             this.connect();
                         }
-                        else
-                        {
+                        else {
                             this.getTimer();
                         }
                     });
             });
 
-            this.hubProxy.on('updateActiveAccount',(accountId: number) =>
-            {
-                if (this.userProfile && accountId != this.userProfile.ActiveAccountId)
-                {
+            this.hubProxy.on('updateActiveAccount', (accountId: number) => {
+                if (this.userProfile && accountId != this.userProfile.ActiveAccountId) {
                     this.disconnect();
                     this.connect();
                 }
@@ -55,65 +45,51 @@ class SignalRConnection
             this.connect();
         });
 
-        self.port.on('disconnect',() => this.disconnect());
+        self.port.on('disconnect', () => this.disconnect());
 
-        self.port.on('connect',() => this.connect());
+        self.port.on('connect', () => this.connect());
 
-        self.port.on('putTimer', timer =>
-        {
-            this.putTimer(timer, result =>
-            {
+        self.port.on('putTimer', timer => {
+            this.putTimer(timer, result => {
                 self.port.emit('putTimerCallback', result);
             });
         });
 
-        self.port.on('postIntegration', identifier =>
-        {
-            this.postIntegration(identifier, result =>
-            {
+        self.port.on('postIntegration', identifier => {
+            this.postIntegration(identifier, result => {
                 self.port.emit('postIntegrationCallback', result);
             });
         });
 
-        self.port.on('getIntegration', identifier =>
-        {
-            this.getIntegration(identifier, result =>
-            {
+        self.port.on('getIntegration', identifier => {
+            this.getIntegration(identifier, result => {
                 self.port.emit('getIntegrationCallback', result);
             });
         });
     }
 
-    connect(done?: () => JQueryPromise<any>, fail?: () => void)
-    {
+    connect(done?: () => JQueryPromise<any>, fail?: () => void) {
         fail = fail || emptyCallback;
 
-        if (this.hubConnected)
-        {
-            if (done)
-            {
+        if (this.hubConnected) {
+            if (done) {
                 done();
             }
             return;
         }
 
-        this.getProfile(() =>
-        {
-            this.hub.start().then(() =>
-            {
+        this.getProfile(() => {
+            this.hub.start().then(() => {
                 this.hubConnected = true;
                 this.hub.disconnected(() => this.disconnect());
                 this.hubProxy.invoke('register', this.userProfile.UserProfileId);
 
-                if (done)
-                {
-                    done().fail(() =>
-                    {
+                if (done) {
+                    done().fail(() => {
                         this.getTimer();
                     });
                 }
-                else
-                {
+                else {
                     this.getTimer();
                 }
             }, fail);
@@ -122,23 +98,18 @@ class SignalRConnection
         function emptyCallback() { }
     }
 
-    disconnect()
-    {
-        if (this.hubConnected)
-        {
+    disconnect() {
+        if (this.hubConnected) {
             this.hubConnected = false;
             self.port.emit('updateTimer', null);
             this.hub.stop(false);
         }
     }
 
-    putTimer(timer: Integrations.WebToolIssueTimer, callback: AjaxCallback<any>)
-    {
+    putTimer(timer: Integrations.WebToolIssueTimer, callback: AjaxCallback<any>) {
         this.connect(
-            () =>
-            {
-                if (!timer.isStarted)
-                {
+            () => {
+                if (!timer.isStarted) {
                     return this.put('api/timer/' + this.userProfile.ActiveAccountId, <Models.Timer>{ IsStarted: false }, callback, callback)
                 }
                 return this.post('api/timer/external', timer, callback, callback)
@@ -146,10 +117,8 @@ class SignalRConnection
             () => this.callFail(callback));
     }
 
-    getIntegration(identifier: Models.IntegratedProjectIdentifier, callback: AjaxCallback<Models.IntegratedProjectStatus>)
-    {
-        if (!this.userProfile || !this.userProfile.ActiveAccountId)
-        {
+    getIntegration(identifier: Models.IntegratedProjectIdentifier, callback: AjaxCallback<Models.IntegratedProjectStatus>) {
+        if (!this.userProfile || !this.userProfile.ActiveAccountId) {
             this.callFail(callback);
             return;
         }
@@ -160,10 +129,8 @@ class SignalRConnection
             callback);
     }
 
-    postIntegration(identifier: Models.IntegratedProjectIdentifier, callback: AjaxCallback<any>)
-    {
-        if (!this.userProfile || !this.userProfile.ActiveAccountId)
-        {
+    postIntegration(identifier: Models.IntegratedProjectIdentifier, callback: AjaxCallback<any>) {
+        if (!this.userProfile || !this.userProfile.ActiveAccountId) {
             this.callFail(callback);
             return;
         }
@@ -175,90 +142,77 @@ class SignalRConnection
             callback);
     }
 
-    getProfile(done: () => void, fail?: () => void)
-    {
+    getProfile(done: () => void, fail?: () => void) {
         this.get<Models.UserProfile>('api/userprofile',
-            result =>
-            {
+            result => {
                 this.userProfile = result.data;
+                self.port.emit('updateProfile', result.data);
                 done();
             },
-            () =>
-            {
+            () => {
                 this.disconnect();
-                if (fail)
-                {
+                if (fail) {
                     fail();
                 }
             });
     }
 
-    getTimer()
-    {
+    getTimer() {
         var requestAccountId = this.userProfile.ActiveAccountId;
 
         this.get<Models.Timer>('api/timer/' + requestAccountId,
-            result =>
-            {
-                if (this.userProfile.ActiveAccountId == requestAccountId)
-                {
+            result => {
+                if (this.userProfile.ActiveAccountId == requestAccountId) {
                     self.port.emit('updateTimer', result.data);
                 }
             },
             () => this.disconnect());
 
-        //var startTime = new Date();
-        //startTime = new Date(startTime.getFullYear(), startTime.getMonth(), startTime.getDate());
-        //var endTime = new Date(startTime.getFullYear(), startTime.getMonth(), startTime.getDate() + 1);
-        //this.get<Models.TimeEntry[]>('/api/timeentries/' + requestAccountId + '/' + this.userProfile.UserProfileId
-        //    + '?startTime=' + startTime.toJSON() + 'endTime=' + startTime.toJSON(),
-        //    result =>
-        //    {
-        //        var timeEntries = result.data;
-        //    },
-        //    () => this.disconnect());
+        var startTime = new Date();
+        startTime = new Date(startTime.getFullYear(), startTime.getMonth(), startTime.getDate());
+        var endTime = new Date(startTime.getFullYear(), startTime.getMonth(), startTime.getDate() + 1);
+
+        this.get<Models.TimeEntry[]>('/api/timeentries/' + requestAccountId + '/' + this.userProfile.UserProfileId
+            + '?startTime=' + startTime.toJSON() + '&endTime=' + endTime.toJSON(),
+            result => {
+                if (this.userProfile.ActiveAccountId == requestAccountId) {
+                    self.port.emit('updateTracker', result.data);
+                }
+            },
+            () => this.disconnect());
     }
 
-    callFail(fail?: AjaxCallback<any>)
-    {
-        if (fail)
-        {
+    callFail(fail?: AjaxCallback<any>) {
+        if (fail) {
             fail(<AjaxResult<any>>{ statusCode: 0 });
         }
     }
 
-    get<T>(url: string, done?: AjaxCallback<T>, fail?: AjaxCallback<T>): JQueryPromise<T>
-    {
+    get<T>(url: string, done?: AjaxCallback<T>, fail?: AjaxCallback<T>): JQueryPromise<T> {
         return this.ajax<T>(url, 'GET', null, done, fail);
     }
 
-    post<T>(url: string, data: T, done?: AjaxCallback<T>, fail?: AjaxCallback<T>): JQueryPromise<T>
-    {
+    post<T>(url: string, data: T, done?: AjaxCallback<T>, fail?: AjaxCallback<T>): JQueryPromise<T> {
         return this.ajax<T>(url, 'POST', data, done, fail);
     }
 
-    put<T>(url: string, data: T, done?: AjaxCallback<T>, fail?: AjaxCallback<T>): JQueryPromise<T>
-    {
+    put<T>(url: string, data: T, done?: AjaxCallback<T>, fail?: AjaxCallback<T>): JQueryPromise<T> {
         return this.ajax<T>(url, 'PUT', data, done, fail);
     }
 
-    ajax<T>(url: string, method: string, postData: T, done?: AjaxCallback<T>, fail?: AjaxCallback<T>): JQueryPromise<T>
-    {
+    ajax<T>(url: string, method: string, postData: T, done?: AjaxCallback<T>, fail?: AjaxCallback<T>): JQueryPromise<T> {
         var settings = <JQueryAjaxSettings>{};
         settings.url = this.url + url;
 
-        if (postData)
-        {
+        if (postData) {
             settings.data = JSON.stringify(postData);
             settings.contentType = "application/json";
         }
 
-        if (method == 'GET' || method == 'POST')
-        {
+        if (method == 'GET' || method == 'POST') {
             settings.type = method;
         }
-        else
-        {
+        else {
             settings.type = 'POST';
             settings.headers = {};
             settings.headers['X-HTTP-Method-Override'] = method;
@@ -266,32 +220,26 @@ class SignalRConnection
 
         var xhr = $.ajax(settings);
 
-        xhr.done((data: T) =>
-        {
+        xhr.done((data: T) => {
             var result = getResult(postData ? null : data);
 
-            if (xhr.status >= 200 && xhr.status < 300)
-            {
-                if (done)
-                {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                if (done) {
                     done(result);
                 }
             }
-            else if (fail)
-            {
+            else if (fail) {
                 fail(result);
             }
         });
 
-        if (fail)
-        {
+        if (fail) {
             xhr.fail(() => fail(getResult(null)));
         }
 
         return xhr;
 
-        function getResult(data: T): AjaxResult<T>
-        {
+        function getResult(data: T): AjaxResult<T> {
             var statusText = xhr.statusText;
             if (statusText == 'error') // jQuery replaces empty status to 'error'
             {
