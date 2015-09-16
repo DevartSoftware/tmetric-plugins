@@ -182,6 +182,7 @@ class FirefoxExtension extends ExtensionBase {
 
         updateCurrentTab();
 
+        // Update hint once per minute
         var updateState = () => timers.setTimeout(() => {
             this.updateState();
             updateState();

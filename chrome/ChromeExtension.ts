@@ -89,6 +89,7 @@ class ChromeExtension extends ExtensionBase {
                 });
             }, 60000);
 
+            // Update hint once per minute
             var updateState = () => setTimeout(() => {
                 this.updateState();
                 updateState();

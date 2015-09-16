@@ -288,18 +288,20 @@ class ExtensionBase {
     private getDuration(timer: Models.Timer): number
     private getDuration(timeEntries: Models.TimeEntry[]): number
     private getDuration(arg: any): any {
-        if (!arg) {
-            return 0;
+        if (arg) {
+            var now = new Date().getTime();
+            if ((<Models.TimeEntry[]>arg).reduce) {
+                return (<Models.TimeEntry[]>arg).reduce((duration, entry) => {
+                    var startTime = Date.parse(entry.StartTime);
+                    var endTime = entry.EndTime ? Date.parse(entry.EndTime) : now;
+                    return duration + now - startTime;
+                }, 0);
+            }
+            else if ((<Models.Timer>arg).IsStarted) {
+                return now - Date.parse((<Models.Timer>arg).StartTime);
+            }
         }
-        var timeEntries = <Models.TimeEntry[]>arg;
-        if (!timeEntries.forEach) {
-            timeEntries = [<Models.TimeEntry>{ StartTime: (<Models.Timer>arg).StartTime, EndTime: undefined }];
-        }
-        return timeEntries.reduce((duration, entry) => {
-            var startTime = Date.parse(entry.StartTime);
-            var endTime = entry.EndTime ? Date.parse(entry.EndTime) : new Date().getTime();
-            return duration + endTime - startTime;
-        }, 0);
+        return 0;
     }
 
     private durationToString(duration: number) {
