@@ -10,7 +10,7 @@ var crx = require('gulp-crx');         // Pack Chrome Extension in the pipeline.
 var fs = require('fs');                // Node.js File System module
 
 gulp.task('default', ['compile', 'pre-package', 'package']);
-gulp.task('compile', ['clean', 'compile:chrome', 'compile:firefox']);
+gulp.task('compile', ['clean', 'compile:chrome', 'compile:firefox', 'compile:tests']);
 gulp.task('pre-package', ['pre-package:chrome', 'pre-package:firefox']);
 gulp.task('package', ['package:chrome', 'package:firefox']);
 
@@ -18,6 +18,7 @@ gulp.task('package', ['package:chrome', 'package:firefox']);
 var outDir = 'dist/';
 var outDirFirefox = outDir + 'firefox/';
 var outDirChrome = outDir + 'chrome/';
+var outDirTests = outDir + 'tests/';
 
 // Specify the location (relative) of the already generated .pem file for the Chrome extension. 
 var pemKey = 'chrome/debug-key.pem';
@@ -119,6 +120,16 @@ gulp.task('package:firefox', ['pre-package:firefox'], function (callback) {
     process.chdir(currentDir)
     callback();
   });
+});
+
+gulp.task('compile:tests', ['clean'], function () {
+  return gulp.src([
+    'interfaces/*.d.ts',
+    'typings/tsd.d.ts',
+    'in-page-scripts/**/*.ts',
+    'specs/*.spec.ts'])
+    .pipe(typescript(compilerOptions))
+    .pipe(gulp.dest(outDirTests));
 });
 
 gulp.task('clean', function () {
