@@ -172,8 +172,8 @@ class ExtensionBase {
                                 timer.projectName = undefined;
                             }
                         }
-                        else if (status.ProjectStatus >= Models.ProjectStatus.Archived) {
-                            notification = 'Cannot assign the task to the archived project \''
+                        else if (status.ProjectStatus != Models.ProjectStatus.Open) {
+                            notification = 'Cannot assign the task to the closed project \''
                             + timer.projectName + '\'.\n\n' + contactAdmin;
 
                             timer.projectName = undefined;
