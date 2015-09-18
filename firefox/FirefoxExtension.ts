@@ -222,6 +222,12 @@ class FirefoxExtension extends ExtensionBase {
     }
 
     showLoginDialog() {
+
+        if (this.loginWindow != null) {
+            this.loginWindow.focus();
+            return;
+        }
+
         if (this.loginWindowPending) {
             return;
         }

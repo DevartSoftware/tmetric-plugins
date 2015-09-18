@@ -170,6 +170,12 @@ class ChromeExtension extends ExtensionBase {
     }
 
     showLoginDialog() {
+
+        if (this.loginWinId) {
+            chrome.windows.update(this.loginWinId, { focused: true });
+            return;
+        }
+
         chrome.windows.getLastFocused(window => {
             if (this.loginWindowPending) {
                 return;
