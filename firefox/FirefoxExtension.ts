@@ -183,11 +183,11 @@ class FirefoxExtension extends ExtensionBase {
         updateCurrentTab();
 
         // Update hint once per minute
-        var updateState = () => timers.setTimeout(() => {
+        var setUpdateTimeout = () => timers.setTimeout(() => {
             this.updateState();
-            updateState();
-        }, 60 - new Date().getSeconds());
-        updateState();
+            setUpdateTimeout();
+        }, (60 - new Date().getSeconds()) * 1000);
+        setUpdateTimeout();
     }
 
     dispose() {
@@ -222,6 +222,12 @@ class FirefoxExtension extends ExtensionBase {
     }
 
     showLoginDialog() {
+
+        if (this.loginWindow != null) {
+            this.loginWindow.focus();
+            return;
+        }
+
         if (this.loginWindowPending) {
             return;
         }

@@ -172,8 +172,8 @@ class ExtensionBase {
                                 timer.projectName = undefined;
                             }
                         }
-                        else if (status.ProjectStatus >= Models.ProjectStatus.Archived) {
-                            notification = 'Cannot assign the task to the archived project \''
+                        else if (status.ProjectStatus != Models.ProjectStatus.Open) {
+                            notification = 'Cannot assign the task to the closed project \''
                             + timer.projectName + '\'.\n\n' + contactAdmin;
 
                             timer.projectName = undefined;
@@ -294,7 +294,7 @@ class ExtensionBase {
                 return (<Models.TimeEntry[]>arg).reduce((duration, entry) => {
                     var startTime = Date.parse(entry.StartTime);
                     var endTime = entry.EndTime ? Date.parse(entry.EndTime) : now;
-                    return duration + now - startTime;
+                    return duration + (endTime - startTime);
                 }, 0);
             }
             else if ((<Models.Timer>arg).IsStarted) {
@@ -305,9 +305,9 @@ class ExtensionBase {
     }
 
     private durationToString(duration: number) {
-        duration = Math.round(duration / 60000);
-        var mins = duration % 60;
+        duration = Math.floor(duration / 60000);
         var s = '' + Math.floor(duration / 60) + ':';
+        var mins = duration % 60;
         if (mins < 10) {
             s += '0';
         }
