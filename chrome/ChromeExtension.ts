@@ -88,13 +88,6 @@ class ChromeExtension extends ExtensionBase {
                     this.cleanUpTabInfo(allUrls);
                 });
             }, 60000);
-
-            // Update hint once per minute
-            var updateState = () => setTimeout(() => {
-                this.updateState();
-                updateState();
-            }, 60 - new Date().getSeconds());
-            updateState();
         });
 
         var updateCurrentTab = (canReset?: boolean) => {
@@ -130,6 +123,13 @@ class ChromeExtension extends ExtensionBase {
         });
 
         updateCurrentTab();
+        
+        // Update hint once per minute
+        var setUpdateTimeout = () => setTimeout(() => {
+            this.updateState();
+            setUpdateTimeout();
+        }, (60 - new Date().getSeconds()) * 1000);
+        setUpdateTimeout();
     }
 
     showError(message: string) {
