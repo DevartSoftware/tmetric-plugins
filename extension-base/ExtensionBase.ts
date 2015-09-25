@@ -173,8 +173,9 @@ class ExtensionBase {
                             }
                         }
                         else if (status.ProjectStatus != Models.ProjectStatus.Open) {
-                            notification = 'Cannot assign the task to the closed project \''
-                            + timer.projectName + '\'.\n\n' + contactAdmin;
+                            notification = 'Cannot assign the task to the '
+                            + (status.ProjectStatus == Models.ProjectStatus.Archived ? 'archived' : 'closed')
+                            + ' project \'' + timer.projectName + '\'.\n\n' + contactAdmin;
 
                             timer.projectName = undefined;
                         }
