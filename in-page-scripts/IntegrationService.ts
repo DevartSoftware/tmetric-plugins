@@ -135,6 +135,7 @@ module Integrations {
                         newLink.textContent = newIssueTimer.isStarted ? 'Start timer' : 'Stop timer';
                         newLink.onclick = function() {
                             sendBackgroundMessage({ action: 'putTimer', data: newIssueTimer });
+                            return false;
                         };
                         integration.render(element, newLink);
                     }
