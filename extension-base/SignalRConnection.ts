@@ -85,9 +85,9 @@ class SignalRConnection {
                 this.hubProxy.invoke('register', this.userProfile.UserProfileId);
 
                 if (done) {
-                    done().fail(() => {
-                        this.getTimer();
-                    });
+                    done()
+                        .then(() => this.getTimer())
+                        .fail(fail);
                 }
                 else {
                     this.getTimer();

@@ -124,7 +124,7 @@ class FirefoxExtension extends ExtensionBase {
 
                     if (closedWindow == this.loginWindow) {
                         this.loginWindow = null;
-                        this.actionOnConnect();
+                        this.connect();
                     }
                 }
             }

@@ -19,13 +19,13 @@ class ExtensionBase {
 
     setButtonIcon(icon: string, tooltip: string) { }
 
-    actionOnConnect: () => void;
-
     sendToTabs: (message: ITabMessage, tabId?: any) => void;
 
     openPage(url: string) { }
 
     buttonState = ButtonState.start;
+
+    private _actionOnConnect: () => void;
 
     private _urlToIssue = <{ [url: string]: Integrations.WebToolIssue }>{};
 
@@ -40,7 +40,14 @@ class ExtensionBase {
     constructor(public url: string, public port: Firefox.Port) {
         // this.url = 'http://localhost:65341/';
 
-        this.port.on('updateTimer', timer => this.setTimer(timer));
+        this.port.on('updateTimer', timer => {
+            this.setTimer(timer);
+            var action = this._actionOnConnect;
+            if (action) {
+                this._actionOnConnect = null;
+                action();
+            }
+        });
         this.port.on('updateTracker', timeEntries => this.setTracker(timeEntries));
         this.port.on('updateProfile', profile => this.setProfile(profile));
         this.port.emit('init', this.url);
@@ -62,6 +69,10 @@ class ExtensionBase {
     setCurrentTab(url: string, title: string) {
         this._currentIssue = this.getTabIssue(url, title);
         this.updateState();
+    }
+
+    connect() {
+        this.port.emit('connect');
     }
 
     cleanUpTabInfo(allUrls: string[]) {
@@ -123,7 +134,12 @@ class ExtensionBase {
                     this.port.emit('disconnect');
 
                     if (showDialog) {
-                        this.actionOnConnect = action;
+                        this._actionOnConnect = () => {
+                            // Do not change task after connect if timer already started
+                            if (!this._timer || !this._timer.IsStarted) {
+                                action();
+                            }
+                        };
                         this.showLoginDialog();
                     }
                     return;

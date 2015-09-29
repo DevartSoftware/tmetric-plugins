@@ -8,6 +8,7 @@ var merge = require('merge-stream');   // Create a stream that emits events from
 var jpmXpi = require('jpm/lib/xpi');   // Packaging utility for  Mozilla Jetpack Addons
 var crx = require('gulp-crx');         // Pack Chrome Extension in the pipeline.
 var fs = require('fs');                // Node.js File System module
+var order = require('gulp-order');     // Allows you to reorder a stream of files
 
 gulp.task('default', ['compile', 'pre-package', 'package']);
 gulp.task('compile', ['clean', 'compile:chrome', 'compile:firefox', 'compile:tests']);
@@ -73,6 +74,9 @@ gulp.task('compile:firefox', ['clean'], function () {
     'extension-base/ExtensionBase.ts',
     'firefox/FirefoxExtension.ts'])
     .pipe(typescript(compilerOptions))
+    .pipe(order([
+    'ExtensionBase.js',
+    'FirefoxExtension.js']))
     .pipe(concat('index.js'))
     .pipe(gulp.dest(outDirFirefox));
 
