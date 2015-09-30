@@ -1,12 +1,9 @@
-﻿if (typeof document !== 'undefined')
-{
+﻿if (typeof document !== 'undefined') {
     /**
      * Retrieves messages from background script.
      */
-    function onBackgroundMessage(message: ITabMessage)
-    {
-        if (message.action == 'setTimer')
-        {
+    function onBackgroundMessage(message: ITabMessage) {
+        if (message.action == 'setTimer') {
             Integrations.IntegrationService.setTimer(message.data);
         }
     }
@@ -16,12 +13,10 @@
      */
     var sendBackgroundMessage: (message: ITabMessage) => void = self.chrome && self.chrome.runtime && self.chrome.runtime.sendMessage;
 
-    if (sendBackgroundMessage)
-    {
+    if (sendBackgroundMessage) {
         chrome.runtime.onMessage.addListener(onBackgroundMessage);
     }
-    else
-    {
+    else {
         sendBackgroundMessage = self.postMessage;
         self.on('message', onBackgroundMessage);
     }
@@ -29,28 +24,26 @@
     var oldUrl = '';
     var oldTitle = '';
     var changeCheckerHandle: number;
+    var mutationObserver: MutationObserver;
 
-    function parsePage()
-    {
+    function parsePage() {
         var url = document.URL;
         var title = document.title;
 
         oldUrl = url;
         oldTitle = title;
 
-        var issues = Integrations.IntegrationService.parsePage();
+        var { issues, observeMutations } = Integrations.IntegrationService.parsePage();
+
         var issue: Integrations.WebToolIssue = null;
-        if (issues)
-        {
+        if (issues) {
             issue = issues[0];
-            if (issues.length > 1)
-            {
+            if (issues.length > 1) {
                 // If page contains several issues, keep project only
                 var projectName = issue.projectName;
                 issue = { issueName: '' };
 
-                if (projectName && issues.every(i => i.projectName == projectName))
-                {
+                if (projectName && issues.every(i => i.projectName == projectName)) {
                     issue.projectName = issue.projectName;
                 }
             }
@@ -60,32 +53,33 @@
 
         try {
             sendBackgroundMessage(message);
+            if (observeMutations && !mutationObserver) {
+                mutationObserver = new MutationObserver(parsePage);
+                mutationObserver.observe(document, { childList: true, subtree: true });
+            }
         }
-        catch (e)
-        {
+        catch (e) {
             // When Chrome extension unintalled/upgraded, content scripts still execute, but cannot
             // access to background script, just stop listening in that case.
+            if (mutationObserver) {
+                mutationObserver.disconnect();
+                mutationObserver = null;
+            }
             window.removeEventListener('focus', startCheckChanges);
-            if (changeCheckerHandle != null)
-            {
+            if (changeCheckerHandle != null) {
                 clearInterval(changeCheckerHandle);
                 changeCheckerHandle = null;
             }
         }
     }
 
-    function startCheckChanges()
-    {
-        if (changeCheckerHandle == null)
-        {
-            changeCheckerHandle = setInterval(() =>
-            {
-                if (document.title != oldTitle || document.URL != oldUrl)
-                {
+    function startCheckChanges() {
+        if (changeCheckerHandle == null) {
+            changeCheckerHandle = setInterval(() => {
+                if (document.title != oldTitle || document.URL != oldUrl) {
                     parsePage();
                 }
-                if (!document.hasFocus())
-                {
+                if (!document.hasFocus()) {
                     clearInterval(changeCheckerHandle);
                     changeCheckerHandle = null;
                 }
@@ -95,8 +89,7 @@
 
     window.addEventListener('focus', startCheckChanges);
 
-    if (document.hasFocus())
-    {
+    if (document.hasFocus()) {
         startCheckChanges();
     }
 

@@ -60,7 +60,7 @@ module Integrations {
             this._integrations.push(integration);
         }
 
-        static parsePage(): WebToolIssue[] {
+        static parsePage(): { issues: WebToolIssue[], observeMutations: boolean } {
             var source = this.getSourceInfo(document.URL);
 
             this._integrations = this._integrations.filter(integration => {
@@ -149,7 +149,7 @@ module Integrations {
                 }
             });
 
-            return issues;
+            return { issues, observeMutations: this._integrations.some(i => i.observeMutations) };
         }
 
         private static removeLink(link: HTMLElement) {
