@@ -16,15 +16,13 @@ module Integrations {
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
             var host = $$('.command-bar .toolbar-split');
             if (host) {
-                linkElement.classList.add('toolbar-trigger');
+                linkElement.classList.add('jira');
                 
                 // <ul class="toolbar-group">
-                var containerUl = document.createElement('ul');
-                containerUl.className = 'toolbar-group';
+                var containerUl = $$.create('ul', 'toolbar-group');
                 
                 // <li class="toolbar-item">
-                var containerLi = document.createElement('li');
-                containerLi.className = 'toolbar-item';
+                var containerLi = $$.create('li', 'toolbar-item');
                 containerLi.appendChild(linkElement);
                 
                 containerUl.appendChild(containerLi);
