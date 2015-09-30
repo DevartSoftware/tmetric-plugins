@@ -21,7 +21,6 @@ describe("Extension correctly parses Jira", () => {
     });
 });
 
-
 var addTemplateToBrowser = (templateName: string) => {
     var pathToTemplate = 'base/specs/templates/' + templateName;
 

@@ -14,7 +14,22 @@ module Integrations {
         }
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
-            // reserved for inlining TT button
+            var host = $$('.command-bar .toolbar-split');
+            if (host) {
+                linkElement.classList.add('toolbar-trigger');
+                
+                // <ul class="toolbar-group">
+                var containerUl = document.createElement('ul');
+                containerUl.className = 'toolbar-group';
+                
+                // <li class="toolbar-item">
+                var containerLi = document.createElement('li');
+                containerLi.className = 'toolbar-item';
+                containerLi.appendChild(linkElement);
+                
+                containerUl.appendChild(containerLi);
+                host.appendChild(containerUl);
+            }
         }
 
         /* This code is suitable for both Jira and Jira Service Desk */
@@ -65,5 +80,6 @@ module Integrations {
             return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType };
         }
     }
+
     IntegrationService.register(new Jira());
 }
