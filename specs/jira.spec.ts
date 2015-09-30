@@ -7,7 +7,7 @@ describe("Extension correctly parses Jira", () => {
         // https://testdevart1.atlassian.net/browse/TT-1
         addTemplateToBrowser('jiraBrowseTask.html');
 
-        var result = Integrations.IntegrationService.parsePage();
+        var result = Integrations.IntegrationService.parsePage().issues;
         expect(result.length).toBe(1);
 
         expect(result[0]).toEqual({

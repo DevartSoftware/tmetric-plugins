@@ -4,6 +4,7 @@ declare module Integrations {
     matchSelector?: string;
     match?: (source: Source) => boolean;
     issueElementSelector?: string;
+    observeMutations?: boolean;
     render(issueElement: HTMLElement, linkElement: HTMLElement);
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue;
   }
