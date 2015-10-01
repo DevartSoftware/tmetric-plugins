@@ -16,7 +16,7 @@ module Integrations {
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
             var host = $$('.command-bar .toolbar-split');
             if (host) {
-                linkElement.classList.add('jira');
+                linkElement.classList.add('toolbar-trigger');
                 
                 // <ul class="toolbar-group">
                 var containerUl = $$.create('ul', 'toolbar-group');
@@ -55,8 +55,6 @@ module Integrations {
 
             var serviceUrl = source.protocol + source.host;
 
-            var serviceType = 'Jira';
-
             // for case when jira installed outside domain root we should append context path to serviceUrl and remove it from issueUrl
             // https://issues.apache.org/jira/
             // ajs-context-path = /jira
@@ -75,7 +73,7 @@ module Integrations {
                 issueUrl = issueUrl.substr(jiraContextPath.length);
             }
 
-            return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType };
+            return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Jira'};
         }
     }
 

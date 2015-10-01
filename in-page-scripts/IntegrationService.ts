@@ -132,11 +132,15 @@ module Integrations {
                         newLink.classList.add(this.affix + (newIssueTimer.isStarted ? '-start' : '-stop'));
                         newLink.setAttribute('data-' + this.affix, JSON.stringify(newIssueTimer));
                         newLink.href = '#';
-                        newLink.textContent = newIssueTimer.isStarted ? 'Start timer' : 'Stop timer';
                         newLink.onclick = function() {
                             sendBackgroundMessage({ action: 'putTimer', data: newIssueTimer });
                             return false;
                         };
+                        newLink.appendChild(document.createElement('img'));
+                        var span = document.createElement('span');
+                        span.textContent = newIssueTimer.isStarted ? 'Start timer' : 'Stop timer';
+                        newLink.appendChild(span);
+
                         integration.render(element, newLink);
                     }
 
