@@ -138,10 +138,6 @@ module Integrations {
                             return false;
                         };
                         integration.render(element, newLink);
-                        if (mutationObserver) {
-                            // clear queue to prevent observer reentering
-                            mutationObserver.takeRecords();
-                        }
                     }
 
                     this.removeLink(oldLink);

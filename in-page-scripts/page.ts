@@ -35,6 +35,11 @@
 
         var { issues, observeMutations } = Integrations.IntegrationService.parsePage();
 
+        if (mutationObserver) {
+            // clear queue to prevent observer reentering
+            mutationObserver.takeRecords();
+        }
+
         var issue: Integrations.WebToolIssue = null;
         if (issues) {
             issue = issues[0];
