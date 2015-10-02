@@ -9,7 +9,6 @@ module Integrations {
             if (jiraAppQuery) {
                 return jiraAppQuery.getAttribute('content') == 'JIRA';
             }
-
             return false;
         }
 
@@ -40,7 +39,7 @@ module Integrations {
             if (!issueName) {
                 return;
             }
-
+            
             var issueId, issueUrl: string;
 
             var issueLink = $$('.issue-link', true);
@@ -50,8 +49,8 @@ module Integrations {
                 issueUrl = issueLink.getAttribute('href');
             }
 
-            // Selector '#project-name-val' is for separate task view (/browse/... URL). Selector '.project-title' is for Service Desk view.
-            var projectName = $$('#project-name-val').textContent || $$('.project-title').textContent;
+            // First selector is for separate task view (/browse/... URL). The second selector is for Service Desk view.
+            var projectName = $$('#project-name-val', true).textContent || $$('.project-title > a', true).textContent;
 
             var serviceUrl = source.protocol + source.host;
 
