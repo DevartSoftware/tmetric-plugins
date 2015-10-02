@@ -23,7 +23,7 @@ module Integrations {
                 // <li class="toolbar-item">
                 var containerLi = $$.create('li', 'toolbar-item');
                 containerLi.appendChild(linkElement);
-                
+
                 containerUl.appendChild(containerLi);
                 host.appendChild(containerUl);
             }
@@ -39,7 +39,7 @@ module Integrations {
             if (!issueName) {
                 return;
             }
-            
+
             var issueId, issueUrl: string;
 
             var issueLink = $$('.issue-link', true);
@@ -72,7 +72,7 @@ module Integrations {
                 issueUrl = issueUrl.substr(jiraContextPath.length);
             }
 
-            return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Jira'};
+            return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Jira' };
         }
     }
 
