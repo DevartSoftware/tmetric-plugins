@@ -9,14 +9,13 @@ module Integrations {
             if (jiraAppQuery) {
                 return jiraAppQuery.getAttribute('content') == 'JIRA';
             }
-
             return false;
         }
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
             var host = $$('.command-bar .toolbar-split');
             if (host) {
-                linkElement.classList.add('jira');
+                linkElement.classList.add('toolbar-trigger');
                 
                 // <ul class="toolbar-group">
                 var containerUl = $$.create('ul', 'toolbar-group');
@@ -24,7 +23,7 @@ module Integrations {
                 // <li class="toolbar-item">
                 var containerLi = $$.create('li', 'toolbar-item');
                 containerLi.appendChild(linkElement);
-                
+
                 containerUl.appendChild(containerLi);
                 host.appendChild(containerUl);
             }
@@ -50,12 +49,10 @@ module Integrations {
                 issueUrl = issueLink.getAttribute('href');
             }
 
-            // Selector '#project-name-val' is for separate task view (/browse/... URL). Selector '.project-title' is for Service Desk view.
-            var projectName = $$('#project-name-val').textContent || $$('.project-title').textContent;
+            // First selector is for separate task view (/browse/... URL). The second selector is for Service Desk view.
+            var projectName = $$('#project-name-val', true).textContent || $$('.project-title > a', true).textContent;
 
             var serviceUrl = source.protocol + source.host;
-
-            var serviceType = 'Jira';
 
             // for case when jira installed outside domain root we should append context path to serviceUrl and remove it from issueUrl
             // https://issues.apache.org/jira/
@@ -75,7 +72,7 @@ module Integrations {
                 issueUrl = issueUrl.substr(jiraContextPath.length);
             }
 
-            return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType };
+            return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Jira' };
         }
     }
 
