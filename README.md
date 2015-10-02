@@ -24,7 +24,7 @@ $ npm -g install gulp-cli
 $ gulp build
 ```
 
-If you are building on Windows you can simply run `_install.bat` and `_build.bat`/
+If you are building on Windows you can simply run `install.bat` and `build.bat`/
 
 Built extensions can be found in `/dist/chrome/` and `/dist/firefox/` folders.
 
@@ -40,4 +40,4 @@ Built extensions can be found in `/dist/chrome/` and `/dist/firefox/` folders.
 Before running tests you need to provide valid login information for all services configured in
 `/test/webdriverio/logins.conf.js`
  
- To run tests simply execute `gulp test` command or run `_test.bat` (only on Windows).
+ To run tests simply execute `gulp test` command or run `test.bat` (only on Windows).
