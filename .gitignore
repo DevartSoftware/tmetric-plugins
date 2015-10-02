@@ -6,3 +6,4 @@ extension-base/*.js
 chrome/*.js
 firefox/*.js
 specs/**/*.js
+test/webdriverio/errorShots/
