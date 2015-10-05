@@ -93,7 +93,7 @@ module Integrations {
                 //      </span>
                 //  </h1>
 
-                projectName = $$('header .header-content .title a:nth-child(2)', true).textContent;
+                projectName = $$('header .header-content .title a:nth-last-child(2)', true).textContent;
                 projectName = projectName.trim();
 
                 serviceType = 'GitLab';
