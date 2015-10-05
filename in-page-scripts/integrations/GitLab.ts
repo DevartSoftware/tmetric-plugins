@@ -21,7 +21,6 @@ module Integrations {
                 linkElement.classList.add('gitlab');
                 linkElement.classList.add('btn');
                 linkElement.classList.add('btn-grouped');
-                linkElement.innerHTML = '<i class="fa"></i>\n' + linkElement.innerHTML;
                 host.insertBefore(linkElement, host.firstElementChild);
             }
         }
