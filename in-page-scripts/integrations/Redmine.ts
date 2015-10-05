@@ -14,7 +14,6 @@ module Integrations {
             var host = $$('#content .contextual');
             if (host)
             {
-                linkElement.classList.add('icon');
                 host.appendChild(linkElement);
             }
         }

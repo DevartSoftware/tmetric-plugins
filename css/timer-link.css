@@ -1,22 +1,18 @@
 ﻿.devart-timer-link {
+    text-decoration: none;
 }
 
-.devart-timer-link-start,
-.devart-timer-link.devart-timer-link-start.gitlab .fa
-{
-    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAclBMVEX///8AvNQAvNQAvNQAvNQAvNQAvNT///8AvNQAvNT///8AvNQAvNQAvNTS7Oqc1tEOwNYAvNT///9/3ekAlogvyNxv2eef5u9f1eTv+/yg2NOv6vKxsbHFxcXP8vdgvrXw+fhkZGQQnY9Qt60fxNlP0eGCh4VeAAAAEXRSTlMAECAwQGCAgJCgoMDQ8Pz9/nzTg64AAACCSURBVHheTczpEoJQDIPRgqCyqcllc9/f/xUN5c7I9y9nOjWVNlB1brFc26viBsYbOXRAYioDOnphPgHOVE8q1AJ8+Aekgn4JmSAsYS34Olyu9EoDjvRObdu+dhT09DRFtAIYIvA+ga1qHMYQBI+3gyUFlEAJprZVAz1Ve0GspLf5AbNVDyjzPBd7AAAAAElFTkSuQmCC') /*icons/start16.png*/
-    /*start16.png*/ 0 0 no-repeat;
+.devart-timer-link > img {
+    vertical-align:middle;
+    margin-right: 3px;
 }
 
-.devart-timer-link-stop,
-.devart-timer-link.devart-timer-link-stop.gitlab .fa
-{
-    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAZlBMVEX///8AvNQAvNQAvNQAvNQAvNQAvNT///8AvNT///8AvNQAvNQAvNQAvNT/vLwOwNb+4OEAvNT/UlL///9/3ekvyNzP8vfv+/z/fX0fxNlv2eef5u/f9/qxsbHFxcX/XV3/v79kZGTn/AwKAAAAEXRSTlMAECBAUGCAgKCgsMDQ8P3+/kG789kAAACESURBVHhePcyLDsIgDIXhOjfdBNTTsrvX939J6YnhTyD0S4p4EaXUN8LkEMCQ/nPEus82bUBHCICxacSR+6NPX7+AVgTYK6zoHeYKG4KDVchIDpO/ny9jgyRkYx9Vfd9NetweBNVlUTVpgPEPPCJyKpRzhVKLkikjSHeJ4Kd6JbDB2PkHwdQPBNLZINoAAAAASUVORK5CYII=') /*icons/stop16.png*/
-    /*stop16.png*/ 0 0 no-repeat;
+.devart-timer-link-start > img {
+    content:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAclBMVEX///8AvNQAvNQAvNQAvNQAvNQAvNT///8AvNQAvNT///8AvNQAvNQAvNTS7Oqc1tEOwNYAvNT///9/3ekAlogvyNxv2eef5u9f1eTv+/yg2NOv6vKxsbHFxcXP8vdgvrXw+fhkZGQQnY9Qt60fxNlP0eGCh4VeAAAAEXRSTlMAECAwQGCAgJCgoMDQ8Pz9/nzTg64AAACCSURBVHheTczpEoJQDIPRgqCyqcllc9/f/xUN5c7I9y9nOjWVNlB1brFc26viBsYbOXRAYioDOnphPgHOVE8q1AJ8+Aekgn4JmSAsYS34Olyu9EoDjvRObdu+dhT09DRFtAIYIvA+ga1qHMYQBI+3gyUFlEAJprZVAz1Ve0GspLf5AbNVDyjzPBd7AAAAAElFTkSuQmCC');
 }
 
-.devart-timer-link.jira {
-    padding-left: 20px;
+.devart-timer-link-stop > img {
+    content:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAZlBMVEX///8AvNQAvNQAvNQAvNQAvNQAvNT///8AvNT///8AvNQAvNQAvNQAvNT/vLwOwNb+4OEAvNT/UlL///9/3ekvyNzP8vfv+/z/fX0fxNlv2eef5u/f9/qxsbHFxcX/XV3/v79kZGTn/AwKAAAAEXRSTlMAECBAUGCAgKCgsMDQ8P3+/kG789kAAACESURBVHhePcyLDsIgDIXhOjfdBNTTsrvX939J6YnhTyD0S4p4EaXUN8LkEMCQ/nPEus82bUBHCICxacSR+6NPX7+AVgTYK6zoHeYKG4KDVchIDpO/ny9jgyRkYx9Vfd9NetweBNVlUTVpgPEPPCJyKpRzhVKLkikjSHeJ4Kd6JbDB2PkHwdQPBNLZINoAAAAASUVORK5CYII=');
 }
 
 .devart-timer-link.gitlab .fa {

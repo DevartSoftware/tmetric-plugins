@@ -1,3 +1,3 @@
 @echo off
 cd /d %~dp0
-call gulp build
+call gulp test
