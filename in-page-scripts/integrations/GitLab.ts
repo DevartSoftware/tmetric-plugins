@@ -5,10 +5,15 @@
 module Integrations {
     class GitLab implements WebToolIntegration {
 
+        matchUrl = [
+            '*://*/issues/*',
+            '*://*/merge_requests/*'
+        ];
+
         match(source: Source): boolean {
             var descriptionMeta = $$('meta[name=description]');
             if (descriptionMeta) {
-                return descriptionMeta.getAttribute('content') == 'GitLab Enterprise Edition';
+                return descriptionMeta.getAttribute('content').indexOf('GitLab') > -1;
             }
             return false;
         }
