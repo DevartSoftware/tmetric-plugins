@@ -7,7 +7,9 @@ module Integrations {
     export class IntegrationService {
         static affix = 'devart-timer-link';
 
-        private static _integrations = <WebToolIntegration[]>[];
+        private static _allIntegrations = <WebToolIntegration[]>[];
+
+        private static _possibleIntegrations: WebToolIntegration[];
 
         private static _escapedChars = '-\/\\^$+?.()|[\]{}';
 
@@ -57,13 +59,17 @@ module Integrations {
         }
 
         static register(integration: WebToolIntegration) {
-            this._integrations.push(integration);
+            this._allIntegrations.push(integration);
         }
 
-        static parsePage(): { issues: WebToolIssue[], observeMutations: boolean } {
+        static parsePage(checkAllIntegrations: boolean): { issues: WebToolIssue[], observeMutations: boolean } {
             var source = this.getSourceInfo(document.URL);
 
-            this._integrations = this._integrations.filter(integration => {
+            if (!this._possibleIntegrations || checkAllIntegrations) {
+                this._possibleIntegrations = this._allIntegrations;
+            }
+
+            this._possibleIntegrations = this._possibleIntegrations.filter(integration => {
                 if (integration.matchUrl) {
                     var urls: string[];
                     if ((<string[]>integration.matchUrl) instanceof Array) {
@@ -89,7 +95,7 @@ module Integrations {
             });
             var issues = [];
 
-            this._integrations.some(integration => {
+            this._possibleIntegrations.some(integration => {
                 var elements: HTMLElement[];
                 if (integration.issueElementSelector) {
                     elements = $$.all(integration.issueElementSelector);
@@ -148,12 +154,12 @@ module Integrations {
                 });
 
                 if (issues.length) {
-                    this._integrations = [integration];
+                    this._possibleIntegrations = [integration];
                     return true;
                 }
             });
 
-            return { issues, observeMutations: this._integrations.some(i => i.observeMutations) };
+            return { issues, observeMutations: this._possibleIntegrations.some(i => i.observeMutations) };
         }
 
         private static removeLink(link: HTMLElement) {
@@ -185,7 +191,7 @@ module Integrations {
                     return true;
                 }
             })) {
-                this.parsePage();
+                this.parsePage(false);
             }
         }
 

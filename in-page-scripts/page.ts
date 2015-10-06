@@ -30,10 +30,12 @@
         var url = document.URL;
         var title = document.title;
 
+        var checkAllIntegrations = url != oldUrl;
+
         oldUrl = url;
         oldTitle = title;
 
-        var { issues, observeMutations } = Integrations.IntegrationService.parsePage();
+        var { issues, observeMutations } = Integrations.IntegrationService.parsePage(checkAllIntegrations);
 
         if (mutationObserver) {
             // clear queue to prevent observer reentering
