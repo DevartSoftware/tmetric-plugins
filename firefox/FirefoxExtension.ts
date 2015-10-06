@@ -87,6 +87,7 @@ class FirefoxExtension extends ExtensionBase {
         var contentScriptFile = [
             './utils.js',
             './IntegrationService.js',
+            './GitLab.js',
             './Redmine.js',
             './Jira.js',
             './JiraAgile.js',
@@ -124,7 +125,7 @@ class FirefoxExtension extends ExtensionBase {
 
                     if (closedWindow == this.loginWindow) {
                         this.loginWindow = null;
-                        this.actionOnConnect();
+                        this.connect();
                     }
                 }
             }

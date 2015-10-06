@@ -3,8 +3,10 @@
 /// <reference path="utils.ts" />
 /// <reference path="page.ts" />
 
-module Integrations {   
+module Integrations {
     export class IntegrationService {
+        static affix = 'devart-timer-link';
+
         private static _integrations = <WebToolIntegration[]>[];
 
         private static _escapedChars = '-\/\\^$+?.()|[\]{}';
@@ -13,9 +15,7 @@ module Integrations {
 
         private static _escapeAndKeepAsterisksRegExp = new RegExp('[' + IntegrationService._escapedChars + ']', 'g');
 
-        private static _affix = 'devart-timer-link';
-
-        static _timer: Models.Timer;
+        private static _timer: Models.Timer;
 
         private static getSourceInfo(fullUrl: string): Source {
             // fullUrl:  http://rm.devart.local/redmine/issues/58480?tab=tabtime_time#tag
@@ -60,7 +60,7 @@ module Integrations {
             this._integrations.push(integration);
         }
 
-        static parsePage(): WebToolIssue[] {
+        static parsePage(): { issues: WebToolIssue[], observeMutations: boolean } {
             var source = this.getSourceInfo(document.URL);
 
             this._integrations = this._integrations.filter(integration => {
@@ -92,10 +92,10 @@ module Integrations {
             this._integrations.some(integration => {
                 var elements: HTMLElement[];
                 if (integration.issueElementSelector) {
-                    elements = $$all(integration.issueElementSelector);
+                    elements = $$.all(integration.issueElementSelector);
                 }
                 else if (integration.matchSelector) {
-                    elements = $$all(integration.matchSelector);
+                    elements = $$.all(integration.matchSelector);
                 }
                 else {
                     elements = [null];
@@ -103,7 +103,7 @@ module Integrations {
 
                 elements.forEach(element => {
                     var oldLink: HTMLElement;
-                    oldLink = $$('a.' + this._affix, element);
+                    oldLink = $$('a.' + this.affix, element);
 
                     var newIssue = integration.getIssue(element, source);
                     if (newIssue) {
@@ -117,7 +117,7 @@ module Integrations {
                         }
 
                         if (oldLink) {
-                            var oldIssueTimer = <WebToolIssueTimer>JSON.parse(oldLink.getAttribute('data-' + this._affix));
+                            var oldIssueTimer = <WebToolIssueTimer>JSON.parse(oldLink.getAttribute('data-' + this.affix));
                         }
 
                         if (this.isSameIssue(oldIssueTimer, newIssueTimer) &&
@@ -128,21 +128,23 @@ module Integrations {
 
                         // Create new timer link
                         var newLink = document.createElement('a');
-                        newLink.classList.add(this._affix);
-                        newLink.classList.add(this._affix + (newIssueTimer.isStarted ? '-start' : '-stop'));
-                        newLink.setAttribute('data-' + this._affix, JSON.stringify(newIssueTimer));
+                        newLink.classList.add(this.affix);
+                        newLink.classList.add(this.affix + (newIssueTimer.isStarted ? '-start' : '-stop'));
+                        newLink.setAttribute('data-' + this.affix, JSON.stringify(newIssueTimer));
                         newLink.href = '#';
-                        newLink.textContent = newIssueTimer.isStarted ? 'Start timer' : 'Stop timer';
                         newLink.onclick = function() {
                             sendBackgroundMessage({ action: 'putTimer', data: newIssueTimer });
                             return false;
                         };
+                        newLink.appendChild(document.createElement('img'));
+                        var span = document.createElement('span');
+                        span.textContent = newIssueTimer.isStarted ? 'Start timer' : 'Stop timer';
+                        newLink.appendChild(span);
+
                         integration.render(element, newLink);
                     }
 
-                    if (oldLink) {
-                        oldLink.parentNode.removeChild(oldLink);
-                    }
+                    this.removeLink(oldLink);
                 });
 
                 if (issues.length) {
@@ -151,7 +153,25 @@ module Integrations {
                 }
             });
 
-            return issues;
+            return { issues, observeMutations: this._integrations.some(i => i.observeMutations) };
+        }
+
+        private static removeLink(link: HTMLElement) {
+            if (!link) {
+                return;
+            }
+            var content = link;
+            var container = link.parentElement;
+
+            while (container && container.classList
+                && container.classList.contains(this.affix + '-' + container.tagName.toLowerCase())) {
+                content = container;
+                container = container.parentElement;
+            }
+
+            if (container) {
+                container.removeChild(content);
+            }
         }
 
         static setTimer(timer: Models.Timer) {
@@ -159,8 +179,8 @@ module Integrations {
 
             // Find 'Stop' link or 'Start' link associated with current timer.
             // If it is found we should refresh links on a page.
-            if ($$all('a.' + this._affix).some(link => {
-                var linkTimer = <WebToolIssueTimer>JSON.parse(link.getAttribute('data-' + this._affix));
+            if ($$.all('a.' + this.affix).some(link => {
+                var linkTimer = <WebToolIssueTimer>JSON.parse(link.getAttribute('data-' + this.affix));
                 if (!linkTimer.isStarted || this.isIssueStarted(linkTimer)) {
                     return true;
                 }
@@ -170,9 +190,7 @@ module Integrations {
         }
 
         static clearPage() {
-            $$all('a.devart-timer-link').forEach(a => {
-                a.parentNode.removeChild(a);
-            });
+            $$.all('a.devart-timer-link').forEach(a => this.removeLink(a));
         }
 
         static isSameIssue(oldIssue: Integrations.WebToolIssue, newIssue: Integrations.WebToolIssue) {
@@ -184,11 +202,10 @@ module Integrations {
                 return url;
             }
 
-            function normalizeName(issue: WebToolIssue)
-            {
+            function normalizeName(issue: WebToolIssue) {
                 return (issue.issueName || '').trim();
             }
-    
+
             return oldIssue &&
                 oldIssue.issueId == newIssue.issueId &&
                 normalizeName(oldIssue) == normalizeName(newIssue) &&

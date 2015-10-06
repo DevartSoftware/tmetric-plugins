@@ -7,17 +7,25 @@
     "url": "https://github.com/DevartSoftware/tt-plugins.git"
   },
   "devDependencies": {
-    "del": "^2.0.1",
+    "deepmerge": "^0.2.10",
+    "del": "^2.0.2",
     "gulp": "^3.9.0",
     "gulp-concat": "^2.6.0",
     "gulp-crx": "git+https://github.com/PavelVanecek/gulp-crx.git",
     "gulp-flatten": "^0.2.0",
+    "gulp-order": "^1.1.1",
     "gulp-rename": "^1.2.2",
     "gulp-tsc": "^1.1.1",
+    "gulp-webdriver": "^1.0.1",
+    "gulp-cli": "^0.3.0",
+    "jasmine": "^2.3.2",
     "jpm": "^1.0.1",
     "jquery": "^2.1.4",
     "merge-stream": "^1.0.0",
+    "mkdirp": "^0.5.1",
     "ms-signalr-client": "2.2.2",
-    "tsc": "^1.20150623.0"
+    "selenium-standalone": "^4.6.3",
+    "typescript": "1.5",
+    "webdriverio": "^3.2.4"
   }
 }

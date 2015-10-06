@@ -1,6 +1,11 @@
-﻿function $$(selector: string, element?: NodeSelector, returnEmptyObject?: boolean): HTMLElement
-function $$(selector: string, returnEmptyObject?: boolean, element?: NodeSelector): HTMLElement
-function $$(selector: string, param1?: any, param2?: any): HTMLElement
+﻿interface Utils {
+    (selector: string, element?: NodeSelector, returnEmptyObject?: boolean): HTMLElement;
+    (selector: string, returnEmptyObject?: boolean, element?: NodeSelector): HTMLElement;
+    create(tagName: string, className?: string): HTMLElement;
+    all(selector: string, element?: NodeSelector): HTMLElement[];
+}
+
+var $$ = <Utils>function(selector: string, param1?: any, param2?: any): HTMLElement
 {
     var element = <NodeSelector>param1;
     if (!element || !element.querySelector)
@@ -24,7 +29,16 @@ function $$(selector: string, param1?: any, param2?: any): HTMLElement
     }
 }
 
-function $$all(selector: string, element?: NodeSelector): HTMLElement[]
+$$.create = function(tagName, className) {
+    var element = document.createElement(tagName);
+    element.classList.add(Integrations.IntegrationService.affix + '-' + tagName.toLowerCase());
+    if (className) {
+        element.classList.add(className);
+    }
+    return element;
+}
+
+$$.all = function(selector, element?): HTMLElement[]
 {
     element = element || document;
     var nodeList = element.querySelectorAll(selector);

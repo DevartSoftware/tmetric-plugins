@@ -74,7 +74,7 @@ class ChromeExtension extends ExtensionBase {
             if (tabId == this.loginTabId) {
                 this.loginTabId = null;
                 this.loginWinId = null;
-                this.actionOnConnect();
+                this.connect();
             }
 
             if (this.checkCloseTimeout) {
