@@ -7,4 +7,4 @@ chrome/*.js
 firefox/*.js
 specs/**/*.js
 test/webdriverio/errorShots/
-css/timer-link.css
+css/*.css
