@@ -8,9 +8,10 @@ var jpmXpi = require('jpm/lib/xpi');           // Packaging utility for  Mozilla
 var selenium = require('selenium-standalone'); // Installs a selenium-standalone command line to install and start a standalone selenium server
 var webdriverio = require('webdriverio');      // A nodejs bindings implementation for selenium 2.0/webdriver
 var webdriver = require('gulp-webdriver');     // Runs selenium tests with the WebdriverIO testrunner
+var less = require('gulp-less');               // A LESS plugin for Gulp
 
 gulp.task('build', ['compile', 'pre-package', 'package']);
-gulp.task('compile', ['clean', 'compile:chrome', 'compile:firefox', 'compile:tests']);
+gulp.task('compile', ['clean', 'compile:chrome', 'compile:firefox', 'compile:css', 'compile:tests']);
 gulp.task('pre-package', ['pre-package:chrome', 'pre-package:firefox']);
 gulp.task('package', ['package:chrome', 'package:firefox']);
 
@@ -129,13 +130,20 @@ gulp.task('package:firefox', ['pre-package:firefox'], function (callback) {
   });
 });
 
+gulp.task('compile:css', ['clean'], function () {
+  return gulp.src('css/less/*.less')
+    .pipe(less())
+    .pipe(gulp.dest('css'));
+});
+
 gulp.task('clean', function () {
   return del([
     outDir + '**', // remove all children and the parent.
     'extension-base/*.js',
     'chrome/*.js',
     'firefox/*.js',
-    './**/*.map'
+    './**/*.map',
+    'css/*.css'
   ]);
 });
 
