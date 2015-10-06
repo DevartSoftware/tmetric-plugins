@@ -10,10 +10,11 @@ browser.addCommand("login", function(serviceName) {
     .setValue(service.login.usernameField, service.login.username)
     .setValue(service.login.passwordField, service.login.password)
     .click(service.login.submitButton)
+    .pause(1000)
     .url(function (err, res) {
       if (res.value.toUpperCase() == fullUrl) {
         // if we are on the same page, this means the login operation failed
         return new Error('Cannot login to ' + serviceName);
       }
     });
-});
+}); 
