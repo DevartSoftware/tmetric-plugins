@@ -49,7 +49,7 @@ module Integrations {
                 issueId = '#' + issueId;
 
                 // <h2 class="issue-title">IssueName</h2>
-                issueName = $$('.issue-title').textContent;
+                issueName = $$('.issue-title', true).textContent;
                 if (!issueName) {
                     return;
                 }
@@ -63,8 +63,7 @@ module Integrations {
                 //      </span>
                 //  </h1>
 
-                projectName = $$('.title a:nth-last-child(2)').textContent;
-                projectName = projectName.trim();
+                projectName = $$('.title a:nth-last-child(2)', true).textContent;
 
                 serviceType = 'GitLab';
 
