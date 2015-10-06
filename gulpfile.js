@@ -10,7 +10,7 @@ var webdriverio = require('webdriverio');      // A nodejs bindings implementati
 var webdriver = require('gulp-webdriver');     // Runs selenium tests with the WebdriverIO testrunner
 
 gulp.task('build', ['compile', 'pre-package', 'package']);
-gulp.task('compile', ['clean', 'compile:chrome', 'compile:firefox', 'compile:tests']);
+gulp.task('compile', ['clean', 'compile:chrome', 'compile:firefox']);
 gulp.task('pre-package', ['pre-package:chrome', 'pre-package:firefox']);
 gulp.task('package', ['package:chrome', 'package:firefox']);
 
