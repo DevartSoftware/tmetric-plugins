@@ -13,6 +13,7 @@
     "gulp-concat": "^2.6.0",
     "gulp-crx": "git+https://github.com/PavelVanecek/gulp-crx.git",
     "gulp-flatten": "^0.2.0",
+    "gulp-less": "^3.0.3",
     "gulp-order": "^1.1.1",
     "gulp-rename": "^1.2.2",
     "gulp-tsc": "^1.1.1",
