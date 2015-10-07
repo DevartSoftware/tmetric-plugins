@@ -49,7 +49,7 @@ describe("Jira integration spec", function () {
     if (setupError) {
       return fail(setupError);
     }
-    
+
     var taskName, projectName, href;
 
     return browser
@@ -75,5 +75,29 @@ describe("Jira integration spec", function () {
       .getAttribute('.timer-active a.flex-item-no-shrink', 'href').then(function (text) {
         expect(text).toBe(href);
       })
+  });
+
+  it("can stop tracking time on a task from Atlassian's DEMO project", function () {
+    if (setupError) {
+      return fail(setupError);
+    }
+
+    return browser
+      .waitForExist('.devart-timer-link')
+      .isExisting('.devart-timer-link-start')
+      .then(function (isExist) {
+        if (isExist) {
+          return browser
+            .click('.devart-timer-link-start')
+            .waitForExist('.devart-timer-link-stop');
+        }
+      })
+      .click('.devart-timer-link-stop')
+      .url('/')
+      .waitForVisible('.page-actions')
+      .isVisible('#btn-stop')
+      .then(function(isVisible){
+        expect(isVisible).toBeFalsy();
+      });
   });
 }); 
