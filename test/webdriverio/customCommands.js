@@ -1,16 +1,20 @@
 var services = require('./services.conf');
 
-browser.addCommand("login", function(serviceName) {
+browser.addCommand("login", function (serviceName) {
   var service = services[serviceName];
   var fullUrl;
   return this.url(service.login.url)
     .url(function (err, res) {
-      fullUrl = res.value.toUpperCase(); 
+      fullUrl = res.value.toUpperCase();
     })
     .setValue(service.login.usernameField, service.login.username)
     .setValue(service.login.passwordField, service.login.password)
     .click(service.login.submitButton)
-    .pause(1000)
+    .waitUntil(function () {
+      return browser.url().then(function (res) {
+        return res && res.value && res.value.toUpperCase() != fullUrl
+      });
+    }, 5000)
     .url(function (err, res) {
       if (res.value.toUpperCase() == fullUrl) {
         // if we are on the same page, this means the login operation failed
