@@ -4,12 +4,14 @@ describe("Jira integration spec", function () {
   beforeAll(function (done) {
     browser
       .login("TimeTracker")
-      .waitForExist('.page-actions:not(.ng-hide)')
-      .then(function () {
-        // stop an active task if needed 
-        if (browser.isExisting('#btn-stop:not(.ng-hide)')) {
+      .waitForVisible('.page-actions')
+      .isVisible('#btn-stop')
+      .then(function (isVisible) {
+        // stop an active task if needed
+        if (isVisible) {
           return browser.click('#btn-stop');
-      }})
+        }
+      })
       .login("Jira").then(function () {
         // all logins are successful
         done();
@@ -33,7 +35,7 @@ describe("Jira integration spec", function () {
           browser.click('#create_link')
             .waitForExist('#create-issue-dialog #summary')
             .setValue('#summary', 'Some test task')
-            .click('.aui-button .aui-button-primary')
+            .click('#create-issue-submit')
             .then(done);
         }
       }, function (error) {
@@ -73,6 +75,5 @@ describe("Jira integration spec", function () {
       .getAttribute('.timer-active a.flex-item-no-shrink', 'href').then(function (text) {
         expect(text).toBe(href);
       })
-      .click('#btn-stop');
   });
 }); 
