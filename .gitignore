@@ -7,3 +7,4 @@ chrome/*.js
 firefox/*.js
 specs/**/*.js
 test/webdriverio/errorShots/
+css/*.css

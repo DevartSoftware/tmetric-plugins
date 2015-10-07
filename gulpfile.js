@@ -8,9 +8,10 @@ var jpmXpi = require('jpm/lib/xpi');           // Packaging utility for  Mozilla
 var selenium = require('selenium-standalone'); // Installs a selenium-standalone command line to install and start a standalone selenium server
 var webdriverio = require('webdriverio');      // A nodejs bindings implementation for selenium 2.0/webdriver
 var webdriver = require('gulp-webdriver');     // Runs selenium tests with the WebdriverIO testrunner
+var less = require('gulp-less');               // A LESS plugin for Gulp
 
 gulp.task('build', ['compile', 'pre-package', 'package']);
-gulp.task('compile', ['clean', 'compile:chrome', 'compile:firefox']);
+gulp.task('compile', ['clean', 'compile:chrome', 'compile:firefox', 'compile:css']);
 gulp.task('pre-package', ['pre-package:chrome', 'pre-package:firefox']);
 gulp.task('package', ['package:chrome', 'package:firefox']);
 
@@ -41,14 +42,14 @@ gulp.task('compile:chrome', ['clean'], function () {
     .pipe(gulp.dest(outDirChrome));
 });
 
-gulp.task('pre-package:chrome', ['compile:chrome'], function () {
+gulp.task('pre-package:chrome', ['compile:chrome', 'compile:css'], function () {
   // Gulp maintains directory structure only for globs.
   // See discussion here https://github.com/gulpjs/gulp/issues/151
   return gulp.src([
     'manifest.json',
     '**/node_modules/jquery/dist/jquery.min.js',
     '**/node_modules/ms-signalr-client/jquery.signalr*.min.js',
-    '**/css/*',
+    '**/css/*.css',
     '**/images/*.png',
     '**/images/chrome/*.png'
   ])
@@ -94,7 +95,7 @@ gulp.task('compile:firefox', ['clean'], function () {
   return merge(core, data);
 });
 
-gulp.task('pre-package:firefox', ['compile:firefox'], function () {
+gulp.task('pre-package:firefox', ['compile:firefox', 'compile:css'], function () {
   var rename = require('gulp-rename'); // Simple file renaming methods.
   var signalR = gulp.src('node_modules/ms-signalr-client/jquery.signalr*.min.js')
     .pipe(rename('jquery.signalr.min.js'))
@@ -102,7 +103,7 @@ gulp.task('pre-package:firefox', ['compile:firefox'], function () {
 
   var dataFiles = gulp.src([
     'node_modules/jquery/dist/jquery.min.js',
-    'css/*',
+    'css/*.css',
     'images/*',
     'images/firefox/*'
   ])
@@ -129,13 +130,20 @@ gulp.task('package:firefox', ['pre-package:firefox'], function (callback) {
   });
 });
 
+gulp.task('compile:css', ['clean'], function () {
+  return gulp.src('css/*.less')
+    .pipe(less())
+    .pipe(gulp.dest('css'));
+});
+
 gulp.task('clean', function () {
   return del([
     outDir + '**', // remove all children and the parent.
     'extension-base/*.js',
     'chrome/*.js',
     'firefox/*.js',
-    './**/*.map'
+    './**/*.map',
+    'css/*.css'
   ]);
 });
 
