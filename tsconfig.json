@@ -3,13 +3,15 @@
         "target": "ES5",
         "module": "commonjs",
         "sourceMap": true,
-		"noEmitOnError": true
+		"noEmitOnError": true,
+        "removeComments": true
     },
 	"files": [
 		"interfaces/models.d.ts",
 		"interfaces/integrations.d.ts",
 		"interfaces/browser.d.ts",
 		"typings/tsd.d.ts",
+		"extension-base/constants.ts",
 		"extension-base/HttpStatusCode.d.ts",
 		"extension-base/ExtensionBase.ts",
 		"extension-base/SignalRConnection.ts",
@@ -17,7 +19,7 @@
 		"chrome/shamPort.ts",
 		"chrome/ChromeExtension.ts",
 		"in-page-scripts/IntegrationService.ts",
-		"in-page-scripts/integrations/GitLab.ts",
+   	    "in-page-scripts/integrations/GitLab.ts",
 		"in-page-scripts/integrations/Redmine.ts",
 		"in-page-scripts/integrations/Jira.ts",
 		"in-page-scripts/integrations/JiraAgile.ts",
