@@ -2,6 +2,7 @@
 Extensions for Google and Firefox browsers, that integrate Devart's Time Tracker with popular issue tracking tools.
 
 Supported systems:
+ - [GitLab](https://gitlab.com/)
  - [Jira](https://www.atlassian.com/software/jira) (including Jira Agile).
  - [Jira Service Desk](https://www.atlassian.com/software/jira/service-desk)
  - [Redmine](http://www.redmine.org/)

@@ -43,6 +43,7 @@
             "js": [
                 "in-page-scripts/utils.js",
                 "in-page-scripts/IntegrationService.js",
+                "in-page-scripts/integrations/GitLab.js",
                 "in-page-scripts/integrations/Redmine.js",
                 "in-page-scripts/integrations/Jira.js",
                 "in-page-scripts/integrations/JiraAgile.js",
