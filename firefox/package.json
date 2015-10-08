@@ -17,19 +17,8 @@
   "permissions": {
     "cross-domain-content": [
       "http://localhost:65341/",
-      "http://tt.devart.local/",
-      "https://tt.devart.local/",
       "https://tt.devart.com/",
       "https://alm-build/"
     ]
-  },
-  "preferences": [
-    {
-      "name": "server",
-      "title": "Time Tracker server URL",
-      "type": "string",
-      "value": "https://tt.devart.com/",
-      "hidden": true
-    }
-  ]
+  }
 }

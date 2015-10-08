@@ -37,9 +37,7 @@ class ExtensionBase {
 
     private _currentIssue: Integrations.WebToolIssue;
 
-    constructor(public url: string, public port: Firefox.Port) {
-        // this.url = 'http://localhost:65341/';
-
+    constructor(public port: Firefox.Port) {
         this.port.on('updateTimer', timer => {
             this.setTimer(timer);
             var action = this._actionOnConnect;
@@ -50,7 +48,7 @@ class ExtensionBase {
         });
         this.port.on('updateTracker', timeEntries => this.setTracker(timeEntries));
         this.port.on('updateProfile', profile => this.setProfile(profile));
-        this.port.emit('init', this.url);
+        this.port.emit('init', trackerServiceUrl);
     }
 
     /** Handles page messages (from page.js) */
@@ -112,7 +110,7 @@ class ExtensionBase {
         var action = (showDialog?: boolean, dontCreateIntegration?: boolean) => {
 
             if (this.buttonState == ButtonState.fixtimer) {
-                var url = this.url;
+                var url = trackerServiceUrl;
                 if (this._userProfile && this._userProfile.ActiveAccountId) {
                     url += '#/tracker/' + this._userProfile.ActiveAccountId + '/';
                 }

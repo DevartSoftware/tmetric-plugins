@@ -1,4 +1,5 @@
 /// <reference path="../typings/firefox/firefox" />
+/// <reference path="../extension-base/constants" />
 /// <reference path="../extension-base/ExtensionBase" />
 
 import buttons = require('sdk/ui/button/action');
@@ -35,7 +36,6 @@ class FirefoxExtension extends ExtensionBase {
 
     constructor() {
         super(
-            prefs.prefs['server'],
             pageWorker.Page({
                 contentScriptWhen: 'ready',
                 contentScriptFile: [
@@ -259,12 +259,12 @@ class FirefoxExtension extends ExtensionBase {
             ', top=' + top;
 
         var folder = '/'; // Pass folder in ReturnUrl (#60008)
-        var folderIndex = this.url.indexOf('/', 10);
+        var folderIndex = trackerServiceUrl.indexOf('/', 10);
         if (folderIndex > 0) {
-            folder = this.url.substring(folderIndex);
+            folder = trackerServiceUrl.substring(folderIndex);
         }
 
-        var url = this.url + 'Account/Login?ReturnUrl=' + folder + '%23/noapp';
+        var url = trackerServiceUrl + 'Account/Login?ReturnUrl=' + folder + '%23/noapp';
 
         // wait for login window and tab identifiers
         this.loginWindowPending = true;

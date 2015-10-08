@@ -19,7 +19,7 @@ class ChromeExtension extends ExtensionBase {
 
     constructor() {
 
-        super('https://tt.devart.com/', backgroundPort);
+        super(backgroundPort);
 
         // Inject content scripts in all already opened pages
         var contentScripts = (<ChromeExtensionManifest>chrome.runtime.getManifest()).content_scripts[0];
@@ -201,7 +201,7 @@ class ChromeExtension extends ExtensionBase {
                         width,
                         height,
                         focused: true,
-                        url: this.url + 'Account/Login',
+                        url: trackerServiceUrl + 'Account/Login',
                         type: 'popup'
                     }, window => {
                         this.loginWinId = window.id;

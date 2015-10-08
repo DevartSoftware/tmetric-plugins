@@ -32,7 +32,7 @@ exports.config = {
     capabilities: [{
         browserName: 'chrome',
         chromeOptions: {
-            args: ['load-extension=' + process.cwd() +'/dist/chrome/']
+            args: ['load-extension=' + process.cwd() +'/dist/chrome/unpacked']
             
             // http://stackoverflow.com/questions/27278222/is-it-possible-to-add-a-plugin-to-chromedriver-under-a-protractor-test/27278322#27278322
             //extensions: ['Base64 data']
@@ -58,7 +58,7 @@ exports.config = {
     //
     // Set a base URL in order to shorten url command calls. If your url parameter starts
     // with "/", the base url gets prepended.
-    baseUrl: 'https://alm-build/timetracker',
+    baseUrl: 'https://tt.devart.com',
     //
     // Default timeout for all waitForXXX commands.
     waitforTimeout: 10000,
