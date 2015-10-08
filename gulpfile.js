@@ -31,11 +31,12 @@ gulp.task('clean', function () {
   var del = require('del'); // Delete files/folders using globs.
   return del.sync([
     dist + '**', // remove all children and the parent.
+    './**/*.map',
+    'chrome/*.js',
     'css/*.css',
     'extension-base/*.js',
-    'chrome/*.js',
     'firefox/*.js',
-    './**/*.map']);
+    'in-page-scripts/**/*.js']);
 });
 
 gulp.task('compile', ['compile:ts', 'compile:less']);
