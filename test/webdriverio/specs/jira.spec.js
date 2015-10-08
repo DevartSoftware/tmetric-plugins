@@ -1,13 +1,16 @@
 describe("Jira integration spec", function () {
   var setupError;
-  var demoProjectUrl = 'https://jira.atlassian.com/browse/DEMO/issues/?filter=reportedbyme';
 
   beforeAll(function (done) {
     browser
-      .login("TimeTracker").then(function () {
-        // TODO: implement mechanism to determine when TT fihish its loading and uncomment following code 
-        //if (browser.isExisting('#btn-stop')) {
-        //  return browser.click('#btn-stop');
+      .login("TimeTracker")
+      .waitForVisible('.page-actions')
+      .isVisible('#btn-stop')
+      .then(function (isVisible) {
+        // stop an active task if needed
+        if (isVisible) {
+          return browser.click('#btn-stop');
+        }
       })
       .login("Jira").then(function () {
         // all logins are successful
@@ -21,7 +24,7 @@ describe("Jira integration spec", function () {
 
   beforeEach(function (done) {
     browser
-      .url(demoProjectUrl)
+      .url('https://jira.atlassian.com/browse/DEMO/issues/?filter=reportedbyme')
       .then(function () {
         if (browser.isExisting('.issue-list > li')) {
           // all setup operations are successful
@@ -32,7 +35,7 @@ describe("Jira integration spec", function () {
           browser.click('#create_link')
             .waitForExist('#create-issue-dialog #summary')
             .setValue('#summary', 'Some test task')
-            .click('.aui-button .aui-button-primary')
+            .click('#create-issue-submit')
             .then(done);
         }
       }, function (error) {
@@ -42,14 +45,14 @@ describe("Jira integration spec", function () {
       });
   });
 
-  it("can start tracking time on a task from Atlassian's DEMO project", function (done) {
+  it("can start tracking time on a task from Atlassian's DEMO project", function () {
     if (setupError) {
       return fail(setupError);
     }
-    
+
     var taskName, projectName, href;
 
-    browser
+    return browser
       .waitForExist('.devart-timer-link.devart-timer-link-start')
       .getText('#summary-val').then(function (text) {
         taskName = text;
@@ -72,6 +75,29 @@ describe("Jira integration spec", function () {
       .getAttribute('.timer-active a.flex-item-no-shrink', 'href').then(function (text) {
         expect(text).toBe(href);
       })
-      .then(done);
+  });
+
+  it("can stop tracking time on a task from Atlassian's DEMO project", function () {
+    if (setupError) {
+      return fail(setupError);
+    }
+
+    return browser
+      .waitForExist('.devart-timer-link')
+      .isExisting('.devart-timer-link-start')
+      .then(function (isExist) {
+        if (isExist) {
+          return browser
+            .click('.devart-timer-link-start')
+            .waitForExist('.devart-timer-link-stop');
+        }
+      })
+      .click('.devart-timer-link-stop')
+      .url('/')
+      .waitForVisible('.page-actions')
+      .isVisible('#btn-stop')
+      .then(function(isVisible){
+        expect(isVisible).toBeFalsy();
+      });
   });
 }); 
