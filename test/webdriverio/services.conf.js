@@ -69,8 +69,15 @@ var services = {
 		}
 	},
 	
-	// Add new services below
-	// ...
+	GitLab: {
+		login: {
+			url: 'http://gitlab.com/users/sign_in',
+			usernameField: '#user_login',
+			passwordField: '#user_password',
+			submitButton: '.btn.btn-save'
+		}
+	}
+
 };
 
 services = deepmerge(services, logins);
