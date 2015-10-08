@@ -46,7 +46,15 @@ module Integrations {
                 if (!issueId) {
                     return;
                 }
-                issueId = '#' + issueId;
+
+                var issueType = match[2];
+                var issueIdPrefix = '';
+                if (issueType == 'issues') {
+                    issueIdPrefix = '#'
+                } else if (issueType == 'merge_requests') {
+                    issueIdPrefix = '!'
+                }
+                issueId = issueIdPrefix + issueId;
 
                 // <h2 class="issue-title">IssueName</h2>
                 issueName = $$('.issue-title', true).textContent;
