@@ -1,10 +1,12 @@
 var concat = require('gulp-concat');           // Concatenates files.
+var fs = require('fs');                        // Node.js File System module
 var gulp = require('gulp');                    // The streaming build system.
 var jsonfile = require('jsonfile');            // Easily read/write JSON files.
 var merge = require('merge-stream');           // Create a stream that emits events from multiple other streams.
 var path = require('path');                    // Node.js Path System module
 var selenium = require('selenium-standalone'); // Installs a selenium-standalone command line to install and start a standalone selenium server
 var typescript = require('typescript');        // TypeScript is a language for application scale JavaScript development
+var webdriver = require('gulp-webdriver');     // Runs selenium tests with the WebdriverIO testrunner
 var webdriverio = require('webdriverio');      // A nodejs bindings implementation for selenium 2.0/webdriver
 
 gulp.task('default', ['build']);
@@ -94,7 +96,6 @@ gulp.task('test:constants:chrome', ['prepackage:chrome'], function () {
 
 function packageChrome() {
   var crx = require('gulp-crx'); // Pack Chrome Extension in the pipeline.
-  var fs = require('fs');        // Node.js File System module
   var manifest = jsonfile.readFileSync(unpackedCrx + 'manifest.json');
   
   // Specify the location (relative) of the already generated .pem file for the Chrome extension. 
@@ -182,23 +183,16 @@ gulp.task('install:selenium', [], function (callback) {
   selenium.install({}, callback); // install selenium with default options
 });
 
-gulp.task('test', ['install:selenium', 'build:test'], function (taskCallback) {
+gulp.task('test', ['install:selenium', 'build'], function (taskCallback) {
   selenium.start({}, function (startError, serverProcess) { // launch selenium server
     if (startError) {
       return taskCallback(startError);
     }
 
-    var webdriver = require('gulp-webdriver'); // Runs selenium tests with the WebdriverIO testrunner
-    
-    // gulp-webdriver incorrectly locates WebdriverIO binary
-    // we need to fix it
-    var isWin = /^win/.test(process.platform);
-    var options = { wdioBin: path.join(process.cwd(), 'node_modules', '.bin', isWin ? 'wdio.cmd' : 'wdio') };
-
     var streamError;
     gulp
       .src('./test/webdriverio/wdio.conf.js')
-      .pipe(webdriver(options))
+      .pipe(webdriver(getWdioOptions(false)))
       .on('error', function (error) {
         streamError = error;
       })
@@ -208,3 +202,41 @@ gulp.task('test', ['install:selenium', 'build:test'], function (taskCallback) {
       });
   });
 });
+
+gulp.task('test:dev', ['install:selenium', 'build:test'], function (taskCallback) {
+  selenium.start({}, function (startError, serverProcess) { // launch selenium server
+    if (startError) {
+      return taskCallback(startError);
+    }
+
+    var streamError;
+    gulp
+      .src('./test/webdriverio/wdio.conf.js')
+      .pipe(webdriver(getWdioOptions(true)))
+      .on('error', function (error) {
+        streamError = error;
+      })
+      .on('finish', function () {
+        serverProcess.kill();
+        taskCallback(streamError);
+      });
+  });
+});
+
+function getWdioOptions(runsOnDevServer) {
+  // gulp-webdriver incorrectly locates WebdriverIO binary
+  // we need to fix it
+  var isWin = /^win/.test(process.platform);
+  var options = { wdioBin: path.join(process.cwd(), 'node_modules', '.bin', isWin ? 'wdio.cmd' : 'wdio') };
+
+  if (runsOnDevServer) {
+    // substitute baseUrl option in wdio.conf.js with a trackerServiceUrl from /test/constants.js
+    var constants = fs.readFileSync(path.join(process.cwd(), '/test/constants.js'), 'utf8');
+    var regex = /var trackerServiceUrl = ['"]([^'"]+)['"]/m;
+    var match = constants.match(regex);
+    if (match) {
+      options.baseUrl = match[1];
+    }
+  }
+  return options;
+}
