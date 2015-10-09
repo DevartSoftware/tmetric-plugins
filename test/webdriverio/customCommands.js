@@ -1,5 +1,14 @@
 var services = require('./services.conf');
 
+browser.addCommand("waitUrl", function (url, timeout) {
+  var expectedUrl = url.toUpperCase();
+  return browser.waitUntil(function () {
+      return browser.url().then(function (res) {
+        return res && res.value && res.value.toUpperCase() != expectedUrl;
+      });
+    }, timeout);
+}); 
+
 browser.addCommand("login", function (serviceName) {
   var service = services[serviceName];
   var fullUrl;
