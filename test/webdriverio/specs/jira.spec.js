@@ -57,7 +57,7 @@ describe("Jira integration spec", function () {
       });
   });
 
-  fit("can start tracking time on a task from Atlassian's DEMO project", function (done) {
+  it("can start tracking time on a task from Atlassian's DEMO project", function (done) {
     if (setupError) {
       fail(setupError);
       return done();
@@ -93,7 +93,7 @@ describe("Jira integration spec", function () {
       });
   });
 
-  fit("can stop tracking time on a task from Atlassian's DEMO project", function (done) {
+  it("can stop tracking time on a task from Atlassian's DEMO project", function (done) {
     if (setupError) {
       fail(setupError);
       return done();
