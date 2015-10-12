@@ -1,5 +1,7 @@
 describe("Jira integration spec", function () {
   var setupError;
+  var issueName = 'Some test task #170';
+  var projectName = 'Demo';
 
   beforeAll(function (done) {
     browser
@@ -7,8 +9,8 @@ describe("Jira integration spec", function () {
       .waitForVisible('.page-actions')
       .isVisible('#btn-stop')
       .then(function (isVisible) {
-        // stop an active task if needed
         if (isVisible) {
+          // stop an active task
           return browser.click('#btn-stop');
         }
       })
@@ -23,69 +25,83 @@ describe("Jira integration spec", function () {
   });
 
   beforeEach(function (done) {
+    if (setupError) {
+      fail(setupError);
+      return done();
+    }
+
+    var issueSelector = '.issue-link-summary=' + issueName;
+
     browser
       .url('https://jira.atlassian.com/browse/DEMO/issues/?filter=reportedbyme')
-      .then(function () {
-        if (browser.isExisting('.issue-list > li')) {
-          // all setup operations are successful
-          done();
-        }
-        else {
-          // create new task if no one is avaliable
-          browser.click('#create_link')
+      .waitForExist('.loading', 5000, true)
+      .isExisting(issueSelector).then(function (isExist) {
+        if (!isExist) {
+          // create new issue if it is not exist
+          return browser
+            .click('#create_link')
             .waitForExist('#create-issue-dialog #summary')
-            .setValue('#summary', 'Some test task')
+            .setValue('#summary', issueName)
             .click('#create-issue-submit')
-            .then(done);
+            .waitForExist('#create-issue-dialog', 5000, true)
+            .refresh()
+            .waitForExist(issueSelector)
+            .waitForExist('.loading', 5000, true)
         }
-      }, function (error) {
-        // one of the setup operations has failed
-        setupError = error;
+      })
+      .click(issueSelector) // make sure that the task is selected one 
+      .waitForExist('.loading', 5000, true)
+      .then(done, function (error) {
+        fail(error);
         done();
       });
   });
 
-  it("can start tracking time on a task from Atlassian's DEMO project", function () {
+  fit("can start tracking time on a task from Atlassian's DEMO project", function (done) {
     if (setupError) {
       return fail(setupError);
     }
 
-    var taskName, projectName, href;
+    var href;
 
-    return browser
+    browser
       .waitForExist('.devart-timer-link.devart-timer-link-start')
-      .getText('#summary-val').then(function (text) {
-        taskName = text;
-      })
-      .getText('#project-name-val').then(function (text) {
-        projectName = text;
-      })
-      .getAttribute('.issue-link', 'href').then(function (text) {
+      .getAttribute('.issue-link', 'href')
+      .then(function (text) {
         href = text;
       })
       .click('.devart-timer-link')
+      .waitForExist('.devart-timer-link-stop')
       .url('/')
       .waitForExist('.timer-active')
-      .getText('.timer-active div .text-overflow').then(function (text) {
-        expect(text).toBe(taskName);
+      .getText('.timer-active div .text-overflow')
+      .then(function (text) {
+        expect(text).toBe(issueName);
       })
-      .getText('.timer-active .timer-td-project').then(function (text) {
+      .getText('.timer-active .timer-td-project')
+      .then(function (text) {
         expect(text).toBe(projectName);
       })
-      .getAttribute('.timer-active a.flex-item-no-shrink', 'href').then(function (text) {
+      .getAttribute('.timer-active a.flex-item-no-shrink', 'href')
+      .then(function (text) {
         expect(text).toBe(href);
-      })
+        done();
+      }, function (error) {
+        fail(error);
+        done();
+      });
   });
 
-  it("can stop tracking time on a task from Atlassian's DEMO project", function () {
+  fit("can stop tracking time on a task from Atlassian's DEMO project", function (done) {
     if (setupError) {
       return fail(setupError);
     }
 
-    return browser
+    browser
       .waitForExist('.devart-timer-link')
       .isExisting('.devart-timer-link-start')
       .then(function (isExist) {
+        // make sure that timer is started; it will be automatically so after previous test
         if (isExist) {
           return browser
             .click('.devart-timer-link-start')
@@ -96,8 +112,12 @@ describe("Jira integration spec", function () {
       .url('/')
       .waitForVisible('.page-actions')
       .isVisible('#btn-stop')
-      .then(function(isVisible){
+      .then(function (isVisible) {
         expect(isVisible).toBeFalsy();
+        done();
+      }, function (error) {
+        fail(error);
+        done();
       });
   });
 }); 
