@@ -32,54 +32,6 @@ browser.addCommand("login", function (serviceName) {
     });
 });
 
-browser.addCommand("testIsVisible", function (selector) {
-  return browser
-    .isVisible(selector)
-    .then(function (result) {
-      expect(result).toBeTruthy();
-    });
-});
-
-browser.addCommand("testIsNotVisible", function (selector) {
-  return browser
-    .isVisible(selector)
-    .then(function (result) {
-      expect(result).toBeFalsy();
-    });
-});
-
-browser.addCommand("testIsExisting", function (selector) {
-  return browser
-    .isExisting(selector)
-    .then(function (result) {
-      expect(result).toBeTruthy();
-    });
-});
-
-browser.addCommand("testIsNotExisting", function (selector) {
-  return browser
-    .isExisting(selector)
-    .then(function (result) {
-      expect(result).toBeFalsy();
-    });
-});
-
-browser.addCommand("testText", function (selector, resultExpected) {
-  return browser
-    .getText(selector)
-    .then(function (result) {
-      expect(result).toBe(resultExpected);
-    });
-});
-
-browser.addCommand("testAttribute", function (selector, attributeName, resultExpected) {
-  return browser
-    .getAttribute(selector, attributeName)
-    .then(function (result) {
-      expect(result).toBe(resultExpected);
-    });
-});
-
 browser.addCommand("testActiveTask", function (projectName, taskName, taskUrl) {
   return browser
     // .waitForExist('.timer-active')
@@ -93,11 +45,18 @@ browser.addCommand("testActiveTask", function (projectName, taskName, taskUrl) {
     //   expect(text).toBe(taskUrl);
     // })
     .waitForExist('.portlet-body .timer-table')
-    .testIsVisible('#btn-stop')
-    .testText('//tr[td/div/span[contains(.,"Active")]]/td[contains(@class,"timer-td-project")]/span', projectName)
-    .testText('//tr[td/div/span[contains(.,"Active")]]/td[contains(@class,"timer-td-task")]/div/div/span', taskName)
-    .testAttribute('//tr[td/div/span[contains(.,"Active")]]/td[contains(@class,"timer-td-task")]/div/a', 'href', taskUrl)
-    ;
+    .isVisible('#btn-stop').then(function (visible) {
+      expect(visible).to.be.true;
+    })
+    .getText('//tr[td/div/span[contains(.,"Active")]]/td[contains(@class,"timer-td-project")]/span').then(function (text) {
+      expect(text).to.be.equal(projectName);
+    })
+    .getText('//tr[td/div/span[contains(.,"Active")]]/td[contains(@class,"timer-td-task")]/div/div/span').then(function (text) {
+      expect(text).to.be.equal(taskName);
+    })
+    .getAttribute('//tr[td/div/span[contains(.,"Active")]]/td[contains(@class,"timer-td-task")]/div/a', 'href').then(function (value) {
+      expect(value).to.be.equal(taskUrl);
+    });
 });
 
 browser.addCommand("testActiveTaskAbsent", function () {
@@ -108,16 +67,18 @@ browser.addCommand("testActiveTaskAbsent", function () {
     //   expect(isVisible).toBeFalsy();
     // })
     .waitForExist('.portlet-body > div')
-    .testIsNotVisible('#btn-stop')
-    .testIsNotExisting('//tr[td/div/span[contains(.,"Active")]]')
-    ;
+    .isVisible('#btn-stop').then(function (visible) {
+      expect(visible).to.be.false;
+    })
+    .isExisting('//tr[td/div/span[contains(.,"Active")]]').then(function (existing) {
+      expect(existing).to.be.false;
+    });
 });
 
 browser.addCommand("stopAndTestTaskAbsent", function () {
   return browser
     .waitForExist('.devart-timer-link')
-    .isExisting('.devart-timer-link-start')
-    .then(function (result) {
+    .isExisting('.devart-timer-link-start').then(function (result) {
       if (result) {
         return browser
           .click('.devart-timer-link-start')
@@ -126,6 +87,5 @@ browser.addCommand("stopAndTestTaskAbsent", function () {
     })
     .click('.devart-timer-link-stop')
     .url('/')
-    .testActiveTaskAbsent()
-    ;
+    .testActiveTaskAbsent();
 });
