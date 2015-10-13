@@ -29,7 +29,6 @@ describe("Jira integration spec", function () {
       fail(setupError);
       return done();
     }
-
     var issueSelector = '.issue-link-summary=' + issueName;
 
     browser
@@ -49,12 +48,7 @@ describe("Jira integration spec", function () {
             .waitForExist('.loading', 5000, true)
         }
       })
-      .click(issueSelector) // make sure that the task is selected one 
-      .waitForExist('.loading', 5000, true)
-      .then(done, function (error) {
-        fail(error);
-        done();
-      });
+      .click(issueSelector); // make sure that the task is selected one 
   });
 
   it("can start tracking time on a task from Atlassian's DEMO project", function (done) {
@@ -62,7 +56,7 @@ describe("Jira integration spec", function () {
       fail(setupError);
       return done();
     }
-
+    
     var href;
 
     browser
@@ -75,20 +69,17 @@ describe("Jira integration spec", function () {
       .waitForExist('.devart-timer-link-stop')
       .url('/')
       .waitForExist('.timer-active')
-      .getText('.timer-active div .text-overflow')
-      .then(function (text) {
-        expect(text).toBe(issueName);
-      })
       .getText('.timer-active .timer-td-project')
       .then(function (text) {
         expect(text).toBe(projectName);
       })
+      .getText('.timer-active div .text-overflow')
+      .then(function (text) {
+        expect(text).toBe(issueName);
+      })
       .getAttribute('.timer-active a.flex-item-no-shrink', 'href')
       .then(function (text) {
         expect(text).toBe(href);
-        done();
-      }, function (error) {
-        fail(error);
         done();
       });
   });
@@ -116,9 +107,6 @@ describe("Jira integration spec", function () {
       .isVisible('#btn-stop')
       .then(function (isVisible) {
         expect(isVisible).toBeFalsy();
-        done();
-      }, function (error) {
-        fail(error);
         done();
       });
   });

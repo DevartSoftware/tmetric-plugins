@@ -3,6 +3,12 @@ var services = require('./services.conf');
 browser.addCommand("login", function (serviceName) {
   var service = services[serviceName];
   var fullUrl;
+
+  var normalizeUrl = function (url) {
+    // remove double slashes and trailing slash
+    return url.replace(/\/\//g, '/').replace(/\/$/, '').toUpperCase();
+  }
+
   return this.url(service.login.url)
     .url(function (err, res) {
       fullUrl = normalizeUrl(res.value);
@@ -22,8 +28,3 @@ browser.addCommand("login", function (serviceName) {
       }
     });
 });
-
-var normalizeUrl = function (url) {
-  // remove double slashes and trailing slash
-  return url.replace(/\/\//g, '/').replace(/\/$/, '').toUpperCase();
-}
