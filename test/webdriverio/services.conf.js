@@ -68,6 +68,14 @@ var services = {
 			submitButton: '#login-submit'
 		}
 	},
+	Tfs: {
+		login: {
+			url: 'https://devart.visualstudio.com',
+			usernameField: '#username',
+			passwordField: '#password',
+			submitButton: '#login-submit'
+		}
+	},
 	
 	// Add new services below
 	// ...

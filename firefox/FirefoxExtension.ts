@@ -91,6 +91,7 @@ class FirefoxExtension extends ExtensionBase {
             './Redmine.js',
             './Jira.js',
             './JiraAgile.js',
+            './TFS.js',
             './page.js'
         ];
 
