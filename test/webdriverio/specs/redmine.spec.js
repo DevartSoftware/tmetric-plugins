@@ -1,21 +1,19 @@
 describe("Redmine integration spec", function () {
 
-  var setupError;
   var bugTrackerUrl = 'http://demo.redmine.org';
 
   var testProjectName = 'redmine-test-qazwsxedc';
   var testProjectUrl = bugTrackerUrl + '/projects/' + testProjectName;
 
   var testIssueName = 'Issue for ' + testProjectName;
-  var testIssueUrl = '';
   var testIssueSearchUrl = bugTrackerUrl + '/issues?subject=' + testIssueName;
+  var testIssueUrl = '';
 
-  beforeAll(function (done) {
+  before(function () {
 
     function getTestIssueUrlFromAnchor () {
       return browser
-        .getAttribute('a*=' + testIssueName, 'href')
-        .then(function (result) {
+        .getAttribute('a*=' + testIssueName, 'href').then(function (result) {
           testIssueUrl = result;
         });
     }
@@ -43,8 +41,7 @@ describe("Redmine integration spec", function () {
     function checkTestIssue () {
       return browser
         .url(testProjectUrl + '/issues')
-        .isExisting('a*=' + testIssueName)
-        .then(function (result) {
+        .isExisting('a*=' + testIssueName).then(function (result) {
           return (result ? getTestIssueUrlFromAnchor : createTestIssue)();
         });
     }
@@ -52,8 +49,7 @@ describe("Redmine integration spec", function () {
     function checkTestProject () {
       return browser
         .url(bugTrackerUrl + '/projects')
-        .isExisting('a*=' + testProjectName)
-        .then(function (result) {
+        .isExisting('a*=' + testProjectName).then(function (result) {
           return (result ? checkTestIssue : createTestProject)();
         });
     }
@@ -61,51 +57,55 @@ describe("Redmine integration spec", function () {
     function searchTestIssue () {
       return browser
         .url(testIssueSearchUrl)
-        .isExisting('a*=' + testIssueName)
-        .then(function (result) {
+        .isExisting('a*=' + testIssueName).then(function (result) {
           return (result ? getTestIssueUrlFromAnchor : checkTestProject)();
         });      
     }
 
-    browser
+    return browser
       .login("TimeTracker")
       .login("Redmine")
       .then(searchTestIssue)
-      .then(done);
+      .then(function () {
+        // expect(testProjectUrl).not.to.be.empty;
+        expect(testIssueUrl).not.to.be.empty;
+      });
 
   });
 
-  it("can start tracking time on a task from Redmine test project", function (done) {
+  it("can start tracking time on a task from Redmine test project", function () {
 
-    var projectName, taskName, taskUrl;
+    var projectName, issueName, issueUrl;
 
-    browser
+    return browser
       .url(testIssueUrl)
       .waitForExist('.devart-timer-link.devart-timer-link-start')
       .getText('#header h1').then(function (text) {
         projectName = text;
       })
       .getText('.subject h3').then(function (text) {
-        taskName = text;
+        issueName = text;
       })
       .url().then(function (result) {
-        taskUrl = result.value;
+        issueUrl = result.value;
+      })
+      .then(function () {
+        expect(projectName).to.be.equal(testProjectName);
+        expect(issueName).to.be.equal(testIssueName);
+        expect(issueUrl).to.be.equal(testIssueUrl);
       })
       .click('.devart-timer-link')
       .url('/')
       .then(function () {
-        return browser
-          .testActiveTask(projectName, taskName, taskUrl);
-      })
-      .then(done);
+        return browser.testActiveTask(projectName, issueName, issueUrl);
+      });
 
   });
 
-  it("can stop tracking time on a task from Redmine test project", function (done) {
-    browser
+  it("can stop tracking time on a task from Redmine test project", function () {
+    return browser
       .url(testIssueUrl)
-      .stopAndTestTaskAbsent()
-      .then(done);
+      .stopAndTestTaskAbsent();
   });
 
 });
