@@ -69,8 +69,15 @@ var services = {
 		}
 	},
 	
-	// Add new services below
-	// ...
+	Redmine: {
+		login: {
+			url: 'http://demo.redmine.org/login',
+			usernameField: '#username',
+			passwordField: '#password',
+			submitButton: 'input[type=submit]'
+		}
+	}
+	
 };
 
 services = deepmerge(services, logins);
