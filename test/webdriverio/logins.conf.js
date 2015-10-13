@@ -24,5 +24,12 @@ module.exports = {
 			username: '',
 			password: ''
 		}
+	},
+	
+	Redmine: {
+		login: {
+			username: '',
+			password: ''
+		}
 	}
 }

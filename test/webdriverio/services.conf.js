@@ -76,6 +76,15 @@ var services = {
 			passwordField: '#user_password',
 			submitButton: '.btn.btn-save'
 		}
+	},
+	
+	Redmine: {
+		login: {
+			url: 'http://demo.redmine.org/login',
+			usernameField: '#username',
+			passwordField: '#password',
+			submitButton: 'input[type=submit]'
+		}
 	}
 
 };
