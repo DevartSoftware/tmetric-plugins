@@ -7,22 +7,15 @@
 module.exports = {
 	TimeTracker: {
 		login: {
-			username: 'alexeyn@devart.com',
-			password: '11111111'
+			username: '',
+			password: ''
 		}
 	},
-
+	
 	Jira: {
 		login: {
-			username: 'alexeyn@devart.com',
-			password: '11111111'
+			username: '',
+			password: ''
 		}
-	},
-
-	Tfs: {
-		login: {
-			username: 'alexeyn@devart.com',
-			password: '11111111'
-		}
-	}
+	}	
 }
