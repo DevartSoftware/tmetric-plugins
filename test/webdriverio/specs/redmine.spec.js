@@ -17,8 +17,7 @@ describe("Redmine integration spec", function () {
         .getAttribute('a*=' + testIssueName, 'href')
         .then(function (result) {
           testIssueUrl = result;
-        })
-        ;
+        });
     }
 
     function createTestProject () {
@@ -26,10 +25,9 @@ describe("Redmine integration spec", function () {
         .url(bugTrackerUrl + '/projects/new')
         .setValue('#project_name', testProjectName)
         .click('input[name=commit]')
-        .waitUrl({url: testProjectUrl + '/settings'})
+        .waitUrl(testProjectUrl + '/settings')
         .url(testProjectUrl)
-        .then(createTestIssue)
-        ;
+        .then(createTestIssue);
     }
 
     function createTestIssue () {
@@ -39,8 +37,7 @@ describe("Redmine integration spec", function () {
         .click('input[name=commit]')
         .waitForExist('.contextual .icon.icon-del')
         .url(testProjectUrl + '/issues')
-        .then(getTestIssueUrlFromAnchor)
-        ;
+        .then(getTestIssueUrlFromAnchor);
     }
 
     function checkTestIssue () {
@@ -49,8 +46,7 @@ describe("Redmine integration spec", function () {
         .isExisting('a*=' + testIssueName)
         .then(function (result) {
           return (result ? getTestIssueUrlFromAnchor : createTestIssue)();
-        })
-        ;
+        });
     }
 
     function checkTestProject () {
@@ -59,8 +55,7 @@ describe("Redmine integration spec", function () {
         .isExisting('a*=' + testProjectName)
         .then(function (result) {
           return (result ? checkTestIssue : createTestProject)();
-        })
-        ;
+        });
     }
 
     function searchTestIssue () {
@@ -69,16 +64,14 @@ describe("Redmine integration spec", function () {
         .isExisting('a*=' + testIssueName)
         .then(function (result) {
           return (result ? getTestIssueUrlFromAnchor : checkTestProject)();
-        })
-        ;      
+        });      
     }
 
     browser
       .login("TimeTracker")
       .login("Redmine")
       .then(searchTestIssue)
-      .then(done)
-      ;
+      .then(done);
 
   });
 
@@ -102,11 +95,9 @@ describe("Redmine integration spec", function () {
       .url('/')
       .then(function () {
         return browser
-          .testActiveTask(projectName, taskName, taskUrl)
-          ;
+          .testActiveTask(projectName, taskName, taskUrl);
       })
-      .then(done)
-      ;
+      .then(done);
 
   });
 
@@ -114,8 +105,7 @@ describe("Redmine integration spec", function () {
     browser
       .url(testIssueUrl)
       .stopAndTestTaskAbsent()
-      .then(done)
-      ;
+      .then(done);
   });
 
 });
