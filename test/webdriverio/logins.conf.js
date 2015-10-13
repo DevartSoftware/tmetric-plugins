@@ -17,5 +17,12 @@ module.exports = {
 			username: '',
 			password: ''
 		}
-	}	
+	},
+	
+	GitLab: {
+		login: {
+			username: '',
+			password: ''
+		}
+	}
 }

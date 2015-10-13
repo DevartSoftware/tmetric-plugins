@@ -90,7 +90,7 @@ exports.config = {
     // Mocha: `$ npm install mocha`
     // Jasmine: `$ npm install jasmine`
     // Cucumber: `$ npm install cucumber`
-    framework: 'jasmine',
+    framework: 'mocha',
     //
     // Test reporter for stdout.
     // The following are supported: dot (default), spec and xunit

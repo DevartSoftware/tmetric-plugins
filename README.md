@@ -35,7 +35,7 @@ Built extensions can be found in `/dist/chrome/` and `/dist/firefox/` folders.
  - [Java](https://www.java.com/download)
  
  For end-to-end automated testing project uses [Selenium 2.0](http://www.seleniumhq.org/projects/webdriver/),
- [WebdriverIO](http://webdriver.io/), and [Jasmine](http://jasmine.github.io/).
+ [WebdriverIO](http://webdriver.io/), and [Mocha](https://mochajs.org/).
  
 **IMPORTANT:**
 Before running tests you need to provide valid login information for all services configured in
