@@ -55,27 +55,14 @@ browser.addCommand("startAndTestTaskStarted", function (projectName, taskName, t
     .click('.devart-timer-link-start')
     .waitForExist('.devart-timer-link-stop')
     .url('/')
-    // .waitForExist('.timer-active')
-    // .getText('.timer-active .timer-td-project').then(function (text) {
-    //   expect(text).toBe(projectName);
-    // })
-    // .getText('.timer-active div .text-overflow').then(function (text) {
-    //   expect(text).toBe(taskName);
-    // })
-    // .getAttribute('.timer-active a.flex-item-no-shrink', 'href').then(function (text) {
-    //   expect(text).toBe(taskUrl);
-    // })
-    .waitForExist('.portlet-body .timer-table')
-    .isVisible('#btn-stop').then(function (visible) {
-      expect(visible).to.be.true;
-    })
-    .getText('//tr[td/div/span[contains(.,"Active")]]/td[contains(@class,"timer-td-project")]/span').then(function (text) {
+    .waitForExist('.timer-active')
+    .getText('.timer-active .timer-td-project').then(function (text) {
       expect(text).to.be.equal(projectName);
     })
-    .getText('//tr[td/div/span[contains(.,"Active")]]/td[contains(@class,"timer-td-task")]/div/div/span').then(function (text) {
+    .getText('.timer-active div .text-overflow').then(function (text) {
       expect(text).to.be.equal(taskName);
     })
-    .getAttribute('//tr[td/div/span[contains(.,"Active")]]/td[contains(@class,"timer-td-task")]/div/a', 'href').then(function (value) {
+    .getAttribute('.timer-active a.flex-item-no-shrink', 'href').then(function (value) {
       expect(value).to.be.equal(taskUrl);
     });
 });
@@ -88,16 +75,11 @@ browser.addCommand("stopAndTestTaskStopped", function () {
     .click('.devart-timer-link-stop')
     .waitForExist('.devart-timer-link-start')
     .url('/')
-    // .waitForVisible('.page-actions')
-    // .isVisible('#btn-stop')
-    // .then(function(isVisible){
-    //   expect(isVisible).toBeFalsy();
-    // })
-    .waitForExist('.portlet-body > div')
+    .waitForVisible('.page-actions')
     .isVisible('#btn-stop').then(function (visible) {
       expect(visible).to.be.false;
     })
-    .isExisting('//tr[td/div/span[contains(.,"Active")]]').then(function (existing) {
+    .isExisting('.timer-active').then(function (existing) {
       expect(existing).to.be.false;
     });
 });
