@@ -4,7 +4,7 @@ browser.addCommand("waitUrl", function (url, timeout) {
   var expectedUrl = url.toUpperCase();
   return browser.waitUntil(function () {
       return browser.url().then(function (res) {
-        return res && res.value && res.value.toUpperCase() != expectedUrl;
+        return res && res.value && res.value.toUpperCase() == expectedUrl;
       });
     }, timeout);
 });
@@ -12,7 +12,8 @@ browser.addCommand("waitUrl", function (url, timeout) {
 browser.addCommand("login", function (serviceName) {
   var service = services[serviceName];
   var fullUrl;
-  return this.url(service.login.url)
+  return this
+    .url(service.login.url)
     .url(function (err, res) {
       fullUrl = res.value.toUpperCase();
     })
@@ -23,7 +24,7 @@ browser.addCommand("login", function (serviceName) {
       return browser.url().then(function (res) {
         return res && res.value && res.value.toUpperCase() != fullUrl
       });
-    }, 5000)
+    }, 10000)
     .url(function (err, res) {
       if (res.value.toUpperCase() == fullUrl) {
         // if we are on the same page, this means the login operation failed
@@ -32,8 +33,28 @@ browser.addCommand("login", function (serviceName) {
     });
 });
 
-browser.addCommand("testActiveTask", function (projectName, taskName, taskUrl) {
+browser.addCommand("logout", function (serviceName) {
+  var service = services[serviceName];
   return browser
+    .url(service.logout.url);
+});
+
+browser.addCommand("stopRunningTask", function () {
+  return browser
+    .url('/')
+    .isVisible('#btn-stop').then(function (isVisible) {
+      if (isVisible) {
+        return browser.click('#btn-stop');
+      }
+    });
+});
+
+browser.addCommand("startAndTestTaskStarted", function (projectName, taskName, taskUrl) {
+  return browser
+    .waitForExist('.devart-timer-link')
+    .click('.devart-timer-link-start')
+    .waitForExist('.devart-timer-link-stop')
+    .url('/')
     // .waitForExist('.timer-active')
     // .getText('.timer-active .timer-td-project').then(function (text) {
     //   expect(text).toBe(projectName);
@@ -59,8 +80,14 @@ browser.addCommand("testActiveTask", function (projectName, taskName, taskUrl) {
     });
 });
 
-browser.addCommand("testActiveTaskAbsent", function () {
+browser.addCommand("stopAndTestTaskStopped", function () {
   return browser
+    .waitForExist('.devart-timer-link')
+    .click('.devart-timer-link-start')
+    .waitForExist('.devart-timer-link-stop')
+    .click('.devart-timer-link-stop')
+    .waitForExist('.devart-timer-link-start')
+    .url('/')
     // .waitForVisible('.page-actions')
     // .isVisible('#btn-stop')
     // .then(function(isVisible){
@@ -73,19 +100,4 @@ browser.addCommand("testActiveTaskAbsent", function () {
     .isExisting('//tr[td/div/span[contains(.,"Active")]]').then(function (existing) {
       expect(existing).to.be.false;
     });
-});
-
-browser.addCommand("stopAndTestTaskAbsent", function () {
-  return browser
-    .waitForExist('.devart-timer-link')
-    .isExisting('.devart-timer-link-start').then(function (result) {
-      if (result) {
-        return browser
-          .click('.devart-timer-link-start')
-          .waitForExist('.devart-timer-link-stop');
-      }
-    })
-    .click('.devart-timer-link-stop')
-    .url('/')
-    .testActiveTaskAbsent();
 });
