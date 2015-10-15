@@ -63,11 +63,9 @@ describe("Redmine integration spec", function () {
     }
 
     return browser
-      .login("TimeTracker")
       .login("Redmine")
       .then(searchTestIssue)
       .then(function () {
-        // expect(testProjectUrl).not.to.be.empty;
         expect(testIssueUrl).not.to.be.empty;
       });
 
@@ -94,10 +92,8 @@ describe("Redmine integration spec", function () {
         expect(issueName).to.be.equal(testIssueName);
         expect(issueUrl).to.be.equal(testIssueUrl);
       })
-      .click('.devart-timer-link')
-      .url('/')
       .then(function () {
-        return browser.testActiveTask(projectName, issueName, issueUrl);
+        return browser.startAndTestTaskStarted(projectName, issueName, issueUrl);
       });
 
   });
@@ -105,7 +101,7 @@ describe("Redmine integration spec", function () {
   it("can stop tracking time on a task from Redmine test project", function () {
     return browser
       .url(testIssueUrl)
-      .stopAndTestTaskAbsent();
+      .stopAndTestTaskStopped();
   });
 
 });
