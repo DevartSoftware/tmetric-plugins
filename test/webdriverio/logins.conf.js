@@ -11,11 +11,18 @@ module.exports = {
 			password: ''
 		}
 	},
-	
+
 	Jira: {
 		login: {
 			username: '',
 			password: ''
 		}
-	}	
+	},
+
+	Tfs: {
+		login: {
+			username: '',
+			password: ''
+		}
+	}
 }
