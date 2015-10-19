@@ -18,7 +18,7 @@ var services = {
 			// url
 			// ===
 			// The address of the login page of the service.
-			url: '/account/login', // baseUrl from wdio.conf.js is prepended
+			url: '/login', // baseUrl from wdio.conf.js is prepended
 			
 			//
 			// =============
