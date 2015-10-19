@@ -33,6 +33,22 @@ browser.addCommand("login", function (serviceName) {
     });
 });
 
+browser.addCommand("testText", function (selector, expectedText) {
+  return expect(browser.getText(selector)).eventually.equal(expectedText);
+});
+
+browser.addCommand("testAttribute", function (selector, attributeName, expectedValue) {
+  return expect(browser.getAttribute(selector, attributeName)).eventually.equal(expectedValue);
+});
+
+browser.addCommand("testUrl", function (expectedUrl) {
+  return expect(
+      browser.url().then(function (result) {
+        return result.value;
+      })
+    ).eventually.equal(expectedUrl);
+});
+
 browser.addCommand("stopRunningTask", function () {
   return browser
     .url('/')
@@ -50,22 +66,19 @@ browser.addCommand("startAndTestTaskStarted", function (projectName, taskName, t
     .waitForExist('.devart-timer-link-stop')
     .url('/')
     .waitForExist('.timer-active')
-    .getText('.timer-active .timer-td-project').then(function (text) {
-      expect(text).to.be.equal(projectName);
-    })
-    .getText('.timer-active div .text-overflow').then(function (text) {
-      expect(text).to.be.equal(taskName);
-    })
-    .getAttribute('.timer-active a.flex-item-no-shrink', 'href').then(function (value) {
-      expect(value).to.be.equal(taskUrl);
-    });
+    .testText('.timer-active .timer-td-project', projectName)
+    .testText('.timer-active div .text-overflow', taskName)
+    .testAttribute('.timer-active a.flex-item-no-shrink', 'href', taskUrl)
 });
 
 browser.addCommand("stopAndTestTaskStopped", function () {
   return browser
     .waitForExist('.devart-timer-link')
-    .click('.devart-timer-link-start')
-    .waitForExist('.devart-timer-link-stop')
+    .isExisting('.devart-timer-link-start').then(function () {
+      return browser
+        .click('.devart-timer-link-start')
+        .waitForExist('.devart-timer-link-stop');
+    })
     .click('.devart-timer-link-stop')
     .waitForExist('.devart-timer-link-start')
     .url('/')

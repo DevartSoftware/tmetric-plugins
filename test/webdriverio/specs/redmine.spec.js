@@ -72,30 +72,13 @@ describe("Redmine integration spec", function () {
   });
 
   it("can start tracking time on a task from Redmine test project", function () {
-
-    var projectName, issueName, issueUrl;
-
     return browser
       .url(testIssueUrl)
       .waitForExist('.devart-timer-link.devart-timer-link-start')
-      .getText('#header h1').then(function (text) {
-        projectName = text;
-      })
-      .getText('.subject h3').then(function (text) {
-        issueName = text;
-      })
-      .url().then(function (result) {
-        issueUrl = result.value;
-      })
-      .then(function () {
-        expect(projectName).to.be.equal(testProjectName);
-        expect(issueName).to.be.equal(testIssueName);
-        expect(issueUrl).to.be.equal(testIssueUrl);
-      })
-      .then(function () {
-        return browser.startAndTestTaskStarted(projectName, issueName, issueUrl);
-      });
-
+      .testText('#header h1', testProjectName)
+      .testText('.subject h3', testIssueName)
+      .testUrl(testIssueUrl)
+      .startAndTestTaskStarted(testProjectName, testIssueName, testIssueUrl);
   });
 
   it("can stop tracking time on a task from Redmine test project", function () {

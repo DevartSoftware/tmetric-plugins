@@ -12,22 +12,6 @@ describe("GitLab integration spec", function () {
 
   before(function () {
 
-    function getTestProjectUrlFromAnchor () {
-      return browser
-        .getAttribute('a*=' + testProjectName, 'href')
-        .then(function (result) {
-          testProjectUrl = result;
-        });
-    }
-
-    function getTestProjectUrlFromUrl () {
-      return browser
-        .url()
-        .then(function (result) {
-          testProjectUrl = result.value;
-        });
-    }
-
     function getTestIssueUrlFromAnchor () {
       return browser
         .getAttribute('a*=' + testIssueName, 'href')
@@ -50,7 +34,9 @@ describe("GitLab integration spec", function () {
         .setValue('#project_path', testProjectName)
         .click('.btn.btn-create')
         .waitForExist('.btn.btn-remove')
-        .then(getTestProjectUrlFromUrl)
+        .url().then(function (result) {
+          testProjectUrl = result.value;
+        })
         .then(createTestIssue);
     }
 
@@ -78,7 +64,9 @@ describe("GitLab integration spec", function () {
         .then(function (result) {
           return (result ? function () {
             return browser
-              .then(getTestProjectUrlFromAnchor)
+              .getAttribute('a*=' + testProjectName, 'href').then(function (result) {
+                testProjectUrl = result;
+              })
               .then(checkTestIssue);
           } : createTestProject)();
         });
@@ -102,30 +90,13 @@ describe("GitLab integration spec", function () {
   });
 
   it("can start tracking time on a task from GitLab test project", function () {
-
-    var projectName, issueName, issueUrl;
-
     return browser
       .url(testIssueUrl)
       .waitForExist('.devart-timer-link.devart-timer-link-start')
-      .getText('.title a:nth-last-child(2)').then(function (text) {
-        projectName = text;
-      })
-      .getText('.issue-title').then(function (text) {
-        issueName = text;
-      })
-      .url().then(function (result) {
-        issueUrl = result.value;
-      })
-      .then(function () {
-        expect(projectName).to.be.equal(testProjectName);
-        expect(issueName).to.be.equal(testIssueName);
-        expect(issueUrl).to.be.equal(testIssueUrl);
-      })
-      .then(function () {
-        return browser.startAndTestTaskStarted(projectName, issueName, issueUrl);
-      });
-
+      .testText('.title a:nth-last-child(2)', testProjectName)
+      .testText('.issue-title', testIssueName)
+      .testUrl(testIssueUrl)
+      .startAndTestTaskStarted(testProjectName, testIssueName, testIssueUrl);
   });
 
   it("can stop tracking time on a task from GitLab test project", function () {

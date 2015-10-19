@@ -6,9 +6,7 @@ describe("Jira integration spec", function () {
   var testProjectKey = 'TST';
   var testProjectUrl = bugTrackerUrl + '/projects/' + testProjectKey;
 
-  // var testIssueName = 'Issue-qweasdzxc for ' + testProjectName;
-  var testIssueName = 'Issue-qweasdzxc for A Test Project';
-  // var testIssueName = 'Issue for Test Project with Review workflow to delete';
+  var testIssueName = 'Issue-qweasdzxc for ' + testProjectName;
   var testIssueSearchUrl = bugTrackerUrl + '/secure/QuickSearch.jspa?searchString=' + testIssueName;
   var testIssueUrl = '';
 
@@ -48,28 +46,13 @@ describe("Jira integration spec", function () {
   });
 
   it("can start tracking time on a task from jira project", function () {
-
-    var projectName, issueName, issueUrl;
-
     return browser
       .url(testIssueUrl)
       .waitForExist('.devart-timer-link.devart-timer-link-start')
-      .getText('#project-name-val').then(function (text) {
-        projectName = text;
-      })
-      .getText('#summary-val').then(function (text) {
-        issueName = text;
-      })
-      .url().then(function (result) {
-        issueUrl = result.value;
-      })
-      .then(function () {
-        expect(projectName).to.be.equal(testProjectName);
-        expect(issueName).to.be.equal(testIssueName);
-        expect(issueUrl).to.be.equal(testIssueUrl);
-      })
+      .testText('#project-name-val', testProjectName)
+      .testText('#summary-val', testIssueName)
+      .testUrl(testIssueUrl)
       .startAndTestTaskStarted(testProjectName, testIssueName, testIssueUrl);
-
   });
 
   it("can stop tracking time on a task from jira project", function () {
@@ -79,30 +62,15 @@ describe("Jira integration spec", function () {
   });
 
   it("can start tracking time on a task from jira agile board", function () {
-
-    var projectName, issueName, issueUrl;
-
     return browser
       .url(testAgileBoardUrl)
       .waitForExist('.ghx-inner=' + testIssueName)
       .click('.ghx-inner=' + testIssueName)
       .waitForExist('.devart-timer-link.devart-timer-link-start')
-      .getText('.ghx-project').then(function (text) {
-        projectName = text;
-      })
-      .getText('dd[data-field-id=summary]').then(function (text) {
-        issueName = text;
-      })
-      .getAttribute('dd[data-field-id=issuekey] > a', 'href').then(function (value) {
-        issueUrl = value;
-      })
-      .then(function () {
-        expect(projectName).to.be.equal(testProjectName);
-        expect(issueName).to.be.equal(testIssueName);
-        expect(issueUrl).to.be.equal(testIssueUrl);
-      })
+      .testText('.ghx-project', testProjectName)
+      .testText('dd[data-field-id=summary]', testIssueName)
+      .testAttribute('dd[data-field-id=issuekey] > a', 'href', testIssueUrl)
       .startAndTestTaskStarted(testProjectName, testIssueName, testIssueUrl);
-
   });
 
   it("can stop tracking time on a task from jira agile board", function () {
