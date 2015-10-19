@@ -66,9 +66,6 @@ var services = {
 			usernameField: '#username',
 			passwordField: '#password',
 			submitButton: '#login-submit'
-		},
-		logout: {
-			url: 'https://id.atlassian.com/logout'
 		}
 	},
 	

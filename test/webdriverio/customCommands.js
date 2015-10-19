@@ -33,12 +33,6 @@ browser.addCommand("login", function (serviceName) {
     });
 });
 
-browser.addCommand("logout", function (serviceName) {
-  var service = services[serviceName];
-  return browser
-    .url(service.logout.url);
-});
-
 browser.addCommand("stopRunningTask", function () {
   return browser
     .url('/')
