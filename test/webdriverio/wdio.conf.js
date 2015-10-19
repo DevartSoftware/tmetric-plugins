@@ -96,7 +96,6 @@ exports.config = {
     // The following are supported: dot (default), spec and xunit
     // see also: http://webdriver.io/guide/testrunner/reporters.html
     reporter: 'dot',
-
     //
     // Some reporter require additional information which should get defined here
     reporterOptions: {
@@ -142,9 +141,11 @@ exports.config = {
         var chai = require('chai');
         var chaiAsPromised = require('chai-as-promised');
     
-        chai.use(chaiAsPromised);
-        expect = chai.expect;
         chai.Should();
+        chai.use(chaiAsPromised);
+        chaiAsPromised.transferPromiseness = browser.transferPromiseness;
+
+        expect = chai.expect;
 
     },
     //
