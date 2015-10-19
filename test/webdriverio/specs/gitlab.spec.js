@@ -93,9 +93,9 @@ describe("GitLab integration spec", function () {
     return browser
       .url(testIssueUrl)
       .waitForExist('.devart-timer-link.devart-timer-link-start')
-      .testText('.title a:nth-last-child(2)', testProjectName)
-      .testText('.issue-title', testIssueName)
-      .testUrl(testIssueUrl)
+      .getText('.title a:nth-last-child(2)').should.eventually.be.equal(testProjectName)
+      .getText('.issue-title').should.eventually.be.equal(testIssueName)
+      .url().should.eventually.has.property('value', testIssueUrl)
       .startAndTestTaskStarted(testProjectName, testIssueName, testIssueUrl);
   });
 

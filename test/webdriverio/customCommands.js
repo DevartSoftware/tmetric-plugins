@@ -33,22 +33,6 @@ browser.addCommand("login", function (serviceName) {
     });
 });
 
-browser.addCommand("testText", function (selector, expectedText) {
-  return expect(browser.getText(selector)).eventually.equal(expectedText);
-});
-
-browser.addCommand("testAttribute", function (selector, attributeName, expectedValue) {
-  return expect(browser.getAttribute(selector, attributeName)).eventually.equal(expectedValue);
-});
-
-browser.addCommand("testUrl", function (expectedUrl) {
-  return expect(
-      browser.url().then(function (result) {
-        return result.value;
-      })
-    ).eventually.equal(expectedUrl);
-});
-
 browser.addCommand("stopRunningTask", function () {
   return browser
     .url('/')
@@ -66,9 +50,9 @@ browser.addCommand("startAndTestTaskStarted", function (projectName, taskName, t
     .waitForExist('.devart-timer-link-stop')
     .url('/')
     .waitForExist('.timer-active')
-    .testText('.timer-active .timer-td-project', projectName)
-    .testText('.timer-active div .text-overflow', taskName)
-    .testAttribute('.timer-active a.flex-item-no-shrink', 'href', taskUrl)
+    .getText('.timer-active .timer-td-project').should.eventually.be.equal(projectName)
+    .getText('.timer-active div .text-overflow').should.eventually.be.equal(taskName)
+    .getAttribute('.timer-active a.flex-item-no-shrink', 'href').should.eventually.be.equal(taskUrl)
 });
 
 browser.addCommand("stopAndTestTaskStopped", function () {
@@ -83,10 +67,6 @@ browser.addCommand("stopAndTestTaskStopped", function () {
     .waitForExist('.devart-timer-link-start')
     .url('/')
     .waitForVisible('.page-actions')
-    .isVisible('#btn-stop').then(function (visible) {
-      expect(visible).to.be.false;
-    })
-    .isExisting('.timer-active').then(function (existing) {
-      expect(existing).to.be.false;
-    });
+    .isVisible('#btn-stop').should.eventually.be.false
+    .isExisting('.timer-active').should.eventually.be.false;
 });

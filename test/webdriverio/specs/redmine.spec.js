@@ -75,9 +75,9 @@ describe("Redmine integration spec", function () {
     return browser
       .url(testIssueUrl)
       .waitForExist('.devart-timer-link.devart-timer-link-start')
-      .testText('#header h1', testProjectName)
-      .testText('.subject h3', testIssueName)
-      .testUrl(testIssueUrl)
+      .getText('#header h1').should.eventually.be.equal(testProjectName)
+      .getText('.subject h3').should.eventually.be.equal(testIssueName)
+      .url().should.eventually.has.property('value', testIssueUrl)
       .startAndTestTaskStarted(testProjectName, testIssueName, testIssueUrl);
   });
 

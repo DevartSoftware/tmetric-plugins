@@ -49,9 +49,9 @@ describe("Jira integration spec", function () {
     return browser
       .url(testIssueUrl)
       .waitForExist('.devart-timer-link.devart-timer-link-start')
-      .testText('#project-name-val', testProjectName)
-      .testText('#summary-val', testIssueName)
-      .testUrl(testIssueUrl)
+      .getText('#project-name-val').should.eventually.be.equal(testProjectName)
+      .getText('#summary-val').should.eventually.be.equal(testIssueName)
+      .url().should.eventually.has.property('value', testIssueUrl)
       .startAndTestTaskStarted(testProjectName, testIssueName, testIssueUrl);
   });
 
@@ -67,9 +67,9 @@ describe("Jira integration spec", function () {
       .waitForExist('.ghx-inner=' + testIssueName)
       .click('.ghx-inner=' + testIssueName)
       .waitForExist('.devart-timer-link.devart-timer-link-start')
-      .testText('.ghx-project', testProjectName)
-      .testText('dd[data-field-id=summary]', testIssueName)
-      .testAttribute('dd[data-field-id=issuekey] > a', 'href', testIssueUrl)
+      .getText('.ghx-project').should.eventually.be.equal(testProjectName)
+      .getText('dd[data-field-id=summary]').should.eventually.be.equal(testIssueName)
+      .getAttribute('dd[data-field-id=issuekey] > a', 'href').should.eventually.be.equal(testIssueUrl)
       .startAndTestTaskStarted(testProjectName, testIssueName, testIssueUrl);
   });
 
