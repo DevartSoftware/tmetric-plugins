@@ -18,7 +18,7 @@ var services = {
 			// url
 			// ===
 			// The address of the login page of the service.
-			url: '/account/login', // baseUrl from wdio.conf.js is prepended
+			url: '/login', // baseUrl from wdio.conf.js is prepended
 			
 			//
 			// =============
@@ -69,8 +69,24 @@ var services = {
 		}
 	},
 	
-	// Add new services below
-	// ...
+	GitLab: {
+		login: {
+			url: 'http://gitlab.com/users/sign_in',
+			usernameField: '#user_login',
+			passwordField: '#user_password',
+			submitButton: '.btn.btn-save'
+		}
+	},
+	
+	Redmine: {
+		login: {
+			url: 'http://demo.redmine.org/login',
+			usernameField: '#username',
+			passwordField: '#password',
+			submitButton: 'input[type=submit]'
+		}
+	}
+
 };
 
 services = deepmerge(services, logins);

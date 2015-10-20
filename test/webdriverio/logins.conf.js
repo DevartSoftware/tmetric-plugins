@@ -17,5 +17,19 @@ module.exports = {
 			username: '',
 			password: ''
 		}
-	}	
+	},
+	
+	GitLab: {
+		login: {
+			username: '',
+			password: ''
+		}
+	},
+	
+	Redmine: {
+		login: {
+			username: '',
+			password: ''
+		}
+	}
 }

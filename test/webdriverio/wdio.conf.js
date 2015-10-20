@@ -90,13 +90,12 @@ exports.config = {
     // Mocha: `$ npm install mocha`
     // Jasmine: `$ npm install jasmine`
     // Cucumber: `$ npm install cucumber`
-    framework: 'jasmine',
+    framework: 'mocha',
     //
     // Test reporter for stdout.
     // The following are supported: dot (default), spec and xunit
     // see also: http://webdriver.io/guide/testrunner/reporters.html
     reporter: 'dot',
-
     //
     // Some reporter require additional information which should get defined here
     reporterOptions: {
@@ -107,27 +106,10 @@ exports.config = {
     },
 
     //
-    // Options to be passed to Jasmine.
-    jasmineNodeOpts: {
-        //
-        // Jasmine default timeout
-        defaultTimeoutInterval: 60000,
-        //
-        // The Jasmine framework allows it to intercept each assertion in order to log the state of the application
-        // or website depending on the result. For example it is pretty handy to take a screenshot everytime
-        // an assertion fails.
-        expectationResultHandler: function (passed, assertion) {
-
-            /**
-             * only take screenshot if assertion failed
-             */
-            if (passed) {
-                return;
-            }
-
-            var title = assertion.message.replace(/\s/g, '-');
-            browser.saveScreenshot(exports.config.screenshotPath +'assertionError_' + title + '.png');
-        }
+    // Options to be passed to Mocha.
+    // See the full list at http://mochajs.org/
+    mochaOpts: {
+        timeout: 60000
     },
 
     //
@@ -154,7 +136,17 @@ exports.config = {
     // variables like `browser`. It is the perfect place to define custom commands.
     before: function () {
         // do something
-        require('./customCommands')
+        require('./customCommands');
+        
+        var chai = require('chai');
+        var chaiAsPromised = require('chai-as-promised');
+    
+        chai.Should();
+        chai.use(chaiAsPromised);
+        chaiAsPromised.transferPromiseness = browser.transferPromiseness;
+
+        expect = chai.expect;
+
     },
     //
     // Gets executed after all tests are done. You still have access to all global variables from
