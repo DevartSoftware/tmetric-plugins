@@ -9,6 +9,7 @@ module Integrations {
             if (jiraAppQuery) {
                 return jiraAppQuery.getAttribute('content') == 'JIRA';
             }
+            
             return false;
         }
 
@@ -63,13 +64,13 @@ module Integrations {
             if (jiraContextPath) {
                 serviceUrl += jiraContextPath;
 
-                if (issueUrl.indexOf(jiraContextPath)) {
+                if (issueUrl.indexOf(serviceUrl)) {
                     // we suppose that issueUrl must begin with context path; if not, raise the error.
                     console.error('Time tracker extension was unable to parse the Jira page. Something wrong with Jira context URL and issue URL.');
                     return;
                 }
 
-                issueUrl = issueUrl.substr(jiraContextPath.length);
+                issueUrl = issueUrl.substr(serviceUrl.length);
             }
 
             return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Jira' };
