@@ -1,4 +1,5 @@
-describe("Redmine integration spec", function () {
+
+describe("Redmine", function () {
 
   var bugTrackerUrl = 'http://demo.redmine.org';
 
@@ -71,7 +72,7 @@ describe("Redmine integration spec", function () {
 
   });
 
-  it("can start tracking time on a task from Redmine test project", function () {
+  it("can start timer on an issue", function () {
     return browser
       .url(testIssueUrl)
       .waitForExist('.devart-timer-link.devart-timer-link-start')
@@ -81,7 +82,7 @@ describe("Redmine integration spec", function () {
       .startAndTestTaskStarted(testProjectName, testIssueName, testIssueUrl);
   });
 
-  it("can stop tracking time on a task from Redmine test project", function () {
+  it("can stop timer on an issue", function () {
     return browser
       .url(testIssueUrl)
       .stopAndTestTaskStopped();

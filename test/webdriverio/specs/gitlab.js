@@ -1,4 +1,4 @@
-describe("GitLab integration spec", function () {
+describe("GitLab", function () {
 
   var bugTrackerUrl = 'https://gitlab.com';
 
@@ -89,7 +89,7 @@ describe("GitLab integration spec", function () {
 
   });
 
-  it("can start tracking time on a task from GitLab test project", function () {
+  it("can start timer on an issue", function () {
     return browser
       .url(testIssueUrl)
       .waitForExist('.devart-timer-link.devart-timer-link-start')
@@ -99,7 +99,7 @@ describe("GitLab integration spec", function () {
       .startAndTestTaskStarted(testProjectName, testIssueName, testIssueUrl);
   });
 
-  it("can stop tracking time on a task from GitLab test project", function () {
+  it("can stop timer on an issue", function () {
     return browser
       .url(testIssueUrl)
       .stopAndTestTaskStopped();
