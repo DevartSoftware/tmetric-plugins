@@ -38,7 +38,9 @@ browser.addCommand("stopRunningTask", function () {
     .url('/')
     .isVisible('#btn-stop').then(function (isVisible) {
       if (isVisible) {
-        return browser.click('#btn-stop');
+        return browser
+          .click('#btn-stop')
+          .waitForVisible('#btn-stop', 1000, true);
       }
     });
 });
