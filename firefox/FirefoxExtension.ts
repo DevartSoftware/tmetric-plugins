@@ -259,19 +259,11 @@ class FirefoxExtension extends ExtensionBase {
             ', left=' + left +
             ', top=' + top;
 
-        var folder = '/'; // Pass folder in ReturnUrl (#60008)
-        var folderIndex = trackerServiceUrl.indexOf('/', 10);
-        if (folderIndex > 0) {
-            folder = trackerServiceUrl.substring(folderIndex);
-        }
-
-        var url = trackerServiceUrl + 'Account/Login?ReturnUrl=' + folder + '%23/noapp';
-
         // wait for login window and tab identifiers
         this.loginWindowPending = true;
 
         try {
-            var popupWindow = window.open(url, 'LoginWindow', parameters);
+            var popupWindow = window.open(this.getLoginUrl(), 'LoginWindow', parameters);
             popupWindow.onfocus = () => {
                 popupWindow.onfocus = null;
 
