@@ -251,6 +251,15 @@ class ExtensionBase {
         this.setButtonIcon(state == ButtonState.stop || state == ButtonState.fixtimer ? 'active' : 'inactive', text);
     }
 
+    getLoginUrl(): string {
+        var folder = '/'; // Pass folder in ReturnUrl
+        var folderIndex = trackerServiceUrl.indexOf('/', 10);
+        if (folderIndex > 0) {
+            folder = trackerServiceUrl.substring(folderIndex);
+        }
+        return trackerServiceUrl + 'Login?ReturnUrl=' + folder + '%23/noapp';
+    }
+
     private normalizeUrl(url: string) {
         if (url) {
             var i = url.indexOf('#');

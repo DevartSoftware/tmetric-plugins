@@ -47,6 +47,7 @@
                 "in-page-scripts/integrations/Redmine.js",
                 "in-page-scripts/integrations/Jira.js",
                 "in-page-scripts/integrations/JiraAgile.js",
+                "in-page-scripts/integrations/TFS.js",
                 "in-page-scripts/page.js"
             ],
             "css": [

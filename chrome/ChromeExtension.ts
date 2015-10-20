@@ -107,7 +107,7 @@ class ChromeExtension extends ExtensionBase {
         chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
             if (tabId == this.loginTabId &&
                 changeInfo.status == 'loading' &&
-                changeInfo.url.indexOf('/Account/') < 0) {
+                changeInfo.url.indexOf('/#/noapp') >= 0) {
                 chrome.tabs.remove(tabId);
             }
             else {
@@ -115,7 +115,7 @@ class ChromeExtension extends ExtensionBase {
             }
         });
 
-        // When user switch windows, tabs.onUpdated does not fire (#60434)
+        // When user switch windows, tabs.onUpdated does not fire
         chrome.windows.onFocusChanged.addListener(() => updateCurrentTab());
 
         chrome.tabs.onActivated.addListener(activeInfo => {
@@ -201,7 +201,7 @@ class ChromeExtension extends ExtensionBase {
                         width,
                         height,
                         focused: true,
-                        url: trackerServiceUrl + 'Account/Login',
+                        url: this.getLoginUrl(),
                         type: 'popup'
                     }, window => {
                         this.loginWinId = window.id;

@@ -6,6 +6,7 @@ Supported systems:
  - [Jira](https://www.atlassian.com/software/jira) (including Jira Agile).
  - [Jira Service Desk](https://www.atlassian.com/software/jira/service-desk)
  - [Redmine](http://www.redmine.org/)
+ - [Visual Studio Online](https://www.visualstudio.com/)
 
 ## Installation
 **Requirements**
