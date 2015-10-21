@@ -7,3 +7,4 @@ chrome/*.js
 firefox/*.js
 test/webdriverio/errorShots/
 css/*.css
+test/webdriverio/logins.conf.js
