@@ -2,8 +2,7 @@
 // The file is automatically merged with 'services.conf.js' and must have the same structure.
 // See 'services.conf.js' file for the documentation.
 //
-// IMPORTANT:
-// DON'T commit this file to the repository. This will expose the login information to public.
+// Copy it to 'logins.conf.js' file and fill username/password pairs.
 module.exports = {
 	TimeTracker: {
 		login: {

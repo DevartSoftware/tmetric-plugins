@@ -39,7 +39,8 @@ Built extensions can be found in `/dist/chrome/` and `/dist/firefox/` folders.
  [WebdriverIO](http://webdriver.io/), and [Mocha](https://mochajs.org/).
  
 **IMPORTANT:**
-Before running tests you need to provide valid login information for all services configured in
-`/test/webdriverio/logins.conf.js`
+Before running tests you should:
+1. Copy `/test/webdriverio/logins.template.js` to `/test/webdriverio/logins.conf.js`   
+2. Provide valid login information for all services listed in the file.
  
- To run tests simply execute `gulp test` command or run `test.bat` (only on Windows).
+To run tests simply execute `gulp test` command or run `test.bat` (only on Windows).
