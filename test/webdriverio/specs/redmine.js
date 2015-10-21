@@ -75,7 +75,7 @@ describe("Redmine", function () {
   it("can start timer on an issue", function () {
     return browser
       .url(testIssueUrl)
-      .waitForExist('.devart-timer-link.devart-timer-link-start')
+      .waitForExist('.devart-timer-link')
       .getText('#header h1').should.eventually.be.equal(testProjectName)
       .getText('.subject h3').should.eventually.be.equal(testIssueName)
       .url().should.eventually.has.property('value', testIssueUrl)
@@ -85,7 +85,7 @@ describe("Redmine", function () {
   it("can stop timer on an issue", function () {
     return browser
       .url(testIssueUrl)
-      .stopAndTestTaskStopped();
+      .startStopAndTestTaskStopped();
   });
 
 });

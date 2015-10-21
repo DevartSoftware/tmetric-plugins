@@ -36,6 +36,7 @@ browser.addCommand("login", function (serviceName) {
 browser.addCommand("stopRunningTask", function () {
   return browser
     .url('/')
+    .waitForVisible('.page-actions')
     .isVisible('#btn-stop').then(function (isVisible) {
       if (isVisible) {
         return browser
@@ -47,7 +48,7 @@ browser.addCommand("stopRunningTask", function () {
 
 browser.addCommand("startAndTestTaskStarted", function (projectName, taskName, taskUrl) {
   return browser
-    .waitForExist('.devart-timer-link')
+    .waitForExist('.devart-timer-link-start')
     .click('.devart-timer-link-start')
     .waitForExist('.devart-timer-link-stop')
     .url('/')
@@ -57,14 +58,11 @@ browser.addCommand("startAndTestTaskStarted", function (projectName, taskName, t
     .getAttribute('.timer-active a.flex-item-no-shrink', 'href').should.eventually.be.equal(taskUrl)
 });
 
-browser.addCommand("stopAndTestTaskStopped", function () {
+browser.addCommand("startStopAndTestTaskStopped", function () {
   return browser
-    .waitForExist('.devart-timer-link')
-    .isExisting('.devart-timer-link-start').then(function () {
-      return browser
-        .click('.devart-timer-link-start')
-        .waitForExist('.devart-timer-link-stop');
-    })
+    .waitForExist('.devart-timer-link-start')
+    .click('.devart-timer-link-start')
+    .waitForExist('.devart-timer-link-stop')
     .click('.devart-timer-link-stop')
     .waitForExist('.devart-timer-link-start')
     .url('/')

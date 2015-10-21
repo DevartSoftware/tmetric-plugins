@@ -11,7 +11,6 @@ describe('Extension', function () {
 
     return browser
       .login('TimeTracker')
-      .waitForVisible('.page-actions')
       .stopRunningTask()
       .deleteCookie()
       .url('http://demo.redmine.org/issues')
@@ -39,7 +38,6 @@ describe('Extension', function () {
       .setValue(service.login.usernameField, service.login.username)
       .setValue(service.login.passwordField, service.login.password)
       .click(service.login.submitButton)
-      // .login('TimeTracker', true)
       .waitUntil(function () {
         return browser.getTabIds().then(function (result) {
           return result.length === 1;
