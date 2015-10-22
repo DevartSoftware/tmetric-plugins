@@ -3,8 +3,7 @@ describe("Jira", function () {
   var bugTrackerUrl = 'https://jira.atlassian.com';
 
   var testProjectName = 'Demo';
-  var testProjectKey = 'DEMO';
-  var testProjectUrl = bugTrackerUrl + '/projects/' + testProjectKey;
+  var testProjectUrl = bugTrackerUrl + '/projects/DEMO';
 
   var testIssueName = 'Issue-qweasdzxc for ' + testProjectName;
   var testIssueSearchUrl = testProjectUrl + '/issues?filter=reportedbyme';
@@ -15,16 +14,12 @@ describe("Jira", function () {
 
   var testBoardSearchUrl = 'https://jira.atlassian.com/secure/ManageRapidViews.jspa';
 
-  var testScrumBoardName = 'Board-Scrum-qweasdzxc for ' + testProjectName;
-  var testScrumBoardUrl = '';
-
   var testKanbanBoardName = 'Board-Kanban-qweasdzxc for ' + testProjectName;
   var testKanbanBoardUrl = '';
 
   before(function () {
 
     var testIssueAnchorSelector = '//a[span[contains(@class,"issue-link-summary")][text()="' + testIssueName + '"]]';
-    var testScrumBoardAnchorSelector = '//a[text()="' + testScrumBoardName + '"]';
     var testKanbanBoardAnchorSelector = '//a[text()="' + testKanbanBoardName + '"]';
 
     function createIssue () {
@@ -55,30 +50,6 @@ describe("Jira", function () {
         .setValue('#filterName', testFilterName)
         .click('.submit')
         .waitForExist('.search-title=' + testFilterName);
-    }
-
-    function createScrumBoard () {
-      return browser
-        .url(testBoardSearchUrl)
-        .waitForExist('#ghx-create-boards-btn')
-        .click('#ghx-create-boards-btn')
-        .waitForExist('#ghx-wizard-methodology-scrum')
-        .click('#ghx-wizard-methodology-scrum')
-        .waitForExist('#ghx-wizard-method-existing-filter')
-        .click('#ghx-wizard-method-existing-filter')
-        .click('.js-wizard-button-next')
-        .waitForExist('#ghx-wizard-filter-view-name')
-        .setValue('#ghx-wizard-filter-view-name', testScrumBoardName)
-        .setValue('#ghx-wizard-filter-select-field', testFilterName)
-        .waitForExist('//div[label[text()="Saved filter"]]//input[@aria-expanded="true"]')
-        .keys('\uE007')
-        .waitForExist('//button[@aria-disabled="false"]')
-        .click('//button[@aria-disabled="false"]')
-        .waitForExist('//div[contains(@class,"project-title")]/a[text()="' + testProjectName + '"]')
-        .getAttribute('//a[contains(@data-link-id,"project-sidebar-plan-scrum")]', 'href')
-        .then(function (result) {
-          testScrumBoardUrl = result;
-        });
     }
 
     function createKanbanBoard () {
@@ -139,25 +110,6 @@ describe("Jira", function () {
           return createFilter();
         }
       })
-      // check test scrum board
-      .url(testBoardSearchUrl)
-      .waitForExist('a[data-item-id="all"]')
-      .click('a[data-item-id="all"]')
-      .waitForVisible('.js-search-boards-input')
-      .setValue('.js-search-boards-input', testScrumBoardName)
-      .isExisting(testScrumBoardAnchorSelector)
-      .then(function (result) {
-        return result ?
-          browser
-            .getAttribute(testScrumBoardAnchorSelector, 'href')
-            .then(function (result) {
-              testScrumBoardUrl = result;
-            }) :
-          createScrumBoard();
-      })
-      .then(function () {
-        expect(testScrumBoardUrl).to.be.a('string').and.not.to.be.empty;
-      })
       // check test kanban board
       .url(testBoardSearchUrl)
       .waitForExist('a[data-item-id="all"]')
@@ -196,9 +148,9 @@ describe("Jira", function () {
       .startStopAndTestTaskStopped();
   });
 
-  function testStartTaskFromBoard (boardUrl) {
+  it("can start timer on an issue from kanban board", function () {
     return browser
-      .url(boardUrl)
+      .url(testKanbanBoardUrl)
       .waitForVisible('.ghx-inner=' + testIssueName)
       .click('.ghx-inner=' + testIssueName)
       .waitForVisible('.ghx-detail-view-blanket', 5000, true)
@@ -207,31 +159,15 @@ describe("Jira", function () {
       .getText('dd[data-field-id=summary]').should.eventually.be.equal(testIssueName)
       .getAttribute('dd[data-field-id=issuekey] > a', 'href').should.eventually.be.equal(testIssueUrl)
       .startAndTestTaskStarted(testProjectName, testIssueName, testIssueUrl);
-  }
+  });
 
-  function testStopTaskFromBoard (boardUrl) {
+  it("can stop timer on an issue from kanban board", function () {
     return browser
       .url(testKanbanBoardUrl)
       .waitForVisible('.ghx-inner=' + testIssueName)
       .click('.ghx-inner=' + testIssueName)
       .waitForVisible('.ghx-detail-view-blanket', 5000, true)
       .startStopAndTestTaskStopped();
-  }
-
-  it("can start timer on an issue from scrum board", function () {
-    return testStartTaskFromBoard(testScrumBoardUrl + '&view=planning');
-  });
-
-  it("can stop timer on an issue from scrum board", function () {
-    return testStopTaskFromBoard(testScrumBoardUrl);
-  });
-
-  it("can start timer on an issue from kanban board", function () {
-    return testStartTaskFromBoard(testKanbanBoardUrl);
-  });
-
-  it("can stop timer on an issue from kanban board", function () {
-    return testStopTaskFromBoard(testKanbanBoardUrl);
   });
 
 }); 
