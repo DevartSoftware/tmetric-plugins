@@ -128,8 +128,7 @@ describe("Jira", function () {
             });
       })
       .then(function () {
-        expect(testIssueUrl).to.be.String;
-        expect(testIssueUrl).not.to.be.empty;
+        expect(testIssueUrl).to.be.a('string').and.not.to.be.empty;
       })
       // check test filter
       .url(testFilterSearchUrl)
@@ -157,8 +156,7 @@ describe("Jira", function () {
           createScrumBoard();
       })
       .then(function () {
-        expect(testScrumBoardUrl).to.be.String;
-        expect(testScrumBoardUrl).not.to.be.empty;
+        expect(testScrumBoardUrl).to.be.a('string').and.not.to.be.empty;
       })
       // check test kanban board
       .url(testBoardSearchUrl)
@@ -177,8 +175,7 @@ describe("Jira", function () {
           createKanbanBoard();
       })
       .then(function () {
-        expect(testKanbanBoardUrl).to.be.String;
-        expect(testKanbanBoardUrl).not.to.be.empty;
+        expect(testKanbanBoardUrl).to.be.a('string').and.not.to.be.empty;
       })
 
   });

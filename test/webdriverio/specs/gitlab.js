@@ -84,7 +84,7 @@ describe("GitLab", function () {
       .login("GitLab")
       .then(searchTestIssue)
       .then(function () {
-        expect(testIssueUrl).not.to.be.empty;
+        expect(testIssueUrl).to.be.a('string').and.not.to.be.empty;
       });
 
   });
