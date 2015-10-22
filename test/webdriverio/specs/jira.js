@@ -1,4 +1,4 @@
-describe("Jira integration spec", function () {
+describe.skip("Jira", function () {
 
   var bugTrackerUrl = 'https://jira.atlassian.com';
 
@@ -45,7 +45,7 @@ describe("Jira integration spec", function () {
 
   });
 
-  it("can start tracking time on a task from jira project", function () {
+  it("can start timer on an issue", function () {
     return browser
       .url(testIssueUrl)
       .waitForExist('.devart-timer-link.devart-timer-link-start')
@@ -55,13 +55,13 @@ describe("Jira integration spec", function () {
       .startAndTestTaskStarted(testProjectName, testIssueName, testIssueUrl);
   });
 
-  it("can stop tracking time on a task from jira project", function () {
+  it("can stop timer on an issue", function () {
     return browser
       .url(testIssueUrl)
       .stopAndTestTaskStopped();
   });
 
-  it("can start tracking time on a task from jira agile board", function () {
+  it("can start timer on an issue from agile board", function () {
     return browser
       .url(testAgileBoardUrl)
       .waitForExist('.ghx-inner=' + testIssueName)
@@ -73,7 +73,7 @@ describe("Jira integration spec", function () {
       .startAndTestTaskStarted(testProjectName, testIssueName, testIssueUrl);
   });
 
-  it("can stop tracking time on a task from jira agile board", function () {
+  it("can stop timer on an issue from agile board", function () {
     return browser
       .url(testAgileBoardUrl)
       .waitForExist('.ghx-inner=' + testIssueName)
