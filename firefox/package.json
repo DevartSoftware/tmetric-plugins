@@ -17,6 +17,8 @@
   "permissions": {
     "cross-domain-content": [
       "http://localhost:65341/",
+      "http://localhost/",
+      "https://localhost/",
       "https://tt.devart.com/",
       "https://alm-build/"
     ]
