@@ -1,12 +1,10 @@
-describe("Redmine integration spec", function () {
-
-  var bugTrackerUrl = 'http://demo.redmine.org';
+describe("Redmine", function () {
 
   var testProjectName = 'redmine-test-qazwsxedc';
-  var testProjectUrl = bugTrackerUrl + '/projects/' + testProjectName;
+  var testProjectUrl = 'http://demo.redmine.org/projects/redmine-test-qazwsxedc';
 
-  var testIssueName = 'Issue for ' + testProjectName;
-  var testIssueSearchUrl = bugTrackerUrl + '/issues?subject=' + testIssueName;
+  var testIssueName = 'Issue for redmine-test-qazwsxedc';
+  var testIssueSearchUrl = 'http://demo.redmine.org/issues?subject=Issue for redmine-test-qazwsxedc';
   var testIssueUrl = '';
 
   before(function () {
@@ -20,36 +18,36 @@ describe("Redmine integration spec", function () {
 
     function createTestProject () {
       return browser
-        .url(bugTrackerUrl + '/projects/new')
+        .url('http://demo.redmine.org/projects/new')
         .setValue('#project_name', testProjectName)
         .click('input[name=commit]')
-        .waitUrl(testProjectUrl + '/settings')
+        .waitUrl('http://demo.redmine.org/projects/redmine-test-qazwsxedc/settings')
         .url(testProjectUrl)
         .then(createTestIssue);
     }
 
     function createTestIssue () {
       return browser
-        .url(testProjectUrl + '/issues/new')
+        .url('http://demo.redmine.org/projects/redmine-test-qazwsxedc/issues/new')
         .setValue('#issue_subject', testIssueName)
         .click('input[name=commit]')
-        .waitForExist('.contextual .icon.icon-del')
-        .url(testProjectUrl + '/issues')
+        .waitForVisible('.contextual .icon.icon-del')
+        .url('http://demo.redmine.org/projects/redmine-test-qazwsxedc/issues')
         .then(getTestIssueUrlFromAnchor);
     }
 
     function checkTestIssue () {
       return browser
-        .url(testProjectUrl + '/issues')
-        .isExisting('a*=' + testIssueName).then(function (result) {
+        .url('http://demo.redmine.org/projects/redmine-test-qazwsxedc/issues')
+        .isVisible('a*=' + testIssueName).then(function (result) {
           return (result ? getTestIssueUrlFromAnchor : createTestIssue)();
         });
     }
 
     function checkTestProject () {
       return browser
-        .url(bugTrackerUrl + '/projects')
-        .isExisting('a*=' + testProjectName).then(function (result) {
+        .url('http://demo.redmine.org/projects')
+        .isVisible('a*=' + testProjectName).then(function (result) {
           return (result ? checkTestIssue : createTestProject)();
         });
     }
@@ -57,7 +55,7 @@ describe("Redmine integration spec", function () {
     function searchTestIssue () {
       return browser
         .url(testIssueSearchUrl)
-        .isExisting('a*=' + testIssueName).then(function (result) {
+        .isVisible('a*=' + testIssueName).then(function (result) {
           return (result ? getTestIssueUrlFromAnchor : checkTestProject)();
         });      
     }
@@ -66,25 +64,25 @@ describe("Redmine integration spec", function () {
       .login("Redmine")
       .then(searchTestIssue)
       .then(function () {
-        expect(testIssueUrl).not.to.be.empty;
+        expect(testIssueUrl).to.be.a('string').and.not.to.be.empty;
       });
 
   });
 
-  it("can start tracking time on a task from Redmine test project", function () {
+  it("can start timer on an issue", function () {
     return browser
       .url(testIssueUrl)
-      .waitForExist('.devart-timer-link.devart-timer-link-start')
+      .waitForVisible('.devart-timer-link')
       .getText('#header h1').should.eventually.be.equal(testProjectName)
       .getText('.subject h3').should.eventually.be.equal(testIssueName)
       .url().should.eventually.has.property('value', testIssueUrl)
       .startAndTestTaskStarted(testProjectName, testIssueName, testIssueUrl);
   });
 
-  it("can stop tracking time on a task from Redmine test project", function () {
+  it("can stop timer on an issue", function () {
     return browser
       .url(testIssueUrl)
-      .stopAndTestTaskStopped();
+      .startStopAndTestTaskStopped();
   });
 
 });

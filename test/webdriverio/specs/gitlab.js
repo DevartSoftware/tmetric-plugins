@@ -1,13 +1,9 @@
-describe("GitLab integration spec", function () {
-
-  var bugTrackerUrl = 'https://gitlab.com';
+describe("GitLab", function () {
 
   var testProjectName = 'gitlab-test-qazwsxedc';
-  var testProjectSearchUrl = bugTrackerUrl + '/dashboard/projects';
   var testProjectUrl = '';
 
-  var testIssueName = 'Issue for ' + testProjectName;
-  var testIssueSearchUrl = bugTrackerUrl + '/dashboard/issues?search=' + testIssueName;
+  var testIssueName = 'Issue for gitlab-test-qazwsxedc';
   var testIssueUrl = '';
 
   before(function () {
@@ -30,10 +26,10 @@ describe("GitLab integration spec", function () {
 
     function createTestProject () {
       return browser
-        .url(bugTrackerUrl + '/projects/new')
+        .url('https://gitlab.com/projects/new')
         .setValue('#project_path', testProjectName)
         .click('.btn.btn-create')
-        .waitForExist('.btn.btn-remove')
+        .waitForVisible('.btn.btn-remove', 30000)
         .url().then(function (result) {
           testProjectUrl = result.value;
         })
@@ -45,22 +41,22 @@ describe("GitLab integration spec", function () {
         .url(testProjectUrl + '/issues/new')
         .setValue('#issue_title', testIssueName)
         .click('.btn.btn-create')
-        .waitForExist('.btn.btn-close.js-note-target-close')
+        .waitForVisible('.btn.btn-close.js-note-target-close')
         .then(getTestIssueUrlFromUrl);
     }
 
     function checkTestIssue () {
       return browser
         .url(testProjectUrl + '/issues')
-        .isExisting('a*=' + testIssueName).then(function (result) {
+        .isVisible('a*=' + testIssueName).then(function (result) {
           return (result ? getTestIssueUrlFromAnchor : createTestIssue)();
         });
     }
 
     function checkTestProject () {
       return browser
-        .url(testProjectSearchUrl)
-        .isExisting('a*=' + testProjectName)
+        .url('https://gitlab.com/dashboard/projects')
+        .isVisible('a*=' + testProjectName)
         .then(function (result) {
           return (result ? function () {
             return browser
@@ -74,8 +70,8 @@ describe("GitLab integration spec", function () {
 
     function searchTestIssue () {
       return browser
-        .url(testIssueSearchUrl)
-        .isExisting('a*=' + testIssueName).then(function (result) {
+        .url('https://gitlab.com/dashboard/issues?search=gitlab-test-qazwsxedc')
+        .isVisible('a*=' + testIssueName).then(function (result) {
           return (result ? getTestIssueUrlFromAnchor : checkTestProject)();
         });      
     }
@@ -84,25 +80,25 @@ describe("GitLab integration spec", function () {
       .login("GitLab")
       .then(searchTestIssue)
       .then(function () {
-        expect(testIssueUrl).not.to.be.empty;
+        expect(testIssueUrl).to.be.a('string').and.not.to.be.empty;
       });
 
   });
 
-  it("can start tracking time on a task from GitLab test project", function () {
+  it("can start timer on an issue", function () {
     return browser
       .url(testIssueUrl)
-      .waitForExist('.devart-timer-link.devart-timer-link-start')
+      .waitForVisible('.devart-timer-link')
       .getText('.title a:nth-last-child(2)').should.eventually.be.equal(testProjectName)
       .getText('.issue-title').should.eventually.be.equal(testIssueName)
       .url().should.eventually.has.property('value', testIssueUrl)
       .startAndTestTaskStarted(testProjectName, testIssueName, testIssueUrl);
   });
 
-  it("can stop tracking time on a task from GitLab test project", function () {
+  it("can stop timer on an issue", function () {
     return browser
       .url(testIssueUrl)
-      .stopAndTestTaskStopped();
+      .startStopAndTestTaskStopped();
   });
 
 });
