@@ -18,7 +18,7 @@ gulp.task('build:test', ['package:chrome:test', 'package:firefox:test']);
 // =============================================================================
 
 // Output folders for *.crx and *.xpi files
-var dist = 'dist/';
+var dist = '../dist/';
 var distFirefox = dist + 'firefox/';
 var dirCrx = dist + 'chrome/';
 var unpackedCrx = dirCrx + 'unpacked/';
