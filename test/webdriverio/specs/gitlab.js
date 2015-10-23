@@ -1,13 +1,9 @@
 describe("GitLab", function () {
 
-  var bugTrackerUrl = 'https://gitlab.com';
-
   var testProjectName = 'gitlab-test-qazwsxedc';
-  var testProjectSearchUrl = bugTrackerUrl + '/dashboard/projects';
   var testProjectUrl = '';
 
-  var testIssueName = 'Issue for ' + testProjectName;
-  var testIssueSearchUrl = bugTrackerUrl + '/dashboard/issues?search=' + testIssueName;
+  var testIssueName = 'Issue for gitlab-test-qazwsxedc';
   var testIssueUrl = '';
 
   before(function () {
@@ -30,7 +26,7 @@ describe("GitLab", function () {
 
     function createTestProject () {
       return browser
-        .url(bugTrackerUrl + '/projects/new')
+        .url('https://gitlab.com/projects/new')
         .setValue('#project_path', testProjectName)
         .click('.btn.btn-create')
         .waitForExist('.btn.btn-remove')
@@ -59,7 +55,7 @@ describe("GitLab", function () {
 
     function checkTestProject () {
       return browser
-        .url(testProjectSearchUrl)
+        .url('https://gitlab.com/dashboard/projects')
         .isExisting('a*=' + testProjectName)
         .then(function (result) {
           return (result ? function () {
@@ -74,7 +70,7 @@ describe("GitLab", function () {
 
     function searchTestIssue () {
       return browser
-        .url(testIssueSearchUrl)
+        .url('https://gitlab.com/dashboard/issues?search=gitlab-test-qazwsxedc')
         .isExisting('a*=' + testIssueName).then(function (result) {
           return (result ? getTestIssueUrlFromAnchor : checkTestProject)();
         });      

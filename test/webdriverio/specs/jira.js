@@ -1,20 +1,17 @@
 describe("Jira", function () {
 
-  var bugTrackerUrl = 'https://jira.atlassian.com';
-
   var testProjectName = 'Demo';
-  var testProjectUrl = bugTrackerUrl + '/projects/DEMO';
 
-  var testIssueName = 'Issue-qweasdzxc for ' + testProjectName;
-  var testIssueSearchUrl = testProjectUrl + '/issues?filter=reportedbyme';
+  var testIssueName = 'Issue-qweasdzxc for Demo';
+  var testIssueSearchUrl = 'https://jira.atlassian.com/projects/DEMO/issues?filter=reportedbyme';
   var testIssueUrl = '';
 
-  var testFilterName = 'Filter-qweasdzxc for ' + testProjectName;
+  var testFilterName = 'Filter-qweasdzxc for Demo';
   var testFilterSearchUrl = 'https://jira.atlassian.com/secure/ManageFilters.jspa#filterView=my';
 
   var testBoardSearchUrl = 'https://jira.atlassian.com/secure/ManageRapidViews.jspa';
 
-  var testKanbanBoardName = 'Board-Kanban-qweasdzxc for ' + testProjectName;
+  var testKanbanBoardName = 'Board-Kanban-qweasdzxc for Demo';
   var testKanbanBoardUrl = '';
 
   before(function () {

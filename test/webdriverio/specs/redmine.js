@@ -1,13 +1,11 @@
 
 describe("Redmine", function () {
 
-  var bugTrackerUrl = 'http://demo.redmine.org';
-
   var testProjectName = 'redmine-test-qazwsxedc';
-  var testProjectUrl = bugTrackerUrl + '/projects/' + testProjectName;
+  var testProjectUrl = 'http://demo.redmine.org/projects/redmine-test-qazwsxedc';
 
-  var testIssueName = 'Issue for ' + testProjectName;
-  var testIssueSearchUrl = bugTrackerUrl + '/issues?subject=' + testIssueName;
+  var testIssueName = 'Issue for redmine-test-qazwsxedc';
+  var testIssueSearchUrl = 'http://demo.redmine.org/issues?subject=Issue for redmine-test-qazwsxedc';
   var testIssueUrl = '';
 
   before(function () {
@@ -21,27 +19,27 @@ describe("Redmine", function () {
 
     function createTestProject () {
       return browser
-        .url(bugTrackerUrl + '/projects/new')
+        .url('http://demo.redmine.org/projects/new')
         .setValue('#project_name', testProjectName)
         .click('input[name=commit]')
-        .waitUrl(testProjectUrl + '/settings')
+        .waitUrl('http://demo.redmine.org/projects/redmine-test-qazwsxedc/settings')
         .url(testProjectUrl)
         .then(createTestIssue);
     }
 
     function createTestIssue () {
       return browser
-        .url(testProjectUrl + '/issues/new')
+        .url('http://demo.redmine.org/projects/redmine-test-qazwsxedc/issues/new')
         .setValue('#issue_subject', testIssueName)
         .click('input[name=commit]')
         .waitForExist('.contextual .icon.icon-del')
-        .url(testProjectUrl + '/issues')
+        .url('http://demo.redmine.org/projects/redmine-test-qazwsxedc/issues')
         .then(getTestIssueUrlFromAnchor);
     }
 
     function checkTestIssue () {
       return browser
-        .url(testProjectUrl + '/issues')
+        .url('http://demo.redmine.org/projects/redmine-test-qazwsxedc/issues')
         .isExisting('a*=' + testIssueName).then(function (result) {
           return (result ? getTestIssueUrlFromAnchor : createTestIssue)();
         });
@@ -49,7 +47,7 @@ describe("Redmine", function () {
 
     function checkTestProject () {
       return browser
-        .url(bugTrackerUrl + '/projects')
+        .url('http://demo.redmine.org/projects')
         .isExisting('a*=' + testProjectName).then(function (result) {
           return (result ? checkTestIssue : createTestProject)();
         });
