@@ -55,7 +55,7 @@ browser.addCommand("startAndTestTaskStarted", function (projectName, taskName, t
     .waitForExist('.timer-active')
     .getText('.timer-active .timer-td-project').should.eventually.be.equal(projectName)
     .getText('.timer-active div .text-overflow').should.eventually.be.equal(taskName)
-    .getAttribute('.timer-active a.flex-item-no-shrink', 'href').should.eventually.be.equal(taskUrl)
+    .getAttribute('.timer-active .issue-link', 'href').should.eventually.be.equal(taskUrl)
 });
 
 browser.addCommand("startStopAndTestTaskStopped", function () {
