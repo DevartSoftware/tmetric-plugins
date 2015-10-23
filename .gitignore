@@ -3,6 +3,7 @@ src/node_modules/
 dist/
 *.js.map
 *.lock.json
+*.xproj.user
 src/in-page-scripts/**/*.js
 src/extension-base/*.js
 src/chrome/*.js
