@@ -13,9 +13,6 @@
     },
     "signalr/signalr.d.ts": {
       "commit": "a461a243e2e09b213bc49d12650f80d81047576d"
-    },
-    "jasmine/jasmine.d.ts": {
-      "commit": "d82912b20963d6cbc37511b8ad615499378a116c"
     }
   }
 }
