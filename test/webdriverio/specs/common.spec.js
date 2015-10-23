@@ -1,4 +1,3 @@
-
 describe('Extension', function () {
 
   var services = require('../services.conf');

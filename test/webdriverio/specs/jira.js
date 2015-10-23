@@ -22,14 +22,13 @@ describe("Jira", function () {
     function createIssue () {
       return browser
         .url(testIssueSearchUrl)
-        .waitForExist('#create_link')
-        .click('#create_link')
-        .waitForExist('#create-issue-submit')
+        .waitForClick('#create_link')
+        .waitForVisible('#create-issue-submit')
         .setValue('#summary', testIssueName)
         .click('#create-issue-submit')
         .waitForExist('#create-issue-dialog', 30000, true)
         .url(testIssueSearchUrl)
-        .waitForExist(testIssueAnchorSelector)
+        .waitForVisible(testIssueAnchorSelector)
         .getAttribute(testIssueAnchorSelector, 'href')
         .then(function (result) {
           testIssueUrl = result;
@@ -39,33 +38,27 @@ describe("Jira", function () {
     function createFilter () {
       return browser
         .url(testIssueSearchUrl)
-        .waitForExist('#full-issue-navigator a')
-        .click('#full-issue-navigator a')
-        .waitForExist('.save-as-new-filter')
-        .click('.save-as-new-filter')
-        .waitForExist('#filterName')
+        .waitForClick('#full-issue-navigator a')
+        .waitForClick('.save-as-new-filter')
+        .waitForVisible('#filterName')
         .setValue('#filterName', testFilterName)
         .click('.submit')
-        .waitForExist('.search-title=' + testFilterName);
+        .waitForVisible('.search-title=' + testFilterName);
     }
 
     function createKanbanBoard () {
       return browser
         .url(testBoardSearchUrl)
-        .waitForExist('#ghx-create-boards-btn')
-        .click('#ghx-create-boards-btn')
-        .waitForExist('#ghx-wizard-methodology-kanban')
-        .click('#ghx-wizard-methodology-kanban')
-        .waitForExist('#ghx-wizard-method-existing-filter')
-        .click('#ghx-wizard-method-existing-filter')
+        .waitForClick('#ghx-create-boards-btn')
+        .waitForClick('#ghx-wizard-methodology-kanban')
+        .waitForClick('#ghx-wizard-method-existing-filter')
         .click('.js-wizard-button-next')
-        .waitForExist('#ghx-wizard-filter-view-name')
+        .waitForVisible('#ghx-wizard-filter-view-name')
         .setValue('#ghx-wizard-filter-view-name', testKanbanBoardName)
         .setValue('#ghx-wizard-filter-select-field', testFilterName)
-        .waitForExist('//div[label[text()="Saved filter"]]//input[@aria-expanded="true"]')
+        .waitForVisible('//div[label[text()="Saved filter"]]//input[@aria-expanded="true"]')
         .keys('\uE007')
-        .waitForExist('//button[@aria-disabled="false"]')
-        .click('//button[@aria-disabled="false"]')
+        .waitForClick('//button[contains(@class,"js-wizard-button-complete")][@aria-disabled="false"]')
         .waitForExist('//div[contains(@class,"project-title")]/a[text()="' + testProjectName + '"]')
         .getAttribute('//a[contains(@data-link-id,"project-sidebar-work-kanban")]', 'href')
         .then(function (result) {
@@ -109,8 +102,7 @@ describe("Jira", function () {
       })
       // check test kanban board
       .url(testBoardSearchUrl)
-      .waitForExist('a[data-item-id="all"]')
-      .click('a[data-item-id="all"]')
+      .waitForClick('a[data-item-id="all"]')
       .waitForVisible('.js-search-boards-input')
       .setValue('.js-search-boards-input', testKanbanBoardName)
       .isExisting('//a[text()="' + testKanbanBoardName + '"]')
@@ -132,7 +124,7 @@ describe("Jira", function () {
   it("can start timer on an issue", function () {
     return browser
       .url(testIssueUrl)
-      .waitForExist('.devart-timer-link')
+      .waitForVisible('.devart-timer-link')
       .getText('#project-name-val').should.eventually.be.equal(testProjectName)
       .getText('#summary-val').should.eventually.be.equal(testIssueName)
       .url().should.eventually.has.property('value', testIssueUrl)
@@ -148,8 +140,7 @@ describe("Jira", function () {
   it("can start timer on an issue from kanban board", function () {
     return browser
       .url(testKanbanBoardUrl)
-      .waitForVisible('.ghx-inner=' + testIssueName)
-      .click('.ghx-inner=' + testIssueName)
+      .waitForClick('.ghx-inner=' + testIssueName)
       .waitForVisible('.ghx-detail-view-blanket', 5000, true)
       .waitForVisible('.devart-timer-link.devart-timer-link-start')
       .getText('.ghx-project').should.eventually.be.equal(testProjectName)
@@ -161,8 +152,7 @@ describe("Jira", function () {
   it("can stop timer on an issue from kanban board", function () {
     return browser
       .url(testKanbanBoardUrl)
-      .waitForVisible('.ghx-inner=' + testIssueName)
-      .click('.ghx-inner=' + testIssueName)
+      .waitForClick('.ghx-inner=' + testIssueName)
       .waitForVisible('.ghx-detail-view-blanket', 5000, true)
       .startStopAndTestTaskStopped();
   });

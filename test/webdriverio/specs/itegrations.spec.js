@@ -1,4 +1,3 @@
-
 describe('Extension integrates with', function () {
 
   before(function () {

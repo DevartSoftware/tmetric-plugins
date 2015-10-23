@@ -29,7 +29,7 @@ describe("GitLab", function () {
         .url('https://gitlab.com/projects/new')
         .setValue('#project_path', testProjectName)
         .click('.btn.btn-create')
-        .waitForExist('.btn.btn-remove')
+        .waitForVisible('.btn.btn-remove', 30000)
         .url().then(function (result) {
           testProjectUrl = result.value;
         })
@@ -41,14 +41,14 @@ describe("GitLab", function () {
         .url(testProjectUrl + '/issues/new')
         .setValue('#issue_title', testIssueName)
         .click('.btn.btn-create')
-        .waitForExist('.btn.btn-close.js-note-target-close')
+        .waitForVisible('.btn.btn-close.js-note-target-close')
         .then(getTestIssueUrlFromUrl);
     }
 
     function checkTestIssue () {
       return browser
         .url(testProjectUrl + '/issues')
-        .isExisting('a*=' + testIssueName).then(function (result) {
+        .isVisible('a*=' + testIssueName).then(function (result) {
           return (result ? getTestIssueUrlFromAnchor : createTestIssue)();
         });
     }
@@ -56,7 +56,7 @@ describe("GitLab", function () {
     function checkTestProject () {
       return browser
         .url('https://gitlab.com/dashboard/projects')
-        .isExisting('a*=' + testProjectName)
+        .isVisible('a*=' + testProjectName)
         .then(function (result) {
           return (result ? function () {
             return browser
@@ -71,7 +71,7 @@ describe("GitLab", function () {
     function searchTestIssue () {
       return browser
         .url('https://gitlab.com/dashboard/issues?search=gitlab-test-qazwsxedc')
-        .isExisting('a*=' + testIssueName).then(function (result) {
+        .isVisible('a*=' + testIssueName).then(function (result) {
           return (result ? getTestIssueUrlFromAnchor : checkTestProject)();
         });      
     }
@@ -88,7 +88,7 @@ describe("GitLab", function () {
   it("can start timer on an issue", function () {
     return browser
       .url(testIssueUrl)
-      .waitForExist('.devart-timer-link')
+      .waitForVisible('.devart-timer-link')
       .getText('.title a:nth-last-child(2)').should.eventually.be.equal(testProjectName)
       .getText('.issue-title').should.eventually.be.equal(testIssueName)
       .url().should.eventually.has.property('value', testIssueUrl)

@@ -1,4 +1,3 @@
-
 describe("Redmine", function () {
 
   var testProjectName = 'redmine-test-qazwsxedc';
@@ -32,7 +31,7 @@ describe("Redmine", function () {
         .url('http://demo.redmine.org/projects/redmine-test-qazwsxedc/issues/new')
         .setValue('#issue_subject', testIssueName)
         .click('input[name=commit]')
-        .waitForExist('.contextual .icon.icon-del')
+        .waitForVisible('.contextual .icon.icon-del')
         .url('http://demo.redmine.org/projects/redmine-test-qazwsxedc/issues')
         .then(getTestIssueUrlFromAnchor);
     }
@@ -40,7 +39,7 @@ describe("Redmine", function () {
     function checkTestIssue () {
       return browser
         .url('http://demo.redmine.org/projects/redmine-test-qazwsxedc/issues')
-        .isExisting('a*=' + testIssueName).then(function (result) {
+        .isVisible('a*=' + testIssueName).then(function (result) {
           return (result ? getTestIssueUrlFromAnchor : createTestIssue)();
         });
     }
@@ -48,7 +47,7 @@ describe("Redmine", function () {
     function checkTestProject () {
       return browser
         .url('http://demo.redmine.org/projects')
-        .isExisting('a*=' + testProjectName).then(function (result) {
+        .isVisible('a*=' + testProjectName).then(function (result) {
           return (result ? checkTestIssue : createTestProject)();
         });
     }
@@ -56,7 +55,7 @@ describe("Redmine", function () {
     function searchTestIssue () {
       return browser
         .url(testIssueSearchUrl)
-        .isExisting('a*=' + testIssueName).then(function (result) {
+        .isVisible('a*=' + testIssueName).then(function (result) {
           return (result ? getTestIssueUrlFromAnchor : checkTestProject)();
         });      
     }
@@ -73,7 +72,7 @@ describe("Redmine", function () {
   it("can start timer on an issue", function () {
     return browser
       .url(testIssueUrl)
-      .waitForExist('.devart-timer-link')
+      .waitForVisible('.devart-timer-link')
       .getText('#header h1').should.eventually.be.equal(testProjectName)
       .getText('.subject h3').should.eventually.be.equal(testIssueName)
       .url().should.eventually.has.property('value', testIssueUrl)
