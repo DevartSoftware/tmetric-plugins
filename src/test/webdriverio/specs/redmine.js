@@ -1,10 +1,12 @@
 describe("Redmine", function () {
 
+  var bugTrackerUrl = 'http://demo.redmine.org';
+
   var testProjectName = 'redmine-test-qazwsxedc';
-  var testProjectUrl = 'http://demo.redmine.org/projects/redmine-test-qazwsxedc';
+  var testProjectUrl = bugTrackerUrl + '/projects/redmine-test-qazwsxedc';
 
   var testIssueName = 'Issue for redmine-test-qazwsxedc';
-  var testIssueSearchUrl = 'http://demo.redmine.org/issues?subject=Issue for redmine-test-qazwsxedc';
+  var testIssueSearchUrl = bugTrackerUrl + '/issues?subject=Issue for redmine-test-qazwsxedc';
   var testIssueUrl = '';
 
   before(function () {
@@ -18,27 +20,27 @@ describe("Redmine", function () {
 
     function createTestProject () {
       return browser
-        .url('http://demo.redmine.org/projects/new')
+        .url(bugTrackerUrl + '/projects/new')
         .setValue('#project_name', testProjectName)
         .click('input[name=commit]')
-        .waitUrl('http://demo.redmine.org/projects/redmine-test-qazwsxedc/settings')
+        .waitUrl(bugTrackerUrl + '/projects/redmine-test-qazwsxedc/settings')
         .url(testProjectUrl)
         .then(createTestIssue);
     }
 
     function createTestIssue () {
       return browser
-        .url('http://demo.redmine.org/projects/redmine-test-qazwsxedc/issues/new')
+        .url(bugTrackerUrl + '/projects/redmine-test-qazwsxedc/issues/new')
         .setValue('#issue_subject', testIssueName)
         .click('input[name=commit]')
         .waitForVisible('.contextual .icon.icon-del')
-        .url('http://demo.redmine.org/projects/redmine-test-qazwsxedc/issues')
+        .url(bugTrackerUrl + '/projects/redmine-test-qazwsxedc/issues')
         .then(getTestIssueUrlFromAnchor);
     }
 
     function checkTestIssue () {
       return browser
-        .url('http://demo.redmine.org/projects/redmine-test-qazwsxedc/issues')
+        .url(bugTrackerUrl + '/projects/redmine-test-qazwsxedc/issues')
         .isVisible('a*=' + testIssueName).then(function (result) {
           return (result ? getTestIssueUrlFromAnchor : createTestIssue)();
         });
@@ -46,7 +48,7 @@ describe("Redmine", function () {
 
     function checkTestProject () {
       return browser
-        .url('http://demo.redmine.org/projects')
+        .url(bugTrackerUrl + '/projects')
         .isVisible('a*=' + testProjectName).then(function (result) {
           return (result ? checkTestIssue : createTestProject)();
         });
