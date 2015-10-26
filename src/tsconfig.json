@@ -19,6 +19,7 @@
 		"chrome/shamPort.ts",
 		"chrome/ChromeExtension.ts",
 		"in-page-scripts/IntegrationService.ts",
+		"in-page-scripts/integrations/GitHub.ts",
 		"in-page-scripts/integrations/GitLab.ts",
 		"in-page-scripts/integrations/Redmine.ts",
 		"in-page-scripts/integrations/Jira.ts",

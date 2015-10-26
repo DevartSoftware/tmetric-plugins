@@ -78,6 +78,15 @@ var services = {
 		}
 	},
 	
+	GitHub: {
+		login: {
+			url: 'https://github.com/login',
+			usernameField: '#login_field',
+			passwordField: '#password',
+			submitButton: 'input[name=commit]'
+		}
+	},
+	
 	Redmine: {
 		login: {
 			url: 'http://demo.redmine.org/login',

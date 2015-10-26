@@ -25,6 +25,13 @@ module.exports = {
 		}
 	},
 	
+	GitHub: {
+		login: {
+			username: '',
+			password: ''
+		}
+	},
+	
 	Redmine: {
 		login: {
 			username: '',
