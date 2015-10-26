@@ -181,11 +181,7 @@ function packageFirefox(callback) {
 // Tasks for running automated tests
 // =============================================================================
 
-gulp.task('install:selenium', [], function (callback) {
-    selenium.install({}, callback); // install selenium with default options
-});
-
-gulp.task('test', ['install:selenium', 'build'], function (taskCallback) {
+gulp.task('test', ['build'], function (taskCallback) {
     selenium.start({}, function (startError, serverProcess) { // launch selenium server
         if (startError) {
             return taskCallback(startError);
@@ -205,7 +201,7 @@ gulp.task('test', ['install:selenium', 'build'], function (taskCallback) {
     });
 });
 
-gulp.task('test:dev', ['install:selenium', 'build:test'], function (taskCallback) {
+gulp.task('test:dev', ['build:test'], function (taskCallback) {
     selenium.start({}, function (startError, serverProcess) { // launch selenium server
         if (startError) {
             return taskCallback(startError);

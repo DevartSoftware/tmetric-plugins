@@ -27,8 +27,10 @@
     "merge-stream": "^1.0.0",
     "mkdirp": "^0.5.1",
     "ms-signalr-client": "2.2.2",
-    "selenium-standalone": "^4.6.3",
     "typescript": "1.5",
     "webdriverio": "^3.2.4"
+  },
+  "scripts": {
+    "postinstall": "npm link selenium-standalone"
   }
 }
