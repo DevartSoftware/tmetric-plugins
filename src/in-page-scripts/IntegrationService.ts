@@ -143,7 +143,9 @@ module Integrations {
                             sendBackgroundMessage({ action: 'putTimer', data: newIssueTimer });
                             return false;
                         };
-                        newLink.appendChild(document.createElement('img'));
+                        var spanWithIcon = document.createElement('span');
+                        spanWithIcon.classList.add(this.affix + '-icon');
+                        newLink.appendChild(spanWithIcon);
                         var span = document.createElement('span');
                         span.textContent = newIssueTimer.isStarted ? 'Start timer' : 'Stop timer';
                         newLink.appendChild(span);
