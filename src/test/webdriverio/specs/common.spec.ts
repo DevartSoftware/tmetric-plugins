@@ -2,6 +2,7 @@ describe('Extension', function () {
     var services = require('../services.conf');
 
     it('prompts an unauthenticated user for login on starting a task', function () {
+
         var projectName, taskName, taskUrl;
 
         var service = services['TimeTracker'];
@@ -10,13 +11,13 @@ describe('Extension', function () {
             .login('TimeTracker')
             .stopRunningTask()
             .deleteCookie()
-            .url('http://demo.redmine.org/issues')
-            .click('.id a')
+            .url('https://gitlab.com/gitlab-org/gitlab-ce/issues')
+            .click('.row_title')
             .waitForExist('.devart-timer-link-start')
-            .getText('#header h1').then(function (text) {
+            .getText('.title a:nth-last-child(2)').then(function (text) {
                 projectName = text;
             })
-            .getText('.subject h3').then(function (text) {
+            .getText('.issue-title').then(function (text) {
                 taskName = text;
             })
             .url().then(function (result) {
