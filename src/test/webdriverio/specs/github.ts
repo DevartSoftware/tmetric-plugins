@@ -17,21 +17,17 @@ describe("GitHub", function () {
         }
 
         function getTestProjectUrlFromUrl() {
-            console.log('getTestProjectUrlFromUrl');
             return browser
                 .url()
                 .then(function (result) {
-                    console.log('getTestProjectUrlFromUrl', result);
                     testProjectUrl = result.value;
                 });
         }
 
         function getTestIssueUrlFromAnchor() {
-            console.log('getTestIssueUrlFromAnchor');
             return browser
                 .getAttribute('a*=' + testIssueName, 'href')
                 .then(function (result) {
-                    console.log('getTestIssueUrlFromAnchor', result);
                     testIssueUrl = result;
                 });
         }
