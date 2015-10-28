@@ -47,7 +47,7 @@ browser.addCommand("stopRunningTask", function () {
       if (isVisible) {
         return browser
           .click('#btn-stop')
-          .waitForVisible('#btn-stop', 1000, true);
+          .waitForVisible('#btn-stop', 3000, true);
       }
     });
 });
