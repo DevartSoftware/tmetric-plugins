@@ -93,6 +93,7 @@ class FirefoxExtension extends ExtensionBase {
             './Jira.js',
             './JiraAgile.js',
             './TFS.js',
+            './Trello.js',
             './page.js'
         ];
 
