@@ -75,7 +75,6 @@ describe("Trello", function () {
     });
 
     it("can start timer on an issue", function () {
-        console.log(testIssueUrl);
         return browser
             .url(testIssueEffectiveUrl)
             .waitForVisible('.devart-timer-link')
