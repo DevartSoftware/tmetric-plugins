@@ -1,5 +1,4 @@
 describe("GitLab", function () {
-
     var testProjectName = 'gitlab-test-qazwsxedc';
     var testProjectUrl = '';
 
@@ -7,7 +6,6 @@ describe("GitLab", function () {
     var testIssueUrl = '';
 
     before(function () {
-
         function getTestIssueUrlFromAnchor() {
             return browser
                 .getAttribute('a*=' + testIssueName, 'href')
@@ -82,7 +80,6 @@ describe("GitLab", function () {
             .then(function () {
                 expect(testIssueUrl).to.be.a('string').and.not.to.be.empty;
             });
-
     });
 
     it("can start timer on an issue", function () {
@@ -100,5 +97,4 @@ describe("GitLab", function () {
             .url(testIssueUrl)
             .startStopAndTestTaskStopped();
     });
-
 });

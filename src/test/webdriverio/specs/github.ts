@@ -1,5 +1,4 @@
 describe("GitHub", function () {
-
     var bugTrackerUrl = 'http://github.com';
 
     var testProjectName = 'github-test-qazwsxedc';
@@ -9,7 +8,6 @@ describe("GitHub", function () {
     var testIssueUrl = '';
 
     before(function () {
-
         function getTestProjectUrlFromAnchor() {
             return browser
                 .getAttribute('a*=' + testProjectName, 'href')
@@ -102,7 +100,6 @@ describe("GitHub", function () {
             .then(function () {
                 expect(testIssueUrl).to.be.a('string').and.not.to.be.empty;
             });
-
     });
 
     it("can start timer on an issue", function () {
@@ -120,5 +117,4 @@ describe("GitHub", function () {
             .url(testIssueUrl)
             .startStopAndTestTaskStopped();
     });
-
 });
