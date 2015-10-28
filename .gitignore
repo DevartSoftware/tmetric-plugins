@@ -12,3 +12,4 @@ src/test/webdriverio/errorShots/
 src/css/*.css
 src/test/webdriverio/logins.conf.js
 src/test/webdriverio/customCommands.js
+src/test/webdriverio/specs/*.js

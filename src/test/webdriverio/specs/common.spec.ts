@@ -26,9 +26,9 @@ describe('Extension', function () {
       })
       .click('.devart-timer-link-start')
       .waitUntil(function () {
-        return browser.getTabIds().then(function (result) {
-          return result.length === 2;
-        })
+          return browser.getTabIds().then(function (result) {
+              return result.length === 2;
+          });
       })
       .getTabIds().then(function (result) {
         return browser.switchTab(result[1]);

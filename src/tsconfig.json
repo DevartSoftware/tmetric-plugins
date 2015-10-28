@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "target": "ES5",
+        "target": "es5",
         "module": "commonjs",
         "sourceMap": true,
         "noEmitOnError": true,
@@ -28,6 +28,13 @@
         "in-page-scripts/integrations/Trello.ts",
         "in-page-scripts/page.ts",
         "in-page-scripts/utils.ts",
-        "test/webdriverio/customcommands.ts"
+        "test/webdriverio/customcommands.ts",
+        "test/webdriverio/specs/common.spec.ts",
+        "test/webdriverio/specs/itegrations.spec.ts",
+        "test/webdriverio/specs/github.ts",
+        "test/webdriverio/specs/gitlab.ts",
+        "test/webdriverio/specs/jira.ts",
+        "test/webdriverio/specs/redmine.ts",
+        "test/webdriverio/specs/trello.ts"
     ]
 }
