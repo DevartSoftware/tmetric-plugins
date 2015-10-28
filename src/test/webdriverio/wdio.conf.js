@@ -51,7 +51,7 @@ exports.config = {
     logLevel: 'verbose',
     //
     // Enables colors for log output.
-    coloredLogs: true,
+    coloredLogs: false,
     //
     // Saves a screenshot to a given path if a command fails.
     screenshotPath: './test/webdriverio/errorShots/',
@@ -95,14 +95,14 @@ exports.config = {
     // Test reporter for stdout.
     // The following are supported: dot (default), spec and xunit
     // see also: http://webdriver.io/guide/testrunner/reporters.html
-    reporter: 'dot',
+    reporter: 'xunit',
     //
     // Some reporter require additional information which should get defined here
     reporterOptions: {
         //
         // If you are using the "xunit" reporter you should define the directory where
         // WebdriverIO should save all unit reports.
-        outputDir: './reports/'
+        outputDir: './test/webdriverio/reports/'
     },
 
     //
