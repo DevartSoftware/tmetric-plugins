@@ -1,8 +1,4 @@
-﻿/// <reference path="../../interfaces/integrations" />
-/// <reference path="../IntegrationService" />
-/// <reference path="../utils" />
-
-module Integrations {
+﻿module Integrations {
 
   class Trello implements WebToolIntegration {
 
