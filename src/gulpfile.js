@@ -1,4 +1,5 @@
 var concat = require('gulp-concat');           // Concatenates files.
+var extend = require('gulp-extend');           // A gulp plugin to extend (merge) JSON contents.
 var fs = require('fs');                        // Node.js File System module
 var gulp = require('gulp');                    // The streaming build system.
 var jsonfile = require('jsonfile');            // Easily read/write JSON files.
@@ -90,10 +91,17 @@ gulp.task('prepackage:chrome:images', ['clean'], function () {
 });
 
 gulp.task('package:chrome', ['prepackage:chrome'], packageChrome);
-gulp.task('package:chrome:test', ['prepackage:chrome', 'test:constants:chrome'], packageChrome);
+gulp.task('package:chrome:test', ['prepackage:chrome', 'test:constants:chrome', 'test:extension:shortcut:chrome'], packageChrome);
 
 gulp.task('test:constants:chrome', ['prepackage:chrome'], function () {
     return gulp.src(['test/constants.js']).pipe(gulp.dest(unpackedCrx));
+});
+
+gulp.task('test:extension:shortcut:chrome', ['prepackage:chrome'], function () {
+    return gulp
+        .src([unpackedCrx + 'manifest.json', './manifest.shortcut.json'])
+        .pipe(extend('manifest.json', true, 2))
+        .pipe(gulp.dest(unpackedCrx));
 });
 
 function packageChrome() {
