@@ -1,29 +1,47 @@
 describe('Extension', function () {
+
     var services = require('../services.conf');
+    var ttService = services['TimeTracker'];
 
-    it('prompts an unauthenticated user for login on starting a task', function () {
+    var testProjectName, testIssueName, testIssueUrl;
 
-        var projectName, taskName, taskUrl;
-
-        var service = services['TimeTracker'];
-
+    function testTaskStarted() {
         return browser
-            .login('TimeTracker')
-            .stopRunningTask()
-            .deleteCookie()
+            .url('/')
+            .waitForExist('.timer-active')
+            .getText('.timer-active .timer-td-project').should.eventually.be.equal(testProjectName)
+            .getText('.timer-active div .text-overflow').should.eventually.be.equal(testIssueName)
+            .getAttribute('.timer-active a.flex-item-no-shrink', 'href').should.eventually.be.equal(testIssueUrl);
+    }
+
+    before(function () {
+        return browser
             .url('https://gitlab.com/gitlab-org/gitlab-ce/issues')
             .click('.row_title')
             .waitForExist('.devart-timer-link-start')
             .getText('.title a:nth-last-child(2)').then(function (text) {
-                projectName = text;
+                testProjectName = text;
+                expect(testProjectName).to.be.a('string').and.not.to.be.empty;
             })
             .getText('.issue-title').then(function (text) {
-                taskName = text;
+                testIssueName = text;
+                expect(testIssueName).to.be.a('string').and.not.to.be.empty;
             })
             .url().then(function (result) {
-                taskUrl = result.value;
-            })
-            .click('.devart-timer-link-start')
+                testIssueUrl = result.value;
+                expect(testIssueUrl).to.be.a('string').and.not.to.be.empty;
+            });
+    });
+
+    beforeEach(function () {
+        return browser
+            .login('TimeTracker')
+            .stopRunningTask()
+            .deleteCookie();
+    });
+
+    function loginTimeTrackerThroughExtension () {
+        return browser
             .waitUntil(function () {
                 return browser.getTabIds().then(function (result) {
                     return result.length === 2;
@@ -33,9 +51,9 @@ describe('Extension', function () {
                 return browser.switchTab(result[1]);
             })
             .waitForExist('body.login')
-            .setValue(service.login.usernameField, service.login.username)
-            .setValue(service.login.passwordField, service.login.password)
-            .click(service.login.submitButton)
+            .setValue(ttService.login.usernameField, ttService.login.username)
+            .setValue(ttService.login.passwordField, ttService.login.password)
+            .click(ttService.login.submitButton)
             .waitUntil(function () {
                 return browser.getTabIds().then(function (result) {
                     return result.length === 1;
@@ -43,14 +61,61 @@ describe('Extension', function () {
             })
             .getTabIds().then(function (result) {
                 return browser.switchTab(result[0]);
+            });
+    };
+
+    it('prompts an unauthenticated user for login on starting a task using html button', function () {
+        return browser
+            .url(testIssueUrl)
+            .waitForClick('.devart-timer-link-start')
+            .pause(1000)
+            .getTabIds().then(function (result) {
+                expect(result.length).to.be.equal(2);
+            })
+            .then(loginTimeTrackerThroughExtension)
+            .url('/')
+            .then(testTaskStarted);
+    });
+
+    it('do not prompts an authenticated user for login on starting a task using html button', function () {
+        return browser
+            .login('TimeTracker')
+            .url(testIssueUrl)
+            .waitForClick('.devart-timer-link-start')
+            .pause(1000)
+            .getTabIds().then(function (result) {
+                expect(result.length).to.be.equal(1);
             })
             .url('/')
-            .then(function () {
-                return browser
-                    .waitForExist('.timer-active')
-                    .getText('.timer-active .timer-td-project').should.eventually.be.equal(projectName)
-                    .getText('.timer-active div .text-overflow').should.eventually.be.equal(taskName)
-                    .getAttribute('.timer-active a.flex-item-no-shrink', 'href').should.eventually.be.equal(taskUrl);
-            });
+            .then(testTaskStarted);
     });
+
+    it('prompts an unauthenticated user for login on starting a task using extention shortcut', function () {
+        return browser
+            .url(testIssueUrl)
+            .waitForExist('.devart-timer-link-start')
+            .keys('\uE009\uE008\uE00D\uE000')
+            .pause(1000)
+            .getTabIds().then(function (result) {
+                expect(result.length).to.be.equal(2);
+            })
+            .then(loginTimeTrackerThroughExtension)
+            .url('/')
+            .then(testTaskStarted);
+    });
+
+    it('do not prompts an authenticated user for login on starting a task using extention shortcut', function () {
+        return browser
+            .login('TimeTracker')
+            .url(testIssueUrl)
+            .waitForExist('.devart-timer-link-start')
+            .keys('\uE009\uE008\uE00D\uE000')
+            .pause(1000)
+            .getTabIds().then(function (result) {
+                expect(result.length).to.be.equal(1);
+            })
+            .url('/')
+            .then(testTaskStarted);
+    });
+
 });
