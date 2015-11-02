@@ -118,4 +118,15 @@ describe('Extension', function () {
             .then(testTaskStarted);
     });
 
+    it('can change html button when task is started or stoped by extension shortcut', function () {
+        return browser
+            .login('TimeTracker')
+            .url(testIssueUrl)
+            .waitForVisible('.devart-timer-link-start')
+            .keys('\uE009\uE008\uE00D\uE000')
+            .waitForVisible('.devart-timer-link-stop')
+            .keys('\uE009\uE008\uE00D\uE000')
+            .waitForVisible('.devart-timer-link-start');
+    })
+
 });
