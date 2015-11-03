@@ -1,48 +1,48 @@
 declare module Models {
     interface TimeZoneInfo
     {
-        Id: string;
-        DisplayName: string;
+        id: string;
+        displayName: string;
     }
     
     interface UserProfile {
-        UserProfileId: number;
-        ActiveAccountId: number;
-        UserName: string;
-        DateFormat: string;
+        userProfileId: number;
+        activeAccountId: number;
+        userName: string;
+        dateFormat: string;
 
         /*
          * Time format for specific user.
          * 'H:mm' - 24h format.
          * 'h:mm a' - 12h format.
          */
-        TimeFormat: string;
-        FirstWeekDay: number;
-        ShowBreaks: boolean;
-        Email: string;
-        TimeZoneInfo: Models.TimeZoneInfo;
+        timeFormat: string;
+        firstWeekDay: number;
+        showBreaks: boolean;
+        email: string;
+        timeZoneInfo: Models.TimeZoneInfo;
 
         /*
          * This collection defines which service accounts the user can access.
          * Accounts where user is locked are not included in the list.
          */
-        AccountMembership: Models.AccountMember[];
-        IsRegistered: boolean;
+        accountMembership: Models.AccountMember[];
+        isRegistered: boolean;
     }
 
     interface Account {
-        AccountId: number;
-        AccountName: string;
-        AccountOwnerName: string;
+        accountId: number;
+        accountName: string;
+        accountOwnerName: string;
     }
 
     interface AccountMember {
-        AccountId: number;
-        AccountMemberId: number;
-        Account: Models.Account;
-        Role: ServiceRole;
-        IsLocked: boolean;
-        UserProfile: Models.UserProfile;
+        accountId: number;
+        accountMemberId: number;
+        account: Models.Account;
+        role: ServiceRole;
+        isLocked: boolean;
+        userProfile: Models.UserProfile;
     }
 
     interface IntegratedProjectIdentifier {
@@ -70,32 +70,32 @@ declare module Models {
     }
 
     interface IntegratedProjectStatus {
-        IntegrationName: string;
-        ProjectStatus: ProjectStatus;
-        ProjectRole: ProjectRole;
-        ServiceRole: ServiceRole;
+        integrationName: string;
+        projectStatus: ProjectStatus;
+        projectRole: ProjectRole;
+        serviceRole: ServiceRole;
     }
 
     interface WorkTask {
-        Description: string;
-        ProjectId: number;
-        ExternalIssueId: string;
-        IntegrationId: number;
-        RelativeIssueUrl: string;
-        IntegrationUrl: string;
+        description: string;
+        projectId: number;
+        externalIssueId: string;
+        integrationId: number;
+        relativeIssueUrl: string;
+        integrationUrl: string;
 
     }
 
     interface Timer {
-        IsStarted: boolean;
-        WorkTask: WorkTask;
-        StartTime: string;
+        isStarted: boolean;
+        workTask: WorkTask;
+        startTime: string;
     }
     
     interface TimeEntry {
-        WorkTask: WorkTask;
-        StartTime: string;
-        EndTime: string;
-        ProjectName: string;
+        workTask: WorkTask;
+        startTime: string;
+        endTime: string;
+        projectName: string;
     }    
 }

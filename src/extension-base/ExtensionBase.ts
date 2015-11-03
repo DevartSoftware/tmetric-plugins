@@ -111,8 +111,8 @@ class ExtensionBase {
 
             if (this.buttonState == ButtonState.fixtimer) {
                 var url = trackerServiceUrl;
-                if (this._userProfile && this._userProfile.ActiveAccountId) {
-                    url += '#/tracker/' + this._userProfile.ActiveAccountId + '/';
+                if (this._userProfile && this._userProfile.activeAccountId) {
+                    url += '#/tracker/' + this._userProfile.activeAccountId + '/';
                 }
                 this.openPage(url);
                 this.showNotification('You should fix the timer.');
@@ -134,7 +134,7 @@ class ExtensionBase {
                     if (showDialog) {
                         this._actionOnConnect = () => {
                             // Do not change task after connect if timer already started
-                            if (!this._timer || !this._timer.IsStarted) {
+                            if (!this._timer || !this._timer.isStarted) {
                                 action();
                             }
                         };
@@ -180,20 +180,20 @@ class ExtensionBase {
                     if (timer.projectName) {
                         var contactAdmin = 'Please contact the account administrator to fix the problem.';
 
-                        if (!status.ProjectStatus) {
+                        if (!status.projectStatus) {
                             // No rights to create project or service is not specified
-                            if (status.ServiceRole < Models.ServiceRole.ProjectCreator || !timer.serviceUrl) {
+                            if (status.serviceRole < Models.ServiceRole.ProjectCreator || !timer.serviceUrl) {
                                 timer.projectName = undefined;
                             }
                         }
-                        else if (status.ProjectStatus != Models.ProjectStatus.Open) {
+                        else if (status.projectStatus != Models.ProjectStatus.Open) {
                             notification = 'Cannot assign the task to the '
-                            + (status.ProjectStatus == Models.ProjectStatus.Archived ? 'archived' : 'closed')
+                            + (status.projectStatus == Models.ProjectStatus.Archived ? 'archived' : 'closed')
                             + ' project \'' + timer.projectName + '\'.\n\n' + contactAdmin;
 
                             timer.projectName = undefined;
                         }
-                        else if (status.ProjectRole == null) {
+                        else if (status.projectRole == null) {
                             notification = 'You are not a member of the project \''
                             + timer.projectName + '\'.\n\n' + contactAdmin;
 
@@ -201,8 +201,8 @@ class ExtensionBase {
                         }
                     }
 
-                    if (!timer.serviceUrl == !status.IntegrationName &&
-                        !timer.projectName == !status.ProjectStatus) {
+                    if (!timer.serviceUrl == !status.integrationName &&
+                        !timer.projectName == !status.projectStatus) {
                         // Project and service are registered or are not specified in timer
                         action(false, true);
                     }
@@ -227,7 +227,7 @@ class ExtensionBase {
         var state = ButtonState.connect;
         var text = 'Not Connected';
         if (this._timer) {
-            if (this._timer.IsStarted) {
+            if (this._timer.isStarted) {
                 if (this.getDuration(this._timer) > 10 * 60 * 60000) {
                     state = ButtonState.fixtimer;
                     text = 'Started (Need User Action)\n'
@@ -236,7 +236,7 @@ class ExtensionBase {
                 else {
                     state = ButtonState.stop;
                     text = 'Started\n'
-                    + (this._timer.WorkTask.Description || '(No task description)');
+                    + (this._timer.workTask.description || '(No task description)');
                 }
             }
             else {
@@ -316,13 +316,13 @@ class ExtensionBase {
             var now = new Date().getTime();
             if ((<Models.TimeEntry[]>arg).reduce) {
                 return (<Models.TimeEntry[]>arg).reduce((duration, entry) => {
-                    var startTime = Date.parse(entry.StartTime);
-                    var endTime = entry.EndTime ? Date.parse(entry.EndTime) : now;
+                    var startTime = Date.parse(entry.startTime);
+                    var endTime = entry.endTime ? Date.parse(entry.endTime) : now;
                     return duration + (endTime - startTime);
                 }, 0);
             }
-            else if ((<Models.Timer>arg).IsStarted) {
-                return now - Date.parse((<Models.Timer>arg).StartTime);
+            else if ((<Models.Timer>arg).isStarted) {
+                return now - Date.parse((<Models.Timer>arg).startTime);
             }
         }
         return 0;

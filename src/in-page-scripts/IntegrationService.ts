@@ -227,16 +227,16 @@ module Integrations {
                 return false;
             }
 
-            var task = timer.WorkTask;
-            if (!task && !timer.IsStarted) {
+            var task = timer.workTask;
+            if (!task && !timer.isStarted) {
                 return false;
             }
 
             var startedIssue = <WebToolIssue>{
-                issueId: task.ExternalIssueId,
-                issueName: task.Description,
-                issueUrl: task.RelativeIssueUrl,
-                serviceUrl: task.IntegrationUrl
+                issueId: task.externalIssueId,
+                issueName: task.description,
+                issueUrl: task.relativeIssueUrl,
+                serviceUrl: task.integrationUrl
             };
 
             return this.isSameIssue(startedIssue, issue);

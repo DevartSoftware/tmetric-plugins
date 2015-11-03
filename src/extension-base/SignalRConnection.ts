@@ -18,14 +18,14 @@ class SignalRConnection {
             this.hub = $.hubConnection(url);
             this.hubProxy = this.hub.createHubProxy('timeTrackerHub');
             this.hubProxy.on('updateTimer', (accountId: number) => {
-                if (this.userProfile && accountId != this.userProfile.ActiveAccountId) {
+                if (this.userProfile && accountId != this.userProfile.activeAccountId) {
                     return;
                 }
 
-                var previousProfileId = this.userProfile.UserProfileId;
+                var previousProfileId = this.userProfile.userProfileId;
                 this.getProfile(
                     () => {
-                        if (this.userProfile.UserProfileId != previousProfileId) {
+                        if (this.userProfile.userProfileId != previousProfileId) {
                             this.disconnect();
                             this.connect();
                         }
@@ -36,7 +36,7 @@ class SignalRConnection {
             });
 
             this.hubProxy.on('updateActiveAccount', (accountId: number) => {
-                if (this.userProfile && accountId != this.userProfile.ActiveAccountId) {
+                if (this.userProfile && accountId != this.userProfile.activeAccountId) {
                     this.disconnect();
                     this.connect();
                 }
@@ -82,7 +82,7 @@ class SignalRConnection {
             this.hub.start().then(() => {
                 this.hubConnected = true;
                 this.hub.disconnected(() => this.disconnect());
-                this.hubProxy.invoke('register', this.userProfile.UserProfileId);
+                this.hubProxy.invoke('register', this.userProfile.userProfileId);
 
                 if (done) {
                     done()
@@ -110,7 +110,7 @@ class SignalRConnection {
         this.connect(
             () => {
                 if (!timer.isStarted) {
-                    return this.put('api/timer/' + this.userProfile.ActiveAccountId, <Models.Timer>{ IsStarted: false }, callback, callback)
+                    return this.put('api/timer/' + this.userProfile.activeAccountId, <Models.Timer>{ isStarted: false }, callback, callback)
                 }
                 return this.post('api/timer/external', timer, callback, callback)
             },
@@ -118,25 +118,25 @@ class SignalRConnection {
     }
 
     getIntegration(identifier: Models.IntegratedProjectIdentifier, callback: AjaxCallback<Models.IntegratedProjectStatus>) {
-        if (!this.userProfile || !this.userProfile.ActiveAccountId) {
+        if (!this.userProfile || !this.userProfile.activeAccountId) {
             this.callFail(callback);
             return;
         }
 
         this.get<Models.IntegratedProjectStatus>(
-            'api/account/' + this.userProfile.ActiveAccountId + '/integrations/project?' + $.param(identifier, true),
+            'api/account/' + this.userProfile.activeAccountId + '/integrations/project?' + $.param(identifier, true),
             callback,
             callback);
     }
 
     postIntegration(identifier: Models.IntegratedProjectIdentifier, callback: AjaxCallback<any>) {
-        if (!this.userProfile || !this.userProfile.ActiveAccountId) {
+        if (!this.userProfile || !this.userProfile.activeAccountId) {
             this.callFail(callback);
             return;
         }
 
         this.post<Models.IntegratedProjectIdentifier>(
-            'api/account/' + this.userProfile.ActiveAccountId + '/integrations/project',
+            'api/account/' + this.userProfile.activeAccountId + '/integrations/project',
             identifier,
             callback,
             callback);
@@ -158,11 +158,11 @@ class SignalRConnection {
     }
 
     getTimer() {
-        var requestAccountId = this.userProfile.ActiveAccountId;
+        var requestAccountId = this.userProfile.activeAccountId;
 
         this.get<Models.Timer>('api/timer/' + requestAccountId,
             result => {
-                if (this.userProfile.ActiveAccountId == requestAccountId) {
+                if (this.userProfile.activeAccountId == requestAccountId) {
                     self.port.emit('updateTimer', result.data);
                 }
             },
@@ -172,10 +172,10 @@ class SignalRConnection {
         startTime = new Date(startTime.getFullYear(), startTime.getMonth(), startTime.getDate());
         var endTime = new Date(startTime.getFullYear(), startTime.getMonth(), startTime.getDate() + 1);
 
-        this.get<Models.TimeEntry[]>('/api/timeentries/' + requestAccountId + '/' + this.userProfile.UserProfileId
+        this.get<Models.TimeEntry[]>('/api/timeentries/' + requestAccountId + '/' + this.userProfile.userProfileId
             + '?startTime=' + startTime.toJSON() + '&endTime=' + endTime.toJSON(),
             result => {
-                if (this.userProfile.ActiveAccountId == requestAccountId) {
+                if (this.userProfile.activeAccountId == requestAccountId) {
                     self.port.emit('updateTracker', result.data);
                 }
             },
