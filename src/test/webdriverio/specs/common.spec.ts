@@ -94,7 +94,7 @@ describe('Extension', function () {
         return browser
             .url(testIssueUrl)
             .waitForExist('.devart-timer-link-start')
-            .keys('\uE009\uE008\uE00D\uE000')
+            .keys(['Control', 'Shift', 'Space', 'NULL'])
             .pause(1000)
             .getTabIds().then(function (result) {
                 expect(result.length).to.be.equal(2);
@@ -109,7 +109,7 @@ describe('Extension', function () {
             .login('TimeTracker')
             .url(testIssueUrl)
             .waitForExist('.devart-timer-link-start')
-            .keys('\uE009\uE008\uE00D\uE000')
+            .keys(['Control', 'Shift', 'Space', 'NULL'])
             .pause(1000)
             .getTabIds().then(function (result) {
                 expect(result.length).to.be.equal(1);
@@ -123,9 +123,9 @@ describe('Extension', function () {
             .login('TimeTracker')
             .url(testIssueUrl)
             .waitForVisible('.devart-timer-link-start')
-            .keys('\uE009\uE008\uE00D\uE000')
+            .keys(['Control', 'Shift', 'Space', 'NULL'])
             .waitForVisible('.devart-timer-link-stop')
-            .keys('\uE009\uE008\uE00D\uE000')
+            .keys(['Control', 'Shift', 'Space', 'NULL'])
             .waitForVisible('.devart-timer-link-start');
     })
 
