@@ -1,5 +1,4 @@
 describe('Extension', function () {
-
     var services = require('../services.conf');
     var ttService = services['TimeTracker'];
 
@@ -40,7 +39,7 @@ describe('Extension', function () {
             .deleteCookie();
     });
 
-    function loginTimeTrackerThroughExtension () {
+    function loginTimeTrackerThroughExtension() {
         return browser
             .waitUntil(function () {
                 return browser.getTabIds().then(function (result) {
@@ -128,5 +127,4 @@ describe('Extension', function () {
             .keys(['Control', 'Shift', 'Space', 'NULL'])
             .waitForVisible('.devart-timer-link-start');
     })
-
 });

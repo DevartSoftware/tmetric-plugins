@@ -1,8 +1,5 @@
-﻿/// <reference path="../../interfaces/integrations" />
-/// <reference path="../IntegrationService" />
-/// <reference path="../utils" />
+﻿module Integrations {
 
-module Integrations {
     class GitLab implements WebToolIntegration {
 
         matchUrl = [
@@ -29,7 +26,6 @@ module Integrations {
         }
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-
             // https://gitlab.com/NAMESPACE/PROJECT/issues/NUMBER
             // https://gitlab.com/NAMESPACE/PROJECT/merge_requests/NUMBER
 
@@ -38,9 +34,8 @@ module Integrations {
             var result;
 
             if (match) {
-
                 var issueId, issueName, projectName, serviceType, serviceUrl, issueUrl;
-                
+
                 // match[3] is a 'NUMBER' from path
                 issueId = match[3];
                 if (!issueId) {
@@ -85,7 +80,6 @@ module Integrations {
                 issueUrl = source.path.replace(serviceUrl, '');
 
                 result = { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
-
             }
 
             return result;

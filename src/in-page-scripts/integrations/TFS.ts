@@ -1,9 +1,7 @@
-﻿/// <reference path="../../interfaces/integrations" />
-/// <reference path="../IntegrationService" />
-/// <reference path="../utils" />
+﻿module Integrations {
 
-module Integrations {
     class TfsIntegration implements WebToolIntegration {
+
         observeMutations = true;
 
         matchUrl = '*://*.visualstudio.com/*';
@@ -51,7 +49,7 @@ module Integrations {
             if (issueLink) {
                 // remove additional arguments, e.g. .../_workitems/edit/1?fullScreen=false -> .../_workitems/edit/1
                 var issueUrl = issueLink.getAttribute('href').replace(/\?.*$/, '');
-                
+
                 // _workitems/edit/1
                 var issueIdRegExp = /\/edit\/(\d*$)/.exec(issueUrl);
                 if (issueIdRegExp && issueIdRegExp.length === 2) {

@@ -1,8 +1,7 @@
-﻿/// <reference path="HttpStatusCode" />
-
-const enum ButtonState { start, stop, fixtimer, connect }
+﻿const enum ButtonState { start, stop, fixtimer, connect }
 
 class ExtensionBase {
+
     showLoginDialog() { }
 
     showError(message: string) { }
@@ -108,7 +107,6 @@ class ExtensionBase {
         var notification: string;
 
         var action = (showDialog?: boolean, dontCreateIntegration?: boolean) => {
-
             if (this.buttonState == ButtonState.fixtimer) {
                 var url = trackerServiceUrl;
                 if (this._userProfile && this._userProfile.activeAccountId) {

@@ -1,15 +1,13 @@
-﻿/// <reference path="../../interfaces/integrations" />
-/// <reference path="../IntegrationService" />
-/// <reference path="../utils" />
+﻿module Integrations {
 
-module Integrations {
     class Jira implements WebToolIntegration {
+
         match(source: Source): boolean {
             var jiraAppQuery = $$('meta[name=application-name]');
             if (jiraAppQuery) {
                 return jiraAppQuery.getAttribute('content') == 'JIRA';
             }
-            
+
             return false;
         }
 
@@ -17,10 +15,10 @@ module Integrations {
             var host = $$('.command-bar .toolbar-split');
             if (host) {
                 linkElement.classList.add('toolbar-trigger');
-                
+
                 // <ul class="toolbar-group">
                 var containerUl = $$.create('ul', 'toolbar-group');
-                
+
                 // <li class="toolbar-item">
                 var containerLi = $$.create('li', 'toolbar-item');
                 containerLi.appendChild(linkElement);
@@ -59,7 +57,7 @@ module Integrations {
             // https://issues.apache.org/jira/
             // ajs-context-path = /jira
             // serviceUrl = http://jira.local
-            // issueUrl = /jira/browse/tt-1 
+            // issueUrl = /jira/browse/tt-1
             var jiraContextPath = $$('meta[name=ajs-context-path]').getAttribute('content');
             if (jiraContextPath) {
                 if (issueUrl.indexOf(jiraContextPath)) {
@@ -67,7 +65,7 @@ module Integrations {
                     console.error('Time tracker extension was unable to parse the Jira page. Something wrong with Jira context URL and issue URL.');
                     return;
                 }
-                
+
                 // append jira context path to serviceUrl and remove it from issue url path
                 serviceUrl += jiraContextPath;
                 issueUrl = issueUrl.substr(jiraContextPath.length);

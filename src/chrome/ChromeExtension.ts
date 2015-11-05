@@ -1,10 +1,3 @@
-/// <reference path="../typings/tsd.d.ts" />
-/// <reference path="../interfaces/browser.d.ts" />
-/// <reference path="../extension-base/ExtensionBase.ts" />
-/// <reference path="shamPort.ts" />
-/// <reference path="../typings/chrome/chrome.d.ts" />
-/// <reference path="../typings/chrome/chrome-ext.d.ts" />
-
 class ChromeExtension extends ExtensionBase {
 
     loginTabId: number;
@@ -18,7 +11,6 @@ class ChromeExtension extends ExtensionBase {
     lastNotificationId: string;
 
     constructor() {
-
         super(backgroundPort);
 
         // Inject content scripts in all already opened pages
@@ -123,7 +115,7 @@ class ChromeExtension extends ExtensionBase {
         });
 
         updateCurrentTab();
-        
+
         // Update hint once per minute
         var setUpdateTimeout = () => setTimeout(() => {
             this.updateState();
@@ -170,7 +162,6 @@ class ChromeExtension extends ExtensionBase {
     }
 
     showLoginDialog() {
-
         if (this.loginWinId) {
             chrome.windows.update(this.loginWinId, { focused: true });
             return;

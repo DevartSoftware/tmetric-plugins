@@ -1,7 +1,5 @@
-﻿/// <reference path="../typings/signalr/signalr" />
-/// <reference path="../typings/firefox/firefox" />
+﻿class SignalRConnection {
 
-class SignalRConnection {
     url: string;
 
     hub: HubConnection;

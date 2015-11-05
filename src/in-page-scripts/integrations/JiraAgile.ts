@@ -1,9 +1,7 @@
-﻿/// <reference path="../../interfaces/integrations" />
-/// <reference path="../IntegrationService" />
-/// <reference path="../utils" />
+﻿module Integrations {
 
-module Integrations {
     class JiraAgileIntegration implements WebToolIntegration {
+
         observeMutations = true;
 
         match(source: Source): boolean {

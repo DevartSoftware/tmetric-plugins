@@ -1,9 +1,7 @@
-﻿/// <reference path="../../interfaces/integrations" />
-/// <reference path="../IntegrationService" />
-/// <reference path="../utils" />
+﻿module Integrations {
 
-module Integrations {
     class Redmine implements WebToolIntegration {
+
         issuesPath = '/issues/';
 
         matchUrl = '*://*/issues/*';
@@ -12,8 +10,7 @@ module Integrations {
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
             var host = $$('#content .contextual');
-            if (host)
-            {
+            if (host) {
                 host.appendChild(linkElement);
             }
         }

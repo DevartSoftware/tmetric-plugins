@@ -22,7 +22,6 @@
         }
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-
             // Full card url:
             // https://trello.com/c/CARD_ID/CARD_NUMBER-CARD_TITLE_DASHED_AND_LOWERCASED
             // Effective card url:
@@ -33,7 +32,6 @@
             var result;
 
             if (match) {
-
                 var issueId, issueName, projectName, serviceType, serviceUrl, issueUrl;
 
                 // match[1] is a 'CARD_NUMBER' from path
@@ -66,14 +64,11 @@
                 issueUrl = '/c/' + match[1];
 
                 result = { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
-
             }
 
             return result;
-
         }
     }
 
     IntegrationService.register(new Trello());
-
 }

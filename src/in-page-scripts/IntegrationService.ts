@@ -1,10 +1,7 @@
-﻿/// <reference path="../interfaces/models" />
-/// <reference path="../interfaces/integrations" />
-/// <reference path="utils.ts" />
-/// <reference path="page.ts" />
+﻿module Integrations {
 
-module Integrations {
     export class IntegrationService {
+
         static affix = 'devart-timer-link';
 
         private static _allIntegrations = <WebToolIntegration[]>[];
@@ -139,7 +136,7 @@ module Integrations {
                         newLink.setAttribute('data-' + this.affix, JSON.stringify(newIssueTimer));
                         newLink.href = '#';
                         newLink.title = 'Track spent time via Devart Time Tracker service';
-                        newLink.onclick = function() {
+                        newLink.onclick = function () {
                             sendBackgroundMessage({ action: 'putTimer', data: newIssueTimer });
                             return false;
                         };

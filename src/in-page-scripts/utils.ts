@@ -5,31 +5,26 @@
     all(selector: string, element?: NodeSelector): HTMLElement[];
 }
 
-var $$ = <Utils>function(selector: string, param1?: any, param2?: any): HTMLElement
-{
+var $$ = <Utils>function (selector: string, param1?: any, param2?: any): HTMLElement {
     var element = <NodeSelector>param1;
-    if (!element || !element.querySelector)
-    {
+    if (!element || !element.querySelector) {
         element = <NodeSelector>param2;
-        if (!element || !element.querySelector)
-        {
+        if (!element || !element.querySelector) {
             element = document;
         }
     }
 
     var result = <HTMLElement>element.querySelector(selector);
-    if (result)
-    {
+    if (result) {
         return result;
     }
 
-    if (param1 === true || param2 === true)
-    {
+    if (param1 === true || param2 === true) {
         return <HTMLElement>{};
     }
 }
 
-$$.create = function(tagName, className) {
+$$.create = function (tagName, className) {
     var element = document.createElement(tagName);
     element.classList.add(Integrations.IntegrationService.affix + '-' + tagName.toLowerCase());
     if (className) {
@@ -38,13 +33,11 @@ $$.create = function(tagName, className) {
     return element;
 }
 
-$$.all = function(selector, element?): HTMLElement[]
-{
+$$.all = function (selector, element?): HTMLElement[] {
     element = element || document;
     var nodeList = element.querySelectorAll(selector);
     var result = [];
-    for (var i = 0; i < nodeList.length; i++)
-    {
+    for (var i = 0; i < nodeList.length; i++) {
         result.push(nodeList[i]);
     }
     return result;

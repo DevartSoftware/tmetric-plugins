@@ -4,7 +4,6 @@
 //
 // Copy it to 'logins.conf.js' file and fill username/password pairs.
 module.exports = {
-
   TimeTracker: {
     login: {
       username: '',
@@ -46,5 +45,4 @@ module.exports = {
       password: ''
     }
   }
-
 }

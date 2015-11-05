@@ -1,5 +1,4 @@
 exports.config = {
-
     //
     // ==================
     // Specify Test Files
@@ -33,7 +32,7 @@ exports.config = {
         browserName: 'chrome',
         chromeOptions: {
             args: ['load-extension=' + process.cwd() +'/../dist/chrome/unpacked']
-            
+
             // http://stackoverflow.com/questions/27278222/is-it-possible-to-add-a-plugin-to-chromedriver-under-a-protractor-test/27278322#27278322
             //extensions: ['Base64 data']
         }
@@ -125,7 +124,7 @@ exports.config = {
         // create directory for error screenshots
         var mkdirp = require('mkdirp');
         var del = require('del');
-        var path = exports.config.screenshotPath; 
+        var path = exports.config.screenshotPath;
         mkdirp(path, function(err) {
             if (err) throw err;
             del.sync([path + '*.png']);
@@ -137,16 +136,15 @@ exports.config = {
     before: function () {
         // do something
         require('./customCommands');
-        
+
         var chai = require('chai');
         var chaiAsPromised = require('chai-as-promised');
-    
+
         chai.Should();
         chai.use(chaiAsPromised);
         chaiAsPromised.transferPromiseness = browser.transferPromiseness;
 
         expect = chai.expect;
-
     },
     //
     // Gets executed after all tests are done. You still have access to all global variables from

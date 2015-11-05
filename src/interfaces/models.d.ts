@@ -1,10 +1,10 @@
 declare module Models {
-    interface TimeZoneInfo
-    {
+
+    interface TimeZoneInfo {
         id: string;
         displayName: string;
     }
-    
+
     interface UserProfile {
         userProfileId: number;
         activeAccountId: number;
@@ -83,7 +83,6 @@ declare module Models {
         integrationId: number;
         relativeIssueUrl: string;
         integrationUrl: string;
-
     }
 
     interface Timer {
@@ -91,11 +90,11 @@ declare module Models {
         workTask: WorkTask;
         startTime: string;
     }
-    
+
     interface TimeEntry {
         workTask: WorkTask;
         startTime: string;
         endTime: string;
         projectName: string;
-    }    
+    }
 }

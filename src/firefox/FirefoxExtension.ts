@@ -1,7 +1,3 @@
-/// <reference path="../typings/firefox/firefox" />
-/// <reference path="../extension-base/constants" />
-/// <reference path="../extension-base/ExtensionBase" />
-
 import buttons = require('sdk/ui/button/action');
 import tabs = require('sdk/tabs');
 import windows = require('sdk/windows');
@@ -20,6 +16,7 @@ var alertsService = chrome.Cc['@mozilla.org/alerts-service;1'].getService(chrome
 var promptService = chrome.Cc['@mozilla.org/embedcomp/prompt-service;1'].getService(chrome.Ci.nsIPromptService);
 
 class FirefoxExtension extends ExtensionBase {
+
     loginWindow: Window;
 
     loginTabId: string;
@@ -226,7 +223,6 @@ class FirefoxExtension extends ExtensionBase {
     }
 
     showLoginDialog() {
-
         if (this.loginWindow != null) {
             this.loginWindow.focus();
             return;

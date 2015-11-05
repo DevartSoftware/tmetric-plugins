@@ -104,7 +104,6 @@ var services = {
       submitButton: '#login'
     }
   }
-
 };
 
 services = deepmerge(services, logins);
