@@ -17,7 +17,7 @@ describe('Extension', function () {
     before(function () {
         return browser
             .url('https://gitlab.com/gitlab-org/gitlab-ce/issues')
-            .click('.row_title')
+            .waitForClick('.row_title')
             .waitForExist('.devart-timer-link-start')
             .getText('.title a:nth-last-child(2)').then(function (text) {
                 testProjectName = text;
