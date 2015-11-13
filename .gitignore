@@ -15,3 +15,4 @@ src/test/webdriverio/customCommands.js
 src/test/webdriverio/specs/*.js
 src/test/webdriverio/reports/*
 !src/test/webdriverio/reports/README
+src/test/webdriverio/profiles

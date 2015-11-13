@@ -1,27 +1,31 @@
-var concat = require('gulp-concat');           // Concatenates files.
-var extend = require('gulp-extend');           // A gulp plugin to extend (merge) JSON contents.
-var fs = require('fs');                        // Node.js File System module
-var gulp = require('gulp');                    // The streaming build system.
-var jsonfile = require('jsonfile');            // Easily read/write JSON files.
-var merge = require('merge-stream');           // Create a stream that emits events from multiple other streams.
-var path = require('path');                    // Node.js Path System module
-var selenium = require('selenium-standalone'); // Installs a selenium-standalone command line to install and start a standalone selenium server
-var webdriver = require('gulp-webdriver');     // Runs selenium tests with the WebdriverIO testrunner
-var webdriverio = require('webdriverio');      // A nodejs bindings implementation for selenium 2.0/webdriver
+var Promise = require('promise');
+var concat = require('gulp-concat');            // Concatenates files.
+var extend = require('gulp-extend');            // A gulp plugin to extend (merge) JSON contents.
+var fs = require('fs');                         // Node.js File System module
+var gulp = require('gulp');                     // The streaming build system.
+var jsonfile = require('jsonfile');             // Easily read/write JSON files.
+var merge = require('merge-stream');            // Create a stream that emits events from multiple other streams.
+var path = require('path');                     // Node.js Path System module
+var selenium = require('selenium-standalone');  // Installs a selenium-standalone command line to install and start a standalone selenium server
+var webdriver = require('selenium-webdriver');  // Selenium is a browser automation library
+var webdriverGulp = require('gulp-webdriver');  // Runs selenium tests with the WebdriverIO testrunner
 
 gulp.task('default', ['build']);
 gulp.task('build', ['package:chrome', 'package:firefox']);
-gulp.task('build:test', ['package:chrome:test', 'package:firefox:test']);
+gulp.task('build:test', ['package:chrome:test', 'package:firefox:test', 'profile:firefox:test']);
 
 // =============================================================================
 // Global variables
 // =============================================================================
 
 // Output folders for *.crx and *.xpi files
-var dist = '../dist/';
+var src = process.cwd() + '/';
+var dist = path.normalize(src + '/../dist/');
+var distChrome = dist + 'chrome/';
+var distChromeUnpacked = distChrome + 'unpacked/';
 var distFirefox = dist + 'firefox/';
-var dirCrx = dist + 'chrome/';
-var unpackedCrx = dirCrx + 'unpacked/';
+var distFirefoxUnpacked = distFirefox + 'unpacked/';
+var test = src + 'test/';
 
 // =============================================================================
 // Common tasks (used for both extensions)
@@ -44,7 +48,7 @@ gulp.task('compile', ['compile:ts', 'compile:less']);
 
 gulp.task('compile:ts', ['clean'], function () {
     var mkdirp = require('mkdirp'); // Recursively mkdir, like `mkdir -p`
-    mkdirp.sync(unpackedCrx);
+    mkdirp.sync(distChromeUnpacked);
 
     var tsc = require('gulp-tsc'); // TypeScript compiler for gulp.js
     var project = require('./tsconfig.json');
@@ -78,44 +82,45 @@ gulp.task('prepackage:chrome', ['prepackage:chrome:images', 'compile'], function
         return path.basename(file);
     }
 
-    jsonfile.writeFileSync(unpackedCrx + 'manifest.json', manifest, { spaces: 2 });
+    jsonfile.writeFileSync(distChromeUnpacked + 'manifest.json', manifest, { spaces: 2 });
 
-    return gulp.src(files).pipe(gulp.dest(unpackedCrx));
+    return gulp.src(files).pipe(gulp.dest(distChromeUnpacked));
 });
 
 gulp.task('prepackage:chrome:images', ['clean'], function () {
     return merge(
-      gulp.src(['images/icon.png']).pipe(gulp.dest(unpackedCrx + 'images')),
-      gulp.src(['images/chrome/*.png']).pipe(gulp.dest(unpackedCrx + 'images/chrome')));
+      gulp.src(['images/icon.png']).pipe(gulp.dest(distChromeUnpacked + 'images')),
+      gulp.src(['images/chrome/*.png']).pipe(gulp.dest(distChromeUnpacked + 'images/chrome')));
 });
 
 gulp.task('package:chrome', ['prepackage:chrome'], packageChrome);
-gulp.task('package:chrome:test', ['prepackage:chrome', 'test:constants:chrome', 'test:extension:shortcut:chrome'], packageChrome);
+gulp.task('package:chrome:test', ['prepackage:chrome', 'prepackage:chrome:test:constants', 'prepackage:chrome:test:shortcut'], packageChrome);
 
-gulp.task('test:constants:chrome', ['prepackage:chrome'], function () {
-    return gulp.src(['test/constants.js']).pipe(gulp.dest(unpackedCrx));
+gulp.task('prepackage:chrome:test:constants', ['prepackage:chrome'], function () {
+    return gulp.src(['test/constants.js']).pipe(gulp.dest(distChromeUnpacked));
 });
 
-gulp.task('test:extension:shortcut:chrome', ['prepackage:chrome'], function () {
+gulp.task('prepackage:chrome:test:shortcut', ['prepackage:chrome'], function () {
     return gulp
-        .src([unpackedCrx + 'manifest.json', './manifest.shortcut.json'])
+        .src([distChromeUnpacked + 'manifest.json', './test/shortcut.chrome.manifest.json'])
         .pipe(extend('manifest.json', true, 2))
-        .pipe(gulp.dest(unpackedCrx));
+        .pipe(gulp.dest(distChromeUnpacked));
 });
 
 function packageChrome() {
+
     var crx = require('gulp-crx'); // Pack Chrome Extension in the pipeline.
-    var manifest = jsonfile.readFileSync(unpackedCrx + 'manifest.json');
+    var manifest = jsonfile.readFileSync(distChromeUnpacked + 'manifest.json');
 
     // Specify the location (relative) of the already generated .pem file for the Chrome extension.
-    var pemKey = 'chrome/debug-key.pem';
+    var pemKey = src + 'chrome/debug-key.pem';
 
-    return gulp.src(unpackedCrx)
+    return gulp.src(distChromeUnpacked)
       .pipe(crx({
           privateKey: fs.readFileSync(pemKey, 'utf8'),
           filename: manifest.name + '.crx'
       }))
-      .pipe(gulp.dest(dirCrx));
+      .pipe(gulp.dest(distChrome));
 }
 
 // =============================================================================
@@ -128,7 +133,7 @@ gulp.task('prepackage:firefox', ['compile', 'prepackage:firefox:main', 'prepacka
       'extension-base/ExtensionBase.js',
       'firefox/FirefoxExtension.js'])
       .pipe(concat('index.js'))
-      .pipe(gulp.dest(distFirefox));
+      .pipe(gulp.dest(distFirefoxUnpacked));
 });
 
 gulp.task('prepackage:firefox:test', ['compile', 'prepackage:firefox:main', 'prepackage:firefox:data'], function () {
@@ -137,7 +142,7 @@ gulp.task('prepackage:firefox:test', ['compile', 'prepackage:firefox:main', 'pre
       'extension-base/ExtensionBase.js',
       'firefox/FirefoxExtension.js'])
       .pipe(concat('index.js'))
-      .pipe(gulp.dest(distFirefox));
+      .pipe(gulp.dest(distFirefoxUnpacked));
 });
 
 gulp.task('prepackage:firefox:main', ['clean'], function () {
@@ -146,14 +151,14 @@ gulp.task('prepackage:firefox:main', ['clean'], function () {
     return gulp.src([
       'firefox/package.json',
       'images/icon.png'])
-      .pipe(gulp.dest(distFirefox));
+      .pipe(gulp.dest(distFirefoxUnpacked));
 });
 
 gulp.task('prepackage:firefox:data', ['compile'], function () {
     var rename = require('gulp-rename'); // Simple file renaming methods.
     var signalR = gulp.src('node_modules/ms-signalr-client/jquery.signalr*.min.js')
       .pipe(rename('jquery.signalr.min.js'))
-      .pipe(gulp.dest(distFirefox + 'data'));
+      .pipe(gulp.dest(distFirefoxUnpacked + 'data'));
 
     var flatten = require('gulp-flatten');         // remove or replace relative path for files
     var data = gulp.src([
@@ -164,69 +169,112 @@ gulp.task('prepackage:firefox:data', ['compile'], function () {
       'in-page-scripts/**/*.js',
     ])
       .pipe(flatten())
-      .pipe(gulp.dest(distFirefox + 'data'));
+      .pipe(gulp.dest(distFirefoxUnpacked + 'data'));
 
     return merge(signalR, data);
 });
 
-gulp.task('package:firefox', ['prepackage:firefox', 'package:chrome'], packageFirefox);
-gulp.task('package:firefox:test', ['prepackage:firefox:test', 'package:chrome:test'], packageFirefox);
+gulp.task('package:firefox', ['prepackage:firefox'], packageFirefox);
+gulp.task('package:firefox:test', ['prepackage:firefox:test', 'prepackage:firefox:test:shortcut'], packageFirefox);
+
+gulp.task('prepackage:firefox:test:shortcut', ['prepackage:firefox:test'], function () {
+    var searchStr = 'return FirefoxExtension;';
+    var replaceStr = fs.readFileSync(test + 'shortcut.firefox.index.js', 'utf8') + searchStr;
+    return gulp
+        .src([
+            distFirefoxUnpacked + 'index.js',
+            test + 'shortcut.firefox.index.js'
+        ])
+        .pipe(concat('index.js'))
+        .pipe(gulp.dest(distFirefoxUnpacked));
+});
 
 function packageFirefox(callback) {
-    var currentDir = process.cwd();
-    process.chdir(distFirefox);
+    process.chdir(distFirefoxUnpacked);
     var jpmXpi = require('jpm/lib/xpi'); // Packaging utility for Mozilla Jetpack Addons
-    var addonManifest = require('./firefox/package.json');
-    var promise = jpmXpi(addonManifest);
+    var addonManifest = require(distFirefoxUnpacked + 'package.json');
+    var promise = jpmXpi(addonManifest, { xpiPath: distFirefox });
     promise.then(function () {
-        process.chdir(currentDir)
+        process.chdir(src)
         callback();
     });
 }
+
+// prepare firefox encoded profile (with extension) to run test on
+gulp.task('profile:firefox:test', ['package:firefox:test'], function () {
+
+    var extensionFileName = fs.readdirSync(distFirefox).filter(function (filename) {
+        return /\.xpi$/.test(filename);
+    })[0];
+
+    var firefox = require('selenium-webdriver/firefox');
+    var profile = new firefox.Profile();
+
+    profile.addExtension(distFirefox + extensionFileName);
+
+    return profile.encode().then(function (encodedProfile) {
+        fs.writeFileSync(test + 'webdriverio/profiles/firefox/profile', encodedProfile);
+    });
+
+});
 
 // =============================================================================
 // Tasks for running automated tests
 // =============================================================================
 
-gulp.task('test', ['build'], function (taskCallback) {
-    selenium.start({}, function (startError, serverProcess) { // launch selenium server
-        if (startError) {
-            return taskCallback(startError);
-        }
-
-        var streamError;
-        gulp
-          .src('./test/webdriverio/wdio.conf.js')
-          .pipe(webdriver(getWdioOptions(false)))
-          .on('error', function (error) {
-              streamError = error;
-          })
-          .on('finish', function () {
-              serverProcess.kill();
-              taskCallback(streamError);
-          });
-    });
+gulp.task('test', ['build'], function () {
+    return runTestsOnDev(false);
 });
 
-gulp.task('test:dev', ['build:test'], function (taskCallback) {
-    selenium.start({}, function (startError, serverProcess) { // launch selenium server
-        if (startError) {
-            return taskCallback(startError);
-        }
-
-        var streamError;
-        gulp
-          .src('./test/webdriverio/wdio.conf.js')
-          .pipe(webdriver(getWdioOptions(true)))
-          .on('error', function (error) {
-              streamError = error;
-          })
-          .on('finish', function () {
-              serverProcess.kill();
-              taskCallback(streamError);
-          });
-    });
+gulp.task('test:dev', ['build:test'], function () {
+    return runTestsOnDev(true);
 });
+
+function runTestsOnDev(runsOnDevServer) {
+
+    var options = getWdioOptions(runsOnDevServer);
+    var configsPath = test + 'webdriverio/configs/';
+
+    return fs.readdirSync(configsPath).filter(function (file) {
+        return /^.*\.js$/.test(file);
+    }).reduce(function (promise, file) {
+        return promise
+            .then(function () {
+                return runTests(configsPath + file, options);
+            });
+    }, Promise.resolve(true));
+
+}
+
+function runTests(configPath, options) {
+
+    return new Promise(function (resolve, reject) {
+
+        selenium.start(function (startError, serverProcess) { // launch selenium server
+
+            if (startError) {
+                resolve(startError);
+                return;
+            }
+
+            var streamError;
+
+            gulp
+                .src(configPath)
+                .pipe(webdriverGulp(options))
+                .on('error', function (error) {
+                    streamError = error;
+                })
+                .on('finish', function () {
+                    serverProcess.kill();
+                    resolve(startError);
+                });
+
+        });
+
+    });
+
+}
 
 function getWdioOptions(runsOnDevServer) {
     // gulp-webdriver incorrectly locates WebdriverIO binary
@@ -236,7 +284,7 @@ function getWdioOptions(runsOnDevServer) {
 
     if (runsOnDevServer) {
         // substitute baseUrl option in wdio.conf.js with a trackerServiceUrl from /test/constants.js
-        var constants = fs.readFileSync(path.join(process.cwd(), '/test/constants.js'), 'utf8');
+        var constants = fs.readFileSync(test + 'constants.js', 'utf8');
         var regex = /var trackerServiceUrl = ['"]([^'"]+)['"]/m;
         var match = constants.match(regex);
         if (match) {

@@ -7,7 +7,7 @@ describe('Extension', function () {
     function testTaskStarted() {
         return browser
             .url('/')
-            .waitForExist('.timer-active')
+            .waitForVisible('.timer-active')
             .getText('.timer-active .timer-td-project').should.eventually.be.equal(testProjectName)
             .getText('.timer-active div .text-overflow').should.eventually.be.equal(testIssueName)
             .getAttribute('.timer-active a.flex-item-no-shrink', 'href').should.eventually.be.equal(testIssueUrl);
@@ -17,7 +17,7 @@ describe('Extension', function () {
         return browser
             .url('https://gitlab.com/gitlab-org/gitlab-ce/issues')
             .waitForClick('.row_title')
-            .waitForExist('.devart-timer-link-start')
+            .waitForVisible('.devart-timer-link-start')
             .getText('.title a:nth-last-child(2)').then(function (text) {
                 testProjectName = text;
                 expect(testProjectName).to.be.a('string').and.not.to.be.empty;
@@ -49,7 +49,7 @@ describe('Extension', function () {
             .getTabIds().then(function (result) {
                 return browser.switchTab(result[1]);
             })
-            .waitForExist('body.login')
+            .waitForVisible('body.login')
             .setValue(ttService.login.usernameField, ttService.login.username)
             .setValue(ttService.login.passwordField, ttService.login.password)
             .click(ttService.login.submitButton)
@@ -92,7 +92,7 @@ describe('Extension', function () {
     it('prompts an unauthenticated user for login on starting a task using extention shortcut', function () {
         return browser
             .url(testIssueUrl)
-            .waitForExist('.devart-timer-link-start')
+            .waitForVisible('.devart-timer-link-start')
             .keys(['Control', 'Shift', 'Space', 'NULL'])
             .pause(1000)
             .getTabIds().then(function (result) {
@@ -107,7 +107,7 @@ describe('Extension', function () {
         return browser
             .login('TimeTracker')
             .url(testIssueUrl)
-            .waitForExist('.devart-timer-link-start')
+            .waitForVisible('.devart-timer-link-start')
             .keys(['Control', 'Shift', 'Space', 'NULL'])
             .pause(1000)
             .getTabIds().then(function (result) {
