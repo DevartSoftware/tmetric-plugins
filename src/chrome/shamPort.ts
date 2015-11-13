@@ -9,7 +9,10 @@ class PortShim implements Firefox.Port {
 
     emit(method: string, ...args: any[]): void {
         args.splice(0, 0, method);
-        this.link.onemit.apply(this.link, args);
+        var link = this.link;
+        setTimeout(function () {
+            link.onemit.apply(link, args);
+        }, 0);
     }
 
     on(method: string, handler: (...args: any[]) => void, once?: boolean): void {
