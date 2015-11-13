@@ -72,8 +72,8 @@
     }
 
     interface PageModOptions {
-        include: string | RegExp | string[]| RegExp[];
-        exclude?: string | RegExp | string[]| RegExp[];
+        include: string | RegExp | string[] | RegExp[];
+        exclude?: string | RegExp | string[] | RegExp[];
         contentScriptFile?: string | string[];
         contentScript?: string | string[];
         contentScriptWhen?: string;
@@ -100,9 +100,9 @@
     interface PageWorkerOptions {
         contentURL?: string;
         allow?: { script: boolean };
-        include?: string | RegExp | string[]| RegExp[];
-        contentScriptFile?: string| string[];
-        contentScript?: string| string[];
+        include?: string | RegExp | string[] | RegExp[];
+        contentScriptFile?: string | string[];
+        contentScript?: string | string[];
         contentScriptWhen?: string;
         contentScriptOptions?: any;
         onMessage?: Function;
@@ -210,6 +210,12 @@
         confirm(aParent: Window, aDialogTitle: string, aText: string): boolean;
     }
 
+    interface nsIIdleService {
+        addIdleObserver(aObserver: nsIObserver);
+        removeIdleObserver(aObserver: nsIObserver);
+        idleTime: number;
+    }
+
     interface nsIAlertsService {
         showAlertNotification(
             imageUrl: string,
@@ -280,6 +286,7 @@ declare module 'chrome'
         nsIDOMWindow: Window;
         nsIAlertsService: Firefox.nsIAlertsService;
         nsIPromptService: Firefox.nsIPromptService;
+        nsIIdleService: Firefox.nsIIdleService
     }
 }
 
@@ -351,7 +358,7 @@ declare module 'sdk/tabs/utils' {
     function getTabs(window?: Firefox.BrowserWindow): Firefox.Tab[];
     function getActiveTab(window?: Firefox.BrowserWindow): Firefox.Tab;
     function getOwnerWindow(tab: Firefox.Tab): Firefox.BrowserWindow;
-    function openTab(window, url, options?: {inBackground: boolean, pinned: boolean}): Firefox.Tab;
+    function openTab(window, url, options?: { inBackground: boolean, pinned: boolean }): Firefox.Tab;
     function isTabOpen(tab): boolean;
     function closeTab(tab: Firefox.Tab);
     function getURI(tab: Firefox.Tab): string;
@@ -369,6 +376,10 @@ declare module 'sdk/tabs/utils' {
     function getTabContentType(tab: Firefox.Tab)
     function getSelectedTab(window: Object)
     function getTabForBrowser(browser: Object)
+}
+
+declare module 'sdk/panel' {
+    function Panel(options: any): any;
 }
 
 interface Window {
