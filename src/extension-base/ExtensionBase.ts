@@ -39,10 +39,14 @@ class ExtensionBase {
     constructor(public port: Firefox.Port) {
         this.port.on('updateTimer', timer => {
             this.setTimer(timer);
-            var action = this._actionOnConnect;
-            if (action) {
-                this._actionOnConnect = null;
-                action();
+            // When disconnecting timer is null.
+            // Guard connect action while connection happens.
+            if (timer) {
+                var action = this._actionOnConnect;
+                if (action) {
+                    this._actionOnConnect = null;
+                    action();
+                }
             }
         });
         this.port.on('updateTracker', timeEntries => this.setTracker(timeEntries));
