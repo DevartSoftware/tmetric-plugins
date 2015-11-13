@@ -6,7 +6,6 @@ var jsonfile = require('jsonfile');            // Easily read/write JSON files.
 var merge = require('merge-stream');           // Create a stream that emits events from multiple other streams.
 var path = require('path');                    // Node.js Path System module
 var selenium = require('selenium-standalone'); // Installs a selenium-standalone command line to install and start a standalone selenium server
-var typescript = require('typescript');        // TypeScript is a language for application scale JavaScript development
 var webdriver = require('gulp-webdriver');     // Runs selenium tests with the WebdriverIO testrunner
 var webdriverio = require('webdriverio');      // A nodejs bindings implementation for selenium 2.0/webdriver
 
