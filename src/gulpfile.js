@@ -235,14 +235,33 @@ function runTestsOnDev(runsOnDevServer) {
     var options = getWdioOptions(runsOnDevServer);
     var configsPath = test + 'webdriverio/configs/';
 
-    return fs.readdirSync(configsPath).filter(function (file) {
+    var configs = fs.readdirSync(configsPath).filter(function (file) {
         return /^.*\.js$/.test(file);
-    }).reduce(function (promise, file) {
-        return promise
-            .then(function () {
-                return runTests(configsPath + file, options);
-            });
-    }, Promise.resolve(true));
+    });
+
+    return new Promise(function (resolve, reject) {
+
+        var testErrors = [];
+
+        configs.reduce(function (promise, file, index) {
+            return promise
+                .then(function () {
+                    return runTests(configsPath + file, options);
+                })
+                .then(function (result) {
+                    if (result) {
+                        testErrors.push(result);
+                    }
+                });
+        }, Promise.resolve(true)).then(function () {
+            if (testErrors.length) {
+                reject(new Error('Tests error'));
+            } else {
+                resolve();
+            }
+        });
+
+    });
 
 }
 
@@ -267,7 +286,7 @@ function runTests(configPath, options) {
                 })
                 .on('finish', function () {
                     serverProcess.kill();
-                    resolve(startError);
+                    resolve(streamError);
                 });
 
         });
