@@ -42,14 +42,12 @@ browser.addCommand("login", function (serviceName) {
 browser.addCommand("stopRunningTask", function () {
     return browser
         .url('/')
-        .pause(2000)
         .waitForVisible('.page-actions')
         .isVisible('#btn-stop').then(function (isVisible) {
             if (isVisible) {
                 return browser
                     .click('#btn-stop')
-                    .pause(5000)
-                    .waitForVisible('#btn-stop', 3000, true);
+                    .waitForVisible('#btn-stop', 10000, true);
             }
         });
 });
@@ -59,7 +57,6 @@ browser.addCommand("startAndTestTaskStarted", function (projectName, taskName, t
         .waitForClick('.devart-timer-link-start')
         .waitForVisible('.devart-timer-link-stop')
         .url('/')
-        .pause(2000)
         .waitForVisible('.timer-active')
         .getText('.timer-active .timer-td-project').should.eventually.be.equal(projectName)
         .getText('.timer-active div .text-overflow').should.eventually.be.equal(taskName)
@@ -72,7 +69,6 @@ browser.addCommand("startStopAndTestTaskStopped", function () {
         .waitForClick('.devart-timer-link-stop')
         .waitForVisible('.devart-timer-link-start')
         .url('/')
-        .pause(2000)
         .waitForVisible('.page-actions')
         .isVisible('#btn-stop').should.eventually.be.false
         .isExisting('.timer-active').should.eventually.be.false;
