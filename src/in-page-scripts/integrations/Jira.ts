@@ -41,10 +41,9 @@
 
             var issueId, issueUrl: string;
 
-            var issueLink = $$('.issue-link', true);
+            var issueLink = $$('#key-val', true);
             if (issueLink) {
                 issueId = issueLink.getAttribute('data-issue-key');
-
                 issueUrl = issueLink.getAttribute('href');
             }
 

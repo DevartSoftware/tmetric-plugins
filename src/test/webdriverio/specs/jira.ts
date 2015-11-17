@@ -1,9 +1,13 @@
 describe("Jira", function () {
+
     var testProjectName = 'Demo';
 
     var testIssueName = 'Issue-qweasdzxc for Demo';
     var testIssueSearchUrl = 'https://jira.atlassian.com/projects/DEMO/issues?filter=reportedbyme';
     var testIssueUrl = '';
+
+    var testIssueSubtaskName = 'Issue-qweasdzxc-subtask for Demo';
+    var testIssueSubtaskUrl = '';
 
     var testFilterName = 'Filter-qweasdzxc for Demo';
     var testFilterSearchUrl = 'https://jira.atlassian.com/secure/ManageFilters.jspa#filterView=my';
@@ -14,7 +18,9 @@ describe("Jira", function () {
     var testKanbanBoardUrl = '';
 
     before(function () {
+
         var testIssueAnchorSelector = '//a[span[contains(@class,"issue-link-summary")][text()="' + testIssueName + '"]]';
+        var testIssueSubtaskAnchorSelector = '//a[contains(@class,"issue-link")][text()="' + testIssueSubtaskName + '"]';
         var testKanbanBoardAnchorSelector = '//a[text()="' + testKanbanBoardName + '"]';
 
         function createIssue() {
@@ -30,6 +36,25 @@ describe("Jira", function () {
                 .getAttribute(testIssueAnchorSelector, 'href')
                 .then(function (result) {
                     testIssueUrl = result;
+                });
+        }
+
+        function createIssueSubtask() {
+            return browser
+                .then(function () {
+                    return browser.url(testIssueUrl);
+                })
+                .waitForClick('#opsbar-operations_more')
+                .waitForClick('#create-subtask')
+                .waitForVisible('#create-issue-submit')
+                .setValue('#summary', testIssueSubtaskName)
+                .click('#create-issue-submit')
+                .waitForExist('#create-subtask-dialog', 30000, true)
+                .url(testIssueSearchUrl)
+                .waitForVisible(testIssueSubtaskAnchorSelector)
+                .getAttribute(testIssueSubtaskAnchorSelector, 'href')
+                .then(function (result) {
+                    testIssueSubtaskUrl = result;
                 });
         }
 
@@ -66,7 +91,7 @@ describe("Jira", function () {
 
         return browser
             .login("Jira")
-        // check test issue
+            // check test issue
             .url(testIssueSearchUrl)
             .waitForVisible('.details-layout')
             .isVisible('empty-results')
@@ -89,7 +114,25 @@ describe("Jira", function () {
             .then(function () {
                 expect(testIssueUrl).to.be.a('string').and.not.to.be.empty;
             })
-        // check test filter
+            // check test issue subtask
+            .then(function () {
+                return browser.url(testIssueUrl);
+            })
+            .waitForVisible('#opsbar-operations_more')
+            .isExisting(testIssueSubtaskAnchorSelector)
+            .then(function (result) {
+                return result ?
+                    browser
+                        .getAttribute(testIssueSubtaskAnchorSelector, 'href')
+                        .then(function (result) {
+                            testIssueSubtaskUrl = result;
+                        }) :
+                    createIssueSubtask();
+            })
+            .then(function () {
+                expect(testIssueSubtaskUrl).to.be.a('string').and.not.to.be.empty;
+            })
+            // check test filter
             .url(testFilterSearchUrl)
             .waitForVisible('#mf_owned')
             .isExisting('//a[text()="' + testFilterName + '"]')
@@ -98,7 +141,7 @@ describe("Jira", function () {
                     return createFilter();
                 }
             })
-        // check test kanban board
+            // check test kanban board
             .url(testBoardSearchUrl)
             .waitForClick('a[data-item-id="all"]')
             .waitForVisible('.js-search-boards-input')
@@ -134,6 +177,22 @@ describe("Jira", function () {
             .startStopAndTestTaskStopped();
     });
 
+    it("can start timer on an issue subtask", function () {
+        return browser
+            .url(testIssueSubtaskUrl)
+            .waitForVisible('.devart-timer-link')
+            .getText('#project-name-val').should.eventually.be.equal(testProjectName)
+            .getText('#summary-val').should.eventually.be.equal(testIssueSubtaskName)
+            .url().should.eventually.has.property('value', testIssueSubtaskUrl)
+            .startAndTestTaskStarted(testProjectName, testIssueSubtaskName, testIssueSubtaskUrl);
+    });
+
+    it("can stop timer on an issue subtask", function () {
+        return browser
+            .url(testIssueSubtaskUrl)
+            .startStopAndTestTaskStopped();
+    });
+
     it("can start timer on an issue from kanban board", function () {
         return browser
             .url(testKanbanBoardUrl)
@@ -153,4 +212,5 @@ describe("Jira", function () {
             .waitForVisible('.ghx-detail-view-blanket', 5000, true)
             .startStopAndTestTaskStopped();
     });
+
 });
