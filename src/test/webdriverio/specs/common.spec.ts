@@ -1,4 +1,5 @@
 describe('Extension', function () {
+
     var services = require('../services.conf');
     var ttService = services['TimeTracker'];
 
@@ -7,6 +8,7 @@ describe('Extension', function () {
     function testTaskStarted() {
         return browser
             .url('/')
+            .pause(2000)
             .waitForVisible('.timer-active')
             .getText('.timer-active .timer-td-project').should.eventually.be.equal(testProjectName)
             .getText('.timer-active div .text-overflow').should.eventually.be.equal(testIssueName)
@@ -35,6 +37,7 @@ describe('Extension', function () {
     beforeEach(function () {
         return browser
             .login('TimeTracker')
+            .pause(2000)
             .stopRunningTask()
             .deleteCookie();
     });
@@ -72,7 +75,6 @@ describe('Extension', function () {
                 expect(result.length).to.be.equal(2);
             })
             .then(loginTimeTrackerThroughExtension)
-            .url('/')
             .then(testTaskStarted);
     });
 
@@ -85,7 +87,6 @@ describe('Extension', function () {
             .getTabIds().then(function (result) {
                 expect(result.length).to.be.equal(1);
             })
-            .url('/')
             .then(testTaskStarted);
     });
 
@@ -99,7 +100,6 @@ describe('Extension', function () {
                 expect(result.length).to.be.equal(2);
             })
             .then(loginTimeTrackerThroughExtension)
-            .url('/')
             .then(testTaskStarted);
     });
 
@@ -113,7 +113,6 @@ describe('Extension', function () {
             .getTabIds().then(function (result) {
                 expect(result.length).to.be.equal(1);
             })
-            .url('/')
             .then(testTaskStarted);
     });
 
@@ -126,5 +125,6 @@ describe('Extension', function () {
             .waitForVisible('.devart-timer-link-stop')
             .keys(['Control', 'Shift', 'Space', 'NULL'])
             .waitForVisible('.devart-timer-link-start');
-    })
+    });
+
 });
