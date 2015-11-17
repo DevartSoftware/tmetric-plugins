@@ -210,6 +210,7 @@ describe("Jira", function () {
             .url(testKanbanBoardUrl)
             .waitForClick('.ghx-inner=' + testIssueName)
             .waitForVisible('.ghx-detail-view-blanket', 5000, true)
+            .pause(1000) // give some time for mutation observer
             .startStopAndTestTaskStopped();
     });
 
