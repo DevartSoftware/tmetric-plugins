@@ -66,17 +66,19 @@ describe("GitLab", function () {
                 });
         }
 
-        function searchTestIssue() {
-            return browser
-                .url('https://gitlab.com/dashboard/issues?search=gitlab-test-qazwsxedc')
-                .isVisible('a*=' + testIssueName).then(function (result) {
-                    return (result ? getTestIssueUrlFromAnchor : checkTestProject)();
-                });
-        }
-
         return browser
             .login("GitLab")
-            .then(searchTestIssue)
+            .then(checkTestProject)
+            .then(function () {
+                expect(testProjectUrl).to.be.a('string').and.not.to.be.empty;
+            })
+            .then(function () {
+                return browser.url(testProjectUrl);
+            })
+            .isVisible('a*=' + testIssueName)
+            .then(function (result) {
+                return (result ? getTestIssueUrlFromAnchor : checkTestIssue)();
+            })
             .then(function () {
                 expect(testIssueUrl).to.be.a('string').and.not.to.be.empty;
             });
