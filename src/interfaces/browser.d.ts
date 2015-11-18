@@ -1,11 +1,6 @@
-﻿interface AjaxResult<T> {
+﻿interface AjaxStatus {
     statusCode: number;
     statusText: string;
-    data?: T;
-}
-
-interface AjaxCallback<T> {
-    (result: AjaxResult<T>): void;
 }
 
 interface ITabInfo {

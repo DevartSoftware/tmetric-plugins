@@ -28,8 +28,6 @@
         "mkdirp": "~0.5.1",
         "mocha": "~2.3.3",
         "ms-signalr-client": "2.2.2",
-        "promise": "7.0.4",
-        "q": "~1.4.1",
         "selenium-webdriver": "~2.48.2",
         "webdriverio": "~3.2.4"
     },

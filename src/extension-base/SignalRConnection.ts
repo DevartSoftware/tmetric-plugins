@@ -15,190 +15,170 @@
             this.url = url;
             this.hub = $.hubConnection(url);
             this.hubProxy = this.hub.createHubProxy('timeTrackerHub');
+
             this.hubProxy.on('updateTimer', (accountId: number) => {
                 if (this.userProfile && accountId != this.userProfile.activeAccountId) {
                     return;
                 }
-
-                var previousProfileId = this.userProfile.userProfileId;
-                this.getProfile(
-                    () => {
-                        if (this.userProfile.userProfileId != previousProfileId) {
-                            this.disconnect();
-                            this.connect();
-                        }
-                        else {
-                            this.getTimer();
-                        }
-                    });
+                var previousProfileId = this.userProfile && this.userProfile.userProfileId;
+                this.getProfile().then(profile => {
+                    if (profile.userProfileId != previousProfileId) {
+                        this.reconnect();
+                    }
+                    else {
+                        this.getTimer();
+                    }
+                });
             });
 
             this.hubProxy.on('updateActiveAccount', (accountId: number) => {
-                if (this.userProfile && accountId != this.userProfile.activeAccountId) {
-                    this.disconnect();
-                    this.connect();
+                if (!this.userProfile || accountId != this.userProfile.activeAccountId) {
+                    this.reconnect();
                 }
             });
 
-            this.connect();
+            this.reconnect().catch(() => { });
         });
 
-        self.port.on('disconnect', () => this.disconnect());
+        this.listenPortAction('disconnect', this.disconnect);
+        this.listenPortAction<void>('reconnect', this.reconnect);
+        this.listenPortAction<Integrations.WebToolIssueTimer>('putTimer', this.putTimer);
+        this.listenPortAction<Models.IntegratedProjectIdentifier>('postIntegration', this.postIntegration);
+        this.listenPortAction<Models.IntegratedProjectIdentifier>('getIntegration', this.getIntegration);
+    }
 
-        self.port.on('connect', () => this.connect());
-
-        self.port.on('putTimer', timer => {
-            this.putTimer(timer, result => {
-                self.port.emit('putTimerCallback', result);
-            });
-        });
-
-        self.port.on('postIntegration', identifier => {
-            this.postIntegration(identifier, result => {
-                self.port.emit('postIntegrationCallback', result);
-            });
-        });
-
-        self.port.on('getIntegration', identifier => {
-            this.getIntegration(identifier, result => {
-                self.port.emit('getIntegrationCallback', result);
-            });
+    listenPortAction<TParam>(actionName: string, action: (param: TParam) => Promise<any>) {
+        action = action.bind(this);
+        var callbackName = actionName + '_callback';
+        self.port.on(actionName, (param: TParam) => {
+            action(param)
+                .then(result => self.port.emit(callbackName, true, result))
+                .catch(error => self.port.emit(callbackName, false, error));
         });
     }
 
-    connect(done?: () => JQueryPromise<any>, fail?: () => void) {
-        fail = fail || emptyCallback;
+    reconnect() {
+        return this.disconnect()
+            .then(() => this.connect())
+            .then(() => this.getTimer())
+            .then(() => <void>undefined);
+    }
 
-        if (this.hubConnected) {
-            if (done) {
-                done();
+    connect() {
+        return new Promise<Models.UserProfile>((callback, reject) => {
+            if (this.hubConnected) {
+                callback(this.userProfile);
+                return;
             }
-            return;
-        }
-
-        this.getProfile(() => {
-            this.hub.start().then(() => {
-                this.hubConnected = true;
-                this.hub.disconnected(() => this.disconnect());
-                this.hubProxy.invoke('register', this.userProfile.userProfileId);
-
-                if (done) {
-                    done()
-                        .then(() => this.getTimer())
-                        .fail(fail);
-                }
-                else {
-                    this.getTimer();
-                }
-            }, fail);
-        }, fail);
-
-        function emptyCallback() { }
+            this.getProfile()
+                .then(profile => {
+                    this.hub.start()
+                        .then(() => {
+                            this.hubConnected = true;
+                            this.hub.disconnected(() => this.disconnect());
+                            this.hubProxy.invoke('register', profile.userProfileId)
+                                .then(() => callback(profile))
+                                .fail(reject);
+                        })
+                        .fail(reject);
+                })
+                .catch(reject);
+        });
     }
 
     disconnect() {
-        if (this.hubConnected) {
-            this.hubConnected = false;
-            self.port.emit('updateTimer', null);
-            this.hub.stop(false);
-        }
+        return new Promise<void>((callback, reject) => {
+            if (this.hubConnected) {
+                this.hubConnected = false;
+                self.port.emit('updateTimer', null);
+                this.hub.stop(false);
+            }
+            callback();
+        });
     }
 
-    putTimer(timer: Integrations.WebToolIssueTimer, callback: AjaxCallback<any>) {
-        this.connect(
-            () => {
-                if (!timer.isStarted) {
-                    return this.put('api/timer/' + this.userProfile.activeAccountId, <Models.Timer>{ isStarted: false }, callback, callback)
-                }
-                return this.post('api/timer/external', timer, callback, callback)
-            },
-            () => this.callFail(callback));
+    putTimer(timer: Integrations.WebToolIssueTimer) {
+        return this.connect().then(profile => {
+            if (!timer.isStarted) {
+                return this.put('api/timer/' + this.userProfile.activeAccountId, <Models.Timer>{ isStarted: false })
+            }
+            return this.post('api/timer/external', timer)
+        });
     }
 
-    getIntegration(identifier: Models.IntegratedProjectIdentifier, callback: AjaxCallback<Models.IntegratedProjectStatus>) {
-        if (!this.userProfile || !this.userProfile.activeAccountId) {
-            this.callFail(callback);
-            return;
-        }
-
-        this.get<Models.IntegratedProjectStatus>(
-            'api/account/' + this.userProfile.activeAccountId + '/integrations/project?' + $.param(identifier, true),
-            callback,
-            callback);
+    getIntegration(identifier: Models.IntegratedProjectIdentifier) {
+        return this.checkProfile().then(profile =>
+            this.get<Models.IntegratedProjectStatus>(
+                'api/account/' + profile.activeAccountId + '/integrations/project?' + $.param(identifier, true)));
     }
 
-    postIntegration(identifier: Models.IntegratedProjectIdentifier, callback: AjaxCallback<any>) {
-        if (!this.userProfile || !this.userProfile.activeAccountId) {
-            this.callFail(callback);
-            return;
-        }
-
-        this.post<Models.IntegratedProjectIdentifier>(
-            'api/account/' + this.userProfile.activeAccountId + '/integrations/project',
-            identifier,
-            callback,
-            callback);
+    postIntegration(identifier: Models.IntegratedProjectIdentifier) {
+        return this.checkProfile().then(() =>
+            this.post<Models.IntegratedProjectIdentifier>(
+                'api/account/' + this.userProfile.activeAccountId + '/integrations/project',
+                identifier));
     }
 
-    getProfile(done: () => void, fail?: () => void) {
-        this.get<Models.UserProfile>('api/userprofile',
-            result => {
-                this.userProfile = result.data;
-                self.port.emit('updateProfile', result.data);
-                done();
-            },
-            () => {
-                this.disconnect();
-                if (fail) {
-                    fail();
-                }
-            });
+    checkProfile() {
+        return new Promise<Models.UserProfile>((callback, reject) => {
+            var profile = this.userProfile;
+            if (profile && profile.activeAccountId) {
+                callback(profile);
+            }
+            else {
+                reject();
+            }
+        });
+    }
+
+    getProfile() {
+        var profile = this.get<Models.UserProfile>('api/userprofile').then(profile => {
+            this.userProfile = profile;
+            self.port.emit('updateProfile', profile);
+            return profile;
+        });
+        profile.catch(() => this.disconnect());
+        return profile;
     }
 
     getTimer() {
-        var requestAccountId = this.userProfile.activeAccountId;
+        var accountId = this.userProfile.activeAccountId;
 
-        this.get<Models.Timer>('api/timer/' + requestAccountId,
-            result => {
-                if (this.userProfile.activeAccountId == requestAccountId) {
-                    self.port.emit('updateTimer', result.data);
-                }
-            },
-            () => this.disconnect());
+        var url = 'api/timer/' + accountId;
+        var timer = this.get<Models.Timer>(url).then(timer => {
+            self.port.emit('updateTimer', timer);
+            return timer;
+        });
 
-        var startTime = new Date();
-        startTime = new Date(startTime.getFullYear(), startTime.getMonth(), startTime.getDate());
-        var endTime = new Date(startTime.getFullYear(), startTime.getMonth(), startTime.getDate() + 1);
+        var now = new Date();
+        var startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toJSON();
+        var endTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toJSON();
+        var userProfileId = this.userProfile.userProfileId;
+        url = '/api/timeentries/' + accountId + '/' + userProfileId + '?startTime=' + startTime + '&endTime=' + endTime;
 
-        this.get<Models.TimeEntry[]>('/api/timeentries/' + requestAccountId + '/' + this.userProfile.userProfileId
-            + '?startTime=' + startTime.toJSON() + '&endTime=' + endTime.toJSON(),
-            result => {
-                if (this.userProfile.activeAccountId == requestAccountId) {
-                    self.port.emit('updateTracker', result.data);
-                }
-            },
-            () => this.disconnect());
+        var tracker = this.get<Models.TimeEntry[]>(url).then(tracker => {
+            self.port.emit('updateTracker', tracker);
+            return tracker;
+        });
+
+        var all = Promise.all<Models.Timer | Models.TimeEntry[]>([timer, tracker]);
+        all.catch(() => this.disconnect());
+        return all;
     }
 
-    callFail(fail?: AjaxCallback<any>) {
-        if (fail) {
-            fail(<AjaxResult<any>>{ statusCode: 0 });
-        }
+    get<T>(url: string): Promise<T> {
+        return this.ajax(url, 'GET', null);
     }
 
-    get<T>(url: string, done?: AjaxCallback<T>, fail?: AjaxCallback<T>): JQueryPromise<T> {
-        return this.ajax<T>(url, 'GET', null, done, fail);
+    post<T>(url: string, data: T): Promise<void> {
+        return this.ajax(url, 'POST', data);
     }
 
-    post<T>(url: string, data: T, done?: AjaxCallback<T>, fail?: AjaxCallback<T>): JQueryPromise<T> {
-        return this.ajax<T>(url, 'POST', data, done, fail);
+    put<T>(url: string, data: T): Promise<void> {
+        return this.ajax(url, 'PUT', data);
     }
 
-    put<T>(url: string, data: T, done?: AjaxCallback<T>, fail?: AjaxCallback<T>): JQueryPromise<T> {
-        return this.ajax<T>(url, 'PUT', data, done, fail);
-    }
-
-    ajax<T>(url: string, method: string, postData: T, done?: AjaxCallback<T>, fail?: AjaxCallback<T>): JQueryPromise<T> {
+    ajax(url: string, method: string, postData: any) {
         var settings = <JQueryAjaxSettings>{};
         settings.url = this.url + url;
 
@@ -207,7 +187,10 @@
             settings.contentType = "application/json";
         }
 
-        if (method == 'GET' || method == 'POST') {
+        var isGet = method == 'GET';
+        var isPost = method == 'POST';
+
+        if (isGet || isPost) {
             settings.type = method;
         }
         else {
@@ -216,35 +199,31 @@
             settings.headers['X-HTTP-Method-Override'] = method;
         }
 
-        var xhr = $.ajax(settings);
+        return new Promise<any>((callback, reject) => {
 
-        xhr.done((data: T) => {
-            var result = getResult(postData ? null : data);
+            var xhr = $.ajax(settings);
 
-            if (xhr.status >= 200 && xhr.status < 300) {
-                if (done) {
-                    done(result);
+            xhr.done(data => {
+                if (xhr.status >= 200 && xhr.status < 400) {
+                    callback(isGet ? data : undefined);
                 }
-            }
-            else if (fail) {
-                fail(result);
+                else {
+                    reject(fail);
+                }
+            });
+
+            xhr.fail(fail);
+
+            function fail() {
+                var statusCode = xhr.status;
+                var statusText = xhr.statusText;
+                if (statusText == 'error') // jQuery replaces empty status to 'error'
+                {
+                    statusText = '';
+                }
+                reject(<AjaxStatus>{ statusCode, statusText });
             }
         });
-
-        if (fail) {
-            xhr.fail(() => fail(getResult(null)));
-        }
-
-        return xhr;
-
-        function getResult(data: T): AjaxResult<T> {
-            var statusText = xhr.statusText;
-            if (statusText == 'error') // jQuery replaces empty status to 'error'
-            {
-                statusText = '';
-            }
-            return { data, statusCode: xhr.status, statusText }
-        }
     }
 }
 new SignalRConnection();
