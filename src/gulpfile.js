@@ -249,6 +249,7 @@ function runTestsOnDev(runsOnDevServer) {
                     return runTests(configsPath + file, options);
                 })
                 .then(function (result) {
+                    // result is a resolved result of promise returned by runTests
                     if (result) {
                         testErrors.push(result);
                     }
@@ -272,6 +273,7 @@ function runTests(configPath, options) {
         selenium.start(function (startError, serverProcess) { // launch selenium server
 
             if (startError) {
+                // error is an Error object from selenium.start
                 resolve(startError);
                 return;
             }
@@ -282,6 +284,9 @@ function runTests(configPath, options) {
                 .src(configPath)
                 .pipe(webdriverGulp(options))
                 .on('error', function (error) {
+                    // Parameter 'error' is an Error object from webdriverGulp
+                    // what indicates about test fail.
+                    // Actual test results handled by reporter given in wdio.conf.js
                     streamError = error;
                 })
                 .on('finish', function () {
