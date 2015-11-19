@@ -1,6 +1,8 @@
 {
     "manifest_version": 2,
 
+    "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyj+4LlxjihH0WZ0o9ILjxa/Ea9DC/2ctV6nXA0Ai0CGRyS24lhWX/hmP8mHjpSLIOnX3Ps4/OONemMnL+ufsXZYmNtfhMymX491MGoAaVJYzkGHc3IjqlLDS4/CdO9uM433S5Mk9NlmeQh+2dG9wjMRjTXNFePsuRyHwdv3KXiciBRojcck4yDr5RCbsMz1SnEwbqgHe2ZhappBIox2SIzNY0EXwXRiSQyMylaHJ6rjUmOuGjJnesTJ7oaFEE4LEloyNmv9fSIO0i06w6pojeVbwsdq+77DFctthhGHZEP7iPwS4eRVfsSlm5pGsenHl70ikDz3cAjGGoAzh9su86QIDAQAB",
+
     "name": "Devart Timer Button",
     "description": "Integrates Devart's Time Tracker with popular issue tracking tools.",
     "author": "Devart",
@@ -37,6 +39,9 @@
             "chrome/ChromeExtension.js"
         ]
     },
+	"externally_connectable": {
+    "matches": ["*://localhost/*", "*://alm-build/*", "*://tt.devart.com/*"]
+},
     "content_scripts": [
         {
             "matches": [ "http://*/*", "https://*/*" ],

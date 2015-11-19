@@ -13,3 +13,8 @@ interface ITabMessage {
     action: string;
     data?: any;
 }
+
+interface IWindowMessage {
+    data: string;
+    origin: string;
+}

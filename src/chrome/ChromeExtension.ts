@@ -1,5 +1,4 @@
 class ChromeExtension extends ExtensionBase {
-
     loginTabId: number;
 
     loginWinId: number;
@@ -36,7 +35,6 @@ class ChromeExtension extends ExtensionBase {
                 }));
             }
         }
-
         chrome.runtime.onMessage.addListener((message: ITabMessage, sender: chrome.runtime.MessageSender) => {
             var isActive = false;
             var tabId: number;
@@ -95,6 +93,12 @@ class ChromeExtension extends ExtensionBase {
                 }
             });
         };
+
+        chrome.runtime.onMessageExternal.addListener((request: any, sender: any, sendResponse: Function) => {
+            if (request.message == "version") {
+                sendResponse({ version: "0.1.0" });
+            }
+        });
 
         chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
             if (tabId == this.loginTabId &&

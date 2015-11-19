@@ -27,6 +27,7 @@
         "in-page-scripts/integrations/TFS.ts",
         "in-page-scripts/integrations/Trello.ts",
         "in-page-scripts/page.ts",
+		"in-page-scripts/pageTalk.ts",
         "in-page-scripts/utils.ts",
         "test/webdriverio/customcommands.ts",
         "test/webdriverio/specs/common.spec.ts",

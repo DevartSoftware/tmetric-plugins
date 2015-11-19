@@ -10,13 +10,13 @@ import prefs = require('sdk/simple-prefs');
 import storage = require('sdk/simple-storage');
 import style = require('sdk/stylesheet/style');
 import contentMod = require('sdk/content/mod');
+import pageMod = require("sdk/page-mod");
 
 var windowWatcher = chrome.Cc['@mozilla.org/embedcomp/window-watcher;1'].getService(chrome.Ci.nsIWindowWatcher);
 var alertsService = chrome.Cc['@mozilla.org/alerts-service;1'].getService(chrome.Ci.nsIAlertsService);
 var promptService = chrome.Cc['@mozilla.org/embedcomp/prompt-service;1'].getService(chrome.Ci.nsIPromptService);
 
 class FirefoxExtension extends ExtensionBase {
-
     loginWindow: Window;
 
     loginTabId: string;
@@ -41,6 +41,12 @@ class FirefoxExtension extends ExtensionBase {
                     './SignalRConnection.js'
                 ],
             }).port);
+
+        pageMod.PageMod({
+            include: ["*.alm-build", "*.localhost", "*.tt.devart.com"],
+            contentScriptWhen: "start",
+            contentScriptFile: self.data.url("./pageTalk.js")
+        });
 
         tabs.on('close', tab => {
             if (this.checkCloseTimeout) {
