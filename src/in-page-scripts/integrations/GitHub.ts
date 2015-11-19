@@ -2,6 +2,8 @@
 
     class GitHub implements WebToolIntegration {
 
+        observeMutations = true;
+
         matchUrl = [
             '*://*/issues/*',
             '*://*/pull/*'
