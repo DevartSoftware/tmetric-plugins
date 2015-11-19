@@ -43,6 +43,7 @@ browser.addCommand("stopRunningTask", function () {
     return browser
         .url('/')
         .waitForVisible('.page-actions')
+        .pause(1000)
         .isVisible('#btn-stop').then(function (isVisible) {
             if (isVisible) {
                 return browser

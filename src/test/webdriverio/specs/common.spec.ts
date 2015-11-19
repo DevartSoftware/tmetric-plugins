@@ -16,6 +16,7 @@ describe('Extension', function () {
 
     before(function () {
         return browser
+            .login('TimeTracker')
             .url('https://gitlab.com/gitlab-org/gitlab-ce/issues')
             .waitForClick('.row_title')
             .waitForVisible('.devart-timer-link-start')
@@ -35,9 +36,7 @@ describe('Extension', function () {
 
     beforeEach(function () {
         return browser
-            .login('TimeTracker')
             .stopRunningTask()
-            .deleteCookie();
     });
 
     function loginTimeTrackerThroughExtension() {
@@ -66,6 +65,8 @@ describe('Extension', function () {
 
     it('prompts an unauthenticated user for login on starting a task using html button', function () {
         return browser
+            .url('/')
+            .deleteCookie()
             .url(testIssueUrl)
             .waitForClick('.devart-timer-link-start')
             .pause(1000)
@@ -79,7 +80,6 @@ describe('Extension', function () {
 
     it('do not prompts an authenticated user for login on starting a task using html button', function () {
         return browser
-            .login('TimeTracker')
             .url(testIssueUrl)
             .waitForClick('.devart-timer-link-start')
             .pause(1000)
@@ -92,6 +92,8 @@ describe('Extension', function () {
 
     it('prompts an unauthenticated user for login on starting a task using extention shortcut', function () {
         return browser
+            .url('/')
+            .deleteCookie()
             .url(testIssueUrl)
             .waitForVisible('.devart-timer-link-start')
             .keys(['Control', 'Shift', 'Space', 'NULL'])
@@ -106,7 +108,6 @@ describe('Extension', function () {
 
     it('do not prompts an authenticated user for login on starting a task using extention shortcut', function () {
         return browser
-            .login('TimeTracker')
             .url(testIssueUrl)
             .waitForVisible('.devart-timer-link-start')
             .keys(['Control', 'Shift', 'Space', 'NULL'])
@@ -120,7 +121,6 @@ describe('Extension', function () {
 
     it('can change html button when task is started or stoped by extension shortcut', function () {
         return browser
-            .login('TimeTracker')
             .url(testIssueUrl)
             .waitForVisible('.devart-timer-link-start')
             .keys(['Control', 'Shift', 'Space', 'NULL'])
