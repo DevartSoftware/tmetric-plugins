@@ -70,6 +70,7 @@ declare module Models {
     }
 
     interface IntegratedProjectStatus {
+        accountId: number;
         integrationName: string;
         projectStatus: ProjectStatus;
         projectRole: ProjectRole;

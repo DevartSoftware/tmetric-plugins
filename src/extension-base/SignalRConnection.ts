@@ -10,6 +10,8 @@
 
     userProfile: Models.UserProfile;
 
+    accountToPost: number;
+
     constructor() {
         self.port.once('init', (url: string) => {
             this.url = url;
@@ -45,6 +47,7 @@
         this.listenPortAction<Integrations.WebToolIssueTimer>('putTimer', this.putTimer);
         this.listenPortAction<Models.IntegratedProjectIdentifier>('postIntegration', this.postIntegration);
         this.listenPortAction<Models.IntegratedProjectIdentifier>('getIntegration', this.getIntegration);
+        this.listenPortAction<number>('setAccountToPost', this.setAccountToPost);
     }
 
     listenPortAction<TParam>(actionName: string, action: (param: TParam) => Promise<any>) {
@@ -60,8 +63,7 @@
     reconnect() {
         return this.disconnect()
             .then(() => this.connect())
-            .then(() => this.getTimer())
-            .then(() => <void>undefined);
+            .then(() => this.getTimer());
     }
 
     connect() {
@@ -99,10 +101,11 @@
 
     putTimer(timer: Integrations.WebToolIssueTimer) {
         return this.connect().then(profile => {
-            if (!timer.isStarted) {
-                return this.put('api/timer/' + this.userProfile.activeAccountId, <Models.Timer>{ isStarted: false })
+            var accountId = this.accountToPost || profile.activeAccountId;
+            if (timer.isStarted) {
+                return this.post('api/timer/external/' + accountId, timer)
             }
-            return this.post('api/timer/external', timer)
+            return this.put('api/timer/' + accountId, <Models.Timer>{ isStarted: false })
         });
     }
 
@@ -113,10 +116,17 @@
     }
 
     postIntegration(identifier: Models.IntegratedProjectIdentifier) {
-        return this.checkProfile().then(() =>
+        return this.checkProfile().then(profile =>
             this.post<Models.IntegratedProjectIdentifier>(
-                'api/account/' + this.userProfile.activeAccountId + '/integrations/project',
+                'api/account/' + (this.accountToPost || profile.activeAccountId) + '/integrations/project',
                 identifier));
+    }
+
+    setAccountToPost(accountId: number) {
+        return new Promise<void>(callback => {
+            this.accountToPost = accountId;
+            callback();
+        });
     }
 
     checkProfile() {
@@ -130,7 +140,6 @@
             }
         });
     }
-
     getProfile() {
         var profile = this.get<Models.UserProfile>('api/userprofile').then(profile => {
             this.userProfile = profile;
@@ -142,32 +151,34 @@
     }
 
     getTimer() {
-        var accountId = this.userProfile.activeAccountId;
+        return this.checkProfile().then(profile => {
 
-        var url = 'api/timer/' + accountId;
-        var timer = this.get<Models.Timer>(url).then(timer => {
-            self.port.emit('updateTimer', timer);
-            return timer;
+            var accountId = profile.activeAccountId;
+            var userProfileId = profile.userProfileId;
+
+            var url = 'api/timer/' + accountId;
+            var timer = this.get<Models.Timer>(url).then(timer => {
+                self.port.emit('updateTimer', timer);
+                return timer;
+            });
+
+            var now = new Date();
+            var startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toJSON();
+            var endTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toJSON();
+            url = '/api/timeentries/' + accountId + '/' + userProfileId + '?startTime=' + startTime + '&endTime=' + endTime;
+            var tracker = this.get<Models.TimeEntry[]>(url).then(tracker => {
+                self.port.emit('updateTracker', tracker);
+                return tracker;
+            });
+
+            var all = Promise.all<any>([timer, tracker]).then(() => <void>undefined);
+            all.catch(() => this.disconnect());
+            return all;
         });
-
-        var now = new Date();
-        var startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toJSON();
-        var endTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toJSON();
-        var userProfileId = this.userProfile.userProfileId;
-        url = '/api/timeentries/' + accountId + '/' + userProfileId + '?startTime=' + startTime + '&endTime=' + endTime;
-
-        var tracker = this.get<Models.TimeEntry[]>(url).then(tracker => {
-            self.port.emit('updateTracker', tracker);
-            return tracker;
-        });
-
-        var all = Promise.all<Models.Timer | Models.TimeEntry[]>([timer, tracker]);
-        all.catch(() => this.disconnect());
-        return all;
     }
 
     get<T>(url: string): Promise<T> {
-        return this.ajax(url, 'GET', null);
+        return this.ajax(url, 'GET');
     }
 
     post<T>(url: string, data: T): Promise<void> {
@@ -178,11 +189,11 @@
         return this.ajax(url, 'PUT', data);
     }
 
-    ajax(url: string, method: string, postData: any) {
+    ajax(url: string, method: string, postData?: any) {
         var settings = <JQueryAjaxSettings>{};
         settings.url = this.url + url;
 
-        if (postData) {
+        if (postData !== undefined) {
             settings.data = JSON.stringify(postData);
             settings.contentType = "application/json";
         }

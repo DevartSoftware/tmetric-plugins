@@ -128,7 +128,7 @@ class ExtensionBase {
                 return;
             }
 
-            this.putTimer(timer)
+            return this.putTimer(timer)
                 .then(() => {
                     if (notification) {
                         this.showNotification(notification);
@@ -209,10 +209,10 @@ class ExtensionBase {
                                     serviceType: timer.serviceType,
                                     projectName: timer.projectName
                                 })
-                                    .then(() => {
-                                        action(false, true);
-                                    })
+                                    .then(() => this.setAccountToPost(status.accountId))
+                                    .then(() => action(false, true))
                                     .catch(status => {
+                                        this.setAccountToPost(null);
                                         this.showError(this.getErrorText(status));
                                     });
                             }
@@ -334,9 +334,9 @@ class ExtensionBase {
         return 'Connection to the server failed or was aborted.';
     }
 
-    private wrapPortAction<TParam, TResult>(actionName: string): (param?: TParam) => Promise<TResult> {
+    private wrapPortAction<TParam, TResult>(actionName: string) {
         var callbackName = actionName + '_callback';
-        return (param: TParam) => new Promise<TResult>((callback, reject) => {
+        return (param?: TParam) => new Promise<TResult>((callback, reject) => {
             this.port.once(callbackName, (isFulfilled: boolean, result: any) => {
                 if (isFulfilled) {
                     callback(result);
@@ -353,5 +353,6 @@ class ExtensionBase {
     private putTimer = this.wrapPortAction<Integrations.WebToolIssueTimer, void>('putTimer');
     private postIntegration = this.wrapPortAction<Models.IntegratedProjectIdentifier, void>('postIntegration');
     private getIntegration = this.wrapPortAction<Models.IntegratedProjectIdentifier, Models.IntegratedProjectStatus>('getIntegration');
+    private setAccountToPost = this.wrapPortAction<number, void>('setAccountToPost');
     protected reconnect = this.wrapPortAction<void, void>('reconnect');
 }
