@@ -342,7 +342,6 @@ class ExtensionBase {
                     callback(result);
                 }
                 else {
-                    console.log('REJECT ' + actionName + ': ' + result);
                     reject(result);
                 }
             });

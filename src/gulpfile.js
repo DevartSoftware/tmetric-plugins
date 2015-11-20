@@ -1,4 +1,3 @@
-var Promise = require('promise');
 var concat = require('gulp-concat');            // Concatenates files.
 var extend = require('gulp-extend');            // A gulp plugin to extend (merge) JSON contents.
 var fs = require('fs');                         // Node.js File System module
