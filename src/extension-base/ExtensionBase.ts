@@ -204,12 +204,12 @@ class ExtensionBase {
                             else {
 
                                 // Integration or project does not exist
-                                this.postIntegration(<Models.IntegratedProjectIdentifier>{
-                                    serviceUrl: timer.serviceUrl,
-                                    serviceType: timer.serviceType,
-                                    projectName: timer.projectName
-                                })
-                                    .then(() => this.setAccountToPost(status.accountId))
+                                this.setAccountToPost(status.accountId)
+                                    .then(() => this.postIntegration(<Models.IntegratedProjectIdentifier>{
+                                        serviceUrl: timer.serviceUrl,
+                                        serviceType: timer.serviceType,
+                                        projectName: timer.projectName
+                                    }))
                                     .then(() => action(false, true))
                                     .catch(status => {
                                         this.setAccountToPost(null);
