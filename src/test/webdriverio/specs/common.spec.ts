@@ -69,7 +69,7 @@ describe('Extension', function () {
             .deleteCookie()
             .url(testIssueUrl)
             .waitForClick('.devart-timer-link-start')
-            .pause(1000)
+            .pause(2000)
             .getTabIds().then(function (result) {
                 expect(result.length).to.be.equal(2);
             })
@@ -82,7 +82,7 @@ describe('Extension', function () {
         return browser
             .url(testIssueUrl)
             .waitForClick('.devart-timer-link-start')
-            .pause(1000)
+            .pause(2000)
             .getTabIds().then(function (result) {
                 expect(result.length).to.be.equal(1);
             })
@@ -97,7 +97,7 @@ describe('Extension', function () {
             .url(testIssueUrl)
             .waitForVisible('.devart-timer-link-start')
             .keys(['Control', 'Shift', 'Space', 'NULL'])
-            .pause(1000)
+            .pause(2000)
             .getTabIds().then(function (result) {
                 expect(result.length).to.be.equal(2);
             })
@@ -111,7 +111,7 @@ describe('Extension', function () {
             .url(testIssueUrl)
             .waitForVisible('.devart-timer-link-start')
             .keys(['Control', 'Shift', 'Space', 'NULL'])
-            .pause(1000)
+            .pause(2000)
             .getTabIds().then(function (result) {
                 expect(result.length).to.be.equal(1);
             })
