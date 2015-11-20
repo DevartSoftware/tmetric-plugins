@@ -45,6 +45,7 @@ class FirefoxExtension extends ExtensionBase {
         pageMod.PageMod({
             include: ["*.alm-build", "*.localhost", "*.tt.devart.com"],
             contentScriptWhen: "start",
+            attachTo: ["existing", "top"],
             contentScriptFile: self.data.url("./pageTalk.js")
         });
 

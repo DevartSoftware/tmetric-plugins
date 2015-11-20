@@ -39,9 +39,9 @@
             "chrome/ChromeExtension.js"
         ]
     },
-	"externally_connectable": {
-    "matches": ["*://localhost/*", "*://alm-build/*", "*://tt.devart.com/*"]
-},
+    "externally_connectable": {
+        "matches": [ "*://localhost/*", "*://alm-build/*", "*://tt.devart.com/*" ]
+    },
     "content_scripts": [
         {
             "matches": [ "http://*/*", "https://*/*" ],
