@@ -49,6 +49,13 @@ class FirefoxExtension extends ExtensionBase {
             contentScriptFile: self.data.url("./pageTalk.js")
         });
 
+        pageMod.PageMod({
+            include: ["http://*", "https://*"],
+            contentScriptWhen: "ready",
+            attachTo: ["existing", "top"],
+            contentStyleFile: self.data.url("./timer-link.css")
+        });
+
         tabs.on('close', tab => {
             if (this.checkCloseTimeout) {
                 timers.clearTimeout(this.checkCloseTimeout);
@@ -101,16 +108,10 @@ class FirefoxExtension extends ExtensionBase {
             './page.js'
         ];
 
-        var contentStyle = style.Style({
-            uri: './timer-link.css'
-        });
-
         var attachTab = (tab: Firefox.Tab) => {
             if (tab.id == this.loginTabId) {
                 return; // Do not attach to login dialog
             }
-
-            contentMod.attach(contentStyle, tab);
 
             var worker = tab.attach(<Firefox.TabOptions>{
                 contentScriptFile,
