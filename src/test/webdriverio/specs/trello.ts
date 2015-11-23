@@ -11,8 +11,9 @@ describe("Trello", function () {
         var boardSelector = boardsSelector + '//*[contains(@class,"js-open-board") and normalize-space()="' + testBoardName + '"]';
 
         return browser
+            .switchToTaskTrackerWindow()
             .login("Trello")
-        // check test board
+            // check test board
             .waitForVisible(boardsSelector)
             .isVisible(boardSelector)
             .then(function (result) {
@@ -26,7 +27,7 @@ describe("Trello", function () {
                         .setValue('#boardNewTitle', testBoardName)
                         .click('.js-submit');
             })
-        // check test list
+            // check test list
             .waitForVisible('#board')
             .isVisible('.list-header-name=' + testListName)
             .then(function (result) {
@@ -45,7 +46,7 @@ describe("Trello", function () {
                         .waitForVisible('.list-header-name=' + testListName);
                 }
             })
-        // check test card
+            // check test card
             .isVisible('.list-card-title*=' + testIssueName)
             .then(function (result) {
                 if (!result) {
@@ -59,7 +60,7 @@ describe("Trello", function () {
                         .waitForVisible('.list-card-title*=' + testIssueName);
                 }
             })
-        // get test card url
+            // get test card url
             .getAttribute('.list-card-title*=' + testIssueName, 'href')
             .then(function (result) {
                 testIssueUrl = result;

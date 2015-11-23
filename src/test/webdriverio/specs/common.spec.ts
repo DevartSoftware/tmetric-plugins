@@ -5,18 +5,12 @@ describe('Extension', function () {
 
     var testProjectName, testIssueName, testIssueUrl;
 
-    function testTaskStarted() {
-        return browser
-            .url('/')
-            .waitForVisible('.timer-active')
-            .getText('.timer-active .timer-td-project').should.eventually.be.equal(testProjectName)
-            .getText('.timer-active div .text-overflow').should.eventually.be.equal(testIssueName)
-            .getAttribute('.timer-active a.flex-item-no-shrink', 'href').should.eventually.be.equal(testIssueUrl);
-    }
+    var loginWindow;
 
     before(function () {
         return browser
-            .login('TimeTracker')
+            .loginTimeTracker()
+            .openTaskTrackerWindow()
             .url('https://gitlab.com/gitlab-org/gitlab-ce/issues')
             .waitForClick('.row_title')
             .waitForVisible('.devart-timer-link-start')
@@ -36,92 +30,113 @@ describe('Extension', function () {
 
     beforeEach(function () {
         return browser
-            .stopRunningTask()
+            .stopRunningTask();
+    });
+
+    after(function () {
+        return browser
+            .closeTaskTrackerWindow()
+            .switchToTimeTrackerWindow();
     });
 
     function loginTimeTrackerThroughExtension() {
         return browser
-            .waitUntil(function () {
-                return browser.getTabIds().then(function (result) {
-                    return result.length === 2;
-                });
-            })
-            .getTabIds().then(function (result) {
-                return browser.switchTab(result[1]);
+            .then(function () {
+                return browser.window(loginWindow);
             })
             .waitForVisible('body.login')
             .setValue(ttService.login.usernameField, ttService.login.username)
             .setValue(ttService.login.passwordField, ttService.login.password)
             .click(ttService.login.submitButton)
             .waitUntil(function () {
-                return browser.getTabIds().then(function (result) {
-                    return result.length === 1;
+                return browser.windowHandles().then(function (result) {
+                    return result.value.length === 2;
                 })
             })
-            .getTabIds().then(function (result) {
-                return browser.switchTab(result[0]);
-            });
     };
+
+    function testTaskStarted() {
+        return browser
+            .switchToTimeTrackerWindow()
+            .waitForVisible('.timer-active')
+            .getText('.timer-active .timer-td-project').should.eventually.be.equal(testProjectName)
+            .getText('.timer-active div .text-overflow').should.eventually.be.equal(testIssueName)
+            .getAttribute('.timer-active a.flex-item-no-shrink', 'href').should.eventually.be.equal(testIssueUrl);
+    }
 
     it('prompts an unauthenticated user for login on starting a task using html button', function () {
         return browser
-            .url('/')
-            .deleteCookie()
-            .url(testIssueUrl)
+            .logoutTimeTracker()
+            .switchToTaskTrackerWindow()
+            // start task
             .waitForClick('.devart-timer-link-start')
-            .pause(2000)
-            .getTabIds().then(function (result) {
-                expect(result.length).to.be.equal(2);
+            .pause(1000)
+            .windowHandles().then(function (result) {
+                expect(result.value.length).to.be.equal(3);
+                loginWindow = result.value[2];
             })
+            // login
             .then(loginTimeTrackerThroughExtension)
+            .switchToTaskTrackerWindow()
             .waitForVisible('.devart-timer-link-stop')
+            // test task
             .then(testTaskStarted);
     });
 
     it('do not prompts an authenticated user for login on starting a task using html button', function () {
         return browser
-            .url(testIssueUrl)
+            .switchToTaskTrackerWindow()
+            // start task
             .waitForClick('.devart-timer-link-start')
-            .pause(2000)
-            .getTabIds().then(function (result) {
-                expect(result.length).to.be.equal(1);
+            .pause(1000)
+            .windowHandles().then(function (result) {
+                expect(result.value.length).to.be.equal(2);
+                loginWindow = null;
             })
             .waitForVisible('.devart-timer-link-stop')
+            // test task
             .then(testTaskStarted);
     });
 
     it('prompts an unauthenticated user for login on starting a task using extention shortcut', function () {
         return browser
-            .url('/')
-            .deleteCookie()
-            .url(testIssueUrl)
+            .logoutTimeTracker()
+            .switchToTaskTrackerWindow()
+            // start task
             .waitForVisible('.devart-timer-link-start')
             .keys(['Control', 'Shift', 'Space', 'NULL'])
-            .pause(2000)
-            .getTabIds().then(function (result) {
-                expect(result.length).to.be.equal(2);
+            .pause(1000)
+            .windowHandles().then(function (result) {
+                expect(result.value.length).to.be.equal(3);
+                loginWindow = result.value[2];
             })
+            // login
             .then(loginTimeTrackerThroughExtension)
+            .switchToTaskTrackerWindow()
             .waitForVisible('.devart-timer-link-stop')
+            // test task
             .then(testTaskStarted);
     });
 
     it('do not prompts an authenticated user for login on starting a task using extention shortcut', function () {
         return browser
-            .url(testIssueUrl)
+            .switchToTaskTrackerWindow()
+            // start task
             .waitForVisible('.devart-timer-link-start')
             .keys(['Control', 'Shift', 'Space', 'NULL'])
-            .pause(2000)
-            .getTabIds().then(function (result) {
-                expect(result.length).to.be.equal(1);
+            .pause(1000)
+            .windowHandles().then(function (result) {
+                expect(result.value.length).to.be.equal(2);
+                loginWindow = null;
             })
             .waitForVisible('.devart-timer-link-stop')
+            // test task
             .then(testTaskStarted);
     });
 
     it('can change html button when task is started or stoped by extension shortcut', function () {
         return browser
-            .url(testIssueUrl)
+            .switchToTaskTrackerWindow()
             .waitForVisible('.devart-timer-link-start')
             .keys(['Control', 'Shift', 'Space', 'NULL'])
             .waitForVisible('.devart-timer-link-stop')

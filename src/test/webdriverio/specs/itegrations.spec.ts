@@ -1,12 +1,21 @@
 describe('Extension integrates with', function () {
+
     before(function () {
         return browser
-            .login("TimeTracker")
-            .waitForVisible('.page-actions');
+            .loginTimeTracker()
+            .openTaskTrackerWindow();
     });
 
     beforeEach(function () {
-        return browser.stopRunningTask();
+        return browser
+            .stopRunningTask()
+            .switchToTaskTrackerWindow();
+    });
+
+    after(function () {
+        return browser
+            .closeTaskTrackerWindow()
+            .switchToTimeTrackerWindow();
     });
 
     require('./github.js');

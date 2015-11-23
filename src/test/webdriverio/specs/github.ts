@@ -91,6 +91,7 @@ describe("GitHub", function () {
         }
 
         return browser
+            .switchToTaskTrackerWindow()
             .login("GitHub")
             .then(searchTestIssue)
             .then(function () {

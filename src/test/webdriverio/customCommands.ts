@@ -39,11 +39,30 @@ browser.addCommand("login", function (serviceName) {
         });
 });
 
+// timetracker commands
+
+var timeTrackerWindow;
+
+browser.addCommand("loginTimeTracker", function () {
+    return browser
+        .login('TimeTracker')
+        .waitForVisible('.page-actions')
+        .windowHandles().then(function (result) {
+            expect(result.value.length).to.be.equal(1);
+            timeTrackerWindow = result.value[0];
+        });
+});
+
+browser.addCommand("switchToTimeTrackerWindow", function () {
+    return browser
+        .then(function () {
+            return browser.window(timeTrackerWindow);
+        });
+});
+
 browser.addCommand("stopRunningTask", function () {
     return browser
-        .url('/')
-        .waitForVisible('.page-actions')
-        .pause(1000)
+        .switchToTimeTrackerWindow()
         .isVisible('#btn-stop').then(function (isVisible) {
             if (isVisible) {
                 return browser
@@ -53,11 +72,47 @@ browser.addCommand("stopRunningTask", function () {
         });
 });
 
+browser.addCommand("logoutTimeTracker", function () {
+    return browser
+        .switchToTimeTrackerWindow()
+        .deleteCookie()
+        .pause(1000);
+});
+
+// tasktracker commands
+
+var taskTrackerWindow;
+
+browser.addCommand("openTaskTrackerWindow", function () {
+    return browser
+        .newWindow('about:blank')
+        .windowHandles().then(function (result) {
+            expect(result.value.length).to.be.equal(2);
+            taskTrackerWindow = result.value[1];
+        });
+});
+
+browser.addCommand("switchToTaskTrackerWindow", function () {
+    return browser
+        .then(function () {
+            return browser.window(taskTrackerWindow);
+        });
+});
+
+browser.addCommand("closeTaskTrackerWindow", function (tasktracker) {
+    return browser
+        .switchToTaskTrackerWindow()
+        .close();
+});
+
+// testing commands
+
 browser.addCommand("startAndTestTaskStarted", function (projectName, taskName, taskUrl) {
     return browser
         .waitForClick('.devart-timer-link-start')
         .waitForVisible('.devart-timer-link-stop')
-        .url('/')
+        .pause(1000)
+        .switchToTimeTrackerWindow()
         .waitForVisible('.timer-active')
         .getText('.timer-active .timer-td-project').should.eventually.be.equal(projectName)
         .getText('.timer-active div .text-overflow').should.eventually.be.equal(taskName)
@@ -67,10 +122,13 @@ browser.addCommand("startAndTestTaskStarted", function (projectName, taskName, t
 browser.addCommand("startStopAndTestTaskStopped", function () {
     return browser
         .waitForClick('.devart-timer-link-start')
+        .waitForVisible('.devart-timer-link-stop')
         .waitForClick('.devart-timer-link-stop')
         .waitForVisible('.devart-timer-link-start')
-        .url('/')
+        .pause(1000)
+        .switchToTimeTrackerWindow()
         .waitForVisible('.page-actions')
         .isVisible('#btn-stop').should.eventually.be.false
         .isExisting('.timer-active').should.eventually.be.false;
 });
+

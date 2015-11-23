@@ -61,6 +61,7 @@ describe("Redmine", function () {
         }
 
         return browser
+            .switchToTaskTrackerWindow()
             .login("Redmine")
             .then(searchTestIssue)
             .then(function () {

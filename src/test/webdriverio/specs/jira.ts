@@ -90,6 +90,7 @@ describe("Jira", function () {
         }
 
         return browser
+            .switchToTaskTrackerWindow()
             .login("Jira")
             // check test issue
             .url(testIssueSearchUrl)

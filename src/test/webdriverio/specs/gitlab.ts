@@ -67,6 +67,7 @@ describe("GitLab", function () {
         }
 
         return browser
+            .switchToTaskTrackerWindow()
             .login("GitLab")
             .then(checkTestProject)
             .then(function () {
