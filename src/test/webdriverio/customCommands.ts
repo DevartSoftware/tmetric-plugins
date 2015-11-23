@@ -15,6 +15,19 @@ browser.addCommand("waitForClick", function (selector, timeout) {
         .click(selector);
 });
 
+browser.addCommand("waitForRerender", function (selector, timeout) {
+    var elementHash;
+    return browser
+        .element(selector).then(function (result) {
+            elementHash = JSON.stringify(result.value);
+        })
+        .waitUntil(function () {
+            return browser.element(selector).then(function (result) {
+                return JSON.stringify(result.value) != elementHash;
+            });
+        }, timeout);
+});
+
 browser.addCommand("login", function (serviceName) {
     var service = services[serviceName];
     var fullUrl;

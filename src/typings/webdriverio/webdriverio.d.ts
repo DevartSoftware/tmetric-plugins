@@ -6,6 +6,7 @@ declare module PromisesAPlus {
         closeTaskTrackerWindow: () => Thenable<any>;
         debug: () => Thenable<any>;
         deleteCookie: () => Thenable<any>;
+        element: (selector: string) => Thenable<any>;
         execute: (script: string | Function, ...args: any[]) => Thenable<any>;
         isExisting: (...args: any[]) => Thenable<any>;
         isVisible: (selector: string) => Thenable<boolean>;
@@ -33,6 +34,7 @@ declare module PromisesAPlus {
         url: (url?: string) => Thenable<{ value: string }>;
         waitForClick: (selector: string, timeout?: number) => Thenable<any>;
         waitForExist: (selector: string, timeout?: number, reverse?: boolean) => Thenable<any>;
+        waitForRerender: (selector: string, timeout?: number) => Thenable<any>;
         waitForVisible: (selector: string, timeout?: number, reverse?: boolean) => Thenable<any>;
         waitUntil(condition: () => Thenable<any>, timeout?: number): Thenable<any>;
         waitUrl: (url: string) => Thenable<any>;

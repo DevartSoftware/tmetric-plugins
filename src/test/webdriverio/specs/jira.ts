@@ -147,6 +147,7 @@ describe("Jira", function () {
             .waitForClick('a[data-item-id="all"]')
             .waitForVisible('.js-search-boards-input')
             .setValue('.js-search-boards-input', testKanbanBoardName)
+            .waitForRerender('#boards-table table')
             .isExisting('//a[text()="' + testKanbanBoardName + '"]')
             .then(function (result) {
                 return result ?
