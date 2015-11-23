@@ -60,9 +60,27 @@ describe("Redmine", function () {
                 });
         }
 
+        var service = require('./../services.conf').Redmine;
+
         return browser
             .switchToTaskTrackerWindow()
-            .login("Redmine")
+            .url(service.login.url)
+            .setValue(service.login.usernameField, service.login.username)
+            .setValue(service.login.passwordField, service.login.password)
+            .clickAndWaitForRerender(service.login.submitButton, 'html')
+            .isVisible('#flash_error').then(function (visible) {
+                if (visible) {
+                    return browser
+                        .url(bugTrackerUrl + '/account/register')
+                        .setValue('#user_login', service.login.username)
+                        .setValue('#user_password', service.login.password)
+                        .setValue('#user_password_confirmation', service.login.password)
+                        .setValue('#user_firstname', service.login.username + '_firstname')
+                        .setValue('#user_lastname', service.login.username + '_lastname')
+                        .setValue('#user_mail', service.login.username + '@example.com')
+                        .clickAndWaitForRerender('input[type="submit"]', 'html');
+                }
+            })
             .then(searchTestIssue)
             .then(function () {
                 expect(testIssueUrl).to.be.a('string').and.not.to.be.empty;

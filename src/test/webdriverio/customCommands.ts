@@ -28,6 +28,20 @@ browser.addCommand("waitForRerender", function (selector, timeout) {
         }, timeout);
 });
 
+browser.addCommand("clickAndWaitForRerender", function (clickSelector, rerenderSelector, timeout) {
+    var rerenderHash;
+    return browser
+        .element(rerenderSelector).then(function (result) {
+            rerenderHash = JSON.stringify(result.value);
+        })
+        .click(clickSelector)
+        .waitUntil(function () {
+            return browser.element(rerenderSelector).then(function (result) {
+                return JSON.stringify(result.value) != rerenderHash;
+            });
+        }, timeout);
+});
+
 browser.addCommand("login", function (serviceName) {
     var service = services[serviceName];
     var fullUrl;

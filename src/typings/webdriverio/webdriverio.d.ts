@@ -2,6 +2,7 @@ declare module PromisesAPlus {
     interface Thenable<T> {
         addCommand(coomandName: string, command: (...args: any[]) => any);
         click: (selector: string) => Thenable<any>;
+        clickAndWaitForRerender: (clickSelector: string, rerenderSelector: string, timeout?: number) => Thenable<any>;
         close: (handle?: string) => Thenable<any>;
         closeTaskTrackerWindow: () => Thenable<any>;
         debug: () => Thenable<any>;
