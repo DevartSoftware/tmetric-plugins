@@ -158,4 +158,3 @@ browser.addCommand("startStopAndTestTaskStopped", function () {
         .isVisible('#btn-stop').should.eventually.be.false
         .isExisting('.timer-active').should.eventually.be.false;
 });
-
