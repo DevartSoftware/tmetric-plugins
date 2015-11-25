@@ -196,7 +196,7 @@
         }
 
         static clearPage() {
-            $$.all('a.devart-timer-link').forEach(a => this.removeLink(a));
+            $$.all('a.' + this.affix).forEach(a => this.removeLink(a));
         }
 
         static isSameIssue(oldIssue: Integrations.WebToolIssue, newIssue: Integrations.WebToolIssue) {

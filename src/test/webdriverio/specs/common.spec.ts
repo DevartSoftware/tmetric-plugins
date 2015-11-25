@@ -1,6 +1,6 @@
 describe('Extension', function () {
 
-    var services = require('../services.conf');
+    var services = <ServiceConfigs>require('../services.conf');
     var ttService = services['TimeTracker'];
 
     var testProjectName, testIssueName, testIssueUrl;
@@ -68,25 +68,25 @@ describe('Extension', function () {
         return browser
             .logoutTimeTracker()
             .switchToTaskTrackerWindow()
-            // start task
+        // start task
             .waitForClick('.devart-timer-link-start')
             .pause(1000)
             .windowHandles().then(function (result) {
                 expect(result.value.length).to.be.equal(3);
                 loginWindow = result.value[2];
             })
-            // login
+        // login
             .then(loginTimeTrackerThroughExtension)
             .switchToTaskTrackerWindow()
             .waitForVisible('.devart-timer-link-stop')
-            // test task
+        // test task
             .then(testTaskStarted);
     });
 
     it('do not prompts an authenticated user for login on starting a task using html button', function () {
         return browser
             .switchToTaskTrackerWindow()
-            // start task
+        // start task
             .waitForClick('.devart-timer-link-start')
             .pause(1000)
             .windowHandles().then(function (result) {
@@ -94,7 +94,7 @@ describe('Extension', function () {
                 loginWindow = null;
             })
             .waitForVisible('.devart-timer-link-stop')
-            // test task
+        // test task
             .then(testTaskStarted);
     });
 
@@ -102,7 +102,7 @@ describe('Extension', function () {
         return browser
             .logoutTimeTracker()
             .switchToTaskTrackerWindow()
-            // start task
+        // start task
             .waitForVisible('.devart-timer-link-start')
             .keys(['Control', 'Shift', 'Space', 'NULL'])
             .pause(1000)
@@ -110,18 +110,18 @@ describe('Extension', function () {
                 expect(result.value.length).to.be.equal(3);
                 loginWindow = result.value[2];
             })
-            // login
+        // login
             .then(loginTimeTrackerThroughExtension)
             .switchToTaskTrackerWindow()
             .waitForVisible('.devart-timer-link-stop')
-            // test task
+        // test task
             .then(testTaskStarted);
     });
 
     it('do not prompts an authenticated user for login on starting a task using extention shortcut', function () {
         return browser
             .switchToTaskTrackerWindow()
-            // start task
+        // start task
             .waitForVisible('.devart-timer-link-start')
             .keys(['Control', 'Shift', 'Space', 'NULL'])
             .pause(1000)
@@ -130,7 +130,7 @@ describe('Extension', function () {
                 loginWindow = null;
             })
             .waitForVisible('.devart-timer-link-stop')
-            // test task
+        // test task
             .then(testTaskStarted);
     });
 
@@ -143,5 +143,4 @@ describe('Extension', function () {
             .keys(['Control', 'Shift', 'Space', 'NULL'])
             .waitForVisible('.devart-timer-link-start');
     });
-
 });

@@ -116,7 +116,9 @@ class FirefoxExtension extends ExtensionBase {
             var worker = tab.attach(<Firefox.TabOptions>{
                 contentScriptFile,
                 onMessage: (message: ITabMessage) => {
-                    this.onTabMessage(message, worker.tab.id, worker.tab == this.getActiveTab());
+                    if (worker.tab) {
+                        this.onTabMessage(message, worker.tab.id, worker.tab == this.getActiveTab());
+                    }
                 }
             });
 

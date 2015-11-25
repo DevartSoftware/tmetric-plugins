@@ -29,6 +29,7 @@
         "in-page-scripts/page.ts",
         "in-page-scripts/pageTalk.ts",
         "in-page-scripts/utils.ts",
+        "test/webdriverio/services.d.ts",
         "test/webdriverio/customCommands.ts",
         "test/webdriverio/specs/common.spec.ts",
         "test/webdriverio/specs/itegrations.spec.ts",

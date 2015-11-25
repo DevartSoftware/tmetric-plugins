@@ -1,4 +1,4 @@
-var services = require('./services.conf');
+var services = <ServiceConfigs>require('./services.conf');
 
 browser.addCommand("waitUrl", function (url, timeout) {
     var expectedUrl = url.toUpperCase();
@@ -68,13 +68,14 @@ browser.addCommand("login", function (serviceName) {
 
 // timetracker commands
 
-var timeTrackerWindow;
+var timeTrackerWindow: string;
 
 browser.addCommand("loginTimeTracker", function () {
     return browser
         .login('TimeTracker')
         .waitForVisible('.page-actions')
-        .windowHandles().then(function (result) {
+        .windowHandles()
+        .then(result => {
             expect(result.value.length).to.be.equal(1);
             timeTrackerWindow = result.value[0];
         });

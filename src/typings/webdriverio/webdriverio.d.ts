@@ -32,7 +32,7 @@ declare module PromisesAPlus {
         switchTab: (id?: string) => Thenable<any>;
         switchToTaskTrackerWindow: () => Thenable<any>;
         switchToTimeTrackerWindow: () => Thenable<any>;
-        url: (url?: string) => Thenable<{ value: string }>;
+        url: (url?: string) => Thenable<WebDriverIO.Result<string>>;
         waitForClick: (selector: string, timeout?: number) => Thenable<any>;
         waitForExist: (selector: string, timeout?: number, reverse?: boolean) => Thenable<any>;
         waitForRerender: (selector: string, timeout?: number) => Thenable<any>;
@@ -40,8 +40,8 @@ declare module PromisesAPlus {
         waitUntil(condition: () => Thenable<any>, timeout?: number): Thenable<any>;
         waitUrl: (url: string) => Thenable<any>;
         window: (handle?: string) => Thenable<any>;
-        windowHandle: () => Thenable<any>;
-        windowHandles: () => Thenable<any>;
+        windowHandle: () => Thenable<WebDriverIO.Result<string>>;
+        windowHandles: () => Thenable<WebDriverIO.Result<string[]>>;
     }
 }
 

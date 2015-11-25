@@ -60,7 +60,7 @@ describe("Redmine", function () {
                 });
         }
 
-        var service = require('./../services.conf').Redmine;
+        var service = <ServiceConfig>require('./../services.conf').Redmine;
 
         return browser
             .switchToTaskTrackerWindow()
