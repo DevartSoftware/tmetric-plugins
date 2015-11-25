@@ -1,161 +1,169 @@
-var services = <ServiceConfigs>require('./services.conf');
+class CustomCommands {
 
-browser.addCommand("waitUrl", function (url, timeout) {
-    var expectedUrl = url.toUpperCase();
-    return browser.waitUntil(function () {
-        return browser.url().then(function (res) {
-            return res && res.value && res.value.toUpperCase() == expectedUrl;
-        });
-    }, timeout);
-});
+    static timeTrackerWindow: string;
 
-browser.addCommand("waitForClick", function (selector, timeout) {
-    return browser
-        .waitForVisible(selector, timeout)
-        .click(selector);
-});
+    static taskTrackerWindow: string;
 
-browser.addCommand("waitForRerender", function (selector, timeout) {
-    var elementHash;
-    return browser
-        .element(selector).then(function (result) {
-            elementHash = JSON.stringify(result.value);
-        })
-        .waitUntil(function () {
-            return browser.element(selector).then(function (result) {
-                return JSON.stringify(result.value) != elementHash;
-            });
-        }, timeout);
-});
+    static services = <ServiceConfigs>require('./services.conf');
 
-browser.addCommand("clickAndWaitForRerender", function (clickSelector, rerenderSelector, timeout) {
-    var rerenderHash;
-    return browser
-        .element(rerenderSelector).then(function (result) {
-            rerenderHash = JSON.stringify(result.value);
-        })
-        .click(clickSelector)
-        .waitUntil(function () {
-            return browser.element(rerenderSelector).then(function (result) {
-                return JSON.stringify(result.value) != rerenderHash;
-            });
-        }, timeout);
-});
-
-browser.addCommand("login", function (serviceName) {
-    var service = services[serviceName];
-    var fullUrl;
-    return this
-        .url(service.login.url)
-        .url(function (err, res) {
-            fullUrl = res.value.toUpperCase();
-        })
-        .setValue(service.login.usernameField, service.login.username)
-        .setValue(service.login.passwordField, service.login.password)
-        .click(service.login.submitButton)
-        .waitUntil(function () {
+    waitUrl(url: string, timeout?: number) {
+        var expectedUrl = url.toUpperCase();
+        return browser.waitUntil(function () {
             return browser.url().then(function (res) {
-                return res && res.value && res.value.toUpperCase() != fullUrl
+                return res && res.value && res.value.toUpperCase() == expectedUrl;
             });
-        }, 10000)
-        .url(function (err, res) {
-            if (res.value.toUpperCase() == fullUrl) {
-                // if we are on the same page, this means the login operation failed
-                return new Error('Cannot login to ' + serviceName);
-            }
-        });
-});
+        }, timeout);
+    }
 
-// timetracker commands
+    waitForClick(selector: string, timeout?: number) {
+        return browser
+            .waitForVisible(selector, timeout)
+            .click(selector);
+    }
 
-var timeTrackerWindow: string;
+    waitForRerender(selector: string, timeout?: number) {
+        var elementHash;
+        return browser
+            .element(selector).then(function (result) {
+                elementHash = JSON.stringify(result.value);
+            })
+            .waitUntil(function () {
+                return browser.element(selector).then(function (result) {
+                    return JSON.stringify(result.value) != elementHash;
+                });
+            }, timeout);
+    }
 
-browser.addCommand("loginTimeTracker", function () {
-    return browser
-        .login('TimeTracker')
-        .waitForVisible('.page-actions')
-        .windowHandles()
-        .then(result => {
-            expect(result.value.length).to.be.equal(1);
-            timeTrackerWindow = result.value[0];
-        });
-});
+    clickAndWaitForRerender(clickSelector: string, rerenderSelector: string, timeout?: number) {
+        var rerenderHash;
+        return browser
+            .element(rerenderSelector).then(function (result) {
+                rerenderHash = JSON.stringify(result.value);
+            })
+            .click(clickSelector)
+            .waitUntil(function () {
+                return browser.element(rerenderSelector).then(function (result) {
+                    return JSON.stringify(result.value) != rerenderHash;
+                });
+            }, timeout);
+    }
 
-browser.addCommand("switchToTimeTrackerWindow", function () {
-    return browser
-        .then(function () {
-            return browser.window(timeTrackerWindow);
-        });
-});
+    login(serviceName: string, timeout?: number) {
+        timeout = timeout || 10000;
+        var service = CustomCommands.services[serviceName];
+        var fullUrl;
+        return browser
+            .url(service.login.url)
+            .url()
+            .then(res => {
+                fullUrl = res.value.toUpperCase();
+            })
+            .setValue(service.login.usernameField, service.login.username)
+            .setValue(service.login.passwordField, service.login.password)
+            .click(service.login.submitButton)
+            .waitUntil(function () {
+                return browser.url().then(function (res) {
+                    return res && res.value && res.value.toUpperCase() != fullUrl
+                });
+            }, timeout)
+            .url()
+            .then(res => {
+                if (res.value.toUpperCase() == fullUrl) {
+                    // if we are on the same page, this means the login operation failed
+                    throw new Error('Cannot login to ' + serviceName);
+                }
+            });
+    }
 
-browser.addCommand("stopRunningTask", function () {
-    return browser
-        .switchToTimeTrackerWindow()
-        .isVisible('#btn-stop').then(function (isVisible) {
-            if (isVisible) {
-                return browser
-                    .click('#btn-stop')
-                    .waitForVisible('#btn-stop', 10000, true);
-            }
-        });
-});
+    loginTimeTracker() {
+        return browser
+            .login('TimeTracker')
+            .waitForVisible('.page-actions')
+            .windowHandles()
+            .then(result => {
+                expect(result.value.length).to.be.equal(1);
+                CustomCommands.timeTrackerWindow = result.value[0];
+            });
+    }
 
-browser.addCommand("logoutTimeTracker", function () {
-    return browser
-        .switchToTimeTrackerWindow()
-        .deleteCookie()
-        .pause(1000);
-});
+    switchToTimeTrackerWindow() {
+        return browser
+            .then(function () {
+                return browser.window(CustomCommands.timeTrackerWindow);
+            });
+    }
 
-// tasktracker commands
+    stopRunningTask() {
+        return browser
+            .switchToTimeTrackerWindow()
+            .isVisible('#btn-stop').then(function (isVisible) {
+                if (isVisible) {
+                    return browser
+                        .click('#btn-stop')
+                        .waitForVisible('#btn-stop', 10000, true);
+                }
+            });
+    }
 
-var taskTrackerWindow;
+    logoutTimeTracker() {
+        return browser
+            .switchToTimeTrackerWindow()
+            .deleteCookie()
+            .pause(1000);
+    }
 
-browser.addCommand("openTaskTrackerWindow", function () {
-    return browser
-        .newWindow('about:blank')
-        .windowHandles().then(function (result) {
-            expect(result.value.length).to.be.equal(2);
-            taskTrackerWindow = result.value[1];
-        });
-});
+    openTaskTrackerWindow() {
+        return browser
+            .newWindow('about:blank')
+            .windowHandles().then(function (result) {
+                expect(result.value.length).to.be.equal(2);
+                CustomCommands.taskTrackerWindow = result.value[1];
+            });
+    }
 
-browser.addCommand("switchToTaskTrackerWindow", function () {
-    return browser
-        .then(function () {
-            return browser.window(taskTrackerWindow);
-        });
-});
+    switchToTaskTrackerWindow() {
+        return browser
+            .then(function () {
+                return browser.window(CustomCommands.taskTrackerWindow);
+            });
+    }
 
-browser.addCommand("closeTaskTrackerWindow", function (tasktracker) {
-    return browser
-        .switchToTaskTrackerWindow()
-        .close();
-});
+    closeTaskTrackerWindow() {
+        return browser
+            .switchToTaskTrackerWindow()
+            .close();
+    }
 
-// testing commands
+    startAndTestTaskStarted(projectName: string, taskName: string, taskUrl: string) {
+        return <PromisesAPlus.Thenable<any>>browser
+            .waitForClick('.devart-timer-link-start')
+            .waitForVisible('.devart-timer-link-stop')
+            .pause(1000)
+            .switchToTimeTrackerWindow()
+            .waitForVisible('.timer-active')
+            .getText('.timer-active .timer-td-project').should.eventually.be.equal(projectName)
+            .getText('.timer-active div .text-overflow').should.eventually.be.equal(taskName)
+            .getAttribute('.timer-active .issue-link', 'href').should.eventually.be.equal(taskUrl);
+    }
 
-browser.addCommand("startAndTestTaskStarted", function (projectName, taskName, taskUrl) {
-    return browser
-        .waitForClick('.devart-timer-link-start')
-        .waitForVisible('.devart-timer-link-stop')
-        .pause(1000)
-        .switchToTimeTrackerWindow()
-        .waitForVisible('.timer-active')
-        .getText('.timer-active .timer-td-project').should.eventually.be.equal(projectName)
-        .getText('.timer-active div .text-overflow').should.eventually.be.equal(taskName)
-        .getAttribute('.timer-active .issue-link', 'href').should.eventually.be.equal(taskUrl)
-});
+    startStopAndTestTaskStopped() {
+        return <PromisesAPlus.Thenable<any>>browser
+            .waitForClick('.devart-timer-link-start')
+            .waitForVisible('.devart-timer-link-stop')
+            .waitForClick('.devart-timer-link-stop')
+            .waitForVisible('.devart-timer-link-start')
+            .pause(1000)
+            .switchToTimeTrackerWindow()
+            .waitForVisible('.page-actions')
+            .isVisible('#btn-stop').should.eventually.be.false
+            .isExisting('.timer-active').should.eventually.be.false;
+    }
+}
 
-browser.addCommand("startStopAndTestTaskStopped", function () {
-    return browser
-        .waitForClick('.devart-timer-link-start')
-        .waitForVisible('.devart-timer-link-stop')
-        .waitForClick('.devart-timer-link-stop')
-        .waitForVisible('.devart-timer-link-start')
-        .pause(1000)
-        .switchToTimeTrackerWindow()
-        .waitForVisible('.page-actions')
-        .isVisible('#btn-stop').should.eventually.be.false
-        .isExisting('.timer-active').should.eventually.be.false;
-});
+declare module PromisesAPlus {
+    interface Thenable<T> extends CustomCommands { }
+}
+
+for (var commandName in CustomCommands.prototype) {
+    browser.addCommand(commandName, CustomCommands.prototype[commandName]);
+}
