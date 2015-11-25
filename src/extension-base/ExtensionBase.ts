@@ -202,7 +202,6 @@ class ExtensionBase {
                                 action(false, true);
                             }
                             else {
-
                                 // Integration or project does not exist
                                 this.setAccountToPost(status.accountId)
                                     .then(() => this.postIntegration(<Models.IntegratedProjectIdentifier>{
@@ -212,8 +211,10 @@ class ExtensionBase {
                                     }))
                                     .then(() => action(false, true))
                                     .catch(status => {
-                                        this.setAccountToPost(null);
                                         this.showError(this.getErrorText(status));
+                                    })
+                                    .then(() => {
+                                        this.setAccountToPost(null);
                                     });
                             }
                         })
