@@ -21,7 +21,7 @@ describe("Redmine", function () {
                 .url(bugTrackerUrl + '/projects/new')
                 .setValue('#project_name', testProjectName)
                 .click('input[name=commit]')
-                .waitUrl(bugTrackerUrl + '/projects/redmine-test-qazwsxedc/settings')
+                .waitForUrl(bugTrackerUrl + '/projects/redmine-test-qazwsxedc/settings')
                 .url(testProjectUrl)
                 .then(createTestIssue);
         }

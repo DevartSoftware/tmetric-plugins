@@ -6,13 +6,37 @@ class CustomCommands {
 
     static services = <ServiceConfigs>require('./services.conf');
 
-    waitUrl(url: string, timeout?: number) {
+    waitForUrl(url: string, ignoreQuery?: boolean)
+    waitForUrl(url: string, timeout: number, ignoreQuery?: boolean)
+    waitForUrl(url: string, param1?: any, param2?: any) {
+
+        var ignoreQuery: boolean;
+        var timeout: number;
+        if (param1 === !!param1) {
+            ignoreQuery = param1;
+            timeout = param2;
+        }
+        else {
+            timeout = param1;
+            ignoreQuery = param2;
+        }
+
         var expectedUrl = url.toUpperCase();
         return browser.waitUntil(function () {
             return browser.url().then(function (res) {
-                return res && res.value && res.value.toUpperCase() == expectedUrl;
+
+                if (!res || !res.value) {
+                    return false;
+                }
+
+                var newUrl = res.value.toUpperCase();
+                if (ignoreQuery) {
+                    newUrl = newUrl.replace('/\?.*/', '');
+                }
+
+                return newUrl == expectedUrl;
             });
-        }, timeout);
+        }, timeout || 10000);
     }
 
     waitForClick(selector: string, timeout?: number) {

@@ -8,13 +8,13 @@ declare module PromisesAPlus {
         deleteCookie: () => Thenable<any>;
         element: (selector: string) => Thenable<WebDriverIO.Result<WebDriverIO.WebElement>>;
         execute: (script: string | Function, ...args: any[]) => Thenable<any>;
-        isExisting: (...args: any[]) => Thenable<any>;
-        isVisible: (selector: string) => Thenable<boolean>;
+        getAttribute: (selector: string, attrName: string) => Thenable<string>;
         getCurrentTabId: () => Thenable<string[]>;
         getTabIds: () => Thenable<string[]>;
         getText: (selector: string) => Thenable<string>;
         getTitle: () => Thenable<string>;
-        getAttribute: (selector: string, attrName: string) => Thenable<string>;
+        isExisting: (...args: any[]) => Thenable<any>;
+        isVisible: (selector: string) => Thenable<boolean>;
         keys: Chai.PromisedKeys;
         newWindow: (url: string, windowName?: string, windowFeatures?: string) => Thenable<any>;
         pause: (ms: number) => Thenable<any>;
