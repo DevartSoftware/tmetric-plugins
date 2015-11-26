@@ -37,6 +37,7 @@
         "test/webdriverio/specs/gitlab.ts",
         "test/webdriverio/specs/jira.ts",
         "test/webdriverio/specs/redmine.ts",
+        "test/webdriverio/specs/tfs.ts",
         "test/webdriverio/specs/trello.ts"
     ]
 }

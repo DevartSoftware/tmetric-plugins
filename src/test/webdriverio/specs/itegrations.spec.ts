@@ -22,5 +22,6 @@ describe('Extension integrates with', function () {
     require('./gitlab.js');
     require('./jira.js');
     require('./redmine.js');
+    require('./tfs.js');
     require('./trello.js');
 });

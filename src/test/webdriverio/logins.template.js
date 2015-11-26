@@ -4,45 +4,52 @@
 //
 // Copy it to 'logins.conf.js' file and fill username/password pairs.
 module.exports = {
-  TimeTracker: {
-    login: {
-      username: '',
-      password: ''
-    }
-  },
+    TimeTracker: {
+        login: {
+            username: '',
+            password: ''
+        }
+    },
 
-  GitHub: {
-    login: {
-      username: '',
-      password: ''
-    }
-  },
+    GitHub: {
+        login: {
+            username: '',
+            password: ''
+        }
+    },
 
-  GitLab: {
-    login: {
-      username: '',
-      password: ''
-    }
-  },
+    GitLab: {
+        login: {
+            username: '',
+            password: ''
+        }
+    },
 
-  Jira: {
-    login: {
-      username: '',
-      password: ''
-    }
-  },
+    Jira: {
+        login: {
+            username: '',
+            password: ''
+        }
+    },
 
-  Redmine: {
-    login: {
-      username: '',
-      password: ''
-    }
-  },
+    Redmine: {
+        login: {
+            username: '',
+            password: ''
+        }
+    },
 
-  Trello: {
-    login: {
-      username: '',
-      password: ''
+    TFS: {
+        login: {
+            username: '',
+            password: ''
+        }
+    },
+
+    Trello: {
+        login: {
+            username: '',
+            password: ''
+        }
     }
-  }
 }
