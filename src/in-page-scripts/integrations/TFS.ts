@@ -25,7 +25,7 @@
         }
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-            if (!$$('.workitem-info-bar')) {
+            if (!$$('.workitem-info-bar a.caption')) {
                 return;
             }
 
