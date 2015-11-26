@@ -6,8 +6,8 @@ class CustomCommands {
 
     static services = <ServiceConfigs>require('./services.conf');
 
-    waitForUrl(url: string, ignoreQuery?: boolean)
-    waitForUrl(url: string, timeout: number, ignoreQuery?: boolean)
+    waitForUrl(url: string, ignoreQuery?: boolean): PromisesAPlus.Thenable<any>
+    waitForUrl(url: string, timeout: number, ignoreQuery?: boolean): PromisesAPlus.Thenable<any>
     waitForUrl(url: string, param1?: any, param2?: any) {
 
         var ignoreQuery: boolean;
@@ -31,7 +31,7 @@ class CustomCommands {
 
                 var newUrl = res.value.toUpperCase();
                 if (ignoreQuery) {
-                    newUrl = newUrl.replace('/\?.*/', '');
+                    newUrl = newUrl.replace(/\?.*/, '');
                 }
 
                 return newUrl == expectedUrl;
