@@ -62,7 +62,9 @@
             // https://devart.visualstudio.com/
             var serviceUrl = source.protocol + source.host;
 
-            return { issueId: issueId, issueName: issueName, issueUrl: issueUrl, serviceUrl: serviceUrl, serviceType: 'TFS' };
+            var serviceType = 'TFS';
+
+            return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
         }
     }
 
