@@ -67,14 +67,23 @@ class ExtensionBase {
 
     /** Handles messages from in-page scripts */
     onTabMessage(message: ITabMessage, tabId: any, isTabActive: boolean) {
-        if (message.action == 'setTabInfo') {
-            this.setTabIssue(isTabActive, message.data);
-        }
-        else if (message.action == 'getTimer') {
-            this.sendToTabs({ action: 'setTimer', data: this._timer }, tabId);
-        }
-        else if (message.action == 'putTimer') {
-            this.startTimer(message.data);
+
+        switch (message.action) {
+
+            case 'setTabInfo':
+                this.setTabIssue(isTabActive, message.data);
+                break;
+
+            case 'getTimer':
+                this.sendToTabs({ action: 'setTimer', data: this._timer }, tabId);
+                break;
+
+            case 'putTimer':
+                this.putTimer(message.data);
+                break;
+
+            case 'ping':
+                this.sendToTabs({ action: 'pong' }, tabId);
         }
     }
 
@@ -98,9 +107,10 @@ class ExtensionBase {
         }
     }
 
-    startTimer(url: string, title: string)
-    startTimer(timer: Integrations.WebToolIssueTimer)
-    startTimer(param1: any, param2?: any) {
+    putTimer(url: string, title: string)
+    putTimer(timer: Integrations.WebToolIssueTimer)
+    putTimer(param1: any, param2?: any) {
+
         var timer: Integrations.WebToolIssueTimer;
         if (typeof param1 !== 'string') {
             timer = <Integrations.WebToolIssueTimer>param1;
@@ -115,9 +125,8 @@ class ExtensionBase {
             }
         }
 
-        var notification: string;
+        var action = (showDialog: boolean) => {
 
-        var action = (showDialog?: boolean, dontCreateIntegration?: boolean) => {
             if (this.buttonState == ButtonState.fixtimer) {
                 var url = trackerServiceUrl;
                 if (this._userProfile && this._userProfile.activeAccountId) {
@@ -125,103 +134,42 @@ class ExtensionBase {
                 }
                 this.openPage(url);
                 this.showNotification('You should fix the timer.');
-                return;
             }
 
-            return this.putTimer(timer)
-                .then(() => {
-                    if (notification) {
-                        this.showNotification(notification);
-                    }
-                })
-                .catch((status: AjaxStatus) => {
+            this.putTimerWithExistingIntegration(timer).catch((status: AjaxStatus) => {
 
-                    // Zero status when server is unavailable or certificate fails (#59755). Show dialog in that case too.
-                    if (!status || status.statusCode == HttpStatusCode.Unauthorized || status.statusCode == 0) {
-                        var disconnectPromise = this.disconnect();
+                // Zero status when server is unavailable or certificate fails (#59755). Show dialog in that case too.
+                if (!status || status.statusCode == HttpStatusCode.Unauthorized || status.statusCode == 0) {
 
-                        if (showDialog) {
-                            disconnectPromise.then(() => {
-                                this._actionOnConnect = () => {
-                                    // Do not change task after connect if timer already started
-                                    if (this.buttonState == ButtonState.fixtimer || !this._timer || !this._timer.isStarted) {
-                                        action();
-                                    }
-                                };
-                                this.showLoginDialog();
-                            });
-                        };
+                    var disconnectPromise = this.disconnect();
 
-                        return;
-                    }
+                    if (showDialog) {
+                        disconnectPromise.then(() => {
+                            this._actionOnConnect = () => {
+                                // Do not change task after connect if timer already started
+                                if (this.buttonState == ButtonState.fixtimer || !this._timer || !this._timer.isStarted) {
+                                    action(false);
+                                }
+                            };
+                            this.showLoginDialog();
+                        });
+                    };
+                }
+                else {
 
                     var error = this.getErrorText(status);
 
                     // Show error and exit when timer has no integration
-                    if (dontCreateIntegration ||
-                        status.statusCode != HttpStatusCode.Forbidden ||
-                        !timer.serviceUrl && !timer.projectName) {
+                    if (status.statusCode != HttpStatusCode.Forbidden || (!timer.serviceUrl && !timer.projectName)) {
                         this.showError(error);
-                        return;
                     }
-
-                    this.getIntegration(<Models.IntegratedProjectIdentifier>{
-                        serviceUrl: timer.serviceUrl,
-                        serviceType: timer.serviceType,
-                        projectName: timer.projectName
-                    })
-                        .then(status => {
-
-                            if (timer.projectName) {
-                                var contactAdmin = 'Please contact the account administrator to fix the problem.';
-
-                                if (!status.projectStatus) {
-                                    // No rights to create project or service is not specified
-                                    if (status.serviceRole < Models.ServiceRole.ProjectCreator || !timer.serviceUrl) {
-                                        timer.projectName = undefined;
-                                    }
-                                }
-                                else if (status.projectStatus != Models.ProjectStatus.Open) {
-                                    notification = 'Cannot assign the task to the '
-                                    + (status.projectStatus == Models.ProjectStatus.Archived ? 'archived' : 'closed')
-                                    + ' project \'' + timer.projectName + '\'.\n\n' + contactAdmin;
-
-                                    timer.projectName = undefined;
-                                }
-                                else if (status.projectRole == null) {
-                                    notification = 'You are not a member of the project \''
-                                    + timer.projectName + '\'.\n\n' + contactAdmin;
-
-                                    timer.projectName = undefined;
-                                }
-                            }
-
-                            if (!timer.serviceUrl == !status.integrationName &&
-                                !timer.projectName == !status.projectStatus) {
-                                // Project and service are registered or are not specified in timer
-                                action(false, true);
-                            }
-                            else {
-                                // Integration or project does not exist
-                                this.setAccountToPost(status.accountId)
-                                    .then(() => this.postIntegration(<Models.IntegratedProjectIdentifier>{
-                                        serviceUrl: timer.serviceUrl,
-                                        serviceType: timer.serviceType,
-                                        projectName: timer.projectName
-                                    }))
-                                    .then(() => action(false, true))
-                                    .catch(status => {
-                                        this.showError(this.getErrorText(status));
-                                    })
-                                    .then(() => {
-                                        this.setAccountToPost(null);
-                                    });
-                            }
-                        })
-                        .catch(() => {
+                    else {
+                        this.putTimerWithNewIntegration(timer).catch(() => {
                             this.showError(error);
                         });
-                });
+                    }
+                }
+            });
         };
         action(true);
     }
@@ -261,6 +209,67 @@ class ExtensionBase {
             folder = trackerServiceUrl.substring(folderIndex);
         }
         return trackerServiceUrl + 'Login?ReturnUrl=' + folder + '%23/noapp';
+    }
+
+    private putTimerWithNewIntegration(timer: Integrations.WebToolIssueTimer) {
+
+        return this.getIntegration(<Models.IntegratedProjectIdentifier>{
+            serviceUrl: timer.serviceUrl,
+            serviceType: timer.serviceType,
+            projectName: timer.projectName
+        }).then(status => {
+
+            var notification: string;
+
+            if (timer.projectName) {
+                const contactAdmin = 'Please contact the account administrator to fix the problem.';
+
+                if (!status.projectStatus) {
+                    // No rights to create project or service is not specified
+                    if (status.serviceRole < Models.ServiceRole.ProjectCreator || !timer.serviceUrl) {
+                        timer.projectName = undefined;
+                    }
+                }
+                else if (status.projectStatus != Models.ProjectStatus.Open) {
+                    var statusText = status.projectStatus == Models.ProjectStatus.Archived ? 'archived' : 'closed';
+                    notification = `Cannot assign the task to the ${statusText} project '${timer.projectName}'.\n\n${contactAdmin}`;
+                    timer.projectName = undefined;
+                }
+                else if (status.projectRole == null) {
+                    notification = `You are not a member of the project '${timer.projectName}.\n\n${contactAdmin}`
+                    timer.projectName = undefined;
+                }
+            }
+
+            var promise = this.setAccountToPost(status.accountId);
+
+            if (!timer.serviceUrl != !status.integrationName ||
+                !timer.projectName != !status.projectStatus) {
+
+                // Integration or project does not exist
+                promise = promise.then(() => this.postIntegration(<Models.IntegratedProjectIdentifier>{
+                    serviceUrl: timer.serviceUrl,
+                    serviceType: timer.serviceType,
+                    projectName: timer.projectName
+                }));
+            }
+
+            promise = promise
+                .then(() => this.putTimerWithExistingIntegration(timer))
+                .then(() => {
+                    if (notification) {
+                        this.showNotification(notification);
+                    }
+                })
+                .catch(status => {
+                    this.showError(this.getErrorText(status));
+                })
+                .then(() => {
+                    this.setAccountToPost(null);
+                });
+
+            return promise;
+        });
     }
 
     private normalizeUrl(url: string) {
@@ -351,7 +360,7 @@ class ExtensionBase {
     }
 
     private disconnect = this.wrapPortAction<void, void>('disconnect');
-    private putTimer = this.wrapPortAction<Integrations.WebToolIssueTimer, void>('putTimer');
+    private putTimerWithExistingIntegration = this.wrapPortAction<Integrations.WebToolIssueTimer, void>('putTimer');
     private postIntegration = this.wrapPortAction<Models.IntegratedProjectIdentifier, void>('postIntegration');
     private getIntegration = this.wrapPortAction<Models.IntegratedProjectIdentifier, Models.IntegratedProjectStatus>('getIntegration');
     private setAccountToPost = this.wrapPortAction<number, void>('setAccountToPost');

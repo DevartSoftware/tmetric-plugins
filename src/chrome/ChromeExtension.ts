@@ -56,7 +56,7 @@ class ChromeExtension extends ExtensionBase {
                 chrome.windows.update(this.loginWinId, { focused: true });
             }
             else {
-                this.startTimer(tab.url, tab.title);
+                this.putTimer(tab.url, tab.title);
             }
         });
 

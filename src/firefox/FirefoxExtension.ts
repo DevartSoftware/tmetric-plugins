@@ -109,16 +109,20 @@ class FirefoxExtension extends ExtensionBase {
         ];
 
         var attachTab = (tab: Firefox.Tab) => {
-            if (tab.id == this.loginTabId) {
+
+            // worker.tab can be undefined for some unknown reason (#66666),
+            // so remember id in variable
+            var tabId = tab.id;
+
+            if (tabId == this.loginTabId) {
                 return; // Do not attach to login dialog
             }
 
             var worker = tab.attach(<Firefox.TabOptions>{
                 contentScriptFile,
                 onMessage: (message: ITabMessage) => {
-                    if (worker.tab) {
-                        this.onTabMessage(message, worker.tab.id, worker.tab == this.getActiveTab());
-                    }
+                    var activeTab = this.getActiveTab();
+                    this.onTabMessage(message, tabId, activeTab && activeTab.id == tabId);
                 }
             });
 
@@ -155,7 +159,7 @@ class FirefoxExtension extends ExtensionBase {
                 else {
                     var window = utils.getMostRecentBrowserWindow();
                     if (window && window.document) {
-                        this.startTimer(tab.url, tab.title);
+                        this.putTimer(tab.url, tab.title);
                     }
                 }
             }

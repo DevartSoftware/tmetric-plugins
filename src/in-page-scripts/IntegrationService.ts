@@ -4,62 +4,24 @@
 
         static affix = 'devart-timer-link';
 
-        private static _allIntegrations = <WebToolIntegration[]>[];
-
-        private static _possibleIntegrations: WebToolIntegration[];
-
-        private static _escapedChars = '-\/\\^$+?.()|[\]{}';
-
-        private static _escapeRegExp = new RegExp('[' + IntegrationService._escapedChars + '*]', 'g');
-
-        private static _escapeAndKeepAsterisksRegExp = new RegExp('[' + IntegrationService._escapedChars + ']', 'g');
-
-        private static _timer: Models.Timer;
-
-        private static getSourceInfo(fullUrl: string): Source {
-            // fullUrl:  http://rm.devart.local/redmine/issues/58480?tab=tabtime_time#tag
-            // protocol: http://
-            // host:     rm.devart.local
-            // path:     /redmine/issues/58480
-
-            var host = fullUrl || '';
-
-            var protocol = '';
-            var path = '';
-
-            var i = host.search(/[#\?]/);
-            if (i >= 0) {
-                host = host.substring(0, i);
-            }
-
-            i = host.indexOf(':');
-            if (i >= 0) {
-                i++;
-                while (i < host.length && host[i] == '/') {
-                    i++;
-                }
-                protocol = host.substring(0, i);
-                host = host.substring(i);
-            }
-
-            i = host.indexOf('/');
-            if (i >= 0) {
-                path = host.substring(i);
-                host = host.substring(0, i);
-            }
-
-            return { fullUrl, protocol, host, path };
-        }
-
-        static escapeRegExp(s: string) {
-            return s.replace(this._escapeRegExp, '\\$&');
-        }
-
         static register(integration: WebToolIntegration) {
             this._allIntegrations.push(integration);
         }
 
-        static parsePage(checkAllIntegrations: boolean): { issues: WebToolIssue[], observeMutations: boolean } {
+        static setTimer(timer: Models.Timer) {
+            this._timer = timer;
+        }
+
+        static needsUpdate() {
+            // Find 'Stop' link or 'Start' link associated with current timer.
+            // If it is found we should refresh links on a page.
+            return $$.all('a.' + this.affix).some(link => {
+                var linkTimer = <WebToolIssueTimer>JSON.parse(link.getAttribute('data-' + this.affix));
+                return !linkTimer.isStarted || this.isIssueStarted(linkTimer);
+            });
+        }
+
+        static updateLinks(checkAllIntegrations: boolean) {
             var source = this.getSourceInfo(document.URL);
 
             if (!this._possibleIntegrations || checkAllIntegrations) {
@@ -90,7 +52,7 @@
 
                 return true;
             });
-            var issues = [];
+            var issues = <WebToolIssue[]>[];
 
             this._possibleIntegrations.some(integration => {
                 var elements: HTMLElement[];
@@ -162,6 +124,55 @@
             return { issues, observeMutations: this._possibleIntegrations.some(i => i.observeMutations) };
         }
 
+        static clearPage() {
+            $$.all('a.' + this.affix).forEach(a => this.removeLink(a));
+        }
+
+        private static _allIntegrations = <WebToolIntegration[]>[];
+
+        private static _possibleIntegrations: WebToolIntegration[];
+
+        private static _escapedChars = '-\/\\^$+?.()|[\]{}';
+
+        private static _escapeAndKeepAsterisksRegExp = new RegExp('[' + IntegrationService._escapedChars + ']', 'g');
+
+        private static _timer: Models.Timer;
+
+        private static getSourceInfo(fullUrl: string): Source {
+            // fullUrl:  http://rm.devart.local/redmine/issues/58480?tab=tabtime_time#tag
+            // protocol: http://
+            // host:     rm.devart.local
+            // path:     /redmine/issues/58480
+
+            var host = fullUrl || '';
+
+            var protocol = '';
+            var path = '';
+
+            var i = host.search(/[#\?]/);
+            if (i >= 0) {
+                host = host.substring(0, i);
+            }
+
+            i = host.indexOf(':');
+            if (i >= 0) {
+                i++;
+                while (i < host.length && host[i] == '/') {
+                    i++;
+                }
+                protocol = host.substring(0, i);
+                host = host.substring(i);
+            }
+
+            i = host.indexOf('/');
+            if (i >= 0) {
+                path = host.substring(i);
+                host = host.substring(0, i);
+            }
+
+            return { fullUrl, protocol, host, path };
+        }
+
         private static removeLink(link: HTMLElement) {
             if (!link) {
                 return;
@@ -180,26 +191,7 @@
             }
         }
 
-        static setTimer(timer: Models.Timer) {
-            this._timer = timer;
-
-            // Find 'Stop' link or 'Start' link associated with current timer.
-            // If it is found we should refresh links on a page.
-            if ($$.all('a.' + this.affix).some(link => {
-                var linkTimer = <WebToolIssueTimer>JSON.parse(link.getAttribute('data-' + this.affix));
-                if (!linkTimer.isStarted || this.isIssueStarted(linkTimer)) {
-                    return true;
-                }
-            })) {
-                this.parsePage(false);
-            }
-        }
-
-        static clearPage() {
-            $$.all('a.' + this.affix).forEach(a => this.removeLink(a));
-        }
-
-        static isSameIssue(oldIssue: Integrations.WebToolIssue, newIssue: Integrations.WebToolIssue) {
+        private static isSameIssue(oldIssue: Integrations.WebToolIssue, newIssue: Integrations.WebToolIssue) {
             function normalizeServiceUrl(issue: WebToolIssue) {
                 var url = (issue.serviceUrl || '').trim();
                 if (url.length && url[url.length - 1] == '/') {
@@ -218,7 +210,7 @@
                 normalizeServiceUrl(oldIssue) == normalizeServiceUrl(newIssue);
         }
 
-        static isIssueStarted(issue: WebToolIssue): boolean {
+        private static isIssueStarted(issue: WebToolIssue): boolean {
             var timer = this._timer;
             if (!timer) {
                 return false;
