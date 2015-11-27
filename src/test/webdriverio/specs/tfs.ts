@@ -20,7 +20,7 @@ describe("TFS", function () {
 
         return browser
             .switchToTaskTrackerWindow()
-            .login('TFS', 30000)
+            .login('TFS', 60000)
             .url('https://app.vssps.visualstudio.com/Profile/View') // redirected to check login
             .waitForUrl('https://app.vssps.visualstudio.com/Profile/View') // wait to come back
         // search or create project
