@@ -21,8 +21,10 @@ describe("TFS", function () {
         return browser
             .switchToTaskTrackerWindow()
             .login('TFS', 60000)
-            .url('https://app.vssps.visualstudio.com/Profile/View') // redirected to check login
-            .waitForUrl('https://app.vssps.visualstudio.com/Profile/View') // wait to come back
+        // when going to visualstudio.com the site will check login
+        // wait to come back
+            .url('https://app.vssps.visualstudio.com/Profile/View')
+            .waitForUrl('https://app.vssps.visualstudio.com/Profile/View', 60000)
         // search or create project
             .url(testProjectUrl + '_dashboards')
             .waitForUrl(testProjectUrl + '_dashboards')
