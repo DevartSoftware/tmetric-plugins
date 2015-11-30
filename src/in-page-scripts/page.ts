@@ -27,6 +27,9 @@
      */
     function getTimer() {
         // finalize script when extension removed/disabled/upgraded (#66666)
+        if (pingTimeout) {
+            clearTimeout(pingTimeout);
+        }
         pingTimeout = setTimeout(() => {
             pingTimeout = null;
             finalize();
