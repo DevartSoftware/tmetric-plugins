@@ -1,4 +1,5 @@
 ﻿if (typeof document !== 'undefined') {
+
     /**
      * Retrieves messages from background script.
      */
@@ -12,7 +13,8 @@
 
             Integrations.IntegrationService.setTimer(message.data);
 
-            if (!isInitialized || Integrations.IntegrationService.needsUpdate()) {
+            if (needsUpdate || Integrations.IntegrationService.needsUpdate()) {
+                needsUpdate = false;
                 parsePage();
             }
 
@@ -20,6 +22,9 @@
         }
     }
 
+    /**
+     * Reparses page after a timer getting. Finalizes script if timer getting fails.
+     */
     function getTimer() {
         // finalize script when extension removed/disabled/upgraded (#66666)
         pingTimeout = setTimeout(() => {
@@ -27,6 +32,7 @@
             finalize();
         }, 30000);
         try {
+            needsUpdate = true;
             sendBackgroundMessage({ action: 'getTimer' });
         }
         catch (e) {
@@ -34,6 +40,9 @@
         }
     }
 
+    /**
+     * Starts periodic checking of url/title changes. Checking stops on focus loss.
+     */
     function startCheckChanges() {
         if (changeCheckerHandle == null) {
             changeCheckerHandle = setInterval(() => {
@@ -48,6 +57,9 @@
         }
     }
 
+    /**
+     * Initializes script.
+     */
     function initialize() {
         if (!isInitialized) {
             isInitialized = true;
@@ -58,6 +70,9 @@
         }
     }
 
+    /**
+     * Finalizes script
+     */
     function finalize() {
         if (pingTimeout) {
             clearTimeout(pingTimeout);
@@ -74,6 +89,9 @@
         }
     }
 
+    /**
+     * Parses issues and adds timer links on a page.
+     */
     function parsePage() {
 
         var url = document.URL;
@@ -141,6 +159,7 @@
     var mutationObserver: MutationObserver;
     var pingTimeout: number;
     var isInitialized = false;
+    var needsUpdate = true;
 
     Integrations.IntegrationService.clearPage();
     getTimer();
