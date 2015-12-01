@@ -13,7 +13,7 @@
         }
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
-            var host = $$('.other-actions > div');
+            var host = $$('.js-plugin-buttons ~ .window-module > div');
             if (host) {
                 linkElement.classList.add('trello');
                 linkElement.classList.add('button-link');
