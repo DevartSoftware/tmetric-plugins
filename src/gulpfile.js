@@ -95,8 +95,8 @@ gulp.task('prepackage:chrome:images', ['clean'], function () {
 gulp.task('package:chrome', ['prepackage:chrome'], packageChrome);
 gulp.task('package:chrome:test', ['prepackage:chrome', 'prepackage:chrome:test:constants', 'prepackage:chrome:test:shortcut'], packageChrome);
 
-gulp.task('prepackage:chrome:test:constants', ['prepackage:chrome'], function () {
-    return gulp.src(['test/constants.js']).pipe(gulp.dest(distChromeUnpacked));
+gulp.task('prepackage:chrome:test:constants', ['prepackage:chrome'], function (done) {
+    return gulp.src([test + 'constants.js']).pipe(gulp.dest(distChromeUnpacked));
 });
 
 gulp.task('prepackage:chrome:test:shortcut', ['prepackage:chrome'], function () {
@@ -107,7 +107,6 @@ gulp.task('prepackage:chrome:test:shortcut', ['prepackage:chrome'], function () 
 });
 
 function packageChrome() {
-
     var crx = require('gulp-crx'); // Pack Chrome Extension in the pipeline.
     var manifest = jsonfile.readFileSync(distChromeUnpacked + 'manifest.json');
 
@@ -314,5 +313,6 @@ function getWdioOptions(runsOnDevServer) {
             options.baseUrl = match[1];
         }
     }
+
     return options;
 }
