@@ -101,20 +101,29 @@ class CustomCommands {
 
     loginTimeTracker() {
         return browser
+            .switchToTimeTrackerWindow()
             .login('TimeTracker')
-            .waitForVisible('.page-actions')
-            .windowHandles()
-            .then(result => {
-                expect(result.value.length).to.be.equal(1);
-                CustomCommands.timeTrackerWindow = result.value[0];
-            });
+            .waitForVisible('.page-actions');
+    }
+
+    switchToTaskTrackerWindow() {
+        if (CustomCommands.taskTrackerWindow) {
+            return browser.window(CustomCommands.taskTrackerWindow);
+        }
+        return browser
+            .newWindow('about:blank')
+            .windowHandle()
+            .then(result => CustomCommands.taskTrackerWindow = result.value);
     }
 
     switchToTimeTrackerWindow() {
+        if (CustomCommands.timeTrackerWindow) {
+            return browser.window(CustomCommands.timeTrackerWindow);
+        }
         return browser
-            .then(function () {
-                return browser.window(CustomCommands.timeTrackerWindow);
-            });
+            .newWindow('about:blank')
+            .windowHandle()
+            .then(result => CustomCommands.timeTrackerWindow = result.value);
     }
 
     stopRunningTask() {
@@ -134,28 +143,6 @@ class CustomCommands {
             .switchToTimeTrackerWindow()
             .deleteCookie()
             .pause(1000);
-    }
-
-    openTaskTrackerWindow() {
-        return browser
-            .newWindow('about:blank')
-            .windowHandles().then(function (result) {
-                expect(result.value.length).to.be.equal(2);
-                CustomCommands.taskTrackerWindow = result.value[1];
-            });
-    }
-
-    switchToTaskTrackerWindow() {
-        return browser
-            .then(function () {
-                return browser.window(CustomCommands.taskTrackerWindow);
-            });
-    }
-
-    closeTaskTrackerWindow() {
-        return browser
-            .switchToTaskTrackerWindow()
-            .close();
     }
 
     startAndTestTaskStarted(projectName: string, taskName: string, taskUrl: string) {

@@ -32,7 +32,7 @@
         "test/webdriverio/services.d.ts",
         "test/webdriverio/customCommands.ts",
         "test/webdriverio/specs/common.spec.ts",
-        "test/webdriverio/specs/itegrations.spec.ts",
+        "test/webdriverio/specs/integrations.spec.ts",
         "test/webdriverio/specs/github.ts",
         "test/webdriverio/specs/gitlab.ts",
         "test/webdriverio/specs/jira.ts",

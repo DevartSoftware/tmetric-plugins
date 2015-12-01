@@ -1,9 +1,10 @@
+require('./common.spec.js');
+
 describe('Extension integrates with', function () {
 
     before(function () {
         return browser
-            .loginTimeTracker()
-            .openTaskTrackerWindow();
+            .loginTimeTracker();
     });
 
     beforeEach(function () {
@@ -14,7 +15,6 @@ describe('Extension integrates with', function () {
 
     after(function () {
         return browser
-            .closeTaskTrackerWindow()
             .switchToTimeTrackerWindow();
     });
 

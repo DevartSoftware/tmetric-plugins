@@ -9,7 +9,6 @@ declare module PromisesAPlus {
         element: (selector: string) => Thenable<WebDriverIO.Result<WebDriverIO.WebElement>>;
         execute: (script: string | Function, ...args: any[]) => Thenable<any>;
         getAttribute: (selector: string, attrName: string) => Thenable<string>;
-        getCurrentTabId: () => Thenable<string[]>;
         getTabIds: () => Thenable<string[]>;
         getText: (selector: string) => Thenable<string>;
         getTitle: () => Thenable<string>;
@@ -21,7 +20,6 @@ declare module PromisesAPlus {
         pause: (ms: number) => Thenable<any>;
         refresh: () => Thenable<any>;
         setValue: (selector: string, value: string) => Thenable<any>;
-        switchTab: (id?: string) => Thenable<any>;
         url: (url?: string) => Thenable<WebDriverIO.Result<string>>;
         waitForExist: (selector: string, timeout?: number, reverse?: boolean) => Thenable<any>;
         waitForVisible: (selector: string, timeout?: number, reverse?: boolean) => Thenable<any>;

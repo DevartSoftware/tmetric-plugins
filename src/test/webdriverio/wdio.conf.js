@@ -9,7 +9,7 @@ exports.config = {
     // directory is where your package.json resides, so `wdio` will be called from there.
     //
     specs: [
-        './test/webdriverio/specs/**/*.spec.js'
+        './test/webdriverio/specs/integrations.spec.js'
     ],
     // Patterns to exclude.
     exclude: [
@@ -123,7 +123,7 @@ exports.config = {
     // Gets executed before test execution begins. At this point you will have access to all global
     // variables like `browser`. It is the perfect place to define custom commands.
     before: function () {
-        // do something
+
         require('./customCommands');
 
         var chai = require('chai');
