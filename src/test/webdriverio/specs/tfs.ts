@@ -48,7 +48,7 @@ describe("TFS", function () {
 
             .waitForVisible('.text-filter-input')
             .setValue('.text-filter-input', testIssueName)
-            .pause(500)
+            .pause(1000)
 
             .isVisible('.grid-cell*=' + testIssueName).then(function (result) {
                 return result ?
@@ -127,7 +127,7 @@ describe("TFS", function () {
                 // find test item
                 .waitForVisible('.text-filter-input')
                 .setValue('.text-filter-input', testIssueName)
-                .pause(500)
+                .pause(1000)
                 // wait active item details renew
                 .waitForVisible('.devart-timer-link')
                 // test
@@ -145,7 +145,7 @@ describe("TFS", function () {
                 // find test item
                 .waitForVisible('.text-filter-input')
                 .setValue('.text-filter-input', testIssueName)
-                .pause(500)
+                .pause(1000)
                 // wait active item details renew
                 .waitForVisible('.devart-timer-link')
                 // test
@@ -200,7 +200,7 @@ describe("TFS", function () {
             // find test item
                 .waitForVisible('.text-filter-input')
                 .setValue('.text-filter-input', testIssueName)
-                .pause(500)
+                .pause(1000)
             // wait active item details renew
                 .waitForVisible('.devart-timer-link')
             // test
@@ -218,7 +218,7 @@ describe("TFS", function () {
             // find test item
                 .waitForVisible('.text-filter-input')
                 .setValue('.text-filter-input', testIssueName)
-                .pause(500)
+                .pause(1000)
             // wait active item details renew
                 .waitForVisible('.devart-timer-link')
             // test
