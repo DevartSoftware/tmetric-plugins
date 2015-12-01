@@ -1,6 +1,6 @@
 describe("TFS", function () {
 
-    var service = require('./../services.conf').TFS;
+    var service = <ServiceConfig>require('./../services.conf').TFS;
 
     var taskTrackerUrl = 'https://' + service.login.username.split('@')[0] + '.visualstudio.com/';
 
@@ -31,7 +31,7 @@ describe("TFS", function () {
         // check error page is showed
         // when test project was not created yet
             .isExisting('li.error-code=404').then(function (result) {
-                return result == true ?
+                return result ?
                     // create test project
                     browser
                         .url(taskTrackerUrl + '_createproject')
@@ -51,7 +51,7 @@ describe("TFS", function () {
             .pause(500)
 
             .isVisible('.grid-cell*=' + testIssueName).then(function (result) {
-                return result == true ?
+                return result ?
                     browser :
                     browser
                         .url(testProjectUrl + '/_workitems#witd=Issue&_a=new')
