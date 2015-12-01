@@ -2,52 +2,28 @@
 
     class TfsIntegration implements WebToolIntegration {
 
-        private static isDisplay(element?: HTMLElement): boolean {
-            if (element) {
-                return element.style.display !== 'none';
-            } else {
-                return false;
-            }
-        }
-
-        private static isDisplayBranch(element?: HTMLElement): boolean {
-            if (element) {
-                if (!TfsIntegration.isDisplay(element)) {
-                    return false;
-                } else {
-                    if (element === document.body) {
-                        return true;
-                    } else {
-                        return TfsIntegration.isDisplayBranch(element.parentElement);
-                    }
-                }
-            } else {
-                return false;
-            }
-        }
-
         observeMutations = true;
 
         matchUrl = '*://*.visualstudio.com/*';
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
-            var form = $$.all('.work-item-form').filter(TfsIntegration.isDisplayBranch)[0];
+            var form = $$.visible('.work-item-form');
             if (!form) {
                 return;
             }
 
             var isNewView = !!$$('.new-work-item-view', form);
-            var anchor;
+            var anchor: HTMLElement;
 
             if (isNewView) {
                 // find anchor in single item view or triage item view
-                anchor = $$('.hub-title .workitem-header-toolbar .menu-bar') || $$('.workitem-header-toolbar .menu-bar', form);
+                anchor = $$.visible('.hub-title .workitem-header-toolbar .menu-bar') || $$.visible('.workitem-header-toolbar .menu-bar', form);
             } else {
-                anchor = $$('.workitem-tool-bar .menu-bar', form);
+                anchor = $$.visible('.workitem-tool-bar .menu-bar', form);
             }
 
-            if (!TfsIntegration.isDisplay(anchor)) {
+            if (!anchor) {
                 return;
             }
 
@@ -61,21 +37,22 @@
             } else {
                 anchor.appendChild(linkContainer);
             }
-
         }
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+
             if (!$$('.workitem-info-bar a.caption')) {
                 return;
             }
 
-            var form = $$.all('.work-item-form').filter(TfsIntegration.isDisplayBranch)[0];
+            var form = $$.visible('.work-item-form');
             if (!form) {
                 return;
             }
 
             var isNewView = !!$$('.new-work-item-view', form);
-            var issueName, issueLink;
+            var issueName: string;
+            var issueLink: HTMLElement;
 
             if (isNewView) {
                 // route for the new TFS interface
@@ -99,7 +76,10 @@
                 // _workitems/edit/1
                 var issueIdRegExp = /\/edit\/(\d*$)/.exec(issueUrl);
                 if (issueIdRegExp && issueIdRegExp.length === 2) {
-                    var issueId = issueIdRegExp[1];
+                    var issueId = '#' + issueIdRegExp[1];
+                }
+                else {
+                    issueUrl = null;
                 }
             }
 

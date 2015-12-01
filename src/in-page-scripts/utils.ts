@@ -1,8 +1,9 @@
 ﻿interface Utils {
     (selector: string, element?: NodeSelector, returnEmptyObject?: boolean): HTMLElement;
     (selector: string, returnEmptyObject?: boolean, element?: NodeSelector): HTMLElement;
-    create(tagName: string, className?: string): HTMLElement;
+    visible(selector: string, element?: NodeSelector): HTMLElement;
     all(selector: string, element?: NodeSelector): HTMLElement[];
+    create(tagName: string, className?: string): HTMLElement;
 }
 
 var $$ = <Utils>function (selector: string, param1?: any, param2?: any): HTMLElement {
@@ -41,4 +42,14 @@ $$.all = function (selector, element?): HTMLElement[] {
         result.push(nodeList[i]);
     }
     return result;
+}
+
+$$.visible = <Utils>function (selector: string, element?: NodeSelector): HTMLElement {
+    function isVisible(element: HTMLElement): boolean {
+        if (!element || element.style.display === 'none' || element.style.visibility === 'hidden') {
+            return false;
+        }
+        return element === document.body || isVisible(element.parentElement);
+    }
+    return $$.all(selector, element).filter(isVisible)[0];
 }
