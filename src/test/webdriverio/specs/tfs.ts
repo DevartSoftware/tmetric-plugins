@@ -80,54 +80,151 @@ describe("TFS", function () {
 
     });
 
-    it("can start timer on an issue", function () {
-        return browser
-            .url(testIssueUrl)
-            .waitForVisible('.devart-timer-link')
-            .getText('.header-item.project-selector-nav-menu > li > span').should.eventually.be.equal(testProjectName)
-            .getText('.workitem-info-bar .info-text').should.eventually.be.equal(testIssueName)
-            .url().should.eventually.has.property('value', testIssueRedirectedUrl)
-            .startAndTestTaskStarted(testProjectName, testIssueName, testIssueUrl);
+    describe('with current form', function () {
+
+        before(function () {
+            // switch to current form
+            return browser
+                .switchToTaskTrackerWindow()
+                .url(testIssueUrl)
+                .waitForVisible('.work-item-form .workitem-tool-bar .menu-bar')
+                // new form have two menubars to for different screen widths
+                // wait before page choose a menubar to show
+                .pause(500)
+                .isExisting('.work-item-form .workitem-tool-bar .menu-bar:not([style*="display: none"]) li[command="actions"]')
+                .then(function (result) {
+                    return result ?
+                        browser
+                            .click('.work-item-form .workitem-tool-bar .menu-bar:not([style*="display: none"]) li[command="actions"]')
+                            .waitForClick('.work-item-form .workitem-tool-bar .menu-bar:not([style*="display: none"]) li[command="switch-work-item-form"]')
+                            .waitForVisible('.work-item-form .workitem-tool-bar .menu-bar:not([style*="display: none"]) .try-new-form') :
+                        browser;
+                });
+        });
+
+        it("can start timer on an issue", function () {
+            return browser
+                .url(testIssueUrl)
+                .waitForVisible('.devart-timer-link')
+                .getText('.header-item.project-selector-nav-menu > li > span').should.eventually.be.equal(testProjectName)
+                .getText('.workitem-info-bar .info-text').should.eventually.be.equal(testIssueName)
+                .url().should.eventually.has.property('value', testIssueRedirectedUrl)
+                .startAndTestTaskStarted(testProjectName, testIssueName, testIssueUrl);
+        });
+
+        it("can stop timer on an issue", function () {
+            return browser
+                .url(testIssueUrl)
+                .waitForVisible('.devart-timer-link')
+                .startStopAndTestTaskStopped();
+        });
+
+        it("can start timer on an issue at work items list details pane", function () {
+            return browser
+                .url(testProjectUrl + '_workitems')
+                // wait active item details loaded
+                .waitForVisible('.devart-timer-link')
+                // find test item
+                .waitForVisible('.text-filter-input')
+                .setValue('.text-filter-input', testIssueName)
+                .pause(500)
+                // wait active item details renew
+                .waitForVisible('.devart-timer-link')
+                // test
+                .getText('.header-item.project-selector-nav-menu > li > span').should.eventually.be.equal(testProjectName)
+                .getText('.workitem-info-bar .info-text').should.eventually.be.equal(testIssueName)
+                .url().should.eventually.has.property('value', testProjectUrl + '_workitems')
+                .startAndTestTaskStarted(testProjectName, testIssueName, testIssueUrl);
+        });
+
+        it("can stop timer on an issue at work items list details pane", function () {
+            return browser
+                .url(testProjectUrl + '_workitems')
+                // wait active item details loaded
+                .waitForVisible('.devart-timer-link')
+                // find test item
+                .waitForVisible('.text-filter-input')
+                .setValue('.text-filter-input', testIssueName)
+                .pause(500)
+                // wait active item details renew
+                .waitForVisible('.devart-timer-link')
+                // test
+                .startStopAndTestTaskStopped();
+        });
+
     });
 
-    it("can stop timer on an issue", function () {
-        return browser
-            .url(testIssueUrl)
-            .waitForVisible('.devart-timer-link')
-            .startStopAndTestTaskStopped();
-    });
+    describe('with new form', function () {
 
-    it("can start timer on an issue at work items list details pane", function () {
-        return browser
-            .url(testProjectUrl + '_workitems')
+        before(function () {
+            // switch to new form
+            return browser
+                .switchToTaskTrackerWindow()
+                .url(testIssueUrl)
+                .waitForVisible('.work-item-form .workitem-tool-bar')
+                // new form have two menubars to for different screen widths
+                // wait before page choose a menubar to show
+                .pause(500)
+                .isExisting('.work-item-form .workitem-tool-bar .menu-bar:not([style*="display: none"]) li[command="actions"]')
+                .then(function (result) {
+                    return result ?
+                        browser :
+                        browser
+                            .waitForClick('.work-item-form .workitem-tool-bar .menu-bar:not([style*="display: none"]) .try-new-form')
+                            .waitForVisible('.work-item-form .workitem-tool-bar .menu-bar:not([style*="display: none"]) li[command="actions"]');
+                });
+        });
+
+        it("can start timer on an issue in new form", function () {
+            return browser
+                .url(testIssueUrl)
+                .waitForVisible('.devart-timer-link')
+                .getText('.header-item.project-selector-nav-menu > li > span').should.eventually.be.equal(testProjectName)
+                .getValue('.work-item-form-title input').should.eventually.be.equal(testIssueName)
+                .url().should.eventually.has.property('value', testIssueRedirectedUrl)
+                .startAndTestTaskStarted(testProjectName, testIssueName, testIssueUrl);
+        });
+
+        it("can stop timer on an issue in new form", function () {
+            return browser
+                .url(testIssueUrl)
+                .waitForVisible('.devart-timer-link')
+                .startStopAndTestTaskStopped();
+        });
+
+        it("can start timer on an issue at work items list details pane with new form", function () {
+            return browser
+                .url(testProjectUrl + '_workitems')
             // wait active item details loaded
-            .waitForVisible('.devart-timer-link')
+                .waitForVisible('.devart-timer-link')
             // find test item
-            .waitForVisible('.text-filter-input')
-            .setValue('.text-filter-input', testIssueName)
-            .pause(500)
+                .waitForVisible('.text-filter-input')
+                .setValue('.text-filter-input', testIssueName)
+                .pause(500)
             // wait active item details renew
-            .waitForVisible('.devart-timer-link')
+                .waitForVisible('.devart-timer-link')
             // test
-            .getText('.header-item.project-selector-nav-menu > li > span').should.eventually.be.equal(testProjectName)
-            .getText('.workitem-info-bar .info-text').should.eventually.be.equal(testIssueName)
-            .url().should.eventually.has.property('value', testProjectUrl + '_workitems')
-            .startAndTestTaskStarted(testProjectName, testIssueName, testIssueUrl);
-    });
+                .getText('.header-item.project-selector-nav-menu > li > span').should.eventually.be.equal(testProjectName)
+                .getValue('.work-item-form-title input').should.eventually.be.equal(testIssueName)
+                .url().should.eventually.has.property('value', testProjectUrl + '_workitems')
+                .startAndTestTaskStarted(testProjectName, testIssueName, testIssueUrl);
+        });
 
-    it("can stop timer on an issue at work items list details pane", function () {
-        return browser
-            .url(testProjectUrl + '_workitems')
+        it("can stop timer on an issue at work items list details pane with new form", function () {
+            return browser
+                .url(testProjectUrl + '_workitems')
             // wait active item details loaded
-            .waitForVisible('.devart-timer-link')
+                .waitForVisible('.devart-timer-link')
             // find test item
-            .waitForVisible('.text-filter-input')
-            .setValue('.text-filter-input', testIssueName)
-            .pause(500)
+                .waitForVisible('.text-filter-input')
+                .setValue('.text-filter-input', testIssueName)
+                .pause(500)
             // wait active item details renew
-            .waitForVisible('.devart-timer-link')
+                .waitForVisible('.devart-timer-link')
             // test
-            .startStopAndTestTaskStopped();
+                .startStopAndTestTaskStopped();
+        });
+
     });
 
 });

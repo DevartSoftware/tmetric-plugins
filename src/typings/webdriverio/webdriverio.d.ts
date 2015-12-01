@@ -13,6 +13,7 @@ declare module PromisesAPlus {
         getTabIds: () => Thenable<string[]>;
         getText: (selector: string) => Thenable<string>;
         getTitle: () => Thenable<string>;
+        getValue: (selector: string) => Thenable<string>;
         isExisting: (...args: any[]) => Thenable<any>;
         isVisible: (selector: string) => Thenable<boolean>;
         keys: Chai.PromisedKeys;

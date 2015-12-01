@@ -2,26 +2,66 @@
 
     class TfsIntegration implements WebToolIntegration {
 
+        private static isDisplay(element?: HTMLElement): boolean {
+            if (element) {
+                return element.style.display !== 'none';
+            } else {
+                return false;
+            }
+        }
+
+        private static isDisplayBranch(element?: HTMLElement): boolean {
+            if (element) {
+                if (!TfsIntegration.isDisplay(element)) {
+                    return false;
+                } else {
+                    if (element === document.body) {
+                        return true;
+                    } else {
+                        return TfsIntegration.isDisplayBranch(element.parentElement);
+                    }
+                }
+            } else {
+                return false;
+            }
+        }
+
         observeMutations = true;
 
         matchUrl = '*://*.visualstudio.com/*';
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
-            var toolbar = $$('.work-item-form > .workitem-tool-bar > ul') || $$('.work-item-form-headerContent ul.menu-bar');
-            if (!toolbar) {
+
+            var form = $$.all('.work-item-form').filter(TfsIntegration.isDisplayBranch)[0];
+            if (!form) {
+                return;
+            }
+
+            var isNewView = !!$$('.new-work-item-view', form);
+            var anchor;
+
+            if (isNewView) {
+                // find anchor in single item view or triage item view
+                anchor = $$('.hub-title .workitem-header-toolbar .menu-bar') || $$('.workitem-header-toolbar .menu-bar', form);
+            } else {
+                anchor = $$('.workitem-tool-bar .menu-bar', form);
+            }
+
+            if (!TfsIntegration.isDisplay(anchor)) {
                 return;
             }
 
             var linkContainer = $$.create('li', 'menu-item');
+            linkContainer.classList.add('vsts');
             linkContainer.appendChild(linkElement);
 
-            if ($$('.new-work-item-view')) {
-                toolbar.insertBefore(linkContainer, $$('li[title=Actions]'));
+            if (isNewView) {
+                linkContainer.classList.add('right-align');
+                anchor.insertBefore(linkContainer, anchor.firstElementChild);
+            } else {
+                anchor.appendChild(linkContainer);
             }
-            else {
-                var separator = $$('li.menu-item.menu-item-separator:not(.invisible)', toolbar)
-                toolbar.insertBefore(linkContainer, separator);
-            }
+
         }
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
@@ -29,12 +69,18 @@
                 return;
             }
 
+            var form = $$.all('.work-item-form').filter(TfsIntegration.isDisplayBranch)[0];
+            if (!form) {
+                return;
+            }
+
+            var isNewView = !!$$('.new-work-item-view', form);
             var issueName, issueLink;
 
-            if ($$('.new-work-item-view')) {
+            if (isNewView) {
                 // route for the new TFS interface
-                issueName = $$('.work-item-form-title input', true).title;
-                issueLink = $$('.work-item-form-id a');
+                issueName = $$('.work-item-form-title input', form, true).title;
+                issueLink = $$('.info-text-wrapper a');
             }
             else {
                 issueName = $$('.workitem-info-bar', true).title;
