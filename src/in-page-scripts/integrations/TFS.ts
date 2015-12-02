@@ -17,8 +17,7 @@
             var anchor: HTMLElement;
 
             if (isNewView) {
-                // find anchor in single item view or triage item view
-                anchor = $$.visible('.hub-title .workitem-header-toolbar .menu-bar') || $$.visible('.workitem-header-toolbar .menu-bar', form);
+                anchor = $$.visible('.work-item-form .work-item-form-id', form);
             } else {
                 anchor = $$.visible('.workitem-tool-bar .menu-bar', form);
             }
@@ -27,14 +26,16 @@
                 return;
             }
 
-            var linkContainer = $$.create('li', 'menu-item');
-            linkContainer.classList.add('vsts');
-            linkContainer.appendChild(linkElement);
-
             if (isNewView) {
-                linkContainer.classList.add('right-align');
-                anchor.insertBefore(linkContainer, anchor.firstElementChild);
+                var linkContainer = $$.create('div', 'vsts-new');
+                linkContainer.classList.add('workitemcontrol');
+                linkContainer.classList.add('work-item-control');
+                linkContainer.appendChild(linkElement);
+                anchor.parentElement.insertBefore(linkContainer, anchor.parentElement.firstElementChild);
             } else {
+                var linkContainer = $$.create('li', 'vsts');
+                linkContainer.classList.add('menu-item');
+                linkContainer.appendChild(linkElement);
                 anchor.appendChild(linkContainer);
             }
         }
