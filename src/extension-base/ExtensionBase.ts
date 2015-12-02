@@ -81,9 +81,6 @@ class ExtensionBase {
             case 'putTimer':
                 this.putTimer(message.data);
                 break;
-
-            case 'ping':
-                this.sendToTabs({ action: 'pong' }, tabId);
         }
     }
 

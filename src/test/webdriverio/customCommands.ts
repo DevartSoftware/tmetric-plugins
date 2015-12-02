@@ -22,21 +22,19 @@ class CustomCommands {
         }
 
         var expectedUrl = url.toUpperCase();
-        return browser.waitUntil(function () {
-            return browser.url().then(function (res) {
+        return browser.waitUntil(() => browser.url().then(res => {
 
-                if (!res || !res.value) {
-                    return false;
-                }
+            if (!res || !res.value) {
+                return false;
+            }
 
-                var newUrl = res.value.toUpperCase();
-                if (ignoreQuery) {
-                    newUrl = newUrl.replace(/\?.*/, '');
-                }
+            var newUrl = res.value.toUpperCase();
+            if (ignoreQuery) {
+                newUrl = newUrl.replace(/\?.*/, '');
+            }
 
-                return newUrl == expectedUrl;
-            });
-        }, timeout || 10000);
+            return newUrl == expectedUrl;
+        }), timeout || 10000);
     }
 
     waitForClick(selector: string, timeout?: number) {
@@ -46,30 +44,26 @@ class CustomCommands {
     }
 
     waitForRerender(selector: string, timeout?: number) {
-        var elementHash;
+        var elementHash: string;
         return browser
-            .element(selector).then(function (result) {
-                elementHash = JSON.stringify(result.value);
+            .element(selector).then(res => {
+                elementHash = JSON.stringify(res.value);
             })
-            .waitUntil(function () {
-                return browser.element(selector).then(function (result) {
-                    return JSON.stringify(result.value) != elementHash;
-                });
-            }, timeout);
+            .waitUntil(() => browser.element(selector).then(res => {
+                return JSON.stringify(res.value) != elementHash
+            }), timeout);
     }
 
     clickAndWaitForRerender(clickSelector: string, rerenderSelector: string, timeout?: number) {
-        var rerenderHash;
+        var rerenderHash: string;
         return browser
             .element(rerenderSelector).then(function (result) {
                 rerenderHash = JSON.stringify(result.value);
             })
             .click(clickSelector)
-            .waitUntil(function () {
-                return browser.element(rerenderSelector).then(function (result) {
-                    return JSON.stringify(result.value) != rerenderHash;
-                });
-            }, timeout);
+            .waitUntil(() => browser.element(rerenderSelector).then(res => {
+                return JSON.stringify(res.value) != rerenderHash;
+            }), timeout);
     }
 
     login(serviceName: string, timeout?: number) {
@@ -85,11 +79,9 @@ class CustomCommands {
             .setValue(service.login.usernameField, service.login.username)
             .setValue(service.login.passwordField, service.login.password)
             .click(service.login.submitButton)
-            .waitUntil(function () {
-                return browser.url().then(function (res) {
-                    return res && res.value && res.value.toUpperCase() != fullUrl
-                });
-            }, timeout)
+            .waitUntil(() => browser.url().then(res => {
+                return res && res.value && res.value.toUpperCase() != fullUrl
+            }), timeout)
             .url()
             .then(res => {
                 if (res.value.toUpperCase() == fullUrl) {
@@ -129,13 +121,10 @@ class CustomCommands {
     stopRunningTask() {
         return browser
             .switchToTimeTrackerWindow()
-            .isVisible('#btn-stop').then(function (isVisible) {
-                if (isVisible) {
-                    return browser
-                        .click('#btn-stop')
-                        .waitForVisible('#btn-stop', 10000, true);
-                }
-            });
+            .isVisible('#btn-stop')
+            .then(isVisible => isVisible && browser
+                .click('#btn-stop')
+                .waitForVisible('#btn-stop', 10000, true));
     }
 
     logoutTimeTracker() {
