@@ -101,9 +101,7 @@ class ChromeExtension extends ExtensionBase {
         });
 
         chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-            if (tabId == this.loginTabId &&
-                changeInfo.status == 'loading' &&
-                changeInfo.url.indexOf('/#/noapp') >= 0) {
+            if (tabId == this.loginTabId && changeInfo.url == trackerServiceUrl) {
                 chrome.tabs.remove(tabId);
             }
             else {

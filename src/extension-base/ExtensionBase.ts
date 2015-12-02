@@ -208,7 +208,7 @@ class ExtensionBase {
         if (folderIndex > 0) {
             folder = trackerServiceUrl.substring(folderIndex);
         }
-        return trackerServiceUrl + 'Login?ReturnUrl=' + folder + '%23/noapp';
+        return trackerServiceUrl + 'login';
     }
 
     private putTimerWithNewIntegration(timer: Integrations.WebToolIssueTimer) {

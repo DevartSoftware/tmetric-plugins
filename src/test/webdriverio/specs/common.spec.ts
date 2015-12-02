@@ -42,7 +42,6 @@ describe('Extension', function () {
             .url()
             .then(result => {
                 expect(result.value.toLowerCase()).to.contain('/login');
-                expect(result.value.toLowerCase()).to.contain('/noapp');
             })
             .waitForVisible('body.login')
             .setValue(ttService.login.usernameField, ttService.login.username)
