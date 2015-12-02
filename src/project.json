@@ -1,25 +1,27 @@
 ﻿{
-  "version": "1.0.0-*",
+    "version": "1.0.0-*",
 
-  "dependencies": {
-  },
+    "dependencies": {
+        "Microsoft.CSharp": "4.0.0-*"
+    },
 
-  "commands": {
-  },
+    "commands": {
+    },
 
-  "frameworks": {
-  },
+    "frameworks": {
+        "dnxcore50": { }
+    },
 
-  "publishExclude": [
-    "node_modules",
-    "bower_components",
-    "**.xproj",
-    "**.user",
-    "**.vspscc"
-  ],
-  "exclude": [
-    "wwwroot",
-    "node_modules",
-    "bower_components"
-  ]
+    "publishExclude": [
+        "node_modules",
+        "bower_components",
+        "**.xproj",
+        "**.user",
+        "**.vspscc"
+    ],
+    "exclude": [
+        "wwwroot",
+        "node_modules",
+        "bower_components"
+    ]
 }
