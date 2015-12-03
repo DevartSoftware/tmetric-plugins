@@ -107,7 +107,7 @@ gulp.task('prepackage:chrome:test:shortcut', ['prepackage:chrome'], function () 
 });
 
 function packageChrome() {
-    var crx = require('gulp-crx'); // Pack Chrome Extension in the pipeline.
+    var crx = require('gulp-crx-pack'); // Pack Chrome Extension in the pipeline.
     var manifest = jsonfile.readFileSync(distChromeUnpacked + 'manifest.json');
 
     // Specify the location (relative) of the already generated .pem file for the Chrome extension.
