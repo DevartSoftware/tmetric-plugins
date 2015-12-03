@@ -48,7 +48,7 @@ describe("TFS", function () {
 
             .waitForVisible('.text-filter-input')
             .setValue('.text-filter-input', testIssueName)
-            .pause(1000)
+            .pause(5000)
 
             .isVisible('.grid-cell*=' + testIssueName).then(function (result) {
                 return result ?
@@ -57,12 +57,11 @@ describe("TFS", function () {
                         .url(testProjectUrl + '/_workitems#witd=Issue&_a=new')
                         .waitForVisible('input[aria-label="Title"]')
                         .setValue('input[aria-label="Title"]', testIssueName)
-                        .waitForVisible('li[command="save-work-item"][disabled]', 5000, true)
+                        .waitForVisible('li[command="save-work-item"][disabled]', 30000, true)
                         .waitForClick('li[command="save-work-item"]')
                         .waitForVisible('li[command="save-work-item"][disabled]')
                         .url(testProjectUrl + '_workitems')
                         .waitForVisible('.grid-cell*=' + testIssueName);
-
             })
         // get test issue url
             .click('.grid-cell*=' + testIssueName)
@@ -77,7 +76,6 @@ describe("TFS", function () {
                 testIssueRedirectedUrl = result.value;
                 expect(testIssueRedirectedUrl).to.be.a('string').and.not.to.be.empty;
             });
-
     });
 
     describe('with current form', function () {
@@ -88,8 +86,8 @@ describe("TFS", function () {
                 .switchToTaskTrackerWindow()
                 .url(testIssueUrl)
                 .waitForVisible('.work-item-form .workitem-tool-bar .menu-bar')
-                // new form have two menubars to for different screen widths
-                // wait before page choose a menubar to show
+            // new form have two menubars to for different screen widths
+            // wait before page choose a menubar to show
                 .pause(500)
                 .isExisting('.work-item-form .workitem-tool-bar .menu-bar:not([style*="display: none"]) li[command="actions"]')
                 .then(function (result) {
@@ -122,15 +120,15 @@ describe("TFS", function () {
         it("can start timer on an issue at work items list details pane", function () {
             return browser
                 .url(testProjectUrl + '_workitems')
-                // wait active item details loaded
+            // wait active item details loaded
                 .waitForVisible('.devart-timer-link')
-                // find test item
+            // find test item
                 .waitForVisible('.text-filter-input')
                 .setValue('.text-filter-input', testIssueName)
-                .pause(1000)
-                // wait active item details renew
+                .pause(5000)
+            // wait active item details renew
                 .waitForVisible('.devart-timer-link')
-                // test
+            // test
                 .getText('.header-item.project-selector-nav-menu > li > span').should.eventually.be.equal(testProjectName)
                 .getText('.workitem-info-bar .info-text').should.eventually.be.equal(testIssueName)
                 .url().should.eventually.has.property('value', testProjectUrl + '_workitems')
@@ -140,18 +138,17 @@ describe("TFS", function () {
         it("can stop timer on an issue at work items list details pane", function () {
             return browser
                 .url(testProjectUrl + '_workitems')
-                // wait active item details loaded
+            // wait active item details loaded
                 .waitForVisible('.devart-timer-link')
-                // find test item
+            // find test item
                 .waitForVisible('.text-filter-input')
                 .setValue('.text-filter-input', testIssueName)
-                .pause(1000)
-                // wait active item details renew
+                .pause(5000)
+            // wait active item details renew
                 .waitForVisible('.devart-timer-link')
-                // test
+            // test
                 .startStopAndTestTaskStopped();
         });
-
     });
 
     describe('with new form', function () {
@@ -162,8 +159,8 @@ describe("TFS", function () {
                 .switchToTaskTrackerWindow()
                 .url(testIssueUrl)
                 .waitForVisible('.work-item-form .workitem-tool-bar')
-                // new form have two menubars to for different screen widths
-                // wait before page choose a menubar to show
+            // new form have two menubars to for different screen widths
+            // wait before page choose a menubar to show
                 .pause(500)
                 .isExisting('.work-item-form .workitem-tool-bar .menu-bar:not([style*="display: none"]) li[command="actions"]')
                 .then(function (result) {
@@ -200,7 +197,7 @@ describe("TFS", function () {
             // find test item
                 .waitForVisible('.text-filter-input')
                 .setValue('.text-filter-input', testIssueName)
-                .pause(1000)
+                .pause(5000)
             // wait active item details renew
                 .waitForVisible('.devart-timer-link')
             // test
@@ -218,13 +215,11 @@ describe("TFS", function () {
             // find test item
                 .waitForVisible('.text-filter-input')
                 .setValue('.text-filter-input', testIssueName)
-                .pause(1000)
+                .pause(5000)
             // wait active item details renew
                 .waitForVisible('.devart-timer-link')
             // test
                 .startStopAndTestTaskStopped();
         });
-
     });
-
 });
