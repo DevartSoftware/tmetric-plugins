@@ -98,6 +98,7 @@ class FirefoxExtension extends ExtensionBase {
         var contentScriptFile = [
             './utils.js',
             './IntegrationService.js',
+            './Bitbucket.js',
             './GitHub.js',
             './GitLab.js',
             './Redmine.js',
