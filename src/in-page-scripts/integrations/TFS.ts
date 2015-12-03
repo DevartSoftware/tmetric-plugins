@@ -57,7 +57,10 @@
 
             if (isNewView) {
                 // route for the new TFS interface
-                issueName = $$('.work-item-form-title input', form, true).title;
+                var input = <HTMLInputElement>$$.visible('.work-item-form-title input', form);
+                if (input) {
+                    issueName = input.value;
+                }
                 issueLink = $$('.info-text-wrapper a');
             }
             else {
@@ -92,6 +95,7 @@
             var serviceType = 'TFS';
 
             return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+
         }
     }
 
