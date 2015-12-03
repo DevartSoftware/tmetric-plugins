@@ -101,12 +101,17 @@ class ChromeExtension extends ExtensionBase {
         });
 
         chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-            if (tabId == this.loginTabId && changeInfo.url == trackerServiceUrl) {
-                chrome.tabs.remove(tabId);
+
+            if (tabId == this.loginTabId && changeInfo.url) {
+                var tabUrl = changeInfo.url.toLowerCase();
+                var serviceUrl = trackerServiceUrl.toLowerCase();
+                if (tabUrl == serviceUrl || tabUrl.indexOf(serviceUrl + '#') == 0) {
+                    chrome.tabs.remove(tabId);
+                    return;
+                }
             }
-            else {
-                updateCurrentTab();
-            }
+
+            updateCurrentTab();
         });
 
         // When user switch windows, tabs.onUpdated does not fire
