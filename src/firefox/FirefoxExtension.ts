@@ -101,9 +101,10 @@ class FirefoxExtension extends ExtensionBase {
             './Bitbucket.js',
             './GitHub.js',
             './GitLab.js',
-            './Redmine.js',
             './Jira.js',
             './JiraAgile.js',
+            './PivotalTracker.js',
+            './Redmine.js',
             './TFS.js',
             './Trello.js',
             './page.js'
