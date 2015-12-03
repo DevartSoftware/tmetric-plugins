@@ -20,7 +20,6 @@
             var host = $$('aside > .wrapper', issueElement);
             if (host) {
                 linkElement.classList.add('pivotaltracker');
-                //linkElement.classList.add('button-link');
                 host.appendChild(linkElement);
             }
         }
