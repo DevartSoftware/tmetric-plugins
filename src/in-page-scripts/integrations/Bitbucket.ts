@@ -1,7 +1,5 @@
 ﻿module Integrations {
-
     class Bitbucket implements WebToolIntegration {
-
         observeMutations = true;
 
         matchUrl = [
@@ -18,40 +16,23 @@
         }
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
-
             var issueHeader = $$('#issue-header');
             var pullRequestHeader = $$('#pull-request-header');
-            var header = issueHeader || pullRequestHeader;
 
-            var actions, anchor;
+            var anchor: HTMLElement;
             if (issueHeader) {
-                actions = $$('#issue-actions', issueHeader);
-                if (actions) {
-                    // for logged in user
-                    anchor = actions;
-                } else {
-                    // for not logged in user
-                    anchor = issueHeader;
-                    linkElement.style.cssFloat = 'right';
-                }
+                anchor = $$('.issue-toolbar', issueHeader);
             } else if (pullRequestHeader) {
-                actions = $$('#pullrequest-actions', header);
-                if (actions) {
-                    // for logged in user
-                    anchor = $$('#reject-pullrequest', actions, true).parentElement;
-                } else {
-                    // for not logged in user
-                    anchor = $$('.clearfix', pullRequestHeader);
-                    linkElement.style.cssFloat = 'right';
-                }
+                anchor = $$('#pullrequest-actions', pullRequestHeader);
             }
 
             if (anchor) {
-                linkElement.classList.add('bitbucket');
+                var linkContainer = $$.create('div', 'devart-timer-link-bitbucket')
+                linkContainer.classList.add('aui-buttons');
                 linkElement.classList.add('aui-button');
-                anchor.appendChild(linkElement);
+                linkContainer.appendChild(linkElement);
+                anchor.insertBefore(linkContainer, anchor.firstElementChild);
             }
-
         }
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
@@ -73,14 +54,11 @@
 
                 var issueType = match[2];
                 if (issueType == 'issues') {
-
                     issueId = '#' + issueNumber;
 
                     // <h1 id="issue-title">ISSUE_NAME</h1>
                     issueName = $$('#issue-title', true).textContent;
-
                 } else if (issueType == 'pull-requests') {
-
                     issueId = '!' + issueNumber;
 
                     // <div class="pull-request-title">
@@ -89,7 +67,6 @@
                     //      </h1>
                     // </div>
                     issueName = $$('.pull-request-title h1', true).textContent;
-
                 }
 
                 if (!issueName) {
