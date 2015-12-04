@@ -1,7 +1,5 @@
 ﻿module Integrations {
-
     class PivotalTracker implements WebToolIntegration {
-
         observeMutations = true
 
         matchUrl = '*://www.pivotaltracker.com/n/projects/*'
@@ -14,19 +12,18 @@
             return false;
         }
 
-        issueElementSelector = '.model_details'
+        issueElementSelector = '.story .model_details'
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
             var host = $$('aside > .wrapper', issueElement);
             if (host) {
-                var linkContainer = $$.create('div', 'pivotaltracker');
+                var linkContainer = $$.create('div', 'devart-timer-link-pivotaltracker');
                 linkContainer.appendChild(linkElement);
                 host.appendChild(linkContainer);
             }
         }
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-
             // Project url:
             // https://www.pivotaltracker.com/n/projects/PROJECT_ID
             // Project story url:
@@ -37,33 +34,29 @@
             var result;
 
             if (match) {
-
-                var issueId, issueName, projectName, serviceType, serviceUrl, issueUrl;
-
-                issueId = (<HTMLInputElement>$$('.text_value', issueElement, true)).value;
+                var issueId = (<HTMLInputElement>$$('.text_value', issueElement, true)).value;
                 if (!issueId) {
                     return;
                 }
 
-                issueName = $$('.editor', issueElement, true).textContent;
+                var issueName = $$('.editor', issueElement, true).textContent;
                 if (!issueName) {
                     return;
                 }
                 issueName = issueName.trim();
 
-                projectName = $$('.raw_context_name', true).textContent;
+                var projectName = $$('.raw_context_name', true).textContent;
                 if (projectName) {
                     projectName = projectName.trim();
                 }
 
-                serviceType = 'PivotalTracker';
+                var serviceType = 'PivotalTracker';
 
-                serviceUrl = source.protocol + source.host;
+                var serviceUrl = source.protocol + source.host;
 
-                issueUrl = '/n/projects/' + match[1] + '/stories/' + issueId.substring(1);
+                var issueUrl = '/story/show/' + issueId.substring(1);
 
                 result = { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
-
             }
 
             return result;
