@@ -16,7 +16,6 @@
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
             var host = $$('#details_pane_title_row', issueElement);
-            console.log('host');
             if (host) {
                 var linkContainer = $$.create('div', 'asana');
                 linkContainer.appendChild(linkElement);
@@ -66,7 +65,6 @@
                 result = { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
 
             }
-            console.log(result);
             return result;
         }
     }
