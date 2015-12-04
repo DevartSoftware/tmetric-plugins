@@ -1,13 +1,10 @@
 ﻿module Integrations {
-
     class TfsIntegration implements WebToolIntegration {
-
         observeMutations = true;
 
         matchUrl = '*://*.visualstudio.com/*';
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
-
             var form = $$.visible('.work-item-form');
             if (!form) {
                 return;
@@ -27,13 +24,13 @@
             }
 
             if (isNewView) {
-                var linkContainer = $$.create('div', 'vsts-new');
+                var linkContainer = $$.create('div', 'devart-timer-link-tfs-new');
                 linkContainer.classList.add('workitemcontrol');
                 linkContainer.classList.add('work-item-control');
                 linkContainer.appendChild(linkElement);
                 anchor.parentElement.insertBefore(linkContainer, anchor.parentElement.firstElementChild);
             } else {
-                var linkContainer = $$.create('li', 'vsts');
+                var linkContainer = $$.create('li', 'devart-timer-link-tfs');
                 linkContainer.classList.add('menu-item');
                 linkContainer.appendChild(linkElement);
                 anchor.appendChild(linkContainer);
@@ -41,7 +38,6 @@
         }
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-
             if (!$$('.workitem-info-bar a.caption')) {
                 return;
             }
@@ -95,7 +91,6 @@
             var serviceType = 'TFS';
 
             return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
-
         }
     }
 

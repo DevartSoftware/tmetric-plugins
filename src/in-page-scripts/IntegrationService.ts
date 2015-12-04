@@ -71,48 +71,51 @@
                     oldLink = $$('a.' + this.affix, element);
 
                     var newIssue = integration.getIssue(element, source);
-                    if (newIssue) {
-                        issues.push(newIssue);
+                    if (!newIssue) {
+                        this.removeLink(oldLink);
+                        return;
+                    }
 
-                        var newIssueTimer = <WebToolIssueTimer>{
-                            isStarted: !this.isIssueStarted(newIssue)
-                        };
-                        for (var i in newIssue) {
-                            newIssueTimer[i] = newIssue[i];
-                        }
+                    issues.push(newIssue);
 
-                        if (oldLink) {
-                            var oldIssueTimer = <WebToolIssueTimer>JSON.parse(oldLink.getAttribute('data-' + this.affix));
-                        }
+                    var newIssueTimer = <WebToolIssueTimer>{
+                        isStarted: !this.isIssueStarted(newIssue)
+                    };
+                    for (var i in newIssue) {
+                        newIssueTimer[i] = newIssue[i];
+                    }
 
-                        if (this.isSameIssue(oldIssueTimer, newIssueTimer) &&
-                            newIssueTimer.isStarted == oldIssueTimer.isStarted) {
-                            // Issue is not changed
-                            return;
-                        }
+                    if (oldLink) {
+                        var oldIssueTimer = <WebToolIssueTimer>JSON.parse(oldLink.getAttribute('data-' + this.affix));
+                    }
 
-                        // Create new timer link
-                        var newLink = document.createElement('a');
-                        newLink.classList.add(this.affix);
-                        newLink.classList.add(this.affix + (newIssueTimer.isStarted ? '-start' : '-stop'));
-                        newLink.setAttribute('data-' + this.affix, JSON.stringify(newIssueTimer));
-                        newLink.href = '#';
-                        newLink.title = 'Track spent time via Devart Time Tracker service';
-                        newLink.onclick = function () {
-                            sendBackgroundMessage({ action: 'putTimer', data: newIssueTimer });
-                            return false;
-                        };
-                        var spanWithIcon = document.createElement('span');
-                        spanWithIcon.classList.add(this.affix + '-icon');
-                        newLink.appendChild(spanWithIcon);
-                        var span = document.createElement('span');
-                        span.textContent = newIssueTimer.isStarted ? 'Start timer' : 'Stop timer';
-                        newLink.appendChild(span);
-
-                        integration.render(element, newLink);
+                    if (this.isSameIssue(oldIssueTimer, newIssueTimer) &&
+                        newIssueTimer.isStarted == oldIssueTimer.isStarted) {
+                        // Issue is not changed
+                        return;
                     }
 
                     this.removeLink(oldLink);
+
+                    // Create new timer link
+                    var newLink = document.createElement('a');
+                    newLink.classList.add(this.affix);
+                    newLink.classList.add(this.affix + (newIssueTimer.isStarted ? '-start' : '-stop'));
+                    newLink.setAttribute('data-' + this.affix, JSON.stringify(newIssueTimer));
+                    newLink.href = '#';
+                    newLink.title = 'Track spent time via Devart Time Tracker service';
+                    newLink.onclick = function () {
+                        sendBackgroundMessage({ action: 'putTimer', data: newIssueTimer });
+                        return false;
+                    };
+                    var spanWithIcon = document.createElement('span');
+                    spanWithIcon.classList.add(this.affix + '-icon');
+                    newLink.appendChild(spanWithIcon);
+                    var span = document.createElement('span');
+                    span.textContent = newIssueTimer.isStarted ? 'Start timer' : 'Stop timer';
+                    newLink.appendChild(span);
+
+                    integration.render(element, newLink);
                 });
 
                 if (issues.length) {

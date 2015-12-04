@@ -4,12 +4,13 @@
      * Retrieves messages from background script.
      */
     function onBackgroundMessage(message: ITabMessage) {
-        if (message.action == 'setTimer') {
 
-            if (pingTimeout) {
-                clearTimeout(pingTimeout);
-                pingTimeout = null;
-            }
+        if (pingTimeouts[message.action]) {
+            clearTimeout(pingTimeouts[message.action]);
+            pingTimeouts[message.action] = null;
+        }
+
+        if (message.action == 'setTimer') {
 
             Integrations.IntegrationService.setTimer(message.data);
 
@@ -23,25 +24,40 @@
     }
 
     /**
-     * Reparses page after a timer getting. Finalizes script if timer getting fails.
+     * Sends message to background script.
      */
-    function getTimer() {
-        // finalize script when extension removed/disabled/upgraded (#66666)
-        if (pingTimeout) {
-            clearTimeout(pingTimeout);
+    var sendBackgroundMessage = (() => {
+
+        var sendBackgroundMessage: (message: ITabMessage) => void = self.chrome && self.chrome.runtime && self.chrome.runtime.sendMessage;
+
+        if (sendBackgroundMessage) {
+            // chrome
+            chrome.runtime.onMessage.addListener(onBackgroundMessage);
         }
-        pingTimeout = setTimeout(() => {
-            pingTimeout = null;
-            finalize();
-        }, 30000);
-        try {
-            needsUpdate = true;
-            sendBackgroundMessage({ action: 'getTimer' });
+        else {
+            // firefox
+            sendBackgroundMessage = self.postMessage;
+            self.on('message', onBackgroundMessage);
         }
-        catch (e) {
-            finalize();
-        }
-    }
+
+        return (message: ITabMessage) => {
+
+            // finalize script when extension removed/disabled/upgraded (#66666)
+            var callbackAction = message + '_callback';
+            if (pingTimeouts[callbackAction]) {
+                clearTimeout(pingTimeouts[callbackAction]);
+            }
+
+            pingTimeouts[callbackAction] = setTimeout(finalize, 30000);
+
+            try {
+                sendBackgroundMessage(message);
+            }
+            catch (e) {
+                finalize();
+            }
+        };
+    })();
 
     /**
      * Starts periodic checking of url/title changes. Checking stops on focus loss.
@@ -50,7 +66,7 @@
         if (changeCheckerHandle == null) {
             changeCheckerHandle = setInterval(() => {
                 if (document.title != oldTitle || document.URL != oldUrl) {
-                    getTimer();
+                    parsePage();
                 }
                 if (!document.hasFocus()) {
                     clearInterval(changeCheckerHandle);
@@ -77,9 +93,11 @@
      * Finalizes script
      */
     function finalize() {
-        if (pingTimeout) {
-            clearTimeout(pingTimeout);
-            pingTimeout = null;
+        for (var ping in pingTimeouts) {
+            if (pingTimeouts[ping]) {
+                clearTimeout(pingTimeouts[ping]);
+                pingTimeouts[ping] = null;
+            }
         }
         if (mutationObserver) {
             mutationObserver.disconnect();
@@ -121,49 +139,29 @@
                 issue = { issueName: '' };
 
                 if (projectName && issues.every(i => i.projectName == projectName)) {
-                    issue.projectName = issue.projectName;
+                    issue.projectName = projectName;
                 }
             }
         }
 
-        var message = <ITabMessage>{ action: 'setTabInfo', data: <ITabInfo>{ url, title, issue } };
+        var data = <ITabInfo>{ url, title, issue };
 
-        try {
-            sendBackgroundMessage(message);
-        }
-        catch (e) {
-            finalize();
-        }
+        sendBackgroundMessage({ action: 'setTabInfo', data });
 
         if (observeMutations && !mutationObserver) {
-            mutationObserver = new MutationObserver(() => getTimer());
+            mutationObserver = new MutationObserver(parsePage);
             mutationObserver.observe(document, { childList: true, subtree: true });
         }
-    }
-
-    /**
-     * Sends message to background script.
-     */
-    var sendBackgroundMessage: (message: ITabMessage) => void = self.chrome && self.chrome.runtime && self.chrome.runtime.sendMessage;
-
-    if (sendBackgroundMessage) {
-        // chrome
-        chrome.runtime.onMessage.addListener(onBackgroundMessage);
-    }
-    else {
-        // firefox
-        sendBackgroundMessage = self.postMessage;
-        self.on('message', onBackgroundMessage);
     }
 
     var oldUrl = '';
     var oldTitle = '';
     var changeCheckerHandle: number;
     var mutationObserver: MutationObserver;
-    var pingTimeout: number;
+    var pingTimeouts = <{ [callbackAction: string]: number }>{};
     var isInitialized = false;
     var needsUpdate = true;
 
     Integrations.IntegrationService.clearPage();
-    getTimer();
+    sendBackgroundMessage({ action: 'getTimer' });
 }
