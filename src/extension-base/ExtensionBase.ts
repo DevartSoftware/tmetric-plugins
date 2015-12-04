@@ -68,6 +68,8 @@ class ExtensionBase {
     /** Handles messages from in-page scripts */
     onTabMessage(message: ITabMessage, tabId: any, isTabActive: boolean) {
 
+        this.sendToTabs({ action: message.action + '_callback' }, tabId);
+
         switch (message.action) {
 
             case 'setTabInfo':
