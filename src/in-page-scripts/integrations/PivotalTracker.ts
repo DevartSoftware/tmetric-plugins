@@ -19,8 +19,9 @@
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
             var host = $$('aside > .wrapper', issueElement);
             if (host) {
-                linkElement.classList.add('pivotaltracker');
-                host.appendChild(linkElement);
+                var linkContainer = $$.create('div', 'pivotaltracker');
+                linkContainer.appendChild(linkElement);
+                host.appendChild(linkContainer);
             }
         }
 
