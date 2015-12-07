@@ -1,5 +1,7 @@
 ﻿module Integrations {
+
     class Bitbucket implements WebToolIntegration {
+
         observeMutations = true;
 
         matchUrl = [
@@ -19,19 +21,19 @@
             var issueHeader = $$('#issue-header');
             var pullRequestHeader = $$('#pull-request-header');
 
-            var anchor: HTMLElement;
+            var actionContainer: HTMLElement;
             if (issueHeader) {
-                anchor = $$('.issue-toolbar', issueHeader);
+                actionContainer = $$('.issue-toolbar', issueHeader);
             } else if (pullRequestHeader) {
-                anchor = $$('#pullrequest-actions', pullRequestHeader);
+                actionContainer = $$('#pullrequest-actions', pullRequestHeader);
             }
 
-            if (anchor) {
+            if (actionContainer) {
                 var linkContainer = $$.create('div', 'devart-timer-link-bitbucket')
                 linkContainer.classList.add('aui-buttons');
                 linkElement.classList.add('aui-button');
                 linkContainer.appendChild(linkElement);
-                anchor.insertBefore(linkContainer, anchor.firstElementChild);
+                actionContainer.insertBefore(linkContainer, actionContainer.firstElementChild);
             }
         }
 
