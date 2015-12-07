@@ -62,7 +62,7 @@
                 issueLink = $$('.info-text-wrapper a');
             }
             else {
-                issueName = $$('.workitem-info-bar', true).title;
+                issueName = $$.try('.workitem-info-bar').title;
                 issueLink = $$('.workitem-info-bar a');
             }
 
@@ -85,7 +85,7 @@
                 }
             }
 
-            var projectName = $$('.header-item.project-selector-nav-menu > li > span', true).textContent;
+            var projectName = $$.try('.header-item.project-selector-nav-menu > li > span').textContent;
 
             // https://devart.visualstudio.com/
             var serviceUrl = source.protocol + source.host;

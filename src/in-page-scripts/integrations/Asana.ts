@@ -45,13 +45,13 @@
 
                 issueId = '#' + issueId;
 
-                issueName = (<HTMLTextAreaElement>$$('#details_property_sheet_title', issueElement, true)).value;
+                issueName = (<HTMLTextAreaElement>$$.try('#details_property_sheet_title', issueElement)).value;
                 if (!issueName) {
                     return;
                 }
                 issueName = issueName.trim();
 
-                projectName = $$('.task-pot-view-container a', true).textContent;
+                projectName = $$.try('.task-pot-view-container a').textContent;
                 if (projectName) {
                     projectName = projectName.trim();
                 }

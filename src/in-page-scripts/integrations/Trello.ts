@@ -43,7 +43,7 @@
                 issueId = '#' + issueId;
 
                 // <h2 class="window-title-text current hide-on-edit js-card-title">ISSUE_NAME</h2>
-                issueName = $$('.window-title-text', true).textContent;
+                issueName = $$.try('.window-title-text').textContent;
                 if (!issueName) {
                     return;
                 }
@@ -52,7 +52,7 @@
                 //  <a class="board-header-btn board-header-btn-name js-rename-board" href="#">
                 //    <span class="board-header-btn-text">Test Board</span>
                 //  </a>
-                projectName = $$('.board-header-btn-text', true).textContent;
+                projectName = $$.try('.board-header-btn-text').textContent;
                 if (projectName) {
                     projectName = projectName.trim();
                 }
