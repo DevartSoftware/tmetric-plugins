@@ -17,7 +17,7 @@
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
             var host = $$('.sticky-view-placeholder', issueElement);
             if (host) {
-                var linkContainer = $$.create('div', 'asana');
+                var linkContainer = $$.create('div', 'devart-timer-link-asana');
                 linkContainer.appendChild(linkElement);
                 host.parentElement.insertBefore(linkContainer, host.nextElementSibling);
             }
