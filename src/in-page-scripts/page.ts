@@ -43,7 +43,7 @@
         return (message: ITabMessage) => {
 
             // finalize script when extension removed/disabled/upgraded (#66666)
-            var callbackAction = message + '_callback';
+            var callbackAction = message.action + '_callback';
             if (pingTimeouts[callbackAction]) {
                 clearTimeout(pingTimeouts[callbackAction]);
             }
