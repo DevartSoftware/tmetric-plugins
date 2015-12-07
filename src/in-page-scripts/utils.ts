@@ -1,9 +1,9 @@
 ﻿interface Utils {
-    (selector: string, element?: NodeSelector, returnEmptyObject?: boolean): HTMLElement;
-    (selector: string, returnEmptyObject?: boolean, element?: NodeSelector): HTMLElement;
-    visible(selector: string, element?: NodeSelector): HTMLElement;
-    all(selector: string, element?: NodeSelector): HTMLElement[];
-    create(tagName: string, className?: string): HTMLElement;
+    <TElement extends HTMLElement>(selector: string, element?: NodeSelector, returnEmptyObject?: boolean): TElement;
+    <TElement extends HTMLElement>(selector: string, returnEmptyObject?: boolean, element?: NodeSelector): TElement;
+    visible<TElement extends HTMLElement>(selector: string, element?: NodeSelector): TElement;
+    all<TElement extends HTMLElement>(selector: string, element?: NodeSelector): TElement[];
+    create<TElement extends HTMLElement>(tagName: string, className?: string): TElement;
 }
 
 var $$ = <Utils>function (selector: string, param1?: any, param2?: any): HTMLElement {
