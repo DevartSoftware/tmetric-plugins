@@ -15,11 +15,11 @@
         }
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
-            var host = $$('#details_pane_title_row', issueElement);
+            var host = $$('.sticky-view-placeholder', issueElement);
             if (host) {
                 var linkContainer = $$.create('div', 'asana');
                 linkContainer.appendChild(linkElement);
-                host.appendChild(linkContainer);
+                host.parentElement.insertBefore(linkContainer, host.nextElementSibling);
             }
         }
 
@@ -63,7 +63,6 @@
                 issueUrl = source.path;
 
                 result = { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
-
             }
             return result;
         }
