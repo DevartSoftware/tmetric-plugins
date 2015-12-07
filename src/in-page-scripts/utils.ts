@@ -1,28 +1,17 @@
 ﻿interface Utils {
-    <TElement extends HTMLElement>(selector: string, element?: NodeSelector, returnEmptyObject?: boolean): TElement;
-    <TElement extends HTMLElement>(selector: string, returnEmptyObject?: boolean, element?: NodeSelector): TElement;
+    <TElement extends HTMLElement>(selector: string, element?: NodeSelector): TElement;
+    try<TElement extends HTMLElement>(selector: string, element?: NodeSelector): TElement;
     visible<TElement extends HTMLElement>(selector: string, element?: NodeSelector): TElement;
     all<TElement extends HTMLElement>(selector: string, element?: NodeSelector): TElement[];
     create<TElement extends HTMLElement>(tagName: string, className?: string): TElement;
 }
 
-var $$ = <Utils>function (selector: string, param1?: any, param2?: any): HTMLElement {
-    var element = <NodeSelector>param1;
-    if (!element || !element.querySelector) {
-        element = <NodeSelector>param2;
-        if (!element || !element.querySelector) {
-            element = document;
-        }
-    }
+var $$ = <Utils>function (selector: string, element: NodeSelector = document) {
+    return <HTMLElement>element.querySelector(selector);
+}
 
-    var result = <HTMLElement>element.querySelector(selector);
-    if (result) {
-        return result;
-    }
-
-    if (param1 === true || param2 === true) {
-        return <HTMLElement>{};
-    }
+$$.try = function (selector: string, element: NodeSelector) {
+    return $$(selector, element) || <HTMLElement>{};
 }
 
 $$.create = function (tagName, className) {

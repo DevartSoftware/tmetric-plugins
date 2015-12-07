@@ -37,13 +37,13 @@
 
             // <div class="subject" >
             // <div><h3>The title of the issue</h3></div>
-            var issueName = $$('.subject h3', true).textContent;
+            var issueName = $$.try('.subject h3').textContent;
             if (!issueName) {
                 return;
             }
 
             // <h1><a class="root" href="PATH/projects/almteam?jump=issues">ALM</a> » Time Tracker</h1>
-            var projectName = $$('h1', true).textContent;
+            var projectName = $$.try('h1').textContent;
             if (projectName) {
                 i = projectName.lastIndexOf('»');
                 if (i >= 0) {

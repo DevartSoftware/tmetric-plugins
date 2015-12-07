@@ -52,7 +52,7 @@
                 issueId = issueIdPrefix + issueId;
 
                 // <h2 class="issue-title">IssueName</h2>
-                issueName = $$('.issue-title', true).textContent;
+                issueName = $$.try('.issue-title').textContent;
                 if (!issueName) {
                     return;
                 }
@@ -66,7 +66,7 @@
                 //      </span>
                 //  </h1>
 
-                projectName = $$('.title a:nth-last-child(2)', true).textContent;
+                projectName = $$.try('.title a:nth-last-child(2)').textContent;
 
                 serviceType = 'GitLab';
 

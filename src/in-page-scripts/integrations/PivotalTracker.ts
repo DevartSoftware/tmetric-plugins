@@ -34,18 +34,18 @@
             var result;
 
             if (match) {
-                var issueId = (<HTMLInputElement>$$('.text_value', issueElement, true)).value;
+                var issueId = $$.try<HTMLInputElement>('.text_value', issueElement).value;
                 if (!issueId) {
                     return;
                 }
 
-                var issueName = $$('.editor', issueElement, true).textContent;
+                var issueName = $$.try('.editor', issueElement).textContent;
                 if (!issueName) {
                     return;
                 }
                 issueName = issueName.trim();
 
-                var projectName = $$('.raw_context_name', true).textContent;
+                var projectName = $$.try('.raw_context_name').textContent;
                 if (projectName) {
                     projectName = projectName.trim();
                 }

@@ -42,13 +42,13 @@
                 }
                 issueId = '#' + issueId;
 
-                var issueName = $$<HTMLTextAreaElement>('.todos-form__input--summary', issueElement, true).value;
+                var issueName = $$.try<HTMLTextAreaElement>('.todos-form__input--summary', issueElement).value;
                 if (!issueName) {
                     return;
                 }
                 issueName = issueName.trim();
 
-                var projectName = $$('.project-header__name a', true).textContent;
+                var projectName = $$.try('.project-header__name a').textContent;
                 if (projectName) {
                     projectName = projectName.trim();
                 }
@@ -101,13 +101,13 @@
                 }
                 issueId = '#' + issueId;
 
-                var issueName = $$<HTMLTextAreaElement>('.todos-form__input--summary', issueElement, true).value || $$('.checkbox__content h1', issueElement, true).textContent;
+                var issueName = $$.try<HTMLTextAreaElement>('.todos-form__input--summary', issueElement).value || $$.try('.checkbox__content h1', issueElement).textContent;
                 if (!issueName) {
                     return;
                 }
                 issueName = issueName.trim();
 
-                var projectName = $$('.project-header__name a', true).textContent;
+                var projectName = $$.try('.project-header__name a').textContent;
                 if (projectName) {
                     projectName = projectName.trim();
                 }

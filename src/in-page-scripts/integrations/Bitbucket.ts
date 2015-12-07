@@ -59,7 +59,7 @@
                     issueId = '#' + issueNumber;
 
                     // <h1 id="issue-title">ISSUE_NAME</h1>
-                    issueName = $$('#issue-title', true).textContent;
+                    issueName = $$.try('#issue-title').textContent;
                 } else if (issueType == 'pull-requests') {
                     issueId = '!' + issueNumber;
 
@@ -68,7 +68,7 @@
                     //          PULL_REQUEST_NAME
                     //      </h1>
                     // </div>
-                    issueName = $$('.pull-request-title h1', true).textContent;
+                    issueName = $$.try('.pull-request-title h1').textContent;
                 }
 
                 if (!issueName) {
@@ -80,7 +80,7 @@
                 //      <a href="/NAMESPACE/TRANSFORMED_PROJECT_NAME" title= "PROJECT_NAME" class="entity-name" >PROJECT_NAME</a>
                 // </h1>
 
-                var projectName = $$('.entity-name', true).textContent;
+                var projectName = $$.try('.entity-name').textContent;
 
                 var serviceType = 'Bitbucket';
 

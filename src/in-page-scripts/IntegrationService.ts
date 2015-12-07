@@ -4,8 +4,8 @@
 
         static affix = 'devart-timer-link';
 
-        static register(integration: WebToolIntegration) {
-            this._allIntegrations.push(integration);
+        static register(...integrations: WebToolIntegration[]) {
+            this._allIntegrations = this._allIntegrations.concat(integrations);
         }
 
         static setTimer(timer: Models.Timer) {

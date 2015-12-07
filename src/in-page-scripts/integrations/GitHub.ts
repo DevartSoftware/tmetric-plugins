@@ -54,7 +54,7 @@
                 issueId = issueIdPrefix + issueId;
 
                 // <h2 class="issue-title">IssueName</h2>
-                issueName = $$('.js-issue-title', true).textContent;
+                issueName = $$.try('.js-issue-title').textContent;
                 if (!issueName) {
                     return;
                 }
@@ -68,7 +68,7 @@
                 //      </span>
                 //  </h1>
 
-                projectName = $$('.entry-title > strong > a', true).textContent;
+                projectName = $$.try('.entry-title > strong > a').textContent;
 
                 serviceType = 'GitHub';
 
