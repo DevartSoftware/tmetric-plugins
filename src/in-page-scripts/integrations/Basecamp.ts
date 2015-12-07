@@ -1,6 +1,78 @@
 ﻿module Integrations {
 
-    class BasecampTodos implements WebToolIntegration {
+    class BasecampBase {
+
+        observeMutations = true;
+
+        getIssueUrl(issueElement: HTMLElement, source: Source): string {
+            return null;
+        }
+
+        getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+            // Urls:
+            // https://3.basecamp.com/ACCOUNT_ID/buckets/PROJECT_ID/todos/TODO_ID
+            // https://3.basecamp.com/ACCOUNT_ID/buckets/PROJECT_ID/todosets/TODOSET_ID
+            // https://3.basecamp.com/ACCOUNT_ID/buckets/PROJECT_ID/todolists/TODOLIST_ID
+
+            var match = /^\/(\d+)\/buckets\/(\d+)\/(todos|todosets|todolists)\/(\d+)$/.exec(source.path);
+
+            if (!match) {
+                return;
+            }
+
+            var serviceUrl = source.protocol + source.host + source.path.split(match[1])[0];
+
+            var issueUrl = this.getIssueUrl(issueElement, source);
+            if (!issueUrl) {
+                return;
+            }
+            issueUrl = $$.getRelativeUrl(serviceUrl, issueUrl);
+
+            var issueId = issueUrl.split('/todos/')[1];
+            if (!issueId) {
+                return;
+            }
+            issueId = '#' + issueId;
+
+            var issueName = $$.try<HTMLTextAreaElement>('.todos-form__input--summary', issueElement).value;
+            if (!issueName) {
+                return;
+            }
+            issueName = issueName.trim();
+
+            var projectName = $$.try('.project-header__name a').textContent;
+            if (projectName) {
+                projectName = projectName.trim();
+            }
+
+            var serviceType = 'Basecamp';
+
+            return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+        }
+    }
+
+    class BasecampTodo extends BasecampBase implements WebToolIntegration {
+
+        observeMutations = true;
+
+        matchUrl = '*://*basecamp.com/*/buckets/*/todos/*';
+
+        issueElementSelector = '.panel--perma';
+
+        render(issueElement: HTMLElement, linkElement: HTMLElement) {
+            var host = $$('.perma-toolbar', issueElement);
+            if (host) {
+                linkElement.classList.add('action_button', 'small', 'devart-timer-link-basecamp');
+                host.appendChild(linkElement);
+            }
+        }
+
+        getIssueUrl(issueElement: HTMLElement, source: Source): string {
+            return source.path;
+        }
+    }
+
+    class BasecampTodos extends BasecampBase implements WebToolIntegration {
 
         observeMutations = true;
 
@@ -19,109 +91,10 @@
             }
         }
 
-        getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-            // Urls:
-            // https://3.basecamp.com/ACCOUNT_ID/buckets/PROJECT_ID/todosets/TODOSET_ID
-            // https://3.basecamp.com/ACCOUNT_ID/buckets/PROJECT_ID/todolists/TODOLIST_ID
-
-            var match = /^\/(\d+)\/buckets\/(\d+)\/(todosets|todolists)\/(\d+)$/.exec(source.path);
-
-            var result;
-
-            if (match) {
-
-                var issueUrl = (<HTMLFormElement>issueElement).action;
-                if (!issueUrl) {
-                    return;
-                }
-                issueUrl = issueUrl.replace(/^.*:\/\/[^\/]*\//, '').replace(/^\//, '');
-
-                var issueId = issueUrl.split('/todos/')[1];
-                if (!issueId) {
-                    return;
-                }
-                issueId = '#' + issueId;
-
-                var issueName = $$.try<HTMLTextAreaElement>('.todos-form__input--summary', issueElement).value;
-                if (!issueName) {
-                    return;
-                }
-                issueName = issueName.trim();
-
-                var projectName = $$.try('.project-header__name a').textContent;
-                if (projectName) {
-                    projectName = projectName.trim();
-                }
-
-                var serviceType = 'Basecamp';
-
-                var serviceUrl = source.protocol + source.host + source.path.split(match[1])[0];
-
-                result = { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
-            }
-            return result;
+        getIssueUrl(issueElement: HTMLElement, source: Source): string {
+            return (<HTMLFormElement>issueElement).action;
         }
     }
 
-    class BasecampTodo implements WebToolIntegration {
-
-        observeMutations = true;
-
-        matchUrl = '*://*basecamp.com/*/buckets/*/todos/*';
-
-        issueElementSelector = '.panel--perma';
-
-        render(issueElement: HTMLElement, linkElement: HTMLElement) {
-            var host = $$('.perma-toolbar', issueElement);
-            if (host) {
-                linkElement.classList.add('action_button', 'small', 'devart-timer-link-basecamp');
-                host.appendChild(linkElement);
-            }
-        }
-
-        getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-            // Url:
-            // https://3.basecamp.com/ACCOUNT_ID/buckets/PROJECT_ID/todos/TODO_ID
-
-            var match = /^\/(\d+)\/buckets\/(\d+)\/todos\/(\d+)$/.exec(source.path);
-
-            var result;
-
-            if (match) {
-
-                var issueUrl = source.path;
-                if (!issueUrl) {
-                    return;
-                }
-                issueUrl = issueUrl.replace(/^.*:\/\/[^\/]*\//, '').replace(/^\//, '');
-
-                var issueId = issueUrl.split('/todos/')[1];
-                if (!issueId) {
-                    return;
-                }
-                issueId = '#' + issueId;
-
-                var issueName = $$.try<HTMLTextAreaElement>('.todos-form__input--summary', issueElement).value || $$.try('.checkbox__content h1', issueElement).textContent;
-                if (!issueName) {
-                    return;
-                }
-                issueName = issueName.trim();
-
-                var projectName = $$.try('.project-header__name a').textContent;
-                if (projectName) {
-                    projectName = projectName.trim();
-                }
-
-                var serviceType = 'Basecamp';
-
-                var serviceUrl = source.protocol + source.host + source.path.split(match[1])[0];
-
-                result = { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
-            }
-            return result;
-        }
-    }
-
-    IntegrationService.register(new BasecampTodos());
-    IntegrationService.register(new BasecampTodo());
+    IntegrationService.register(new BasecampTodo(), new BasecampTodos());
 }

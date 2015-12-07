@@ -4,6 +4,7 @@
     visible<TElement extends HTMLElement>(selector: string, element?: NodeSelector): TElement;
     all<TElement extends HTMLElement>(selector: string, element?: NodeSelector): TElement[];
     create<TElement extends HTMLElement>(tagName: string, className?: string): TElement;
+    getRelativeUrl(baseUrl: string, fullUrl: string): string;
 }
 
 var $$ = <Utils>function (selector: string, element: NodeSelector = document) {
@@ -41,4 +42,26 @@ $$.visible = <Utils>function (selector: string, element?: NodeSelector): HTMLEle
         return element === document.body || isVisible(element.parentElement);
     }
     return $$.all(selector, element).filter(isVisible)[0];
+}
+
+$$.getRelativeUrl = function (baseUrl: string, url: string) {
+
+    if (!url) {
+        console.error('Url is not specified.');
+        url = '/';
+    }
+    else if (!baseUrl) {
+        console.error('Base url is not specified.');
+    }
+    else {
+
+        if (baseUrl[baseUrl.length - 1] != '/') {
+            baseUrl += '/';
+        }
+
+        if (url.indexOf(baseUrl) == 0) {
+            url = '/' + url.substring(baseUrl.length);
+        }
+    }
+    return url;
 }

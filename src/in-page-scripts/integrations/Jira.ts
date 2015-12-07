@@ -23,15 +23,8 @@
             // issueUrl = /jira/browse/tt-1
             var jiraContextPath = $$('meta[name=ajs-context-path]').getAttribute('content');
             if (jiraContextPath) {
-                if (issueUrl.indexOf(jiraContextPath) == 0) {
-                    // append jira context path to serviceUrl and remove it from issue url path
-                    serviceUrl += jiraContextPath;
-                    issueUrl = issueUrl.substr(jiraContextPath.length);
-                }
-                else {
-                    // we suppose that issueUrl must begin with context path; if not, raise the error.
-                    console.error('Time tracker extension was unable to parse the Jira page. Something wrong with Jira context URL and issue URL.');
-                }
+                serviceUrl += jiraContextPath;
+                issueUrl = $$.getRelativeUrl(serviceUrl, issueUrl);
             }
 
             return { serviceUrl, issueUrl };
