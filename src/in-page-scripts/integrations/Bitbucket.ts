@@ -46,14 +46,14 @@
             var result;
 
             if (match) {
-                var issueNumber, issueId, issueName, projectName, serviceType, serviceUrl, issueUrl;
 
                 // match[3] is a 'NUMBER' from path
-                issueNumber = match[3];
+                var issueNumber = match[3];
                 if (!issueNumber) {
                     return;
                 }
 
+                var issueId: string, issueName: string;
                 var issueType = match[2];
                 if (issueType == 'issues') {
                     issueId = '#' + issueNumber;
@@ -80,18 +80,18 @@
                 //      <a href="/NAMESPACE/TRANSFORMED_PROJECT_NAME" title= "PROJECT_NAME" class="entity-name" >PROJECT_NAME</a>
                 // </h1>
 
-                projectName = $$('.entity-name', true).textContent;
+                var projectName = $$('.entity-name', true).textContent;
 
-                serviceType = 'Bitbucket';
+                var serviceType = 'Bitbucket';
 
                 // match[1] is a 'https://bitbucket.org/NAMESPACE/TRANSFORMED_PROJECT_NAME' from path
                 // cut '/NAMESPACE/TRANSFORMED_PROJECT_NAME' from path
                 var servicePath = match[1].split('/').slice(0, -2).join('/');
                 servicePath = (servicePath) ? '/' + servicePath : '';
 
-                serviceUrl = source.protocol + source.host + servicePath;
+                var serviceUrl = source.protocol + source.host + servicePath;
 
-                issueUrl = match[1].split('/').slice(-2).join('/') + '/' + issueType + '/' + issueNumber;
+                var issueUrl = match[1].split('/').slice(-2).join('/') + '/' + issueType + '/' + issueNumber;
 
                 result = { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
             }
