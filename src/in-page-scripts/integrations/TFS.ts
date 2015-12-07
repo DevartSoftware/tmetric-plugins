@@ -1,5 +1,7 @@
 ﻿module Integrations {
+
     class TfsIntegration implements WebToolIntegration {
+
         observeMutations = true;
 
         matchUrl = '*://*.visualstudio.com/*';
@@ -24,13 +26,13 @@
             }
 
             if (isNewView) {
-                var linkContainer = $$.create('div', 'devart-timer-link-tfs-new');
+                var linkContainer = $$.create('div', 'devart-timer-link-tfs');
                 linkContainer.classList.add('workitemcontrol');
                 linkContainer.classList.add('work-item-control');
                 linkContainer.appendChild(linkElement);
                 anchor.parentElement.insertBefore(linkContainer, anchor.parentElement.firstElementChild);
             } else {
-                var linkContainer = $$.create('li', 'devart-timer-link-tfs');
+                var linkContainer = $$.create('li', 'devart-timer-link-tfs-old');
                 linkContainer.classList.add('menu-item');
                 linkContainer.appendChild(linkElement);
                 anchor.appendChild(linkContainer);
