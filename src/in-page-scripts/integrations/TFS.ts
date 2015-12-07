@@ -32,7 +32,7 @@
                 linkContainer.appendChild(linkElement);
                 anchor.parentElement.insertBefore(linkContainer, anchor.parentElement.firstElementChild);
             } else {
-                var linkContainer = $$.create('li', 'devart-timer-link-tfs-old');
+                var linkContainer = $$.create('li');
                 linkContainer.classList.add('menu-item');
                 linkContainer.appendChild(linkElement);
                 anchor.appendChild(linkContainer);
