@@ -99,6 +99,7 @@ class FirefoxExtension extends ExtensionBase {
             './utils.js',
             './IntegrationService.js',
             './Asana.js',
+            './Basecamp.js',
             './Bitbucket.js',
             './GitHub.js',
             './GitLab.js',
@@ -112,7 +113,6 @@ class FirefoxExtension extends ExtensionBase {
         ];
 
         var attachTab = (tab: Firefox.Tab) => {
-
             // worker.tab can be undefined for some unknown reason (#66666),
             // so remember id in variable
             var tabId = tab.id;

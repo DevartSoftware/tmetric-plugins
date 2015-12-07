@@ -20,6 +20,7 @@
         "chrome/ChromeExtension.ts",
         "in-page-scripts/IntegrationService.ts",
         "in-page-scripts/integrations/Asana.ts",
+        "in-page-scripts/integrations/Basecamp.ts",
         "in-page-scripts/integrations/Bitbucket.ts",
         "in-page-scripts/integrations/GitHub.ts",
         "in-page-scripts/integrations/GitLab.ts",
