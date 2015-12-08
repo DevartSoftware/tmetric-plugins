@@ -26,63 +26,51 @@
         }
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+
             // https://gitlab.com/NAMESPACE/PROJECT/issues/NUMBER
             // https://gitlab.com/NAMESPACE/PROJECT/merge_requests/NUMBER
-
             var match = /^(.+)\/(issues|merge_requests)\/(\d+)$/.exec(source.path);
 
-            var result;
-
-            if (match) {
-                var issueId, issueName, projectName, serviceType, serviceUrl, issueUrl;
-
-                // match[3] is a 'NUMBER' from path
-                issueId = match[3];
-                if (!issueId) {
-                    return;
-                }
-
-                var issueType = match[2];
-                var issueIdPrefix = '';
-                if (issueType == 'issues') {
-                    issueIdPrefix = '#'
-                } else if (issueType == 'merge_requests') {
-                    issueIdPrefix = '!'
-                }
-                issueId = issueIdPrefix + issueId;
-
-                // <h2 class="issue-title">IssueName</h2>
-                issueName = $$.try('.issue-title').textContent;
-                if (!issueName) {
-                    return;
-                }
-                issueName = issueName.trim();
-
-                // <h1 class="title">
-                //      <span>
-                //          <a href="/(u|groups)/NAMESPACE">NameSpace</a> /
-                //          <a href="/NAMESPACE/PROJECT">ProjectName</a> ·
-                //          <a href="/NAMESPACE/PROJECT/(issues|merge_requests)">(Issues|Merge Requests)</a>
-                //      </span>
-                //  </h1>
-
-                projectName = $$.try('.title a:nth-last-child(2)').textContent;
-
-                serviceType = 'GitLab';
-
-                // match[1] is a 'https://gitlab.com/NAMESPACE/PROJECT' from path
-                // cut '/NAMESPACE/PROJECT' from path
-                var servicePath = match[1].split('/').slice(0, -2).join('/');
-                servicePath = (servicePath) ? '/' + servicePath : '';
-
-                serviceUrl = source.protocol + source.host + servicePath;
-
-                issueUrl = source.path.replace(serviceUrl, '');
-
-                result = { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+            if (!match) {
+                return;
             }
 
-            return result;
+            // match[3] is a 'NUMBER' from path
+            var issueId = match[3];
+            if (!issueId) {
+                return;
+            }
+
+            var issueType = match[2];
+            issueId = (issueType == 'merge_requests' ? '!' : '#') + issueId;
+
+            // <h2 class="issue-title">IssueName</h2>
+            var issueName = $$.try('.issue-title').textContent;
+            if (!issueName) {
+                return;
+            }
+
+            // <h1 class="title">
+            //      <span>
+            //          <a href="/(u|groups)/NAMESPACE">NameSpace</a> /
+            //          <a href="/NAMESPACE/PROJECT">ProjectName</a> ·
+            //          <a href="/NAMESPACE/PROJECT/(issues|merge_requests)">(Issues|Merge Requests)</a>
+            //      </span>
+            //  </h1>
+            var projectName = $$.try('.title a:nth-last-child(2)').textContent;
+
+            var serviceType = 'GitLab';
+
+            // match[1] is a 'https://gitlab.com/NAMESPACE/PROJECT' from path
+            // cut '/NAMESPACE/PROJECT' from path
+            var servicePath = match[1].split('/').slice(0, -2).join('/');
+            servicePath = (servicePath) ? '/' + servicePath : '';
+
+            var serviceUrl = source.protocol + source.host + servicePath;
+
+            var issueUrl = source.path.replace(serviceUrl, '');
+
+            return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
         }
     }
 

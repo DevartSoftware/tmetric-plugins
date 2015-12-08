@@ -55,9 +55,9 @@
 
             if (isNewView) {
                 // route for the new TFS interface
-                var input = <HTMLInputElement>$$.visible('.work-item-form-title input', form);
-                if (input) {
-                    issueName = input.value;
+                var issueInput = $$.visible<HTMLInputElement>('.work-item-form-title input', form);
+                if (issueInput) {
+                    issueName = issueInput.value;
                 }
                 issueLink = $$('.info-text-wrapper a');
             }

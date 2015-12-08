@@ -11,9 +11,17 @@ declare module Integrations {
     }
 
     interface Source {
+
+        /** Full url, e.g. http://rm.devart.local/redmine/issues/58480?tab=tabtime_time#tag */
         fullUrl: string;
+
+        // Protocol, e.g. http://
         protocol: string;
+
+        // Host, e.g. rm.devart.local
         host: string;
+
+        // Path, e.g. /redmine/issues/58480
         path: string;
     }
 

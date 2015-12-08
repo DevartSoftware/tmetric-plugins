@@ -16,13 +16,12 @@
         }
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-            var i: number;
 
             // http://rm.devart.local/redmine/issues/58480
             // PROTOCOL = http://
             // HOST = rm.devart.local
             // PATH = /redmine/issues/58480
-            i = source.path.lastIndexOf(this.issuesPath);
+            var i = source.path.lastIndexOf(this.issuesPath);
             var path = source.path.substr(0, i); // /redmine
             var serviceUrl = source.protocol + source.host + path; // http://rm.devart.local/redmine
 
@@ -49,7 +48,6 @@
                 if (i >= 0) {
                     projectName = projectName.substring(i + 1);
                 }
-                projectName = projectName.trim();
             }
 
             var serviceType = 'Redmine';

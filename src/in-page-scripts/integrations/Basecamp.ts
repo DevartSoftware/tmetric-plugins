@@ -9,11 +9,11 @@
         }
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+
             // Urls:
             // https://3.basecamp.com/ACCOUNT_ID/buckets/PROJECT_ID/todos/TODO_ID
             // https://3.basecamp.com/ACCOUNT_ID/buckets/PROJECT_ID/todosets/TODOSET_ID
             // https://3.basecamp.com/ACCOUNT_ID/buckets/PROJECT_ID/todolists/TODOLIST_ID
-
             var match = /^\/(\d+)\/buckets\/(\d+)\/(todos|todosets|todolists)\/(\d+)$/.exec(source.path);
 
             if (!match) {
@@ -38,12 +38,8 @@
             if (!issueName) {
                 return;
             }
-            issueName = issueName.trim();
 
             var projectName = $$.try('.project-header__name a').textContent;
-            if (projectName) {
-                projectName = projectName.trim();
-            }
 
             var serviceType = 'Basecamp';
 

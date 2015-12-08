@@ -385,5 +385,5 @@ declare module 'sdk/panel' {
 interface Window {
     port: Firefox.Port;
     postMessage(message: any, targetOrigin?: string, ports?: any): void;
-    on(eventName: string, param: any);
+    on(eventName: string, handler: Function);
 }
