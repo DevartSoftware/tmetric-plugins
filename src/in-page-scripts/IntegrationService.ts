@@ -39,8 +39,10 @@
                     }
 
                     if (urls.every(url => !new RegExp(url
-                        .replace(this._escapeAndKeepAsterisksRegExp, '\\$&')
-                        .replace(/\*/g, '.*')).test(source.fullUrl))) {
+                        .replace(/[\-\/\\\^\$\+\?\.\(\)\|\[\]\{\}]/g, '\\$&')
+                        .replace(/\*/g, '.*'))
+                        .test(source.fullUrl)
+                    )) {
                         return false;
                     }
                 }
@@ -142,10 +144,6 @@
         private static _allIntegrations = <WebToolIntegration[]>[];
 
         private static _possibleIntegrations: WebToolIntegration[];
-
-        private static _escapedChars = '-\/\\^$+?.()|[\]{}';
-
-        private static _escapeAndKeepAsterisksRegExp = new RegExp('[' + IntegrationService._escapedChars + ']', 'g');
 
         private static _timer: Models.Timer;
 
