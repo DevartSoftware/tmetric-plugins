@@ -101,6 +101,7 @@ class FirefoxExtension extends ExtensionBase {
             './Asana.js',
             './Basecamp.js',
             './Bitbucket.js',
+            './Bugzilla.js',
             './GitHub.js',
             './GitLab.js',
             './Jira.js',
