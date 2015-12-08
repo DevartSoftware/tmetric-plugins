@@ -76,6 +76,14 @@
                         return;
                     }
 
+                    // trim all string values
+                    for (var field in newIssue) {
+                        var value = newIssue[field];
+                        if (typeof value === 'string') {
+                            newIssue[field] = value.trim();
+                        }
+                    }
+
                     issues.push(newIssue);
 
                     var newIssueTimer = <WebToolIssueTimer>{
@@ -142,10 +150,6 @@
         private static _timer: Models.Timer;
 
         private static getSourceInfo(fullUrl: string): Source {
-            // fullUrl:  http://rm.devart.local/redmine/issues/58480?tab=tabtime_time#tag
-            // protocol: http://
-            // host:     rm.devart.local
-            // path:     /redmine/issues/58480
 
             var host = fullUrl || '';
 

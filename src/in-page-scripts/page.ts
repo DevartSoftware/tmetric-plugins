@@ -5,6 +5,10 @@
      */
     function onBackgroundMessage(message: ITabMessage) {
 
+        if (isFinalized) {
+            return;
+        }
+
         if (pingTimeouts[message.action]) {
             clearTimeout(pingTimeouts[message.action]);
             pingTimeouts[message.action] = null;
@@ -14,12 +18,11 @@
 
             Integrations.IntegrationService.setTimer(message.data);
 
-            if (needsUpdate || Integrations.IntegrationService.needsUpdate()) {
-                needsUpdate = false;
+            if (!isInitialized || Integrations.IntegrationService.needsUpdate()) {
                 parsePage();
             }
 
-            this.initialize();
+            initialize();
         }
     }
 
@@ -80,7 +83,7 @@
      * Initializes script.
      */
     function initialize() {
-        if (!isInitialized) {
+        if (!isInitialized && !isFinalized) {
             isInitialized = true;
             window.addEventListener('focus', startCheckChanges);
             if (document.hasFocus()) {
@@ -93,6 +96,7 @@
      * Finalizes script
      */
     function finalize() {
+        isFinalized = true;
         for (var ping in pingTimeouts) {
             if (pingTimeouts[ping]) {
                 clearTimeout(pingTimeouts[ping]);
@@ -148,7 +152,7 @@
 
         sendBackgroundMessage({ action: 'setTabInfo', data });
 
-        if (observeMutations && !mutationObserver) {
+        if (!isFinalized && observeMutations && !mutationObserver) {
             mutationObserver = new MutationObserver(parsePage);
             mutationObserver.observe(document, { childList: true, subtree: true });
         }
@@ -160,7 +164,7 @@
     var mutationObserver: MutationObserver;
     var pingTimeouts = <{ [callbackAction: string]: number }>{};
     var isInitialized = false;
-    var needsUpdate = true;
+    var isFinalized = false;
 
     Integrations.IntegrationService.clearPage();
     sendBackgroundMessage({ action: 'getTimer' });

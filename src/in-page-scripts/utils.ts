@@ -7,11 +7,12 @@
     getRelativeUrl(baseUrl: string, fullUrl: string): string;
 }
 
-var $$ = <Utils>function (selector: string, element: NodeSelector = document) {
+var $$ = <Utils>function (selector: string, element?: NodeSelector) {
+    element = element || document;
     return <HTMLElement>element.querySelector(selector);
 }
 
-$$.try = function (selector: string, element: NodeSelector) {
+$$.try = function (selector: string, element?: NodeSelector) {
     return $$(selector, element) || <HTMLElement>{};
 }
 
@@ -24,17 +25,17 @@ $$.create = function (tagName, className) {
     return element;
 }
 
-$$.all = function (selector, element?): HTMLElement[] {
+$$.all = function (selector: string, element?: NodeSelector) {
     element = element || document;
-    var nodeList = element.querySelectorAll(selector);
-    var result = [];
-    for (var i = 0; i < nodeList.length; i++) {
-        result.push(nodeList[i]);
+    var nodeList = <NodeListOf<HTMLElement>>element.querySelectorAll(selector);
+    var result: HTMLElement[] = [];
+    for (var i = nodeList.length - 1; i >= 0; i--) {
+        result[i] = nodeList[i];
     }
     return result;
 }
 
-$$.visible = <Utils>function (selector: string, element?: NodeSelector): HTMLElement {
+$$.visible = function (selector: string, element?: NodeSelector) {
     function isVisible(element: HTMLElement): boolean {
         if (!element || element.style.display === 'none' || element.style.visibility === 'hidden') {
             return false;
