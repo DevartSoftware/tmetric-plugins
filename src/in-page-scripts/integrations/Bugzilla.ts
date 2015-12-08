@@ -4,7 +4,7 @@
 
         observeMutations = true;
 
-        matchUrl = '*://*/show_bug\\.cgi\\?*';
+        matchUrl = '*://*/show_bug.cgi?*';
 
         issueElementSelector = '#bugzilla-body';
 
@@ -37,7 +37,6 @@
                 if (!issueName) {
                     return;
                 }
-                issueName = issueName.trim();
 
                 var projectNameEditableElement = $$<HTMLSelectElement>('#product');
                 var projectNameNonEditableElement = $$.try('#field_container_product').firstChild;
@@ -47,10 +46,6 @@
                 } else if (projectNameNonEditableElement) {
                     projectName = projectNameNonEditableElement.textContent;
                 }
-                if (!projectName) {
-                    return;
-                }
-                projectName = projectName.trim();
 
                 var serviceType = 'Bugzilla';
 
