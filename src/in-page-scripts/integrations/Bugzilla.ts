@@ -4,7 +4,7 @@
 
         observeMutations = true;
 
-        matchUrl = '*://*/show_bug.cgi?*';
+        matchUrl = '*://*/show_bug.cgi*';
 
         issueElementSelector = '#bugzilla-body';
 
@@ -18,44 +18,36 @@
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-            // Bug url:
-            // *://*/show_bug.cgi?NAME=VALUE&id=BUG_ID&NAME=VALUE
-
-            var match = /^(.+)\/(show\_bug\.cgi\?)(.+)$/.exec(source.fullUrl);
-
-            var result;
-
-            if (match) {
-
-                var issueIdNumber = $$.try<HTMLInputElement>('input[name=id]', issueElement).value;
-                if (!issueIdNumber) {
-                    return;
-                }
-                var issueId = '#' + issueIdNumber;
-
-                var issueName = $$.try('#short_desc_nonedit_display', issueElement).textContent;
-                if (!issueName) {
-                    return;
-                }
-
-                var projectNameEditableElement = $$<HTMLSelectElement>('#product');
-                var projectNameNonEditableElement = $$.try('#field_container_product').firstChild;
-                var projectName: string;
-                if (projectNameEditableElement) {
-                    projectName = projectNameEditableElement.value;
-                } else if (projectNameNonEditableElement) {
-                    projectName = projectNameNonEditableElement.textContent;
-                }
-
-                var serviceType = 'Bugzilla';
-
-                var serviceUrl = match[1];
-
-                var issueUrl = match[2] + 'id=' + issueIdNumber;
-
-                result = { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+            var issueIdNumber = $$.try<HTMLInputElement>('input[name=id]', issueElement).value;
+            if (!issueIdNumber) {
+                return;
             }
-            return result;
+            var issueId = '#' + issueIdNumber;
+
+            var issueName = $$.try('#short_desc_nonedit_display', issueElement).textContent;
+            if (!issueName) {
+                return;
+            }
+
+            var projectNameEditableElement = $$<HTMLSelectElement>('#product');
+            var projectNameNonEditableElement = $$.try('#field_container_product').firstChild;
+            var projectName: string;
+            if (projectNameEditableElement) {
+                projectName = projectNameEditableElement.value;
+            }
+            else if (projectNameNonEditableElement) {
+                projectName = projectNameNonEditableElement.textContent;
+            }
+
+            var serviceType = 'Bugzilla';
+
+            var action = 'show_bug.cgi';
+
+            var serviceUrl = source.fullUrl.substring(0, source.fullUrl.indexOf(action));
+
+            var issueUrl = `/${action}?id=${issueIdNumber}`;
+
+            return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
         }
     }
 

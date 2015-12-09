@@ -49,8 +49,6 @@
 
     class BasecampTodo extends BasecampBase implements WebToolIntegration {
 
-        observeMutations = true;
-
         matchUrl = '*://*basecamp.com/*/buckets/*/todos/*';
 
         issueElementSelector = '.panel--perma';
@@ -69,8 +67,6 @@
     }
 
     class BasecampTodos extends BasecampBase implements WebToolIntegration {
-
-        observeMutations = true;
 
         matchUrl = [
             '*://*basecamp.com/*/buckets/*/todosets/*',

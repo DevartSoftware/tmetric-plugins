@@ -5,7 +5,22 @@
         static affix = 'devart-timer-link';
 
         static register(...integrations: WebToolIntegration[]) {
-            this._allIntegrations = this._allIntegrations.concat(integrations);
+
+            var convertPatternToRegExp = (matchPattern: string) => new RegExp(matchPattern
+                .replace(/[\-\/\\\^\$\+\?\.\(\)\|\[\]\{\}]/g, '\\$&')
+                .replace(/\*/g, '.*'));
+
+            integrations.forEach(integration => {
+
+                this._allIntegrations.push(integration);
+
+                // convert all match patterns to array of regexps
+                var matchUrl = integration.matchUrl;
+                if (matchUrl) {
+                    integration.matchUrl = (matchUrl instanceof Array ? <any[]>matchUrl : [<any>matchUrl])
+                        .map(pattern => typeof pattern === 'string' ? convertPatternToRegExp(pattern) : pattern);
+                }
+            });
         }
 
         static setTimer(timer: Models.Timer) {
@@ -30,19 +45,8 @@
 
             this._possibleIntegrations = this._possibleIntegrations.filter(integration => {
                 if (integration.matchUrl) {
-                    var urls: string[];
-                    if ((<string[]>integration.matchUrl) instanceof Array) {
-                        urls = <string[]>integration.matchUrl;
-                    }
-                    else {
-                        urls = [<string>integration.matchUrl];
-                    }
-
-                    if (urls.every(url => !new RegExp(url
-                        .replace(/[\-\/\\\^\$\+\?\.\(\)\|\[\]\{\}]/g, '\\$&')
-                        .replace(/\*/g, '.*'))
-                        .test(source.fullUrl)
-                    )) {
+                    // matchUrl normalized by register function
+                    if (!(<RegExp[]>integration.matchUrl).some(pattern => pattern.test(source.fullUrl))) {
                         return false;
                     }
                 }

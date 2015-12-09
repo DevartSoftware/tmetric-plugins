@@ -1,7 +1,7 @@
 declare module Integrations {
 
     interface WebToolIntegration {
-        matchUrl?: string | string[];
+        matchUrl?: string | string[] | RegExp | RegExp[];
         matchSelector?: string;
         match?: (source: Source) => boolean;
         issueElementSelector?: string;
@@ -15,13 +15,13 @@ declare module Integrations {
         /** Full url, e.g. http://rm.devart.local/redmine/issues/58480?tab=tabtime_time#tag */
         fullUrl: string;
 
-        // Protocol, e.g. http://
+        /** Protocol, e.g. http:// */
         protocol: string;
 
-        // Host, e.g. rm.devart.local
+        /** Host, e.g. rm.devart.local */
         host: string;
 
-        // Path, e.g. /redmine/issues/58480
+        /** Path, e.g. /redmine/issues/58480 */
         path: string;
     }
 
