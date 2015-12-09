@@ -2,13 +2,13 @@
 
     class Trac implements WebToolIntegration {
 
-        observeMutations = true
+        observeMutations = true;
 
         // Project ticket url:
         // https://HOST/*/ticket/TICKET_ID
         matchUrl = '*://*/ticket/*';
 
-        issueElementSelector = '#content';
+        issueElementSelector = '#main > #content.ticket';
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
             var host =
@@ -33,7 +33,8 @@
                 return;
             }
 
-            var projectName = document.title.split('–')[1];
+            // split by EN DASH and get last part
+            var projectName = document.title.split('–').pop();
             if (projectName) {
                 projectName = projectName.trim();
             }
