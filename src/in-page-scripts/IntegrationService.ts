@@ -43,30 +43,16 @@
                 this._possibleIntegrations = this._allIntegrations;
             }
 
-            this._possibleIntegrations = this._possibleIntegrations.filter(integration => {
-                if (integration.matchUrl) {
-                    // matchUrl normalized by register function
-                    if (!(<RegExp[]>integration.matchUrl).some(pattern => pattern.test(source.fullUrl))) {
-                        return false;
-                    }
-                }
+            this._possibleIntegrations = this._possibleIntegrations.filter(integration =>
+                (!integration.matchUrl || (<RegExp[]>integration.matchUrl).some(pattern => pattern.test(source.fullUrl))) &&
+                (!integration.match || integration.match(source)));
 
-                if (integration.matchSelector && !$$(integration.matchSelector) ||
-                    integration.match && !integration.match(source)) {
-                    return false;
-                }
-
-                return true;
-            });
             var issues = <WebToolIssue[]>[];
 
             this._possibleIntegrations.some(integration => {
                 var elements: HTMLElement[];
                 if (integration.issueElementSelector) {
                     elements = $$.all(integration.issueElementSelector);
-                }
-                else if (integration.matchSelector) {
-                    elements = $$.all(integration.matchSelector);
                 }
                 else {
                     elements = [null];

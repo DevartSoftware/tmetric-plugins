@@ -1,8 +1,7 @@
 declare module Integrations {
 
     interface WebToolIntegration {
-        matchUrl?: string | string[] | RegExp | RegExp[];
-        matchSelector?: string;
+        matchUrl?: string | RegExp | (string | RegExp)[];
         match?: (source: Source) => boolean;
         issueElementSelector?: string;
         observeMutations?: boolean;

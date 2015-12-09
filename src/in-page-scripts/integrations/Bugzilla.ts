@@ -41,7 +41,7 @@
 
             var serviceType = 'Bugzilla';
 
-            var action = 'show_bug.cgi';
+            const action = 'show_bug.cgi';
 
             var serviceUrl = source.fullUrl.substring(0, source.fullUrl.indexOf(action));
 

@@ -2,11 +2,9 @@
 
     class Redmine implements WebToolIntegration {
 
-        issuesPath = '/issues/';
-
         matchUrl = '*://*/issues/*';
 
-        matchSelector = 'body.controller-issues.action-show';
+        issueElementSelector = 'body.controller-issues.action-show';
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
             var host = $$('#content .contextual');
@@ -17,21 +15,23 @@
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
+            const issuesPath = '/issues/';
+
             // http://rm.devart.local/redmine/issues/58480
             // PROTOCOL = http://
             // HOST = rm.devart.local
             // PATH = /redmine/issues/58480
-            var i = source.path.lastIndexOf(this.issuesPath);
+            var i = source.path.lastIndexOf(issuesPath);
             var path = source.path.substr(0, i); // /redmine
             var serviceUrl = source.protocol + source.host + path; // http://rm.devart.local/redmine
 
             // path = /redmine/issues/58480
-            var issueIdMatch = /\d+/.exec(source.path.substring(i + this.issuesPath.length));
+            var issueIdMatch = /\d+/.exec(source.path.substring(i + issuesPath.length));
             if (!issueIdMatch) {
                 return;
             }
             var issueId = issueIdMatch[0];
-            var issueUrl = '/issues/' + issueId;
+            var issueUrl = issuesPath + issueId;
             issueId = '#' + issueId;
 
             // <div class="subject" >
