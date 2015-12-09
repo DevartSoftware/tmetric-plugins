@@ -13,7 +13,7 @@
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
             var host = $$('.discussion-status', issueElement);
             if (host) {
-                var linkContainer = $$.create('div', 'devart-timer-link-waffle');
+                var linkContainer = $$.create('div');
                 linkContainer.appendChild(linkElement);
                 host.appendChild(linkContainer);
             }
