@@ -29,6 +29,7 @@
         "in-page-scripts/integrations/PivotalTracker.ts",
         "in-page-scripts/integrations/Redmine.ts",
         "in-page-scripts/integrations/TFS.ts",
+        "in-page-scripts/integrations/Trac.ts",
         "in-page-scripts/integrations/Trello.ts",
         "in-page-scripts/integrations/Waffle.ts",
         "in-page-scripts/page.ts",

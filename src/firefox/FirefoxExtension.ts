@@ -108,6 +108,7 @@ class FirefoxExtension extends ExtensionBase {
             './PivotalTracker.js',
             './Redmine.js',
             './TFS.js',
+            './Trac.js',
             './Trello.js',
             './Waffle.js',
             './page.js'

@@ -58,6 +58,7 @@
                 "in-page-scripts/integrations/PivotalTracker.js",
                 "in-page-scripts/integrations/Redmine.js",
                 "in-page-scripts/integrations/TFS.js",
+                "in-page-scripts/integrations/Trac.js",
                 "in-page-scripts/integrations/Trello.js",
                 "in-page-scripts/integrations/Waffle.js",
                 "in-page-scripts/page.js"
