@@ -109,6 +109,7 @@ class FirefoxExtension extends ExtensionBase {
             './Redmine.js',
             './TFS.js',
             './Trello.js',
+            './Waffle.js',
             './page.js'
         ];
 
