@@ -2,6 +2,8 @@
 
     class YouTrack implements WebToolIntegration {
 
+        observeMutations = true;
+
         matchUrl = '*://*/issue/*';
 
         issueElementSelector = '.content_fsi .toolbar_fsi';
@@ -31,7 +33,7 @@
                 return;
             }
 
-            var projectName = $$.try('.fsi-properties .disabled.bold').textContent;
+            var projectName = $$.try('.fsi-properties .fsi-property .attribute.bold').textContent;
 
             var serviceType = 'YouTrack';
 
