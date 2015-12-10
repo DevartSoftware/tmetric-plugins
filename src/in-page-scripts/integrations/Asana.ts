@@ -39,7 +39,9 @@
                 return;
             }
 
-            var projectName = $$.try('.task-pot-view-container a').textContent;
+            var projectName =
+                $$.try('.tokens-container .token_name').textContent || // task
+                $$.try('.ancestor-projects .token').textContent; // subtask
 
             var serviceType = 'Asana';
 
