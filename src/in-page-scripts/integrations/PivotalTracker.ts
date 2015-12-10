@@ -2,11 +2,14 @@
 
     class PivotalTracker implements WebToolIntegration {
 
-        observeMutations = true
+        observeMutations = true;
 
-        matchUrl = '*://www.pivotaltracker.com/n/projects/*'
+        matchUrl = [
+            '*://www.pivotaltracker.com/n/workspaces/*',
+            '*://www.pivotaltracker.com/n/projects/*'
+        ];
 
-        issueElementSelector = '.story .model_details'
+        issueElementSelector = '.story .model_details';
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
             var host = $$('aside > .wrapper', issueElement);
@@ -19,12 +22,13 @@
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
+            // Workspace url:
+            // https://www.pivotaltracker.com/n/workspaces/WORKSPACE_ID
             // Project url:
             // https://www.pivotaltracker.com/n/projects/PROJECT_ID
             // Project story url:
             // https://www.pivotaltracker.com/n/projects/PROJECT_ID/stories/STORY_ID
-            var match = /^\/n\/projects\/(\d+).*$/.exec(source.path);
-
+            var match = /^\/n\/(workspaces|projects)\/(\d+).*$/.exec(source.path);
             if (!match) {
                 return;
             }
