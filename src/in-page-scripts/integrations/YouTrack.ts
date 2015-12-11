@@ -9,9 +9,7 @@
         issueElementSelector = '.content_fsi .toolbar_fsi';
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
-            if (issueElement) {
-                issueElement.appendChild(linkElement);
-            }
+            issueElement.appendChild(linkElement);
         }
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
@@ -39,7 +37,6 @@
 
             var serviceUrl = match[1];
 
-            //var issueUrl = 'issue/' + match[2].replace(/[\?\#].*$/, '');
             var issueUrl = 'issue/' + issueId;
 
             return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
@@ -82,14 +79,26 @@
                 return;
             }
 
-            var projectId = issueId.split('-')[0];
-            var text = $$.try('#newIssueDialog script').textContent;
-            if (text) {
+            // charisma.ComboBoxHelper.create(
+            //   byid(id)
+            //   "P1",
+            //   { "multi": false, "values": [{ "text": "Project 1", "id": "P1", "styleClass": "" }] });
+            var newIssueScript = $$.try('#newIssueDialog script').textContent;
+            var projectsJSON = /ComboBoxHelper.*"values":\s*(\[.*\])/.exec(newIssueScript);
+            if (projectsJSON) {
+                let projects: { text: string, id: string }[];
                 try {
-                    var projects = JSON.parse(/.*(\[.*\]).*/.exec(text)[1]);
-                    var project = projects.filter((project) => { return project.id === projectId })[0];
-                    var projectName = project.text;
-                } catch (e) { };
+                    projects = JSON.parse(projectsJSON[1]);
+                }
+                catch (e) {
+                }
+                if (projects) {
+                    let projectId = issueId.split('-')[0];
+                    let project = projects.filter(project => project.id === projectId)[0];
+                    if (project) {
+                        var projectName = project.text;
+                    }
+                }
             }
 
             var serviceType = 'YouTrack';
@@ -102,6 +111,5 @@
         }
     }
 
-    IntegrationService.register(new YouTrack());
-    IntegrationService.register(new YouTrackBoard());
+    IntegrationService.register(new YouTrack(), new YouTrackBoard());
 }

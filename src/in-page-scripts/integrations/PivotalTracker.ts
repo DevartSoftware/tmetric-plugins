@@ -22,17 +22,6 @@
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-            // Workspace url:
-            // https://www.pivotaltracker.com/n/workspaces/WORKSPACE_ID
-            // Project url:
-            // https://www.pivotaltracker.com/n/projects/PROJECT_ID
-            // Project story url:
-            // https://www.pivotaltracker.com/n/projects/PROJECT_ID/stories/STORY_ID
-            var match = /^\/n\/(workspaces|projects)\/(\d+).*$/.exec(source.path);
-            if (!match) {
-                return;
-            }
-
             var issueId = $$.try<HTMLInputElement>('.text_value', issueElement).value;
             if (!issueId) {
                 return;

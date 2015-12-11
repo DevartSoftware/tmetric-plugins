@@ -5,8 +5,7 @@
         observeMutations = true;
 
         matchUrl = [
-            '*://app.asana.com/*/*/*',
-            '*://app.asana.com/*/search/*/*'
+            '*://app.asana.com/*/*',
         ];
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
@@ -26,7 +25,6 @@
             // https://app.asana.com/0/PROJECT_ID/TASK_ID
             // Project search url:
             // https://app.asana.com/0/search/PROJECT_ID/TASK_ID
-
             var match = /^\/(\w+)(\/search)?\/(\d+)\/(\d+)(\/f)?$/.exec(source.path);
 
             if (!match) {
