@@ -2,9 +2,12 @@
 
     class Asana implements WebToolIntegration {
 
-        observeMutations = true
+        observeMutations = true;
 
-        matchUrl = '*://app.asana.com/*/*/*'
+        matchUrl = [
+            '*://app.asana.com/*/*/*',
+            '*://app.asana.com/*/search/*/*'
+        ];
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
             var host = $$('.sticky-view-placeholder', issueElement);
@@ -21,13 +24,16 @@
             // https://app.asana.com/0/PROJECT_ID
             // Project task url:
             // https://app.asana.com/0/PROJECT_ID/TASK_ID
-            var match = /^\/\w+\/(\d+)\/(\d+)(\/f)*$/.exec(source.path);
+            // Project search url:
+            // https://app.asana.com/0/search/PROJECT_ID/TASK_ID
+
+            var match = /^\/(\w+)(\/search)?\/(\d+)\/(\d+)(\/f)?$/.exec(source.path);
 
             if (!match) {
                 return;
             }
 
-            var issueId = match[2];
+            var issueId = match[4];
             if (!issueId) {
                 return;
             }
@@ -45,9 +51,9 @@
 
             var serviceType = 'Asana';
 
-            var serviceUrl = source.protocol + source.host;
+            var serviceUrl = source.protocol + source.host + '/' + match[1];
 
-            var issueUrl = source.path;
+            var issueUrl = match[3] + '/' + match[4];
 
             return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
         }
