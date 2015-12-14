@@ -111,7 +111,7 @@
                     newLink.classList.add(this.affix + (newIssueTimer.isStarted ? '-start' : '-stop'));
                     newLink.setAttribute('data-' + this.affix, JSON.stringify(newIssueTimer));
                     newLink.href = '#';
-                    newLink.title = 'Track spent time via Devart Time Tracker service';
+                    newLink.title = 'Track spent time via TMetric service';
                     newLink.onclick = function () {
                         sendBackgroundMessage({ action: 'putTimer', data: newIssueTimer });
                         return false;

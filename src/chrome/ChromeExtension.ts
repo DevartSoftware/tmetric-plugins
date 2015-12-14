@@ -139,7 +139,7 @@ class ChromeExtension extends ExtensionBase {
         if (this.lastNotificationId) {
             chrome.notifications.clear(this.lastNotificationId, () => { });
         }
-        title = title || 'Devart Time Tracker';
+        title = title || 'TMetric';
         var type = 'basic';
         var iconUrl = 'images/icon.png';
         chrome.notifications.create(
