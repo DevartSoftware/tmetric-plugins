@@ -154,7 +154,7 @@ class FirefoxExtension extends ExtensionBase {
 
         this.actionButton = buttons.ActionButton({
             id: 'startButton',
-            label: 'Devart Time Tracker',
+            label: 'TMetric',
             icon: this.getIconSet('inactive'),
             onClick: () => {
                 var tab = this.getActiveTab();
@@ -227,7 +227,7 @@ class FirefoxExtension extends ExtensionBase {
     }
 
     showNotification(message: string, title?: string) {
-        alertsService.showAlertNotification(self.data.url('icon.png'), title || 'Devart Time Tracker', message);
+        alertsService.showAlertNotification(self.data.url('icon.png'), title || 'TMetric', message);
     }
 
     showConfirmation(message: string) {
