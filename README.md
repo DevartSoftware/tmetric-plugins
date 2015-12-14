@@ -1,12 +1,22 @@
-# Devart Time Tracker Extensions
-Extensions for Google and Firefox browsers, that integrate Devart's Time Tracker with popular issue tracking tools.
+# TMetric Extensions
+Extensions for Google and Firefox browsers, that integrate TMetric with popular issue tracking tools.t
 
 Supported systems:
+ - [Asana](https://asana.com/)
+ - [Basecamp](https://basecamp.com/)
+ - [Bitbucket](https://bitbucket.org/)
+ - [Bugzilla](https://www.bugzilla.org/)
  - [GitLab](https://gitlab.com/)
+ - [GitHub](https://github.com/)
  - [Jira](https://www.atlassian.com/software/jira) (including Jira Agile).
  - [Jira Service Desk](https://www.atlassian.com/software/jira/service-desk)
- - [Redmine](http://www.redmine.org/)
+ - [Pivotal Tracker](https://www.pivotaltracker.com/)
+ - [Redmine](https://www.redmine.org/)
+ - [Trac](http://trac.edgewall.org/)
+ - [Trello](https://trello.com/)
  - [Visual Studio Online](https://www.visualstudio.com/)
+ - [Waffle](https://waffle.io/)
+ - [YouTrack](https://www.jetbrains.com/youtrack/)
 
 ## Installation
 **Requirements**
