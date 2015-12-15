@@ -8,10 +8,6 @@
             return null;
         }
 
-        getIssueName(issueElement: HTMLElement, source: Source): string {
-            return $$.try<HTMLTextAreaElement>('.todos-form__input--summary', issueElement).value;
-        }
-
         hostSelector: string;
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
@@ -48,7 +44,9 @@
             }
             issueId = '#' + issueId;
 
-            var issueName = this.getIssueName(issueElement, source);
+            var issueName =
+                $$.try<HTMLTextAreaElement>('.todos-form__input--summary', issueElement).value ||
+                $$.try('.todo h1', issueElement).textContent;
             if (!issueName) {
                 return;
             }
@@ -71,10 +69,6 @@
 
         getIssueUrl(issueElement: HTMLElement, source: Source): string {
             return source.path;
-        }
-
-        getIssueName(issueElement: HTMLElement, source: Source): string {
-            return super.getIssueName(issueElement, source) || $$.try('.checkbox__content h1', issueElement).textContent;
         }
     }
 
