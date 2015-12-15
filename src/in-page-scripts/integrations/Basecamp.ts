@@ -8,6 +8,16 @@
             return null;
         }
 
+        hostSelector: string;
+
+        render(issueElement: HTMLElement, linkElement: HTMLElement) {
+            var host = $$(this.hostSelector, issueElement);
+            if (host) {
+                linkElement.classList.add('action_button', 'small', 'devart-timer-link-basecamp');
+                host.appendChild(linkElement);
+            }
+        }
+
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
             // Urls:
@@ -55,13 +65,7 @@
 
         issueElementSelector = '.panel--perma';
 
-        render(issueElement: HTMLElement, linkElement: HTMLElement) {
-            var host = $$('.perma-toolbar', issueElement);
-            if (host) {
-                linkElement.classList.add('action_button', 'small', 'devart-timer-link-basecamp');
-                host.appendChild(linkElement);
-            }
-        }
+        hostSelector = '.perma-toolbar';
 
         getIssueUrl(issueElement: HTMLElement, source: Source): string {
             return source.path;
@@ -79,13 +83,7 @@
 
         issueElementSelector = '.todos .edit_todo';
 
-        render(issueElement: HTMLElement, linkElement: HTMLElement) {
-            var host = $$('.submit', issueElement);
-            if (host) {
-                linkElement.classList.add('action_button', 'small', 'devart-timer-link-basecamp');
-                host.appendChild(linkElement);
-            }
-        }
+        hostSelector = '.submit';
 
         getIssueUrl(issueElement: HTMLElement, source: Source): string {
             return (<HTMLFormElement>issueElement).action;
