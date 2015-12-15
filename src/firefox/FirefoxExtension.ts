@@ -43,7 +43,8 @@ class FirefoxExtension extends ExtensionBase {
             }).port);
 
         pageMod.PageMod({
-            include: ["*.alm-build", "*.localhost", "*.tt.devart.com"],
+            // https://developer.mozilla.org/en-US/Add-ons/SDK/Low-Level_APIs/util_match-pattern
+            include: ["*.alm-build", "*.localhost", "*.app.tmetric.com"],
             contentScriptWhen: "start",
             attachTo: ["existing", "top"],
             contentScriptFile: self.data.url("./pageTalk.js")

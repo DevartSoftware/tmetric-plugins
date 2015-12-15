@@ -40,7 +40,7 @@
         ]
     },
     "externally_connectable": {
-        "matches": [ "*://localhost/*", "*://alm-build/*", "*://tt.devart.com/*" ]
+        "matches": [ "*://localhost/*", "*://alm-build/*", "*://app.tmetric.com/*" ]
     },
     "content_scripts": [
         {
