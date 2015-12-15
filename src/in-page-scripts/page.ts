@@ -1,6 +1,20 @@
 ﻿if (typeof document !== 'undefined') {
 
     /**
+     * Check for pending pings.
+     */
+    function hasPings() {
+        var isWait = false;
+        for (var ping in pingTimeouts) {
+            if (pingTimeouts[ping]) {
+                isWait = true;
+                break;
+            }
+        }
+        return isWait;
+    }
+
+    /**
      * Retrieves messages from background script.
      */
     function onBackgroundMessage(message: ITabMessage) {
@@ -153,8 +167,24 @@
         sendBackgroundMessage({ action: 'setTabInfo', data });
 
         if (!isFinalized && observeMutations && !mutationObserver) {
-            mutationObserver = new MutationObserver(parsePage);
+            mutationObserver = new MutationObserver(parseMutatedPage);
             mutationObserver.observe(document, { childList: true, subtree: true });
+        }
+    }
+
+    /**
+     * Delays mutated page parsing until all pings are responded.
+     */
+    var parseMutatedPageTimeout = null;
+    function parseMutatedPage() {
+        if (!isFinalized) {
+            if (hasPings()) {
+                if (!parseMutatedPageTimeout) {
+                    parseMutatedPageTimeout = setTimeout(parseMutatedPage, 100);
+                }
+            } else {
+                parsePage();
+            }
         }
     }
 
