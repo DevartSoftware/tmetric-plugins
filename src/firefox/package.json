@@ -1,5 +1,5 @@
 {
-    "title": "Timer Button",
+    "title": "TMetric",
     "name": "devart-timer-button",
     "id": "timetracker@devart.com",
     "icon": {
@@ -19,7 +19,7 @@
             "http://localhost:65341/",
             "http://localhost/",
             "https://localhost/",
-            "https://tt.devart.com/",
+            "https://app.tmetric.com/",
             "https://alm-build/"
         ]
     }

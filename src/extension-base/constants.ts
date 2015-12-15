@@ -1,2 +1,2 @@
 // Base URL of the service
-var trackerServiceUrl = 'https://tt.devart.com/';
+var trackerServiceUrl = 'https://app.tmetric.com/';

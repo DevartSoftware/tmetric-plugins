@@ -46,7 +46,7 @@ exports.config = {
     //
     // Set a base URL in order to shorten url command calls. If your url parameter starts
     // with "/", the base url gets prepended.
-    baseUrl: 'https://tt.devart.com',
+    baseUrl: 'https://app.tmetric.com',
     //
     // Default timeout for all waitForXXX commands.
     waitforTimeout: 20000,
