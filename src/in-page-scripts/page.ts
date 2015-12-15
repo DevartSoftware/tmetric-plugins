@@ -1,20 +1,6 @@
 ﻿if (typeof document !== 'undefined') {
 
     /**
-     * Check for pending pings.
-     */
-    function hasPings() {
-        var isWait = false;
-        for (var ping in pingTimeouts) {
-            if (pingTimeouts[ping]) {
-                isWait = true;
-                break;
-            }
-        }
-        return isWait;
-    }
-
-    /**
      * Retrieves messages from background script.
      */
     function onBackgroundMessage(message: ITabMessage) {
@@ -29,15 +15,17 @@
         }
 
         if (message.action == 'setTimer') {
-
             Integrations.IntegrationService.setTimer(message.data);
-
-            if (!isInitialized || Integrations.IntegrationService.needsUpdate()) {
-                parsePage();
+            if (Integrations.IntegrationService.needsUpdate()) {
+                parseAfterPings = true;
             }
-
-            initialize();
         }
+
+        if (parseAfterPings) {
+            parsePage();
+        }
+
+        initialize();
     }
 
     /**
@@ -133,6 +121,16 @@
      */
     function parsePage() {
 
+        // do not parse page when extension is not responding (disabled/upgraded/uninstalled)
+        for (var ping in pingTimeouts) {
+            if (pingTimeouts[ping]) {
+                parseAfterPings = true;
+                return;
+            }
+        }
+
+        parseAfterPings = false;
+
         var url = document.URL;
         var title = document.title;
 
@@ -167,24 +165,8 @@
         sendBackgroundMessage({ action: 'setTabInfo', data });
 
         if (!isFinalized && observeMutations && !mutationObserver) {
-            mutationObserver = new MutationObserver(parseMutatedPage);
+            mutationObserver = new MutationObserver(parsePage);
             mutationObserver.observe(document, { childList: true, subtree: true });
-        }
-    }
-
-    /**
-     * Delays mutated page parsing until all pings are responded.
-     */
-    var parseMutatedPageTimeout = null;
-    function parseMutatedPage() {
-        if (!isFinalized) {
-            if (hasPings()) {
-                if (!parseMutatedPageTimeout) {
-                    parseMutatedPageTimeout = setTimeout(parseMutatedPage, 100);
-                }
-            } else {
-                parsePage();
-            }
         }
     }
 
@@ -195,6 +177,7 @@
     var pingTimeouts = <{ [callbackAction: string]: number }>{};
     var isInitialized = false;
     var isFinalized = false;
+    var parseAfterPings = true;
 
     Integrations.IntegrationService.clearPage();
     sendBackgroundMessage({ action: 'getTimer' });
