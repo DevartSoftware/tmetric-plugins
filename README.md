@@ -1,5 +1,5 @@
 # TMetric Extensions
-Extensions for Google and Firefox browsers, that integrate TMetric with popular issue tracking tools.t
+Extensions for Google and Firefox browsers, that integrate TMetric with popular issue tracking tools.
 
 Supported systems:
  - [Asana](https://asana.com/)
