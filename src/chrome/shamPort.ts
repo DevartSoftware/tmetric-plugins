@@ -8,11 +8,8 @@ class PortShim implements Firefox.Port {
     link: PortShim;
 
     emit(method: string, ...args: any[]): void {
-        args.splice(0, 0, method);
         var link = this.link;
-        setTimeout(function () {
-            link.onemit.apply(link, args);
-        }, 0);
+        Promise.resolve().then(() => link.onemit.call(link, method, args));
     }
 
     on(method: string, handler: (...args: any[]) => void, once?: boolean): void {
@@ -39,7 +36,7 @@ class PortShim implements Firefox.Port {
         }
     }
 
-    private onemit(method: string, ...args: any[]) {
+    private onemit(method: string, args: any[]) {
         var handlers = this._handlers[method];
         if (handlers) {
             for (var i = 0; i < handlers.length; i++) {
