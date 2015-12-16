@@ -32,6 +32,7 @@
         "in-page-scripts/integrations/Trac.ts",
         "in-page-scripts/integrations/Trello.ts",
         "in-page-scripts/integrations/Waffle.ts",
+        "in-page-scripts/integrations/Wrike.ts",
         "in-page-scripts/integrations/YouTrack.ts",
         "in-page-scripts/page.ts",
         "in-page-scripts/pageTalk.ts",

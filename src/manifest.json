@@ -61,6 +61,7 @@
                 "in-page-scripts/integrations/Trac.js",
                 "in-page-scripts/integrations/Trello.js",
                 "in-page-scripts/integrations/Waffle.js",
+                "in-page-scripts/integrations/Wrike.js",
                 "in-page-scripts/integrations/YouTrack.js",
                 "in-page-scripts/page.js"
             ],

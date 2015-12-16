@@ -112,6 +112,7 @@ class FirefoxExtension extends ExtensionBase {
             './Trac.js',
             './Trello.js',
             './Waffle.js',
+            './Wrike.js',
             './YouTrack.js',
             './page.js'
         ];
