@@ -1,2 +1,2 @@
 // Test configuration constants
-var trackerServiceUrl = 'https://alm-build/timetracker/master/release/';
+var trackerServiceUrl = 'https://alm-build/timetracker/dev/release/';
