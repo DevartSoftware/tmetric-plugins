@@ -124,54 +124,72 @@ class ExtensionBase {
             }
         }
 
-        var action = (showDialog: boolean) => {
+        var onFail = (status: AjaxStatus, showDialog: boolean) => {
+
+            this._actionOnConnect = null;
+
+            // Zero status when server is unavailable or certificate fails (#59755). Show dialog in that case too.
+            if (!status || status.statusCode == HttpStatusCode.Unauthorized || status.statusCode == 0) {
+
+                var disconnectPromise = this.disconnect();
+
+                if (showDialog) {
+                    disconnectPromise.then(() => {
+                        this._actionOnConnect = () => {
+                            // Do not change task after connect if timer already started
+                            if (this.buttonState == ButtonState.fixtimer || !this._timer || !this._timer.isStarted) {
+                                onConnect(false);
+                            }
+                        };
+                        this.showLoginDialog();
+                    });
+                };
+            }
+            else {
+
+                var error = this.getErrorText(status);
+
+                // Show error and exit when timer has no integration
+                if (status.statusCode != HttpStatusCode.Forbidden || (!timer.serviceUrl && !timer.projectName)) {
+                    this.showError(error);
+                }
+                else {
+                    this.putTimerWithNewIntegration(timer).catch(() => this.showError(error));
+                }
+            }
+        };
+
+        var onConnect = (showDialog: boolean) => {
 
             if (this.buttonState == ButtonState.fixtimer) {
-                var url = trackerServiceUrl;
-                if (this._userProfile && this._userProfile.activeAccountId) {
-                    url += '#/tracker/' + this._userProfile.activeAccountId + '/';
-                }
-                this.openPage(url);
-                this.showNotification('You should fix the timer.');
+
+                // ensure connection before page open to prevent login duplication (#67759)
+                this._actionOnConnect = () => {
+                    var url = trackerServiceUrl;
+                    if (this._userProfile && this._userProfile.activeAccountId) {
+                        url += '#/tracker/' + this._userProfile.activeAccountId + '/';
+                    }
+                    this.openPage(url);
+                    this.showNotification('You should fix the timer.');
+                };
+
+                this.getTimer().catch(status => onFail(status, showDialog));
                 return;
             }
 
-            this.putTimerWithExistingIntegration(timer).catch((status: AjaxStatus) => {
-
-                // Zero status when server is unavailable or certificate fails (#59755). Show dialog in that case too.
-                if (!status || status.statusCode == HttpStatusCode.Unauthorized || status.statusCode == 0) {
-
-                    var disconnectPromise = this.disconnect();
-
-                    if (showDialog) {
-                        disconnectPromise.then(() => {
-                            this._actionOnConnect = () => {
-                                // Do not change task after connect if timer already started
-                                if (this.buttonState == ButtonState.fixtimer || !this._timer || !this._timer.isStarted) {
-                                    action(false);
-                                }
-                            };
-                            this.showLoginDialog();
-                        });
-                    };
-                }
-                else {
-
-                    var error = this.getErrorText(status);
-
-                    // Show error and exit when timer has no integration
-                    if (status.statusCode != HttpStatusCode.Forbidden || (!timer.serviceUrl && !timer.projectName)) {
-                        this.showError(error);
-                    }
-                    else {
-                        this.putTimerWithNewIntegration(timer).catch(() => {
-                            this.showError(error);
-                        });
-                    }
-                }
-            });
+            this.putTimerWithExistingIntegration(timer)
+                .catch(status => onFail(status, showDialog));
         };
-        action(true);
+
+        if (this._timer == null) {
+
+            // connect before action to get actual state
+            this._actionOnConnect = () => onConnect(true);
+            this.reconnect().catch(status => onFail(status, true));
+        }
+        else {
+            onConnect(true);
+        }
     }
 
     updateState() {
@@ -360,6 +378,7 @@ class ExtensionBase {
     }
 
     private disconnect = this.wrapPortAction<void, void>('disconnect');
+    private getTimer = this.wrapPortAction<void, void>('getTimer');
     private putTimerWithExistingIntegration = this.wrapPortAction<Integrations.WebToolIssueTimer, void>('putTimer');
     private postIntegration = this.wrapPortAction<Models.IntegratedProjectIdentifier, void>('postIntegration');
     private getIntegration = this.wrapPortAction<Models.IntegratedProjectIdentifier, Models.IntegratedProjectStatus>('getIntegration');

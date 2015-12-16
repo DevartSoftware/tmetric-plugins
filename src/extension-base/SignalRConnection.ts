@@ -42,8 +42,9 @@
             this.reconnect().catch(() => { });
         });
 
-        this.listenPortAction('disconnect', this.disconnect);
+        this.listenPortAction<void>('disconnect', this.disconnect);
         this.listenPortAction<void>('reconnect', this.reconnect);
+        this.listenPortAction<Integrations.WebToolIssueTimer>('getTimer', this.getTimer);
         this.listenPortAction<Integrations.WebToolIssueTimer>('putTimer', this.putTimer);
         this.listenPortAction<Models.IntegratedProjectIdentifier>('postIntegration', this.postIntegration);
         this.listenPortAction<Models.IntegratedProjectIdentifier>('getIntegration', this.getIntegration);
@@ -140,6 +141,7 @@
             }
         });
     }
+
     getProfile() {
         var profile = this.get<Models.UserProfile>('api/userprofile').then(profile => {
             this.userProfile = profile;
