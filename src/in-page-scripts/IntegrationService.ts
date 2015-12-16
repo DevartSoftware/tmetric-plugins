@@ -2,6 +2,8 @@
 
     export class IntegrationService {
 
+        static session = Date.now();
+
         static affix = 'devart-timer-link';
 
         static register(...integrations: WebToolIntegration[]) {
@@ -96,11 +98,13 @@
 
             if (oldLink) {
                 var oldIssueTimer = <WebToolIssueTimer>JSON.parse(oldLink.getAttribute('data-' + this.affix));
+                var oldSession = parseInt(oldLink.getAttribute('data-session'));
             }
 
             if (this.isSameIssue(oldIssueTimer, newIssueTimer) &&
-                newIssueTimer.isStarted == oldIssueTimer.isStarted) {
-                // Issue is not changed
+                newIssueTimer.isStarted == oldIssueTimer.isStarted &&
+                oldSession == this.session) {
+                // Issue is not changed and belong to same session (#67711)
                 return;
             }
 
@@ -111,6 +115,7 @@
             newLink.classList.add(this.affix);
             newLink.classList.add(this.affix + (newIssueTimer.isStarted ? '-start' : '-stop'));
             newLink.setAttribute('data-' + this.affix, JSON.stringify(newIssueTimer));
+            newLink.setAttribute('data-session', this.session.toString());
             newLink.href = '#';
             newLink.title = 'Track spent time via TMetric service';
             newLink.onclick = function () {

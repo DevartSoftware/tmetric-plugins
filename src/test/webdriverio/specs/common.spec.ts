@@ -1,4 +1,4 @@
-describe('Extension', function () {
+describe('Extension', () => {
 
     var services = <ServiceConfigs>require('../services.conf');
     var ttService = services['TimeTracker'];
@@ -12,7 +12,7 @@ describe('Extension', function () {
         .url('https://gitlab.com/gitlab-org/gitlab-ce/issues')
         .waitForClick('.row_title')
         .waitForVisible('.devart-timer-link-start')
-        .getText('.title a:nth-last-child(2)').then(function (text) {
+        .getText('.title a:nth-last-child(2)').then(text => {
             testProjectName = text;
             expect(testProjectName).to.be.a('string').and.not.to.be.empty;
         })
@@ -62,47 +62,47 @@ describe('Extension', function () {
     it('prompts an unauthenticated user for login on starting a task using html button', () => browser
         .logoutTimeTracker()
         .switchToTaskTrackerWindow()
-    // start task
+        // start task
         .waitForClick('.devart-timer-link-start')
         .pause(1000)
-    // login
+        // login
         .then(loginTimeTrackerThroughExtension)
         .switchToTaskTrackerWindow()
         .waitForVisible('.devart-timer-link-stop')
-    // test task
+        // test task
         .then(testTaskStarted));
 
     it('do not prompts an authenticated user for login on starting a task using html button', () => browser
         .switchToTaskTrackerWindow()
-    // start task
+        // start task
         .waitForClick('.devart-timer-link-start')
         .pause(1000)
         .waitForVisible('.devart-timer-link-stop')
-    // test task
+        // test task
         .then(testTaskStarted));
 
     it('prompts an unauthenticated user for login on starting a task using extention shortcut', () => browser
         .logoutTimeTracker()
         .switchToTaskTrackerWindow()
-    // start task
+        // start task
         .waitForVisible('.devart-timer-link-start')
         .keys(['Control', 'Shift', 'Space', 'NULL'])
         .pause(1000)
-    // login
+        // login
         .then(loginTimeTrackerThroughExtension)
         .switchToTaskTrackerWindow()
         .waitForVisible('.devart-timer-link-stop')
-    // test task
+        // test task
         .then(testTaskStarted));
 
     it('do not prompts an authenticated user for login on starting a task using extention shortcut', () => browser
         .switchToTaskTrackerWindow()
-    // start task
+        // start task
         .waitForVisible('.devart-timer-link-start')
         .keys(['Control', 'Shift', 'Space', 'NULL'])
         .pause(1000)
         .waitForVisible('.devart-timer-link-stop')
-    // test task
+        // test task
         .then(testTaskStarted));
 
     it('can change html button when task is started or stoped by extension shortcut', () => browser
