@@ -3,7 +3,7 @@ declare module Integrations {
     interface WebToolIntegration {
         matchUrl?: string | RegExp | (string | RegExp)[];
         match?: (source: Source) => boolean;
-        issueElementSelector?: string;
+        issueElementSelector?: string | (() => HTMLElement[]);
         observeMutations?: boolean;
         render(issueElement: HTMLElement, linkElement: HTMLElement);
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue;

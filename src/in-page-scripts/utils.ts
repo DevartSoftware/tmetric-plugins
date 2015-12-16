@@ -3,6 +3,7 @@
     try<TElement extends HTMLElement>(selector: string, element?: NodeSelector): TElement;
     visible<TElement extends HTMLElement>(selector: string, element?: NodeSelector): TElement;
     all<TElement extends HTMLElement>(selector: string, element?: NodeSelector): TElement[];
+    closest<TElement extends HTMLElement>(selector: string, element: HTMLElement): TElement;
     create<TElement extends HTMLElement>(tagName: string, className?: string): TElement;
     getRelativeUrl(baseUrl: string, fullUrl: string): string;
 }
@@ -36,13 +37,31 @@ $$.all = function (selector: string, element?: NodeSelector) {
 }
 
 $$.visible = function (selector: string, element?: NodeSelector) {
-    function isVisible(element: HTMLElement): boolean {
-        if (!element || element.style.display === 'none' || element.style.visibility === 'hidden') {
-            return false;
+
+    function isVisible(element: HTMLElement) {
+        while (element) {
+            if (element === document.body) {
+                return true;
+            }
+            if (!element || element.style.display === 'none' || element.style.visibility === 'hidden') {
+                return false;
+            }
+            element = element.parentElement;
         }
-        return element === document.body || isVisible(element.parentElement);
+        return false;
     }
+
     return $$.all(selector, element).filter(isVisible)[0];
+}
+
+$$.closest = function (selector: string, element: HTMLElement) {
+    var results = $$.all(selector);
+    while (element) {
+        if (results.indexOf(element) >= 0) {
+            return element;
+        }
+        element = element.parentElement;
+    }
 }
 
 $$.getRelativeUrl = function (baseUrl: string, url: string) {

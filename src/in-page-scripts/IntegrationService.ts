@@ -53,7 +53,16 @@
 
             this._possibleIntegrations.some(integration => {
 
-                var elements = integration.issueElementSelector ? $$.all(integration.issueElementSelector) : [null];
+                let elements = [<HTMLElement>null];
+                let selector = integration.issueElementSelector;
+                if (selector) {
+                    if ((<() => HTMLElement[]>selector).apply) {
+                        elements = (<() => HTMLElement[]>selector)();
+                    }
+                    else {
+                        elements = $$.all(<string>selector);
+                    }
+                }
 
                 elements.forEach(element => {
 
@@ -136,6 +145,30 @@
             $$.all('a.' + this.affix).forEach(a => this.removeLink(a));
         }
 
+        static isSameIssue(oldIssue: Integrations.WebToolIssue, newIssue: Integrations.WebToolIssue) {
+
+            function normalizeServiceUrl(issue: WebToolIssue) {
+                var url = (issue.serviceUrl || '').trim();
+                if (url.length && url[url.length - 1] == '/') {
+                    return url.substring(0, url.length - 1);
+                }
+                return url;
+            }
+
+            function normalizeName(issue: WebToolIssue) {
+                return (issue.issueName || '').trim();
+            }
+
+            if (oldIssue === newIssue) {
+                return true;
+            }
+
+            return oldIssue &&
+                oldIssue.issueId == newIssue.issueId &&
+                normalizeName(oldIssue) == normalizeName(newIssue) &&
+                normalizeServiceUrl(oldIssue) == normalizeServiceUrl(newIssue);
+        }
+
         private static _allIntegrations = <WebToolIntegration[]>[];
 
         private static _possibleIntegrations: WebToolIntegration[];
@@ -189,25 +222,6 @@
             if (container) {
                 container.removeChild(content);
             }
-        }
-
-        private static isSameIssue(oldIssue: Integrations.WebToolIssue, newIssue: Integrations.WebToolIssue) {
-            function normalizeServiceUrl(issue: WebToolIssue) {
-                var url = (issue.serviceUrl || '').trim();
-                if (url.length && url[url.length - 1] == '/') {
-                    return url.substring(0, url.length - 1);
-                }
-                return url;
-            }
-
-            function normalizeName(issue: WebToolIssue) {
-                return (issue.issueName || '').trim();
-            }
-
-            return oldIssue &&
-                oldIssue.issueId == newIssue.issueId &&
-                normalizeName(oldIssue) == normalizeName(newIssue) &&
-                normalizeServiceUrl(oldIssue) == normalizeServiceUrl(newIssue);
         }
 
         private static isIssueStarted(issue: WebToolIssue): boolean {

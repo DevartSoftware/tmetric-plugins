@@ -149,7 +149,8 @@
         var issue: Integrations.WebToolIssue = null;
         if (issues) {
             issue = issues[0];
-            if (issues.length > 1) {
+            if (issues.some(i => !Integrations.IntegrationService.isSameIssue(i, issue))) {
+
                 // If page contains several issues, keep project only
                 var projectName = issue.projectName;
                 issue = { issueName: '' };

@@ -9,12 +9,18 @@
             '*://www.pivotaltracker.com/n/projects/*'
         ];
 
-        issueElementSelector = '.story .model_details';
+        issueElementSelector = () => {
+            var maximizedElements = $$.all('.maximized .story .model_details');
+            if (maximizedElements.length > 0) {
+                return maximizedElements;
+            }
+            return $$.all('.story .model_details');
+        }
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
             var host = $$('aside > .wrapper', issueElement);
             if (host) {
-                var linkContainer = $$.create('div', 'devart-timer-link-pivotaltracker');
+                let linkContainer = $$.create('div', 'devart-timer-link-pivotaltracker');
                 linkContainer.appendChild(linkElement);
                 host.appendChild(linkContainer);
             }
@@ -32,7 +38,24 @@
                 return;
             }
 
-            var projectName = $$.try('.raw_context_name').textContent;
+            // single task page
+            var projectLinks = $$.all('.project > h2 > a');
+            if (projectLinks.length == 1) {
+                var projectName = projectLinks[0].textContent;
+            }
+
+            // workspace page
+            if (!projectName) {
+                let container = $$.closest('.container.droppable', issueElement);
+                if (container) {
+                    projectName = $$.try('.workspace_header.panel_controls > h3', container).title;
+                }
+            }
+
+            // project page
+            if (!projectName) {
+                projectName = $$.try('.raw_context_name').textContent;
+            }
 
             var serviceType = 'PivotalTracker';
 
