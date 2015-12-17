@@ -4,10 +4,7 @@
 
         observeMutations = true;
 
-        matchUrl = [
-            '*://www.pivotaltracker.com/n/workspaces/*',
-            '*://www.pivotaltracker.com/n/projects/*'
-        ];
+        matchUrl = '*://www.pivotaltracker.com/*';
 
         issueElementSelector = () => {
             var maximizedElements = $$.all('.maximized .story .model_details');
@@ -44,17 +41,15 @@
                 var projectName = projectLinks[0].textContent;
             }
 
-            // workspace page
             if (!projectName) {
-                let container = $$.closest('.container.droppable', issueElement);
-                if (container) {
-                    projectName = $$.try('.workspace_header.panel_controls > h3', container).title;
+                if ($$('.sidebar_content .projects')) {
+                    // workspace page
+                    // project name can not be resolved for a task on the panel "My Work"
+                    projectName = $$.try('.workspace_header.panel_controls > h3', $$.closest('.panel', issueElement)).textContent;
+                } else {
+                    // project page
+                    projectName = $$.try('.raw_context_name').textContent;
                 }
-            }
-
-            // project page
-            if (!projectName) {
-                projectName = $$.try('.raw_context_name').textContent;
             }
 
             var serviceType = 'PivotalTracker';
