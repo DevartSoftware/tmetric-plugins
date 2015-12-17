@@ -6,16 +6,18 @@ Supported systems:
  - [Basecamp](https://basecamp.com/)
  - [Bitbucket](https://bitbucket.org/)
  - [Bugzilla](https://www.bugzilla.org/)
- - [GitLab](https://gitlab.com/)
  - [GitHub](https://github.com/)
+ - [GitLab](https://gitlab.com/)
  - [Jira](https://www.atlassian.com/software/jira) (including Jira Agile).
  - [Jira Service Desk](https://www.atlassian.com/software/jira/service-desk)
  - [Pivotal Tracker](https://www.pivotaltracker.com/)
+ - [Producteev](https://www.producteev.com/)
  - [Redmine](https://www.redmine.org/)
  - [Trac](http://trac.edgewall.org/)
  - [Trello](https://trello.com/)
  - [Visual Studio Online](https://www.visualstudio.com/)
  - [Waffle](https://waffle.io/)
+ - [Wrike](https://www.wrike.com/)
  - [YouTrack](https://www.jetbrains.com/youtrack/)
 
 ## Installation
