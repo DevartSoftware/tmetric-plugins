@@ -30,7 +30,6 @@
             if (!issueId) {
                 return;
             }
-            issueId = '#' + issueId;
 
             var issueName = $$.try('.title-header .title', issueElement).textContent;
             if (!issueName) {
