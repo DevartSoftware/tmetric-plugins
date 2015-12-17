@@ -44,13 +44,8 @@
             if (!projectName) {
                 if ($$('.sidebar_content .projects')) {
                     // workspace page
-                    var container = $$.closest('.panel', issueElement);
-                    if (container.id == 'panel_my_work') {
-                        // project name can not be resolved for a task on the panel "My Work"
-                        projectName = '';
-                    } else {
-                        projectName = $$.try('.workspace_header.panel_controls > h3', container).textContent;
-                    }
+                    // project name can not be resolved for a task on the panel "My Work"
+                    projectName = $$.try('.workspace_header.panel_controls > h3', $$.closest('.panel', issueElement)).textContent;
                 } else {
                     // project page
                     projectName = $$.try('.raw_context_name').textContent;
