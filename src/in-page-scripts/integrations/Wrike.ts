@@ -43,7 +43,7 @@
 
             var serviceUrl = source.protocol + source.host;
 
-            var issueUrl = permalink.replace(serviceUrl, '');
+            var issueUrl = $$.getRelativeUrl(serviceUrl, permalink);
 
             return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
         }
