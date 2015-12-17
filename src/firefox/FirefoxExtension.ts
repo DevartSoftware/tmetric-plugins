@@ -107,6 +107,7 @@ class FirefoxExtension extends ExtensionBase {
             './GitLab.js',
             './Jira.js',
             './PivotalTracker.js',
+            './Producteev.js',
             './Redmine.js',
             './TFS.js',
             './Trac.js',
