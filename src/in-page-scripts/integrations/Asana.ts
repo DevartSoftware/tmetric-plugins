@@ -31,12 +31,9 @@
                 return;
             }
 
-            var issueId = match[4];
-            if (!issueId) {
-                return;
-            }
+            var issueId = '#' + match[4]
 
-            issueId = '#' + issueId;
+            var issueUrl = '/0/0/' + match[4];
 
             var issueName = $$.try<HTMLTextAreaElement>('#details_property_sheet_title', issueElement).value;
             if (!issueName) {
@@ -49,9 +46,7 @@
 
             var serviceType = 'Asana';
 
-            var serviceUrl = source.protocol + source.host + '/' + match[1];
-
-            var issueUrl = match[3] + '/' + match[4];
+            var serviceUrl = source.protocol + source.host;
 
             return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
         }
