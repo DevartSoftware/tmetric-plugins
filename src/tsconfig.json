@@ -30,6 +30,7 @@
         "in-page-scripts/integrations/PivotalTracker.ts",
         "in-page-scripts/integrations/Producteev.ts",
         "in-page-scripts/integrations/Redmine.ts",
+        "in-page-scripts/integrations/Teamwork.ts",
         "in-page-scripts/integrations/TFS.ts",
         "in-page-scripts/integrations/Trac.ts",
         "in-page-scripts/integrations/Trello.ts",

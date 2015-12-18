@@ -110,6 +110,7 @@ class FirefoxExtension extends ExtensionBase {
             './PivotalTracker.js',
             './Producteev.js',
             './Redmine.js',
+            './Teamwork.js',
             './TFS.js',
             './Trac.js',
             './Trello.js',
