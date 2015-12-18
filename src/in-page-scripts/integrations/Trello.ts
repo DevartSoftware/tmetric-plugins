@@ -20,16 +20,15 @@
             // Effective card url:
             // https://trello.com/c/CARD_ID
             var match = /^\/c\/(.+)\/(\d+)-(.+)$/.exec(source.path);
-
             if (!match) {
                 return;
             }
-            // match[1] is a 'CARD_NUMBER' from path
+
+            // match[2] is a 'CARD_NUMBER' from path
             var issueId = match[2];
             if (!issueId) {
                 return;
             }
-
             issueId = '#' + issueId;
 
             // <h2 class="window-title-text current hide-on-edit js-card-title">ISSUE_NAME</h2>

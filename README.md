@@ -3,6 +3,7 @@ Extensions for Google and Firefox browsers, that integrate TMetric with popular 
 
 Supported systems:
  - [Asana](https://asana.com/)
+ - [Assembla](https://www.assembla.com/)
  - [Basecamp](https://basecamp.com/)
  - [Bitbucket](https://bitbucket.org/)
  - [Bugzilla](https://www.bugzilla.org/)
