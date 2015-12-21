@@ -8,11 +8,7 @@
         ];
 
         match(source: Source): boolean {
-            var descriptionMeta = $$('meta[name=description]');
-            if (descriptionMeta) {
-                return descriptionMeta.getAttribute('content').indexOf('GitLab') >= 0;
-            }
-            return false;
+            return $$.getAttribute('meta[name=description]', 'content').indexOf('GitLab') >= 0;
         }
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {

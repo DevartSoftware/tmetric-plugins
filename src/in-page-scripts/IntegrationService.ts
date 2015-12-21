@@ -70,9 +70,13 @@
                     if (issue) {
                         // trim all string values
                         for (var field in issue) {
-                            var value = issue[field];
+                            let value = <string>issue[field];
                             if (typeof value === 'string') {
-                                issue[field] = value.trim();
+                                value = value.trim();
+                                if (!value) {
+                                    value = null;
+                                }
+                                issue[field] = value;
                             }
                         }
                         issues.push(issue);

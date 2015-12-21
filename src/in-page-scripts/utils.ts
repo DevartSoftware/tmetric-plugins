@@ -4,6 +4,7 @@
     visible<TElement extends HTMLElement>(selector: string, element?: NodeSelector): TElement;
     all<TElement extends HTMLElement>(selector: string, element?: NodeSelector): TElement[];
     closest<TElement extends HTMLElement>(selector: string, element: HTMLElement): TElement;
+    getAttribute(selector: string, attributeName: string, element?: NodeSelector): string;
     create<TElement extends HTMLElement>(tagName: string, className?: string): TElement;
     getRelativeUrl(baseUrl: string, fullUrl: string): string;
 }
@@ -62,6 +63,15 @@ $$.closest = function (selector: string, element: HTMLElement) {
         }
         element = element.parentElement;
     }
+}
+
+$$.getAttribute = function (selector: string, attributeName: string, element?: NodeSelector): string {
+    var result: string;
+    var child = $$(selector, element);
+    if (child) {
+        result = child.getAttribute(attributeName);
+    }
+    return result || '';
 }
 
 $$.getRelativeUrl = function (baseUrl: string, url: string) {

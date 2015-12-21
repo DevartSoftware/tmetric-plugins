@@ -18,7 +18,7 @@
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
             // Permalink schema: https://www.wrike.com/open.htm?id=TASK_ID
-            var permalink = $$.try('.wspace-button-permalink', issueElement).getAttribute('href');
+            var permalink = $$.getAttribute('.wspace-button-permalink', 'href', issueElement);
             if (!permalink) {
                 return;
             }

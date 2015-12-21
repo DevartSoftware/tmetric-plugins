@@ -3,12 +3,7 @@
     class JiraBase {
 
         match(source: Source): boolean {
-            var jiraAppQuery = $$('meta[name=application-name]');
-            if (jiraAppQuery) {
-                return jiraAppQuery.getAttribute('content') == 'JIRA';
-            }
-
-            return false;
+            return $$.getAttribute('meta[name=application-name]', 'content') == 'JIRA';
         }
 
         getUrls(source: Source, issueHref: string) {
@@ -21,7 +16,7 @@
             // ajs-context-path = /jira
             // serviceUrl = http://jira.local
             // issueUrl = /jira/browse/tt-1
-            var jiraContextPath = $$('meta[name=ajs-context-path]').getAttribute('content');
+            var jiraContextPath = $$.getAttribute('meta[name=ajs-context-path]', 'content');
             if (jiraContextPath) {
                 serviceUrl += jiraContextPath;
                 issueUrl = $$.getRelativeUrl(serviceUrl, issueUrl);
@@ -107,7 +102,7 @@
 
             var issueId = propertyLink.textContent;
 
-            var issueHref = $$('a', propertyLink).getAttribute('href');
+            var issueHref = $$.getAttribute('a', 'href', propertyLink);
 
             var projectName = $$('.ghx-project').textContent;
 

@@ -9,12 +9,8 @@
             '*://*/pull-requests/*'
         ];
 
-        match(source: Source): boolean {
-            var appName = $$('meta[name=application-name]');
-            if (appName) {
-                return appName.getAttribute('content') == 'Bitbucket';
-            }
-            return false;
+        match() {
+            return $$.getAttribute('meta[name=application-name]', 'content') == 'Bitbucket';
         }
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {

@@ -51,7 +51,7 @@
 
             var isNewView = !!$$('.new-work-item-view', form);
             var issueName: string;
-            var issueLink: HTMLElement;
+            var issueUrl: string;
 
             if (isNewView) {
                 // route for the new TFS interface
@@ -59,11 +59,11 @@
                 if (issueInput) {
                     issueName = issueInput.value;
                 }
-                issueLink = $$('.info-text-wrapper a');
+                issueUrl = $$.getAttribute('.info-text-wrapper a', 'href');
             }
             else {
                 issueName = $$.try('.workitem-info-bar').title;
-                issueLink = $$('.workitem-info-bar a');
+                issueUrl = $$.getAttribute('.workitem-info-bar a', 'href');
             }
 
             if (!issueName) {
@@ -71,13 +71,11 @@
                 return;
             }
 
-            if (issueLink) {
-                // remove additional arguments, e.g. .../_workitems/edit/1?fullScreen=false -> .../_workitems/edit/1
-                var issueUrl = issueLink.getAttribute('href').replace(/\?.*$/, '');
-
+            if (issueUrl) {
                 // _workitems/edit/1
-                var issueIdRegExp = /\/edit\/(\d*$)/.exec(issueUrl);
-                if (issueIdRegExp && issueIdRegExp.length === 2) {
+                // _workitems/edit/1?fullScreen=false
+                var issueIdRegExp = /\/edit\/(\d*)(\?.*)?$/.exec(issueUrl);
+                if (issueIdRegExp) {
                     var issueId = '#' + issueIdRegExp[1];
                 }
                 else {
