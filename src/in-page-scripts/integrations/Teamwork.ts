@@ -75,5 +75,72 @@
         }
     }
 
+    class TeamworkDesk implements WebToolIntegration {
+
+        observeMutations = true;
+
+        matchUrl = '*://*.teamwork.com/desk/*';
+
+        issueElementSelector() {
+            return $$.all('.ticket--header').concat($$.all('.reply--box .content_wrap'));
+        }
+
+        isTicketElement(issueElement: HTMLElement) {
+            return issueElement.classList.contains('ticket--header');
+        }
+
+        render(issueElement: HTMLElement, linkElement: HTMLElement) {
+            if (this.isTicketElement(issueElement)) {
+                var host = $$('.padding-wrap', issueElement);
+                if (host) {
+                    var linkContainer = $$.create('div', 'devart-timer-link-teamwork-desk');
+                    linkContainer.appendChild(linkElement);
+                    host.appendChild(linkContainer);
+                }
+            } else {
+                var host = $$('h5', issueElement);
+                if (host) {
+                    host.appendChild(linkElement);
+                }
+            }
+        }
+
+        getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+
+            if (this.isTicketElement(issueElement)) {
+                var issueIdNumber = $$.try('#ticketId', issueElement).textContent;
+                var issueName = $$.try('.title-label a', issueElement).textContent;
+            } else {
+                var issueHrefElement = $$('h5 a', issueElement);
+                if (!issueHrefElement) {
+                    return;
+                }
+                var issueHref = issueHrefElement.getAttribute('href');
+                var match = /^.*tasks\/(\d+)$/.exec(issueHref);
+                var issueIdNumber = match && match[1];
+                var issueName = issueHrefElement.textContent;
+                var projectName = $$.try('ul li a', issueElement).textContent;
+            }
+            if (!issueIdNumber) {
+                return;
+            }
+            issueIdNumber = issueIdNumber.trim();
+            var issueId = '#' + issueIdNumber.trim();
+
+            if (!issueName) {
+                return;
+            }
+
+            var serviceType = 'Teamwork';
+
+            var serviceUrl = source.protocol + source.host;
+
+            var issueUrl = 'desk/#/tickets/' + issueIdNumber;
+
+            return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+        }
+    }
+
     IntegrationService.register(new Teamwork());
+    IntegrationService.register(new TeamworkDesk());
 }
