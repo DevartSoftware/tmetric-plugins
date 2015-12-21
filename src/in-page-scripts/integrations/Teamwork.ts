@@ -6,27 +6,27 @@
 
         matchUrl = '*://*.teamwork.com/*';
 
-        issueElementSelector = () => {
-            var tasks = $$.all('.taskInner');
-            var task = $$('#Task');
-            if (task) {
-                tasks.push(task);
-            }
-            return tasks;
-        };
+        issueElementSelector() {
+            return $$.all('#Task > .titleHolder')
+                .concat($$.all('#TaskContent .topTask > .taskInner'))
+                .concat($$.all('#TaskContent .subTask > .taskInner'));
+        }
 
-        isTaskView(issueElement: HTMLElement) {
-            return issueElement.id == 'Task';
+        isTopTaskTitleElement(issueElement: HTMLElement) {
+            return issueElement.parentElement.id == 'Task';
+        }
+
+        isTopTaskRowElement(issueElement: HTMLElement) {
+            return issueElement.parentElement.classList.contains('topTask');
         }
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
-            if (this.isTaskView(issueElement)) {
+            if (this.isTopTaskTitleElement(issueElement)) {
                 var host = $$('.options', issueElement);
                 if (host) {
                     var linkContainer = $$.create('li');
                     linkContainer.appendChild(linkElement);
-                    linkElement.classList.add('btn');
-                    linkElement.classList.add('btn-default');
+                    linkElement.classList.add('btn', 'btn-default');
                     host.insertBefore(linkContainer, host.firstElementChild);
                 }
             } else {
@@ -41,7 +41,7 @@
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-            if (this.isTaskView(issueElement)) {
+            if (this.isTopTaskTitleElement(issueElement) || this.isTopTaskRowElement(issueElement)) {
 
                 var issueIdNumber = $$.try('#ViewTaskSidebar').getAttribute('data-taskid');
                 if (!issueIdNumber) {
@@ -49,7 +49,7 @@
                 }
                 var issueId = '#' + issueIdNumber;
 
-                var issueName = $$.try('.taskDetailsName', issueElement).textContent;
+                var issueName = $$.try('#TaskContent .taskDetailsName').textContent;
                 if (!issueName) {
                     return;
                 }
