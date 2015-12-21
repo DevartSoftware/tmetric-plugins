@@ -7,21 +7,11 @@
         matchUrl = '*://*.teamwork.com/*';
 
         issueElementSelector() {
-            return $$.all('#Task > .titleHolder')
-                .concat($$.all('#TaskContent .topTask > .taskInner'))
-                .concat($$.all('#TaskContent .subTask > .taskInner'));
-        }
-
-        isTopTaskTitleElement(issueElement: HTMLElement) {
-            return issueElement.parentElement.id == 'Task';
-        }
-
-        isTopTaskRowElement(issueElement: HTMLElement) {
-            return issueElement.parentElement.classList.contains('topTask');
+            return $$.all('#Task > .titleHolder').concat($$.all('.taskInner'))
         }
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
-            if (this.isTopTaskTitleElement(issueElement)) {
+            if (issueElement.parentElement.id == 'Task') {
                 var host = $$('.options', issueElement);
                 if (host) {
                     var linkContainer = $$.create('li');
@@ -41,56 +31,62 @@
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-            if (this.isTopTaskTitleElement(issueElement) || this.isTopTaskRowElement(issueElement)) {
-
-                var issueIdNumber = $$.try('#ViewTaskSidebar').getAttribute('data-taskid');
-                if (!issueIdNumber) {
-                    return;
-                }
-                var issueId = '#' + issueIdNumber;
-
-                var issueName = $$.try('#TaskContent .taskDetailsName').textContent;
-                if (!issueName) {
-                    return;
-                }
-
-                var projectName = $$.try('#projectName').textContent;
-
-                var serviceType = 'Teamwork';
-
-                var serviceUrl = source.protocol + source.host;
-
-                var issueUrl = 'tasks/' + issueIdNumber;
-
-                return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
-            } else {
-
-                var issueHrefElement = $$('.ql.tipped', issueElement);
-                if (!issueHrefElement) {
-                    return;
-                }
-                var issueHref = issueHrefElement.getAttribute('href');
+            var taskText = $$('.taskRHSText .ql.tipped', issueElement);
+            if (taskText) {
+                // tasks from list
+                var issueHref = taskText.getAttribute('href');
                 var match = /^.*tasks\/(\d+)$/.exec(issueHref);
-                if (!match) {
-                    return;
+                var issueIdNumber = match[1];
+            } else {
+                // top task in single view
+                var taskSidebar = $$('#ViewTaskSidebar');
+                if (taskSidebar) {
+                    var issueIdNumber = taskSidebar.getAttribute('data-taskid');
                 }
+            }
+            if (!issueIdNumber) {
+                return;
+            }
+            var issueId = '#' + issueIdNumber;
 
-                var issueId = '#' + match[1];
+            var issueName =
+                $$.try('.taskName', issueElement).textContent || // tasks from list
+                $$.try('#TaskContent .taskDetailsName').textContent; // top task in single view
+            if (!issueName) {
+                return;
+            }
 
-                var issueName = $$.try('.taskName', issueElement).textContent;
-                if (!issueName) {
-                    return;
+            var projectNameElement = $$('#projectName');
+            if (projectNameElement) {
+                // single project tasks view
+                var projectName = projectNameElement.firstChild.textContent;
+            } else {
+                // multi project tasks view
+                // https://COMPANY.teamwork.com/all_tasks
+                var parentRowElement = $$.closest('tr', issueElement);
+                if (parentRowElement) {
+                    var projectName = $$.try('.prjName', parentRowElement).textContent;
                 }
+            }
 
-                var projectName = $$.try('#projectName').textContent;
+            var serviceType = 'Teamwork';
 
-                var serviceType = 'Teamwork';
+            var serviceUrl = source.protocol + source.host;
 
-                var serviceUrl = source.protocol + source.host;
+            var issueUrl = 'tasks/' + issueIdNumber;
 
-                var issueUrl = $$.getRelativeUrl(serviceUrl, issueHref);
+            return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+        }
+    }
 
-                return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+
+
+
+
+
+
+
+
             }
         }
     }
