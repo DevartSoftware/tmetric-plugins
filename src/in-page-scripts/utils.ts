@@ -1,6 +1,6 @@
 ﻿interface Utils {
-    <TElement extends HTMLElement>(selector: string, element?: NodeSelector): TElement;
-    try<TElement extends HTMLElement>(selector: string, element?: NodeSelector): TElement;
+    <TElement extends HTMLElement>(selector: string, element?: NodeSelector, condition?: (el: TElement) => boolean): TElement;
+    try<TElement extends HTMLElement>(selector: string, element?: NodeSelector, condition?: (el: TElement) => boolean): TElement;
     visible<TElement extends HTMLElement>(selector: string, element?: NodeSelector): TElement;
     all<TElement extends HTMLElement>(selector: string, element?: NodeSelector): TElement[];
     closest<TElement extends HTMLElement>(selector: string, element: HTMLElement): TElement;
@@ -9,13 +9,24 @@
     getRelativeUrl(baseUrl: string, fullUrl: string): string;
 }
 
-var $$ = <Utils>function (selector: string, element?: NodeSelector) {
+var $$ = <Utils>function (selector: string, element?: NodeSelector, condition?: (el: Element) => boolean) {
+
     element = element || document;
-    return <HTMLElement>element.querySelector(selector);
+
+    if (!condition) {
+        return <HTMLElement>element.querySelector(selector);
+    }
+
+    var nodeList = element.querySelectorAll(selector);
+    for (var i = 0; i < nodeList.length; i++) {
+        if (condition(nodeList[i])) {
+            return nodeList[i];
+        }
+    }
 }
 
-$$.try = function (selector: string, element?: NodeSelector) {
-    return $$(selector, element) || <HTMLElement>{};
+$$.try = function (selector: string, element?: NodeSelector, condition?: (el: Element) => boolean) {
+    return $$(selector, element, condition) || <HTMLElement>{};
 }
 
 $$.create = function (tagName, className) {
@@ -29,8 +40,8 @@ $$.create = function (tagName, className) {
 
 $$.all = function (selector: string, element?: NodeSelector) {
     element = element || document;
-    var nodeList = <NodeListOf<HTMLElement>>element.querySelectorAll(selector);
-    var result: HTMLElement[] = [];
+    var nodeList = element.querySelectorAll(selector);
+    var result = <Element[]>[];
     for (var i = nodeList.length - 1; i >= 0; i--) {
         result[i] = nodeList[i];
     }
@@ -38,21 +49,18 @@ $$.all = function (selector: string, element?: NodeSelector) {
 }
 
 $$.visible = function (selector: string, element?: NodeSelector) {
-
-    function isVisible(element: HTMLElement) {
-        while (element) {
-            if (element === document.body) {
+    return $$(selector, element, el => {
+        while (el) {
+            if (el === document.body) {
                 return true;
             }
-            if (!element || element.style.display === 'none' || element.style.visibility === 'hidden') {
+            if (!el || el.style.display === 'none' || el.style.visibility === 'hidden') {
                 return false;
             }
-            element = element.parentElement;
+            el = el.parentElement;
         }
         return false;
-    }
-
-    return $$.all(selector, element).filter(isVisible)[0];
+    });
 }
 
 $$.closest = function (selector: string, element: HTMLElement) {

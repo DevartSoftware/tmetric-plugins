@@ -1,13 +1,13 @@
 ﻿module Integrations {
 
+    // http://support.teamwork.com/projects/installation-and-account-134/can-i-change-the-domain-of-my-teamwork-account
+    let hosts = '((teamwork|seetodos|companytodos|worktodos|companyworkflow|projectgameplan|peopleworkflow|projecttodos|projectorganiser|seetasks)\.com|teamworkpm\.net)';
+
     class Teamwork implements WebToolIntegration {
 
         observeMutations = true;
 
-        matchUrl = [
-            '*://*.teamwork.com/*',
-            '*://*.teamworkpm.net/*'
-        ]
+        matchUrl = new RegExp('.*:\/\/.*\.' + hosts + '\/.*');
 
         issueElementSelector() {
             return $$.all('#Task > .titleHolder').concat($$.all('.taskInner'))
@@ -79,7 +79,7 @@
 
         observeMutations = true;
 
-        matchUrl = '*://*.teamwork.com/desk/*';
+        matchUrl = new RegExp('.*:\/\/.*\.' + hosts + '\/desk\/.*');
 
         issueElementSelector() {
             return $$.all('.ticket--header').concat($$.all('.reply--box .content_wrap'));
@@ -91,14 +91,14 @@
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
             if (this.isTicketElement(issueElement)) {
-                var host = $$('.padding-wrap', issueElement);
+                let host = $$('.padding-wrap', issueElement);
                 if (host) {
-                    var linkContainer = $$.create('div', 'devart-timer-link-teamwork-desk');
+                    let linkContainer = $$.create('div', 'devart-timer-link-teamwork-desk');
                     linkContainer.appendChild(linkElement);
                     host.appendChild(linkContainer);
                 }
             } else {
-                var host = $$('h5', issueElement);
+                let host = $$('h5', issueElement);
                 if (host) {
                     host.appendChild(linkElement);
                 }
@@ -107,33 +107,34 @@
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-            var isTicket = this.isTicketElement(issueElement);
-
-            if (isTicket) {
+            if (this.isTicketElement(issueElement)) {
+                var issueName = $$.try('.title-label a', issueElement).textContent;
                 var issueIdNumber = $$.try('#ticketId', issueElement).textContent;
+                var issueUrlPrefix = 'desk/#/tickets/';
             } else {
-                var issueHref = $$.getAttribute('h5 a', 'href', issueElement);
-                var issueHrefMatch = /^.*tasks\/(\d+)$/.exec(issueHref);
-                var issueIdNumber = issueHrefMatch && issueHrefMatch[1];
+                issueName = $$.try('h5 a', issueElement).textContent;
+                var projectName = $$.try('ul li a', issueElement, el => /\/projects\/\d+$/.test(el.getAttribute('href'))).textContent;
+                let issueHref = $$.getAttribute('h5 a', 'href', issueElement);
+                let issueHrefMatch = /^.*tasks\/(\d+)$/.exec(issueHref);
+                issueIdNumber = issueHrefMatch && issueHrefMatch[1];
+                issueUrlPrefix = 'tasks/';
             }
-            if (!issueIdNumber) {
-                return;
-            }
-            issueIdNumber = issueIdNumber.trim();
-            var issueId = '#' + issueIdNumber.trim();
 
-            var issueName = isTicket ? $$.try('.title-label a', issueElement).textContent : $$.try('h5 a', issueElement).textContent;
             if (!issueName) {
                 return;
             }
 
-            var projectName = isTicket ? null : $$.try('ul li a', issueElement).textContent;
+            if (issueIdNumber) {
+                issueIdNumber = issueIdNumber.trim();
+                if (issueIdNumber) {
+                    var issueId = '#' + issueIdNumber;
+                    var issueUrl = issueUrlPrefix + issueIdNumber;
+                }
+            }
 
             var serviceType = 'Teamwork';
 
             var serviceUrl = source.protocol + source.host;
-
-            var issueUrl = isTicket ? 'desk/#/tickets/' + issueIdNumber : 'tasks/' + issueIdNumber;
 
             return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
         }
