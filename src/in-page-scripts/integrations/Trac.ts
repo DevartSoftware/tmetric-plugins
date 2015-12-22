@@ -21,7 +21,7 @@
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-            var match = /^(.+)\/ticket\/(\d+)$/.exec(source.fullUrl);
+            var match = /^(.+)\/ticket\/(\d+)(#.*)?$/.exec(source.fullUrl);
             if (!match) {
                 return;
             }
