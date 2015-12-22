@@ -107,19 +107,14 @@
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-            if (this.isTicketElement(issueElement)) {
+            var isTicket = this.isTicketElement(issueElement);
+
+            if (isTicket) {
                 var issueIdNumber = $$.try('#ticketId', issueElement).textContent;
-                var issueName = $$.try('.title-label a', issueElement).textContent;
             } else {
-                var issueHrefElement = $$('h5 a', issueElement);
-                if (!issueHrefElement) {
-                    return;
-                }
-                var issueHref = issueHrefElement.getAttribute('href');
-                var match = /^.*tasks\/(\d+)$/.exec(issueHref);
-                var issueIdNumber = match && match[1];
-                var issueName = issueHrefElement.textContent;
-                var projectName = $$.try('ul li a', issueElement).textContent;
+                var issueHref = $$.getAttribute('h5 a', 'href', issueElement);
+                var issueHrefMatch = /^.*tasks\/(\d+)$/.exec(issueHref);
+                var issueIdNumber = issueHrefMatch && issueHrefMatch[1];
             }
             if (!issueIdNumber) {
                 return;
@@ -127,15 +122,18 @@
             issueIdNumber = issueIdNumber.trim();
             var issueId = '#' + issueIdNumber.trim();
 
+            var issueName = isTicket ? $$.try('.title-label a', issueElement).textContent : $$.try('h5 a', issueElement).textContent;
             if (!issueName) {
                 return;
             }
+
+            var projectName = isTicket ? null : $$.try('ul li a', issueElement).textContent;
 
             var serviceType = 'Teamwork';
 
             var serviceUrl = source.protocol + source.host;
 
-            var issueUrl = 'desk/#/tickets/' + issueIdNumber;
+            var issueUrl = isTicket ? 'desk/#/tickets/' + issueIdNumber : 'tasks/' + issueIdNumber;
 
             return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
         }
