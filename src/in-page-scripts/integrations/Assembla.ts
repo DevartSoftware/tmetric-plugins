@@ -4,9 +4,13 @@
 
         observeMutations = true;
 
+        integrateInIFrames = true;
+
         matchUrl = '*://www.assembla.com/spaces/*';
 
-        issueElementSelector = '#tickets-show';
+        issueElementSelector() {
+            return $$.all('#tickets-show', $$.try<HTMLIFrameElement>('#popup_page iframe').contentDocument || document);
+        }
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
             var host = $$('.ticket-fields', issueElement);
