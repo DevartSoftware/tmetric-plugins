@@ -79,21 +79,46 @@
 
         observeMutations = true;
 
+        integrateInIFrames = true;
         matchUrl = new RegExp('.*:\/\/.*\.' + hosts + '\/desk\/.*');
 
+
         issueElementSelector() {
-            return $$.all('.ticket--header').concat($$.all('.reply--box .content_wrap'));
+            var taskFrame = $$<HTMLIFrameElement>('#viewTaskIframe');
+            if (taskFrame) {
+                return $$.all('#Task', taskFrame.contentDocument);
+            } else {
+                return $$.all('.ticket--header').concat($$.all('.reply--box .content_wrap'));
+            }
         }
 
         isTicketElement(issueElement: HTMLElement) {
             return issueElement.classList.contains('ticket--header');
         }
 
+        isTaskFrameElement(issueElement: HTMLElement) {
+            return issueElement.id == 'Task';
+        }
+
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
-            if (this.isTicketElement(issueElement)) {
-                let host = $$('.padding-wrap', issueElement);
+            if (this.isTaskFrameElement(issueElement)) {
+                var host = $$('.options', issueElement);
                 if (host) {
-                    let linkContainer = $$.create('div', 'devart-timer-link-teamwork-desk');
+                    //var linkContainer = $$.create('li', 'devart-timer-link-teamwork-desk-task-frame');
+                    //var linkButton = $$.create('button');
+                    //linkButton.classList.add('btn', 'btn-default');
+                    //linkButton.appendChild(linkElement);
+                    //linkContainer.appendChild(linkButton);
+                    //host.appendChild(linkContainer);
+                    var linkContainer = $$.create('li', 'devart-timer-link-teamwork-desk-task-frame');
+                    linkElement.classList.add('btn', 'btn-default');
+                    linkContainer.appendChild(linkElement);
+                    host.appendChild(linkContainer);
+                }
+            } else if (this.isTicketElement(issueElement)) {
+                var host = $$('.padding-wrap', issueElement);
+                if (host) {
+                    var linkContainer = $$.create('div', 'devart-timer-link-teamwork-desk-ticket');
                     linkContainer.appendChild(linkElement);
                     host.appendChild(linkContainer);
                 }
@@ -106,6 +131,21 @@
         }
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+
+            var taskFrame = $$<HTMLIFrameElement>('#viewTaskIframe');
+            if (taskFrame) {
+                var frameSrcMatch = /(.*\/tasks\/\d+)(\?.*)?/.exec(taskFrame.getAttribute('src'));
+                var taskUrl = frameSrcMatch && frameSrcMatch[1];
+                if (!taskUrl) {
+                    return;
+                }
+                issueElement = $$.all('.reply--box .content_wrap').filter(function (task) {
+                    return $$.getAttribute('h5 a', 'href', task) == taskUrl;
+                })[0];
+                if (!issueElement) {
+                    return;
+                }
+            }
 
             if (this.isTicketElement(issueElement)) {
                 var issueName = $$.try('.title-label a', issueElement).textContent;
