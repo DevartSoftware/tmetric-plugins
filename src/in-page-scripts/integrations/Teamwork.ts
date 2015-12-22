@@ -82,7 +82,6 @@
         integrateInIFrames = true;
         matchUrl = new RegExp('.*:\/\/.*\.' + hosts + '\/desk\/.*');
 
-
         issueElementSelector() {
             var taskFrame = $$<HTMLIFrameElement>('#viewTaskIframe');
             if (taskFrame) {
@@ -102,23 +101,17 @@
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
             if (this.isTaskFrameElement(issueElement)) {
-                var host = $$('.options', issueElement);
+                let host = $$('.options', issueElement);
                 if (host) {
-                    //var linkContainer = $$.create('li', 'devart-timer-link-teamwork-desk-task-frame');
-                    //var linkButton = $$.create('button');
-                    //linkButton.classList.add('btn', 'btn-default');
-                    //linkButton.appendChild(linkElement);
-                    //linkContainer.appendChild(linkButton);
-                    //host.appendChild(linkContainer);
-                    var linkContainer = $$.create('li', 'devart-timer-link-teamwork-desk-task-frame');
+                    let linkContainer = $$.create('li', 'devart-timer-link-teamwork-desk-task-frame');
                     linkElement.classList.add('btn', 'btn-default');
                     linkContainer.appendChild(linkElement);
                     host.appendChild(linkContainer);
                 }
             } else if (this.isTicketElement(issueElement)) {
-                var host = $$('.padding-wrap', issueElement);
+                let host = $$('.padding-wrap', issueElement);
                 if (host) {
-                    var linkContainer = $$.create('div', 'devart-timer-link-teamwork-desk-ticket');
+                    let linkContainer = $$.create('div', 'devart-timer-link-teamwork-desk-ticket');
                     linkContainer.appendChild(linkElement);
                     host.appendChild(linkContainer);
                 }
@@ -152,24 +145,21 @@
                 var issueIdNumber = $$.try('#ticketId', issueElement).textContent;
                 var issueUrlPrefix = 'desk/#/tickets/';
             } else {
-                issueName = $$.try('h5 a', issueElement).textContent;
+                var issueName = $$.try('h5 a', issueElement).textContent;
                 var projectName = $$.try('ul li a', issueElement, el => /\/projects\/\d+$/.test(el.getAttribute('href'))).textContent;
                 let issueHref = $$.getAttribute('h5 a', 'href', issueElement);
                 let issueHrefMatch = /^.*tasks\/(\d+)$/.exec(issueHref);
-                issueIdNumber = issueHrefMatch && issueHrefMatch[1];
-                issueUrlPrefix = 'tasks/';
+                var issueIdNumber = issueHrefMatch && issueHrefMatch[1];
+                var issueUrlPrefix = 'tasks/';
             }
 
             if (!issueName) {
                 return;
             }
 
-            if (issueIdNumber) {
-                issueIdNumber = issueIdNumber.trim();
-                if (issueIdNumber) {
-                    var issueId = '#' + issueIdNumber;
-                    var issueUrl = issueUrlPrefix + issueIdNumber;
-                }
+            if (issueIdNumber && (issueIdNumber = issueIdNumber.trim())) {
+                var issueId = '#' + issueIdNumber;
+                var issueUrl = issueUrlPrefix + issueIdNumber;
             }
 
             var serviceType = 'Teamwork';
