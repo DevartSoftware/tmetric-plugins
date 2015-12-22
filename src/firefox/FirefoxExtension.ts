@@ -53,7 +53,7 @@ class FirefoxExtension extends ExtensionBase {
         pageMod.PageMod({
             include: ["http://*", "https://*"],
             contentScriptWhen: "ready",
-            attachTo: ["existing", "top"],
+            attachTo: ["existing", "top", "frame"],
             contentStyleFile: self.data.url("./timer-link.css")
         });
 

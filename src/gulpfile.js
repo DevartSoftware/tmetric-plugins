@@ -69,21 +69,27 @@ gulp.task('compile:less', ['clean'], function () {
 // =============================================================================
 
 gulp.task('prepackage:chrome', ['prepackage:chrome:images', 'compile'], function () {
+
     var manifest = jsonfile.readFileSync('./manifest.json');
     var files = [];
-    manifest.background.scripts = manifest.background.scripts.map(mapCallback);
-    var content = manifest.content_scripts[0];
-    content.js = content.js.map(mapCallback);
-    content.css = content.css.map(mapCallback);
 
     function mapCallback(file, index, array) {
         files.push(file);
         return path.basename(file);
     }
 
+    manifest.background.scripts = manifest.background.scripts.map(mapCallback);
+
+    manifest.content_scripts = manifest.content_scripts.map(function (content) {
+        content.js && (content.js = content.js.map(mapCallback));
+        content.css && (content.css = content.css.map(mapCallback));
+        return content;
+    });
+
     jsonfile.writeFileSync(distChromeUnpacked + 'manifest.json', manifest, { spaces: 2 });
 
     return gulp.src(files).pipe(gulp.dest(distChromeUnpacked));
+
 });
 
 gulp.task('prepackage:chrome:images', ['clean'], function () {

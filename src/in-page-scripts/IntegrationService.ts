@@ -32,10 +32,26 @@
         static needsUpdate() {
             // Find 'Stop' link or 'Start' link associated with current timer.
             // If it is found we should refresh links on a page.
-            return $$.all('a.' + this.affix).some(link => {
+
+            // Search links on top page
+            var links = $$.all('a.' + this.affix);
+
+            // Search links in iframes if integration support it
+            if (this.hasPossibleIntegrationsInIFrame()) {
+                links = $$.all<HTMLIFrameElement>('iframe').reduce((links, iframe) => {
+                    return links.concat($$.all('a.' + this.affix, iframe.contentDocument));
+                }, links);
+            }
+
+            // Check if are links what should be updated
+            return links.some(link => {
                 var linkTimer = <WebToolIssueTimer>JSON.parse(link.getAttribute('data-' + this.affix));
                 return !linkTimer.isStarted || this.isIssueStarted(linkTimer);
             });
+        }
+
+        static hasPossibleIntegrationsInIFrame() {
+            return this._possibleIntegrations.some(integration => integration.integrateInIFrames);
         }
 
         static updateLinks(checkAllIntegrations: boolean) {

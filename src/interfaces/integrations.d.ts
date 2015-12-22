@@ -5,6 +5,7 @@ declare module Integrations {
         match?: (source: Source) => boolean;
         issueElementSelector?: string | (() => HTMLElement[]);
         observeMutations?: boolean;
+        integrateInIFrames?: boolean;
         render(issueElement: HTMLElement, linkElement: HTMLElement);
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue;
     }
