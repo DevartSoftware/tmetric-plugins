@@ -171,6 +171,27 @@
         }
     }
 
+    function onIFrameMessage(evt) {
+        var message = evt.data;
+        if (!message) {
+            return;
+        }
+        if (message.topic == 'mutation.iframe') {
+            var iframes = $$.select<HTMLIFrameElement>(Integrations.IntegrationService.getIFrameIssueSelectors());
+            var shoudParse = iframes.some((iframe) => {
+                return iframe.contentWindow.location.href == message.url;
+            });
+            if (shoudParse) {
+                parsePage();
+            }
+        }
+    }
+    window.addEventListener('message', onIFrameMessage, false);
+
+    function sendIFrameAction(action) {
+        window.postMessage({ url: window.location.href, topic: "mutation.iframe", action: action }, window.location.origin);
+    }
+
     var oldUrl = '';
     var oldTitle = '';
     var changeCheckerHandle: number;

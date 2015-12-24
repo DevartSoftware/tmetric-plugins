@@ -74,6 +74,9 @@
         {
             "matches": [ "http://*/*", "https://*/*" ],
             "all_frames": true,
+            "js": [
+                "in-page-scripts/pageObserver.js"
+            ],
             "css": [
                 "css/timer-link.css"
             ],

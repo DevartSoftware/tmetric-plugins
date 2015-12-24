@@ -37,7 +37,7 @@
             var links = $$.all('a.' + this.affix);
 
             // Search links in iframes if integration support it
-            if (this.hasPossibleIntegrationsInIFrame()) {
+            if (this.hasPossibleIFrameIntegrations()) {
                 links = $$.all<HTMLIFrameElement>('iframe').reduce((links, iframe) => {
                     return links.concat($$.all('a.' + this.affix, iframe.contentDocument));
                 }, links);
@@ -50,8 +50,21 @@
             });
         }
 
-        static hasPossibleIntegrationsInIFrame() {
-            return this._possibleIntegrations.some(integration => integration.integrateInIFrames);
+        static hasPossibleIFrameIntegrations() {
+            return this._possibleIntegrations.some(integration => !!integration.issueIFrameSeletor);
+        }
+
+        static getPossibleIFrameIntegrations() {
+            return this._possibleIntegrations.filter(integration => !!integration.issueIFrameSeletor);
+        }
+
+        static getIFrameIssueSelectors() {
+            var iframeIntegrations = this.getPossibleIFrameIntegrations();
+            var selectors = [];
+            iframeIntegrations.forEach((integration) => {
+                selectors.push(integration.issueIFrameSeletor);
+            });
+            return selectors;
         }
 
         static updateLinks(checkAllIntegrations: boolean) {

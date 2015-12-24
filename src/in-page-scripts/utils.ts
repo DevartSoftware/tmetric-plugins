@@ -3,6 +3,7 @@
     try<TElement extends HTMLElement>(selector: string, element?: NodeSelector, condition?: (el: TElement) => boolean): TElement;
     visible<TElement extends HTMLElement>(selector: string, element?: NodeSelector): TElement;
     all<TElement extends HTMLElement>(selector: string, element?: NodeSelector): TElement[];
+    select<TElement extends HTMLElement>(selector: (string) | (string[]) | (() => string[]) | (() => string), element?: NodeSelector): TElement[];
     closest<TElement extends HTMLElement>(selector: string, element: HTMLElement): TElement;
     getAttribute(selector: string, attributeName: string, element?: NodeSelector): string;
     create<TElement extends HTMLElement>(tagName: string, className?: string): TElement;
@@ -45,6 +46,27 @@ $$.all = function (selector: string, element?: NodeSelector) {
     for (var i = nodeList.length - 1; i >= 0; i--) {
         result[i] = nodeList[i];
     }
+    return result;
+}
+
+$$.select = function (selector: any, element?: NodeSelector) {
+    element = element || document;
+
+    var selectors = [];
+    if (typeof selector == 'function') {
+        selectors = selectors.concat(selector());
+    } else {
+        selectors = selectors.concat(selector);
+    }
+
+    var result = <Element[]>[];
+    selectors.forEach((selector) => {
+        var nodeList = element.querySelectorAll(selector);
+        for (var i = 0, size = nodeList.length; i < size; i++) {
+            result.push(nodeList[i]);
+        }
+    });
+
     return result;
 }
 

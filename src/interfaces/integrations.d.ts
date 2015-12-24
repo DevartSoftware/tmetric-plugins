@@ -4,8 +4,8 @@ declare module Integrations {
         matchUrl?: string | RegExp | (string | RegExp)[];
         match?: (source: Source) => boolean;
         issueElementSelector?: string | (() => HTMLElement[]);
+        issueIFrameSeletor?: string | string[] | (() => string) | (() => string[]);
         observeMutations?: boolean;
-        integrateInIFrames?: boolean;
         render(issueElement: HTMLElement, linkElement: HTMLElement);
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue;
     }

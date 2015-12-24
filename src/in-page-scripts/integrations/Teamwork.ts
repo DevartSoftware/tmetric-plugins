@@ -79,7 +79,6 @@
 
         observeMutations = true;
 
-        integrateInIFrames = true;
         matchUrl = new RegExp('.*:\/\/.*\.' + hosts + '\/desk\/.*');
 
         issueElementSelector() {
@@ -90,6 +89,8 @@
                 return $$.all('.ticket--header').concat($$.all('.reply--box .content_wrap'));
             }
         }
+
+        issueIFrameSeletor = '#viewTaskIframe';
 
         isTicketElement(issueElement: HTMLElement) {
             return issueElement.classList.contains('ticket--header');
