@@ -233,7 +233,7 @@ class FirefoxExtension extends ExtensionBase {
     }
 
     showNotification(message: string, title?: string) {
-        alertsService.showAlertNotification(self.data.url('icon.png'), title || 'TMetric', message);
+        alertsService.showAlertNotification(self.data.url('../icon.png'), title || 'TMetric', message);
     }
 
     showConfirmation(message: string) {
