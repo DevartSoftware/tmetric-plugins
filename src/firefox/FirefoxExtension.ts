@@ -54,7 +54,6 @@ class FirefoxExtension extends ExtensionBase {
             include: ["http://*", "https://*"],
             contentScriptWhen: "ready",
             attachTo: ["existing", "top", "frame"],
-            contentScriptFile: self.data.url("./pageObserver.js"),
             contentStyleFile: self.data.url("./timer-link.css")
         });
 

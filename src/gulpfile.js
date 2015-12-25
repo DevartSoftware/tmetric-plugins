@@ -89,7 +89,6 @@ gulp.task('prepackage:chrome', ['prepackage:chrome:images', 'compile'], function
     jsonfile.writeFileSync(distChromeUnpacked + 'manifest.json', manifest, { spaces: 2 });
 
     return gulp.src(files).pipe(gulp.dest(distChromeUnpacked));
-
 });
 
 gulp.task('prepackage:chrome:images', ['clean'], function () {

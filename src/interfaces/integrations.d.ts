@@ -4,7 +4,6 @@ declare module Integrations {
         matchUrl?: string | RegExp | (string | RegExp)[];
         match?: (source: Source) => boolean;
         issueElementSelector?: string | (() => HTMLElement[]);
-        issueIFrameSelector?: string | (() => HTMLIFrameElement[]);
         observeMutations?: boolean;
         render(issueElement: HTMLElement, linkElement: HTMLElement);
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue;

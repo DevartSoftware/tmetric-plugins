@@ -39,7 +39,6 @@
         "in-page-scripts/integrations/Wrike.ts",
         "in-page-scripts/integrations/YouTrack.ts",
         "in-page-scripts/page.ts",
-        "in-page-scripts/pageObserver.ts",
         "in-page-scripts/pageTalk.ts",
         "in-page-scripts/utils.ts",
         "test/webdriverio/services.d.ts",

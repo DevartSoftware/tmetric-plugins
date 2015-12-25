@@ -6,11 +6,7 @@
 
         matchUrl = '*://www.assembla.com/spaces/*';
 
-        issueElementSelector() {
-            return $$.all('#tickets-show', $$.try<HTMLIFrameElement>(this.issueIFrameSelector).contentDocument || document);
-        }
-
-        issueIFrameSelector = '#popup_page iframe';
+        issueElementSelector = '#tickets-show';
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
             var host = $$('.ticket-fields', issueElement);

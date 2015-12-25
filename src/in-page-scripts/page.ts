@@ -171,23 +171,6 @@
         }
     }
 
-    function onIFrameMessage(evt) {
-        var message = evt.data;
-        if (!message) {
-            return;
-        }
-        if (message.topic == 'mutation.iframe') {
-            var iframes = Integrations.IntegrationService.getIssueIFrames();
-            var shoudParse = iframes.some((iframe) => {
-                return iframe.contentWindow.location.href == message.url;
-            });
-            if (shoudParse) {
-                parsePage();
-            }
-        }
-    }
-    window.addEventListener('message', onIFrameMessage, false);
-
     var oldUrl = '';
     var oldTitle = '';
     var changeCheckerHandle: number;
