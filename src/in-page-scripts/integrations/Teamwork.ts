@@ -82,7 +82,7 @@
         matchUrl = new RegExp('.*:\/\/.*\.' + hosts + '\/desk\/.*');
 
         issueElementSelector() {
-            var taskFrame = $$<HTMLIFrameElement>('#viewTaskIframe');
+            var taskFrame = $$<HTMLIFrameElement>(this.issueIFrameSeletor);
             if (taskFrame) {
                 return $$.all('#Task', taskFrame.contentDocument);
             } else {

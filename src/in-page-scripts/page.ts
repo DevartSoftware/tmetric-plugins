@@ -177,7 +177,7 @@
             return;
         }
         if (message.topic == 'mutation.iframe') {
-            var iframes = $$.select<HTMLIFrameElement>(Integrations.IntegrationService.getIFrameIssueSelectors());
+            var iframes = Integrations.IntegrationService.getIssueIFrames();
             var shoudParse = iframes.some((iframe) => {
                 return iframe.contentWindow.location.href == message.url;
             });
@@ -187,10 +187,6 @@
         }
     }
     window.addEventListener('message', onIFrameMessage, false);
-
-    function sendIFrameAction(action) {
-        window.postMessage({ url: window.location.href, topic: "mutation.iframe", action: action }, window.location.origin);
-    }
 
     var oldUrl = '';
     var oldTitle = '';

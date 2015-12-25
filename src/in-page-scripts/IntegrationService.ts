@@ -33,15 +33,13 @@
             // Find 'Stop' link or 'Start' link associated with current timer.
             // If it is found we should refresh links on a page.
 
-            // Search links on top page
-            var links = $$.all('a.' + this.affix);
+            // Search links on top page and in iframes if integration support it
+            var links = <HTMLElement[]>[];
+            var documents = [document].concat(this.getIssueIFrames().map(iframe => iframe.contentDocument));
 
-            // Search links in iframes if integration support it
-            if (this.hasPossibleIFrameIntegrations()) {
-                links = $$.all<HTMLIFrameElement>('iframe').reduce((links, iframe) => {
-                    return links.concat($$.all('a.' + this.affix, iframe.contentDocument));
-                }, links);
-            }
+            documents.forEach(document => {
+                links = links.concat($$.all('a.' + this.affix, document));
+            });
 
             // Check if are links what should be updated
             return links.some(link => {
@@ -50,21 +48,11 @@
             });
         }
 
-        static hasPossibleIFrameIntegrations() {
-            return this._possibleIntegrations.some(integration => !!integration.issueIFrameSeletor);
-        }
-
-        static getPossibleIFrameIntegrations() {
-            return this._possibleIntegrations.filter(integration => !!integration.issueIFrameSeletor);
-        }
-
-        static getIFrameIssueSelectors() {
-            var iframeIntegrations = this.getPossibleIFrameIntegrations();
-            var selectors = [];
-            iframeIntegrations.forEach((integration) => {
-                selectors.push(integration.issueIFrameSeletor);
-            });
-            return selectors;
+        static getIssueIFrames(): HTMLIFrameElement[] {
+            return <HTMLIFrameElement[]>[].concat(this._possibleIntegrations.map(integration => {
+                var selector = integration.issueIFrameSelector;
+                return (typeof selector === 'function' ? selector() : $$.all<HTMLIFrameElement>(<string>selector)) || [];
+            }));
         }
 
         static updateLinks(checkAllIntegrations: boolean) {
