@@ -60,6 +60,7 @@
                 "in-page-scripts/integrations/PivotalTracker.js",
                 "in-page-scripts/integrations/Producteev.js",
                 "in-page-scripts/integrations/Redmine.js",
+                "in-page-scripts/integrations/Teamweek.js",
                 "in-page-scripts/integrations/Teamwork.js",
                 "in-page-scripts/integrations/TFS.js",
                 "in-page-scripts/integrations/Trac.js",
