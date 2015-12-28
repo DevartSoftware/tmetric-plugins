@@ -13,13 +13,12 @@
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
             var host = $$('.actions .buttons', issueElement);
             if (host) {
-                linkElement.classList.add('devart-timer-link-sprintly');
                 host.appendChild(linkElement);
             }
         }
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-            console.log('getIssue', issueElement);
+
             var issueName = $$.try('.title', issueElement).textContent;
             if (!issueName) {
                 return;
@@ -44,7 +43,7 @@
                     }
                 }
             }
-            console.log({ issueId, issueName, projectName, serviceType, serviceUrl, issueUrl });
+
             return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
         }
     }
