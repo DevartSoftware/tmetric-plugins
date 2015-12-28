@@ -51,6 +51,7 @@
                 "in-page-scripts/IntegrationService.js",
                 "in-page-scripts/integrations/Asana.js",
                 "in-page-scripts/integrations/Assembla.js",
+                "in-page-scripts/integrations/Axosoft.js",
                 "in-page-scripts/integrations/Basecamp.js",
                 "in-page-scripts/integrations/Bitbucket.js",
                 "in-page-scripts/integrations/Bugzilla.js",
