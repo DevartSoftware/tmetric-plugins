@@ -1,29 +1,7 @@
 # TMetric Extensions
 Extensions for Google and Firefox browsers, that integrate TMetric with popular issue tracking tools.
 
-Supported systems:
- - [Asana](https://asana.com/)
- - [Assembla](https://www.assembla.com/)
- - [Axosoft](https://www.axosoft.com/)
- - [Basecamp](https://basecamp.com/)
- - [Bitbucket](https://bitbucket.org/)
- - [Bugzilla](https://www.bugzilla.org/)
- - [GitHub](https://github.com/)
- - [GitLab](https://gitlab.com/)
- - [Jira](https://www.atlassian.com/software/jira) (including Jira Agile).
- - [Jira Service Desk](https://www.atlassian.com/software/jira/service-desk)
- - [Pivotal Tracker](https://www.pivotaltracker.com/)
- - [Producteev](https://www.producteev.com/)
- - [Redmine](https://www.redmine.org/)
- - [Sprintly](https://sprint.ly/)
- - [Trac](http://trac.edgewall.org/)
- - [Teamweek](https://teamweek.com/)
- - [Teamwork](https://www.teamwork.com/)
- - [Trello](https://trello.com/)
- - [Visual Studio Online](https://www.visualstudio.com/)
- - [Waffle](https://waffle.io/)
- - [Wrike](https://www.wrike.com/)
- - [YouTrack](https://www.jetbrains.com/youtrack/)
+Supported systems: [Asana](https://asana.com/), [Assembla](https://www.assembla.com/), [Axosoft](https://www.axosoft.com/), [Basecamp](https://basecamp.com/), [Bitbucket](https://bitbucket.org/), [Bugzilla](https://www.bugzilla.org/), [GitHub](https://github.com/), [GitLab](https://gitlab.com/), [Jira](https://www.atlassian.com/software/jira), [Jira Service Desk](https://www.atlassian.com/software/jira/service-desk), [Pivotal Tracker](https://www.pivotaltracker.com/), [Producteev](https://www.producteev.com/), [Redmine](https://www.redmine.org/), [Sprintly](https://sprint.ly/), [Trac](http://trac.edgewall.org/), [Teamweek](https://teamweek.com/), [Teamwork](https://www.teamwork.com/), [Trello](https://trello.com/), [Visual Studio Online](https://www.visualstudio.com/), [Waffle](https://waffle.io/), [Wrike](https://www.wrike.com/), [YouTrack](https://www.jetbrains.com/youtrack/).
 
 ## Installation
 **Requirements**
