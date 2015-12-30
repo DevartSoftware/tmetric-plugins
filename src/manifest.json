@@ -45,7 +45,6 @@
     "content_scripts": [
         {
             "matches": [ "http://*/*", "https://*/*" ],
-            "all_frames": false,
             "js": [
                 "in-page-scripts/utils.js",
                 "in-page-scripts/IntegrationService.js",
@@ -72,11 +71,6 @@
                 "in-page-scripts/integrations/YouTrack.js",
                 "in-page-scripts/page.js"
             ],
-            "run_at": "document_end"
-        },
-        {
-            "matches": [ "http://*/*", "https://*/*" ],
-            "all_frames": true,
             "css": [
                 "css/timer-link.css"
             ],
