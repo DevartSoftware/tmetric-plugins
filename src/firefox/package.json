@@ -1,12 +1,12 @@
 {
-    "title": "TMetric",
-    "name": "devart-timer-button",
+    "title": "TMetric Extension",
+    "name": "tmetric",
     "id": "timetracker@devart.com",
     "icon": {
         "48": "icon.png"
     },
-    "version": "0.1.0",
-    "description": "Integrates TMetric with popular issue tracking tools.",
+    "version": "1.0.1",
+    "description": "Integrates TMetric web-app with popular issue tracking tools.",
     "main": "index.js",
     "author": "Devart",
     "engines": {

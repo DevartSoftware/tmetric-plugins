@@ -52,6 +52,7 @@ gulp.task('compile:ts', ['clean'], function () {
     var tsc = require('gulp-tsc'); // TypeScript compiler for gulp.js
     var project = require('./tsconfig.json');
     project.compilerOptions.sourceMap = false;
+    project.compilerOptions.tscPath = './node_modules/typescript/lib/tsc.js';
     return gulp.src(project.files)
       .pipe(tsc(project.compilerOptions))
       .pipe(gulp.dest('./'));
@@ -108,17 +109,11 @@ gulp.task('prepackage:chrome:test:shortcut', ['prepackage:chrome'], function () 
 });
 
 function packageChrome() {
-    var crx = require('gulp-crx-pack'); // Pack Chrome Extension in the pipeline.
+    var zip = require('gulp-zip'); // ZIP compress files.
     var manifest = jsonfile.readFileSync(distChromeUnpacked + 'manifest.json');
 
-    // Specify the location (relative) of the already generated .pem file for the Chrome extension.
-    var pemKey = src + 'chrome/debug-key.pem';
-
-    return gulp.src(distChromeUnpacked)
-      .pipe(crx({
-          privateKey: fs.readFileSync(pemKey, 'utf8'),
-          filename: manifest.name + '.crx'
-      }))
+    return gulp.src(distChromeUnpacked + '**/*')
+      .pipe(zip(manifest.short_name.toLowerCase() + '-' + manifest.version + '.zip'))
       .pipe(gulp.dest(distChrome));
 }
 

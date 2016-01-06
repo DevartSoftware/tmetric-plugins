@@ -53,7 +53,7 @@
                 clearTimeout(pingTimeouts[callbackAction]);
             }
 
-            pingTimeouts[callbackAction] = setTimeout(finalize, 30000);
+            pingTimeouts[callbackAction] = setTimeout(() => finalize(), 30000);
 
             try {
                 sendBackgroundMessage(message);
