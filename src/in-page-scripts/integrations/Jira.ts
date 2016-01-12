@@ -2,6 +2,8 @@
 
     class JiraBase {
 
+        observeMutations = true;
+
         match(source: Source): boolean {
             return $$.getAttribute('meta[name=application-name]', 'content') == 'JIRA';
         }
@@ -73,8 +75,6 @@
     }
 
     class JiraAgile extends JiraBase implements WebToolIntegration {
-
-        observeMutations = true;
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
             var detailSection = $$('#ghx-detail-head');
