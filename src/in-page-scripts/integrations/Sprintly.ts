@@ -4,8 +4,6 @@
 
         observeMutations = true;
 
-        // Workspace task url:
-        // https://app.teamweek.com/#timeline/task/WORKSPACE_ID/TASK_ID
         matchUrl = '*://sprint.ly/*';
 
         issueElementSelector = '.card';
