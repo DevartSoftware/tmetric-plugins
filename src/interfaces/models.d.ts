@@ -90,6 +90,7 @@ declare module Models {
         isStarted: boolean;
         workTask: WorkTask;
         startTime: string;
+        tagsIdentifiers: number[];
     }
 
     interface TimeEntry {
@@ -97,5 +98,18 @@ declare module Models {
         startTime: string;
         endTime: string;
         projectName: string;
+    }
+
+    interface Project {
+        projectId: number;
+        projectName: string;
+        accountId: number;
+        projectStatus: ProjectStatus;
+    }
+
+    interface Tag {
+        tagId: number;
+        accountId: number;
+        tagName: string;
     }
 }
