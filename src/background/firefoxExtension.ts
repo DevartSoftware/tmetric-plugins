@@ -1,4 +1,5 @@
-import buttons = require('sdk/ui/button/action');
+import buttons = require('sdk/ui/button/toggle');
+import panels = require("sdk/panel");
 import tabs = require('sdk/tabs');
 import windows = require('sdk/windows');
 import utils = require('sdk/window/utils');
@@ -25,7 +26,7 @@ class FirefoxExtension extends ExtensionBase {
 
     checkCloseTimeout: number;
 
-    actionButton: Firefox.ActionButton;
+    actionButton: Firefox.ToggleButton;
 
     windowObserver: Firefox.nsIObserver;
 
@@ -36,9 +37,9 @@ class FirefoxExtension extends ExtensionBase {
             pageWorker.Page({
                 contentScriptWhen: 'ready',
                 contentScriptFile: [
-                    './jquery.min.js',
-                    './jquery.signalr.min.js',
-                    './SignalRConnection.js'
+                    './lib/jquery.min.js',
+                    './lib/jquery.signalr.min.js',
+                    './background/signalRConnection.js'
                 ],
             }).port);
 
@@ -47,14 +48,14 @@ class FirefoxExtension extends ExtensionBase {
             include: ["*.alm-build", "*.localhost", "*.app.tmetric.com"],
             contentScriptWhen: "start",
             attachTo: ["existing", "top"],
-            contentScriptFile: self.data.url("./pageTalk.js")
+            contentScriptFile: "./in-page-scripts/pageTalk.js"
         });
 
         pageMod.PageMod({
             include: ["http://*", "https://*"],
             contentScriptWhen: "ready",
             attachTo: ["existing", "top", "frame"],
-            contentStyleFile: self.data.url("./timer-link.css")
+            contentStyleFile: self.data.url("./css/timer-link.css")
         });
 
         tabs.on('close', tab => {
@@ -97,30 +98,30 @@ class FirefoxExtension extends ExtensionBase {
         };
 
         var contentScriptFile = [
-            './utils.js',
-            './IntegrationService.js',
-            './Asana.js',
-            './Assembla.js',
-            './Axosoft.js',
-            './Basecamp.js',
-            './Bitbucket.js',
-            './Bugzilla.js',
-            './GitHub.js',
-            './GitLab.js',
-            './Jira.js',
-            './PivotalTracker.js',
-            './Producteev.js',
-            './Redmine.js',
-            './Sprintly.js',
-            './Teamweek.js',
-            './Teamwork.js',
-            './TFS.js',
-            './Trac.js',
-            './Trello.js',
-            './Waffle.js',
-            './Wrike.js',
-            './YouTrack.js',
-            './page.js'
+            './in-page-scripts/utils.js',
+            './in-page-scripts/integrationService.js',
+            './in-page-scripts/integrations/Asana.js',
+            './in-page-scripts/integrations/Assembla.js',
+            './in-page-scripts/integrations/Axosoft.js',
+            './in-page-scripts/integrations/Basecamp.js',
+            './in-page-scripts/integrations/Bitbucket.js',
+            './in-page-scripts/integrations/Bugzilla.js',
+            './in-page-scripts/integrations/GitHub.js',
+            './in-page-scripts/integrations/GitLab.js',
+            './in-page-scripts/integrations/Jira.js',
+            './in-page-scripts/integrations/PivotalTracker.js',
+            './in-page-scripts/integrations/Producteev.js',
+            './in-page-scripts/integrations/Redmine.js',
+            './in-page-scripts/integrations/Sprintly.js',
+            './in-page-scripts/integrations/Teamweek.js',
+            './in-page-scripts/integrations/Teamwork.js',
+            './in-page-scripts/integrations/TFS.js',
+            './in-page-scripts/integrations/Trac.js',
+            './in-page-scripts/integrations/Trello.js',
+            './in-page-scripts/integrations/Waffle.js',
+            './in-page-scripts/integrations/Wrike.js',
+            './in-page-scripts/integrations/YouTrack.js',
+            './in-page-scripts/page.js'
         ];
 
         var attachTab = (tab: Firefox.Tab) => {
@@ -160,24 +161,53 @@ class FirefoxExtension extends ExtensionBase {
         }
         windowWatcher.registerNotification(this.windowObserver);
 
-        this.actionButton = buttons.ActionButton({
+        // addon toggle button
+
+        this.actionButton = buttons.ToggleButton({
             id: 'startButton',
             label: 'TMetric',
             icon: this.getIconSet('inactive'),
-            onClick: () => {
-                var tab = this.getActiveTab();
-
-                if (this.loginWindow != null) {
-                    this.loginWindow.focus();
-                }
-                else {
-                    var window = utils.getMostRecentBrowserWindow();
-                    if (window && window.document) {
-                        this.putTimer(tab.url, tab.title);
-                    }
+            onClick: (state) => {
+                if (state.checked) {
+                    showPanel();
                 }
             }
         });
+
+        var showPanel = () => {
+
+            var panel = panels.Panel({
+                contentURL: self.data.url("./popup/popup.html"),
+                contentScriptFile: [
+                    "./lib/jquery.min.js",
+                    "./lib/select2/select2.full.min.js",
+                    "./popup/popupBase.js",
+                    "./popup/firefoxPopup.js"
+                ],
+                onShow: () => {
+                    console.log('showed');
+                    panel.port.emit('popup_showed');
+                },
+                onHide: () => {
+                    console.log('hidden');
+                    panel.port.emit('popup_hidden');
+                    this.actionButton.state('window', { checked: false });
+                }
+            });
+
+            panel.port.on('popup_request', (message: IPopupRequest) => {
+                console.log('panel port popup_request', message);
+                this.onPopupRequest(message, (response) => {
+                    panel.port.emit('popup_request_' + message.action + '_response', response);
+                });
+            });
+
+            panel.show({
+                position: this.actionButton
+            });
+        };
+
+        //
 
         var updateCurrentTab = (tab?: Firefox.Tab) => {
             if (this.loginWindowPending) {
@@ -322,9 +352,9 @@ class FirefoxExtension extends ExtensionBase {
 
     getIconSet(icon: string): Firefox.IconSet {
         return {
-            '16': './' + icon + '16.png',
-            '32': './' + icon + '32.png',
-            '64': './' + icon + '64.png'
+            '16': './images/firefox/' + icon + '16.png',
+            '32': './images/firefox/' + icon + '32.png',
+            '64': './images/firefox/' + icon + '64.png'
         };
     }
 

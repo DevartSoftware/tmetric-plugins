@@ -35,28 +35,19 @@ class ChromeExtension extends ExtensionBase {
                 }));
             }
         }
-        chrome.runtime.onMessage.addListener((message: ITabMessage, sender: chrome.runtime.MessageSender) => {
-            var isActive = false;
-            var tabId: number;
+        chrome.runtime.onMessage.addListener((message: ITabMessage | IPopupRequest, sender: chrome.runtime.MessageSender, senderResponse: (IPopupResponse) => void) => {
+            console.log('extension chrome.runtime.onMessage', message, sender);
             if (sender.tab) {
-                tabId = sender.tab.id;
-
-                if (sender.tab.id == this.loginTabId) // Ignore login dialog
-                {
+                if (sender.tab.id == this.loginTabId) { // Ignore login dialog
                     return;
                 }
-                isActive = sender.tab.active;
-            }
-
-            this.onTabMessage(message, tabId, isActive);
-        });
-
-        chrome.browserAction.onClicked.addListener(tab => {
-            if (this.loginWinId) {
-                chrome.windows.update(this.loginWinId, { focused: true });
-            }
-            else {
-                this.putTimer(tab.url, tab.title);
+                var tabId = sender.tab.id;
+                var isActive = sender.tab.active;
+                this.onTabMessage(message, tabId, isActive);
+            } else if (sender.url && sender.url.match(/^chrome.+popup.html$/)) {
+                this.onPopupRequest(message, senderResponse);
+                // http://stackoverflow.com/questions/33614911/sending-message-between-content-js-and-background-js-fails
+                return !!senderResponse;
             }
         });
 

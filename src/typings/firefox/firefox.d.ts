@@ -21,6 +21,10 @@
         disabled: boolean;
     }
 
+    interface ToggleButton extends ActionButton {
+        checked: boolean;
+    }
+
     interface IconSet {
         [size: string]: string;
     }
@@ -249,6 +253,11 @@
 declare module 'sdk/ui/button/action'
 {
     function ActionButton(descriptor: Firefox.ButtonDescriptor): Firefox.ActionButton;
+}
+
+declare module 'sdk/ui/button/toggle'
+{
+    function ToggleButton(descriptor: Firefox.ButtonDescriptor): Firefox.ToggleButton;
 }
 
 declare module 'sdk/tabs'

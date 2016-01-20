@@ -56,8 +56,12 @@
         var callbackName = actionName + '_callback';
         self.port.on(actionName, (param: TParam) => {
             action(param)
-                .then(result => self.port.emit(callbackName, true, result))
-                .catch(error => self.port.emit(callbackName, false, error));
+                .then(result => {
+                    self.port.emit(callbackName, true, result);
+                })
+                .catch(error => {
+                    self.port.emit(callbackName, false, error);
+                });
         });
     }
 

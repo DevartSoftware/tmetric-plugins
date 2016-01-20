@@ -19,7 +19,8 @@
         "default_icon": {
             "19": "images/chrome/inactive19.png",
             "38": "images/chrome/inactive38.png"
-        }
+        },
+        "default_popup": "popup/popup.html"
     },
     "permissions": [
         "activeTab",
@@ -32,12 +33,12 @@
     "background": {
         "scripts": [
             "lib/jquery.min.js",
-            "lib/jquery.signalr-2.2.0.min.js",
-            "chrome/shamPort.js",
-            "extension-base/SignalRConnection.js",
-            "extension-base/constants.js",
-            "extension-base/ExtensionBase.js",
-            "chrome/ChromeExtension.js"
+            "lib/jquery.signalr.min.js",
+            "background/constants.js",
+            "background/shamPort.js",
+            "background/signalRConnection.js",
+            "background/extensionBase.js",
+            "background/chromeExtension.js"
         ]
     },
     "externally_connectable": {
@@ -48,7 +49,7 @@
             "matches": [ "http://*/*", "https://*/*" ],
             "js": [
                 "in-page-scripts/utils.js",
-                "in-page-scripts/IntegrationService.js",
+                "in-page-scripts/integrationService.js",
                 "in-page-scripts/integrations/Asana.js",
                 "in-page-scripts/integrations/Assembla.js",
                 "in-page-scripts/integrations/Axosoft.js",

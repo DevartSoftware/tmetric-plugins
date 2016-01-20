@@ -1,0 +1,53 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>TMetric</title>
+    <link href="popup.css" rel="stylesheet" type="text/css">
+    <link href="../lib/select2/select2.min.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+    <header>
+        <h3>TMetric</h3>
+        <input id="cancel" type="button" value="x" />
+    </header>
+    <content class="blank">
+        <div id="loader">
+            <div>Loading...</div>
+        </div>
+        <div id="login-form">
+            <div class="row">
+                <input id="email" type="email" placeholder="Email" />
+            </div>
+            <div class="row">
+                <input id="password" type="password" placeholder="Password" />
+            </div>
+            <div class="row actions">
+                <input id="login" type="button" value="Login" />
+            </div>
+        </div>
+        <div id="edit-form">
+            <div class="row">
+                <input id="task" type="text" placeholder="Description" />
+            </div>
+            <div class="row">
+                <select id="project" placeholder="Project"></select>
+                <!--<select id="project" placeholder="Project" style="width: 100%"></select>-->
+            </div>
+            <div class="row">
+                <select id="tags" placeholder="Tags" multiple="multiple"></select>
+                <!--<select id="tags" placeholder="Tags" multiple="multiple" style="width: 100%"></select>-->
+            </div>
+            <div class="row actions">
+                <input id="start" type="button" value="Start" />
+                <input id="stop" type="button" value="Stop" />
+                <input id="apply" type="button" value="Apply" />
+            </div>
+        </div>
+    </content>
+    <script src="../lib/jquery-2.1.4.min.js"></script>
+    <script src="../lib/select2/select2.full.min.js"></script>
+    <script src="PopupBase.js"></script>
+    <script src="PopupChrome.js"></script>
+</body>
+</html>

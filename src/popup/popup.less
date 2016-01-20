@@ -1,0 +1,237 @@
+﻿@background-color: #ddd;
+@background-color-dark: darken(@background-color, 50%);
+@background-color-light: lighten(@background-color, 50%);
+@border-width: 0.1em;
+@border-style: solid;
+@border-color: #aaa;
+@border-raduis: 0.25em;
+@color: #444;
+@color-dark: darken(@color, 50%);
+@color-light: lighten(@color, 50%);
+@font-family: sans-serif;
+@font-size: 14px;
+@margin: 0.5em;
+@margin-large: 2.5em;
+@margin-small: 0.1em;
+@margin-double: @margin * 2;
+@margin-half: @margin / 2;
+@padding: 0.5em;
+@padding-large: 2.5em;
+@padding-small: 0.1em;
+@padding-double: @padding * 2;
+@padding-half: @padding / 2;
+
+@input-background-color: @background-color-light;
+@input-color: @color;
+@input-button-background-color: @color-light;
+@input-button-color: @background-color-light;
+
+@dropdown-max-height: 8em;
+
+@border: @border-width @border-style @border-color;
+
+body {
+    width: 20em;
+    height: auto;
+    margin: 0;
+    padding: @padding;
+    font-family: @font-family;
+    font-size: @font-size;
+    color: @color;
+    background-color: @background-color;
+}
+
+header {
+    margin: @margin-large 0;
+    text-align: center;
+}
+
+content {
+}
+
+.blank {
+    #loader {
+        display: none;
+    }
+
+    #login-form {
+        display: none;
+    }
+
+    #edit-form {
+        display: none;
+    }
+}
+
+.loading {
+    #loader {
+        display: block;
+    }
+
+    #login-form {
+        display: none;
+    }
+
+    #edit-form {
+        display: none;
+    }
+}
+
+.authenticating {
+    #loader {
+        display: none;
+    }
+
+    #login-form {
+        display: block;
+    }
+
+    #edit-form {
+        display: none;
+    }
+}
+
+.editing {
+    #loader {
+        display: none;
+    }
+
+    #login-form {
+        display: none;
+    }
+
+    #edit-form {
+        display: block;
+    }
+}
+
+input {
+    border: @border;
+    border-radius: @border-raduis;
+    padding: 0 @padding;
+    font-family: @font-family;
+    font-size: @font-size;
+    color: @input-color;
+    background-color: @input-background-color;
+}
+
+input[type=button] {
+    border: 0;
+    color: @input-button-color;
+    background-color: @input-button-background-color;
+    cursor: pointer;
+}
+
+.row {
+    margin: 0.5em 0;
+
+    > * {
+        width: 100%;
+        box-sizing: border-box;
+        line-height: 2em;
+        height: 2em;
+    }
+}
+
+.row.actions {
+    min-height: @dropdown-max-height;
+    display: flex;
+    justify-content: center;
+
+    > * {
+        width: 5em;
+        margin: auto @margin;
+    }
+}
+
+#loader {
+    > * {
+        margin: @margin-large;
+        text-align: center;
+    }
+}
+
+#login-form {
+    .actions {
+        #login {
+            background-color: rgb(68,182,174);
+        }
+    }
+}
+
+#edit-form {
+    .actions {
+        #start {
+            display: none;
+            background-color: rgb(68,182,174);
+        }
+
+        #stop {
+            display: none;
+            background-color: rgb(226,106,106);
+        }
+
+        #apply {
+            display: none;
+            background-color: rgb(150,167,187);
+        }
+    }
+}
+
+#edit-form.timer-started {
+    .actions {
+        #start {
+            display: none;
+        }
+
+        #stop {
+            display: initial;
+        }
+
+        #apply {
+            display: initial;
+        }
+    }
+}
+
+#edit-form.timer-stopped {
+    .actions {
+        #start {
+            display: initial;
+        }
+
+        #stop {
+            display: none;
+        }
+
+        #apply {
+            display: none;
+        }
+    }
+}
+
+#cancel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 2em;
+    width: 2em;
+}
+
+// select2 styles
+
+.select2 {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    line-height: initial !important;
+    height: initial !important;
+
+    .select2-selection {
+        border: @border !important;
+        border-radius: @border-raduis !important;
+    }
+}
+
+.select2-results__options {
+    max-height: @dropdown-max-height !important;
+}

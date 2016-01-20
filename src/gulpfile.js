@@ -4,8 +4,10 @@ var extend = require('gulp-extend');            // A gulp plugin to extend (merg
 var fs = require('fs');                         // Node.js File System module
 var gulp = require('gulp');                     // The streaming build system.
 var jsonfile = require('jsonfile');             // Easily read/write JSON files.
-var merge = require('merge-stream');            // Create a stream that emits events from multiple other streams.
+var less = require('gulp-less');                // A LESS plugin for Gulp
+var mergeStream = require('merge-stream');      // Create a stream that emits events from multiple other streams.
 var path = require('path');                     // Node.js Path System module
+var rename = require('gulp-rename');            // Simple file renaming methods.
 var selenium = require('selenium-standalone');  // Installs a selenium-standalone command line to install and start a standalone selenium server
 var webdriver = require('selenium-webdriver');  // Selenium is a browser automation library
 var webdriverGulp = require('gulp-webdriver');  // Runs selenium tests with the WebdriverIO testrunner
@@ -44,16 +46,22 @@ gulp.task('clean', function () {
     ], { force: true });
 });
 
+function gulpcopy(paths, dest) {
+    return gulp.src(paths).pipe(gulp.dest(dest));
+}
+
 gulp.task('lib', ['clean'], function () {
-    return gulp.src([
-        'node_modules/jquery/dist/jquery.min.js',
-        'node_modules/ms-signalr-client/jquery.signalr-2.2.0.min.js',
-        'node_modules/select2/dist/js/select2.full.min.js',
-        'node_modules/select2/dist/css/select2.min.css'
-    ]).pipe(gulp.dest('./lib/'));
+    var lib = src + 'lib/';
+    var jquery = gulp.src('node_modules/jquery/dist/jquery.min.js').pipe(gulp.dest(lib));
+    var signalr = gulp.src('node_modules/ms-signalr-client/jquery.signalr-2.2.0.min.js').pipe(rename('jquery.signalr.min.js')).pipe(gulp.dest(lib));
+    var select2 = gulp.src([
+            'node_modules/select2/dist/js/select2.full.min.js',
+            'node_modules/select2/dist/css/select2.min.css'
+    ]).pipe(gulp.dest(lib + 'select2/'));
+    return mergeStream(jquery, signalr, select2);
 });
 
-gulp.task('compile', ['lib', 'compile:ts', 'compile:less']);
+gulp.task('compile', ['compile:ts', 'compile:less']);
 
 gulp.task('compile:ts', ['clean'], function () {
     var mkdirp = require('mkdirp'); // Recursively mkdir, like `mkdir -p`
@@ -65,58 +73,52 @@ gulp.task('compile:ts', ['clean'], function () {
     project.compilerOptions.tscPath = './node_modules/typescript/lib/tsc.js';
     return gulp.src(project.files)
       .pipe(tsc(project.compilerOptions))
-      .pipe(gulp.dest('./'));
+      .pipe(gulp.dest(src));
 });
 
 gulp.task('compile:less', ['clean'], function () {
-    var less = require('gulp-less'); // A LESS plugin for Gulp
-    return gulp.src('css/*.less')
-      .pipe(less())
-      .pipe(gulp.dest('css'));
+    return gulp.src([
+        'css/*.less',
+        'popup/*.less'
+    ], { base: src })
+    .pipe(less())
+    .pipe(gulp.dest(src));
 });
 
 // =============================================================================
 // Tasks for building Chrome extension
 // =============================================================================
 
-gulp.task('prepackage:chrome', ['prepackage:chrome:images', 'compile'], function () {
-
-    //var manifest = jsonfile.readFileSync('./manifest.json');
-    //var files = [];
-    //manifest.background.scripts = manifest.background.scripts.map(mapCallback);
-    //var content = manifest.content_scripts[0];
-    //content.js = content.js.map(mapCallback);
-    //content.css = content.css.map(mapCallback);
-
-    //function mapCallback(file, index, array) {
-    //    files.push(file);
-    //    return path.basename(file);
-    //}
-
-    //jsonfile.writeFileSync(distChromeUnpacked + 'manifest.json', manifest, { spaces: 2 });
-
-    //return gulp.src(files).pipe(gulp.dest(distChromeUnpacked));
-
+gulp.task('prepackage:chrome', ['compile', 'lib', 'prepackage:chrome:images', 'prepackage:chrome:popup'], function () {
     var manifest = jsonfile.readFileSync('./manifest.json');
-    var files = [];
+    var files = ['manifest.json'];
     files = files.concat(manifest.background.scripts);
     manifest.content_scripts.forEach(function (content) {
-        files.concat(content.js).concat(content.css);
+        files = files.concat(content.js).concat(content.css);
     });
-    return gulp.src(files).pipe(gulp.dest(distChromeUnpacked));
+    return gulp.src(files, {base: src}).pipe(gulp.dest(distChromeUnpacked));
 });
 
 gulp.task('prepackage:chrome:images', ['clean'], function () {
-    return merge(
+    return mergeStream(
       gulp.src(['images/icon.png']).pipe(gulp.dest(distChromeUnpacked + 'images')),
       gulp.src(['images/chrome/*.png']).pipe(gulp.dest(distChromeUnpacked + 'images/chrome')));
+});
+
+gulp.task('prepackage:chrome:popup', ['clean', 'compile'], function () {
+    return gulp.src([
+        'popup/popup.html',
+        'popup/popup.css',
+        'popup/popupBase.js',
+        'popup/chromePopup.js'
+    ]).pipe(gulp.dest(distChromeUnpacked + 'popup/'));
 });
 
 gulp.task('package:chrome', ['prepackage:chrome'], packageChrome);
 gulp.task('package:chrome:test', ['prepackage:chrome', 'prepackage:chrome:test:constants', 'prepackage:chrome:test:shortcut'], packageChrome);
 
 gulp.task('prepackage:chrome:test:constants', ['prepackage:chrome'], function (done) {
-    return gulp.src([test + 'constants.js']).pipe(gulp.dest(distChromeUnpacked));
+    return gulp.src([test + 'constants.js']).pipe(gulp.dest(distChromeUnpacked + 'background/'));
 });
 
 gulp.task('prepackage:chrome:test:shortcut', ['prepackage:chrome'], function () {
@@ -139,67 +141,82 @@ function packageChrome() {
 // Tasks for building Firefox addon
 // =============================================================================
 
-gulp.task('prepackage:firefox', ['compile', 'prepackage:firefox:main', 'prepackage:firefox:data'], function () {
-    return gulp.src([
-      'extension-base/constants.js',
-      'extension-base/ExtensionBase.js',
-      'firefox/FirefoxExtension.js'])
-      .pipe(concat('index.js'))
-      .pipe(gulp.dest(distFirefoxUnpacked));
+gulp.task('prepackage:firefox', ['compile', 'lib', 'prepackage:firefox:images', 'prepackage:firefox:index']);
+
+gulp.task('prepackage:firefox:images', ['clean'], function () {
+    return gulp.src(['images/firefox/*.png']).pipe(gulp.dest(distFirefoxUnpacked + 'data/images/firefox/'));
 });
 
-gulp.task('prepackage:firefox:test', ['compile', 'prepackage:firefox:main', 'prepackage:firefox:data'], function () {
+gulp.task('prepackage:firefox:index', ['prepackage:firefox:main', 'prepackage:firefox:data', 'prepackage:firefox:popup'], function () {
     return gulp.src([
-      'test/constants.js',
-      'extension-base/ExtensionBase.js',
-      'firefox/FirefoxExtension.js'])
-      .pipe(concat('index.js'))
-      .pipe(gulp.dest(distFirefoxUnpacked));
+        src + 'background/constants.js',
+        src + 'background/extensionBase.js',
+        src + 'background/firefoxExtension.js'
+    ])
+    .pipe(concat('index.js'))
+    .pipe(gulp.dest(distFirefoxUnpacked));
 });
 
-gulp.task('prepackage:firefox:main', ['clean'], function () {
+gulp.task('prepackage:firefox:main', ['compile'], function () {
     // We have to rename icon48.png to icon.png because of a bug in JPM
     // https://github.com/mozilla-jetpack/jpm/issues/197
     return gulp.src([
       'firefox/package.json',
-      'images/icon.png'])
-      .pipe(gulp.dest(distFirefoxUnpacked));
+      'images/icon.png'
+    ])
+    .pipe(gulp.dest(distFirefoxUnpacked));
 });
 
 gulp.task('prepackage:firefox:data', ['compile'], function () {
-    var rename = require('gulp-rename'); // Simple file renaming methods.
-    var signalR = gulp.src('node_modules/ms-signalr-client/jquery.signalr*.min.js')
-      .pipe(rename('jquery.signalr.min.js'))
-      .pipe(gulp.dest(distFirefoxUnpacked + 'data'));
+    return gulp.src([
+        'css/*.css',
+        'images/firefox/*',
+        'lib/**/*',
+        'background/signalRConnection.js',
+        'in-page-scripts/**/*.js'
+    ], {base: src})
+    .pipe(gulp.dest(distFirefoxUnpacked + 'data'));
+});
 
-    var flatten = require('gulp-flatten');         // remove or replace relative path for files
-    var data = gulp.src([
-      'css/*.css',
-      'images/firefox/*',
-      'node_modules/jquery/dist/jquery.min.js',
-      'extension-base/SignalRConnection.js',
-      'in-page-scripts/**/*.js',
+gulp.task('prepackage:firefox:popup', ['compile', 'prepackage:firefox:popup:copy', 'prepackage:firefox:popup:html']);
+gulp.task('prepackage:firefox:popup:copy', ['compile'], function () {
+    return gulp.src([
+        'popup/popup.html',
+        'popup/popup.css',
+        'popup/popupBase.js',
+        'popup/firefoxPopup.js'
     ])
-      .pipe(flatten())
-      .pipe(gulp.dest(distFirefoxUnpacked + 'data'));
+    .pipe(gulp.dest(distFirefoxUnpacked + 'data/popup/'));
+});
+gulp.task('prepackage:firefox:popup:html', ['compile', 'prepackage:firefox:popup:copy'], function () {
+    // Strip scripts from html for firefox
+    // They inserted in FirefoxExtension.ts as content scripts to allow cross site requests
+    var html = fs.readFileSync(distFirefoxUnpacked + 'data/popup/popup.html') + '';
+    html = html.replace(/\s*<script[^>]+>.*<\/script>/g, '');
+    fs.writeFileSync(distFirefoxUnpacked + 'data/popup/popup.html', html);
+});
 
-    return merge(signalR, data);
+gulp.task('prepackage:firefox:test', ['prepackage:firefox', 'prepackage:firefox:test:index', 'prepackage:firefox:test:shortcut']);
+gulp.task('prepackage:firefox:test:index', ['prepackage:firefox'], function () {
+    return gulp.src([
+        src + 'test/constants.js',
+        src + 'background/extensionBase.js',
+        src + 'background/firefoxExtension.js'
+    ])
+    .pipe(concat('index.js'))
+    .pipe(gulp.dest(distFirefoxUnpacked));
+});
+gulp.task('prepackage:firefox:test:shortcut', ['prepackage:firefox:test:index'], function () {
+    return gulp.src([
+        distFirefoxUnpacked + 'index.js',
+        test + 'shortcut.firefox.index.js'
+    ])
+    .pipe(concat('index.js'))
+    .pipe(gulp.dest(distFirefoxUnpacked));
 });
 
 gulp.task('package:firefox', ['prepackage:firefox'], packageFirefox);
-gulp.task('package:firefox:test', ['prepackage:firefox:test', 'prepackage:firefox:test:shortcut'], packageFirefox);
-
-gulp.task('prepackage:firefox:test:shortcut', ['prepackage:firefox:test'], function () {
-    var searchStr = 'return FirefoxExtension;';
-    var replaceStr = fs.readFileSync(test + 'shortcut.firefox.index.js', 'utf8') + searchStr;
-    return gulp
-        .src([
-            distFirefoxUnpacked + 'index.js',
-            test + 'shortcut.firefox.index.js'
-        ])
-        .pipe(concat('index.js'))
-        .pipe(gulp.dest(distFirefoxUnpacked));
-});
+gulp.task('package:firefox:test', ['prepackage:firefox:test'], packageFirefox);
 
 function packageFirefox(callback) {
     process.chdir(distFirefoxUnpacked);
