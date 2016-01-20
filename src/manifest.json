@@ -1,12 +1,13 @@
 {
     "manifest_version": 2,
 
-    "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyj+4LlxjihH0WZ0o9ILjxa/Ea9DC/2ctV6nXA0Ai0CGRyS24lhWX/hmP8mHjpSLIOnX3Ps4/OONemMnL+ufsXZYmNtfhMymX491MGoAaVJYzkGHc3IjqlLDS4/CdO9uM433S5Mk9NlmeQh+2dG9wjMRjTXNFePsuRyHwdv3KXiciBRojcck4yDr5RCbsMz1SnEwbqgHe2ZhappBIox2SIzNY0EXwXRiSQyMylaHJ6rjUmOuGjJnesTJ7oaFEE4LEloyNmv9fSIO0i06w6pojeVbwsdq+77DFctthhGHZEP7iPwS4eRVfsSlm5pGsenHl70ikDz3cAjGGoAzh9su86QIDAQAB",
+    "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAgHSA+Ya9JZHSZzbuGsbU9/6dwxAXhQJQYQKl3eP32EDox4qMUO/FwyJNXyzQih/JurUCMr2sj8IuaClCeSCy0G9UoWD9/+kWXuhrhlkJAjqeqUU0cBBvE6lDjBR2/0jGO7LkcjvyxINEckIezaHUTud/edqPqBqgj1/f2UzzQ7y+qz93pQZYZ33mCq9kH73KiHXhi548avPQrACjHaumAg/TLijpeCPXpUJmZe+c8S3fHlccRVrgDGCjq2cYQrqwBFE2wVSKI2FTn8kqV9neI5/jR9Y9X/nIMmAbhQ6CVx1hVe9cgfy0Bwc725QQO379XzrRx/qos8jWu/RqI8vjYQIDAQAB",
 
-    "name": "TMetric",
-    "description": "Integrates TMetric with popular issue tracking tools.",
+    "name": "TMetric Extension",
+    "short_name": "TMetric",
+    "description": "Integrates TMetric with popular task and project management tools.",
     "author": "Devart",
-    "version": "0.1.0",
+    "version": "1.0.1",
 
     "icons": {
         "16": "images/chrome/icon16.png",

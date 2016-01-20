@@ -14,13 +14,13 @@
         "gulp": "3.9.0",
         "gulp-cli": "0.3.0",
         "gulp-concat": "2.6.0",
-        "gulp-crx-pack": "1.0.1",
         "gulp-extend": "0.2.0",
         "gulp-flatten": "0.2.0",
         "gulp-less": "3.0.3",
         "gulp-rename": "1.2.2",
-        "gulp-tsc": "1.1.1",
+        "gulp-tsc": "1.1.4",
         "gulp-webdriver": "1.0.1",
+        "gulp-zip": "3.0.2",
         "jpm": "1.0.1",
         "jquery": "2.1.4",
         "jsonfile": "2.2.2",
@@ -29,6 +29,7 @@
         "mocha": "2.3.3",
         "ms-signalr-client": "2.2.2",
         "selenium-webdriver": "2.48.2",
+        "typescript": "1.6",
         "webdriverio": "3.2.6"
     },
     "scripts": {
