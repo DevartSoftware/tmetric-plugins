@@ -9,6 +9,7 @@ src/in-page-scripts/**/*.js
 src/extension-base/*.js
 src/chrome/*.js
 src/firefox/*.js
+src/lib/*
 src/test/webdriverio/errorShots/
 src/css/*.css
 src/test/webdriverio/logins.conf.js

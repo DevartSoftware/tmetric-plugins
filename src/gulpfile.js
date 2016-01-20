@@ -1,3 +1,4 @@
+var del = require('del');                       // Delete files/folders using globs.
 var concat = require('gulp-concat');            // Concatenates files.
 var extend = require('gulp-extend');            // A gulp plugin to extend (merge) JSON contents.
 var fs = require('fs');                         // Node.js File System module
@@ -31,19 +32,28 @@ var test = src + 'test/';
 // =============================================================================
 
 gulp.task('clean', function () {
-    var del = require('del'); // Delete files/folders using globs.
     return del.sync([
       dist + '**', // remove all children and the parent.
       './**/*.map',
-      'chrome/*.js',
+      'background/*.js',
       'css/*.css',
-      'extension-base/*.js',
-      'firefox/*.js',
-      'in-page-scripts/**/*.js'],
-      { force: true });
+      'in-page-scripts/**/*.js',
+      'lib/*',
+      'popup/*.js',
+      'popup/*.css'
+    ], { force: true });
 });
 
-gulp.task('compile', ['compile:ts', 'compile:less']);
+gulp.task('lib', ['clean'], function () {
+    return gulp.src([
+        'node_modules/jquery/dist/jquery.min.js',
+        'node_modules/ms-signalr-client/jquery.signalr-2.2.0.min.js',
+        'node_modules/select2/dist/js/select2.full.min.js',
+        'node_modules/select2/dist/css/select2.min.css'
+    ]).pipe(gulp.dest('./lib/'));
+});
+
+gulp.task('compile', ['lib', 'compile:ts', 'compile:less']);
 
 gulp.task('compile:ts', ['clean'], function () {
     var mkdirp = require('mkdirp'); // Recursively mkdir, like `mkdir -p`
@@ -71,20 +81,28 @@ gulp.task('compile:less', ['clean'], function () {
 
 gulp.task('prepackage:chrome', ['prepackage:chrome:images', 'compile'], function () {
 
+    //var manifest = jsonfile.readFileSync('./manifest.json');
+    //var files = [];
+    //manifest.background.scripts = manifest.background.scripts.map(mapCallback);
+    //var content = manifest.content_scripts[0];
+    //content.js = content.js.map(mapCallback);
+    //content.css = content.css.map(mapCallback);
+
+    //function mapCallback(file, index, array) {
+    //    files.push(file);
+    //    return path.basename(file);
+    //}
+
+    //jsonfile.writeFileSync(distChromeUnpacked + 'manifest.json', manifest, { spaces: 2 });
+
+    //return gulp.src(files).pipe(gulp.dest(distChromeUnpacked));
+
     var manifest = jsonfile.readFileSync('./manifest.json');
     var files = [];
-    manifest.background.scripts = manifest.background.scripts.map(mapCallback);
-    var content = manifest.content_scripts[0];
-    content.js = content.js.map(mapCallback);
-    content.css = content.css.map(mapCallback);
-
-    function mapCallback(file, index, array) {
-        files.push(file);
-        return path.basename(file);
-    }
-
-    jsonfile.writeFileSync(distChromeUnpacked + 'manifest.json', manifest, { spaces: 2 });
-
+    files = files.concat(manifest.background.scripts);
+    manifest.content_scripts.forEach(function (content) {
+        files.concat(content.js).concat(content.css);
+    });
     return gulp.src(files).pipe(gulp.dest(distChromeUnpacked));
 });
 

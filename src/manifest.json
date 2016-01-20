@@ -31,8 +31,8 @@
     ],
     "background": {
         "scripts": [
-            "node_modules/jquery/dist/jquery.min.js",
-            "node_modules/ms-signalr-client/jquery.signalr-2.2.0.min.js",
+            "lib/jquery.min.js",
+            "lib/jquery.signalr-2.2.0.min.js",
             "chrome/shamPort.js",
             "extension-base/SignalRConnection.js",
             "extension-base/constants.js",
