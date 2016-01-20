@@ -69,16 +69,12 @@
                     var issue = integration.getIssue(element, source);
                     if (issue) {
                         // trim all string values
-                        for (var field in issue) {
-                            let value = <string>issue[field];
-                            if (typeof value === 'string') {
-                                value = value.trim();
-                                if (!value) {
-                                    value = null;
-                                }
-                                issue[field] = value;
-                            }
-                        }
+                        issue.issueId = this.trimText(issue.issueId, 128);
+                        issue.issueName = this.trimText(issue.issueName, 400);
+                        issue.issueUrl = this.trimText(issue.issueUrl, 256);
+                        issue.serviceUrl = this.trimText(issue.serviceUrl, 1024);
+                        issue.serviceType = this.trimText(issue.serviceType, 128);
+                        issue.projectName = this.trimText(issue.projectName, 255);
                         issues.push(issue);
                     }
                     this.updateLink(element, integration, issue);
@@ -91,6 +87,16 @@
             });
 
             return { issues, observeMutations: this._possibleIntegrations.some(i => i.observeMutations) };
+        }
+
+        private static trimText(text: string, maxLength: number): string {
+            if (text) {
+                text = text.trim();
+                if (text.length > maxLength) {
+                    text = text.substring(0, maxLength - 2) + '..';
+                }
+            }
+            return text || null;
         }
 
         static updateLink(element: HTMLElement, integration: WebToolIntegration, newIssue: WebToolIssue) {
