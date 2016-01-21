@@ -17,3 +17,4 @@ src/test/webdriverio/reports/*
 !src/test/webdriverio/reports/README
 src/test/webdriverio/profiles/*/*
 !src/test/webdriverio/profiles/*/README
+Thumbs.db
