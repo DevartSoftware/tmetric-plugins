@@ -249,7 +249,7 @@ class ExtensionBase {
                     }
                 }
                 else if (status.projectStatus != Models.ProjectStatus.Open) {
-                    var statusText = status.projectStatus == Models.ProjectStatus.Archived ? 'archived' : 'closed';
+                    var statusText = status.projectStatus == Models.ProjectStatus.Archived ? 'archived' : 'readonly';
                     notification = `Cannot assign the task to the ${statusText} project '${timer.projectName}'.\n\n${contactAdmin}`;
                     timer.projectName = undefined;
                 }
