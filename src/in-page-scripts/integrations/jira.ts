@@ -21,7 +21,7 @@
             var jiraContextPath = $$.getAttribute('meta[name=ajs-context-path]', 'content');
             if (jiraContextPath) {
                 serviceUrl += jiraContextPath;
-                issueUrl = $$.getRelativeUrl(serviceUrl, issueUrl);
+                issueUrl = $$.getRelativeUrl(jiraContextPath, issueUrl);
             }
 
             return { serviceUrl, issueUrl };
