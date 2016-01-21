@@ -63,6 +63,10 @@ class ExtensionBase {
         });
 
         this.port.emit('init', trackerServiceUrl);
+
+        this.listenPopupAction<void, boolean>('isLoggedIn', this.isLoggedInPopup);
+        this.listenPopupAction<void, IPopupInitData>('initialize', this.initializePopup);
+        this.listenPopupAction<void, Models.Timer>('putTimer', this.putTimer);
     }
 
     /** Handles messages from in-page scripts */
@@ -200,12 +204,12 @@ class ExtensionBase {
                 if (this.getDuration(this._timer) > 10 * 60 * 60000) {
                     state = ButtonState.fixtimer;
                     text = 'Started (Need User Action)\n'
-                        + 'It looks like you forgot to stop the timer';
+                    + 'It looks like you forgot to stop the timer';
                 }
                 else {
                     state = ButtonState.stop;
                     text = 'Started\n'
-                        + (this._timer.workTask.description || '(No task description)');
+                    + (this._timer.workTask.description || '(No task description)');
                 }
             }
             else {
@@ -213,8 +217,8 @@ class ExtensionBase {
                 text = 'Paused';
             }
             text += '\nToday Total - '
-                + this.durationToString(this.getDuration(this._timeEntries))
-                + ' hours';
+            + this.durationToString(this.getDuration(this._timeEntries))
+            + ' hours';
         }
         this.buttonState = state;
         this.setButtonIcon(state == ButtonState.stop || state == ButtonState.fixtimer ? 'active' : 'inactive', text);
@@ -384,4 +388,39 @@ class ExtensionBase {
     private getIntegration = this.wrapPortAction<Models.IntegratedProjectIdentifier, Models.IntegratedProjectStatus>('getIntegration');
     private setAccountToPost = this.wrapPortAction<number, void>('setAccountToPost');
     protected reconnect = this.wrapPortAction<void, void>('reconnect');
+
+    // popup action listeners
+
+    private popupActions = {};
+
+    listenPopupAction<TParams, TResult>(action: string, handler: (TParams) => Promise<TResult>) {
+        this.popupActions[action] = handler;
+    }
+
+    onPopupRequest(request: IPopupRequest, callback: (response: IPopupResponse) => void) {
+        var action = request.action;
+        var handler = this.popupActions[action];
+        if (action && handler) {
+            handler(request.data).then((result) => {
+                callback({ action: action, data: result });
+            }).catch((error) => {
+                callback({ action: action, error: error });
+            });
+        } else {
+            callback({ action: action, error: 'Not found handler for action ' + action });
+        }
+    }
+
+    // popup methods
+
+    isLoggedInPopup(): Promise<boolean> {
+        return Promise.resolve(!!this._userProfile);
+    }
+
+    initializePopup(): Promise<IPopupInitData> {
+        return Promise.resolve({
+            issue: this._currentIssue,
+            timer: this._timer
+        });
+    }
 }
