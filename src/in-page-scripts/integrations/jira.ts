@@ -65,8 +65,10 @@
                 var issueHref = issueLink.getAttribute('href');
             }
 
-            // First selector is for separate task view (/browse/... URL). The second selector is for Service Desk view.
-            var projectName = $$.try('#project-name-val').textContent || $$.try('.project-title > a').textContent;
+            var projectName =
+                $$.try('#project-name-val').textContent || // separate task view (/browse/... URL)
+                $$.try('.project-title > a').textContent || // service desk
+                $$.try('.sd-notify-header').textContent; // service desk form https://issues.apache.org/jira/servicedesk/agent/all
 
             var { serviceUrl, issueUrl } = this.getUrls(source, issueHref);
 
