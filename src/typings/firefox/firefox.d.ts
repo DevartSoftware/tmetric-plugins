@@ -10,7 +10,7 @@
         click(): void;
         state(target: "tab", state?: any): any;
         state(target: "window", state?: any): any;
-        state(target: string, state?: any): any;
+        state(target: string | BrowserWindow | Tab, state?: any): any;
         on(method: string, handler: (...args: any[]) => void): void;
         once(method: string, handler: (...args: any[]) => void): void;
         removeListener(method: string, handler: (...args: any[]) => void): void;

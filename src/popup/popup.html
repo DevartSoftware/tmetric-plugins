@@ -9,19 +9,11 @@
 <body>
     <header>
         <h3>TMetric</h3>
-        <input id="cancel" type="button" value="x" />
     </header>
     <content class="blank">
-        <div id="loader">
-            <div>Loading...</div>
-        </div>
+        <!--<div id="loader">Loading...</div>-->
+        <div id="loader"></div>
         <div id="login-form">
-            <div class="row">
-                <input id="email" type="email" placeholder="Email" />
-            </div>
-            <div class="row">
-                <input id="password" type="password" placeholder="Password" />
-            </div>
             <div class="row actions">
                 <input id="login" type="button" value="Login" />
             </div>
@@ -32,11 +24,9 @@
             </div>
             <div class="row">
                 <select id="project" placeholder="Project"></select>
-                <!--<select id="project" placeholder="Project" style="width: 100%"></select>-->
             </div>
             <div class="row">
                 <select id="tags" placeholder="Tags" multiple="multiple"></select>
-                <!--<select id="tags" placeholder="Tags" multiple="multiple" style="width: 100%"></select>-->
             </div>
             <div class="row actions">
                 <input id="start" type="button" value="Start" />
@@ -45,9 +35,9 @@
             </div>
         </div>
     </content>
-    <script src="../lib/jquery-2.1.4.min.js"></script>
+    <script src="../lib/jquery.min.js"></script>
     <script src="../lib/select2/select2.full.min.js"></script>
-    <script src="PopupBase.js"></script>
-    <script src="PopupChrome.js"></script>
+    <script src="popupBase.js"></script>
+    <script src="chromePopup.js"></script>
 </body>
 </html>

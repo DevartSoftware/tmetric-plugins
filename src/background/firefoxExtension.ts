@@ -176,8 +176,11 @@ class FirefoxExtension extends ExtensionBase {
 
         var showPanel = () => {
 
+            // remember the window where extension button was pressed on
+            var window = windows.browserWindows.activeWindow;
+
             var panel = panels.Panel({
-                contentURL: self.data.url("./popup/popup.html"),
+                contentURL: "./popup/popup.html",
                 contentScriptFile: [
                     "./lib/jquery.min.js",
                     "./lib/select2/select2.full.min.js",
@@ -191,7 +194,7 @@ class FirefoxExtension extends ExtensionBase {
                 onHide: () => {
                     console.log('hidden');
                     panel.port.emit('popup_hidden');
-                    this.actionButton.state('window', { checked: false });
+                    this.actionButton.state(window, { checked: false });
                 }
             });
 
@@ -200,6 +203,15 @@ class FirefoxExtension extends ExtensionBase {
                 this.onPopupRequest(message, (response) => {
                     panel.port.emit('popup_request_' + message.action + '_response', response);
                 });
+            });
+
+            panel.port.on('popup_resize', ({width, height}) => {
+                panel.resize(width, height);
+            });
+
+            panel.port.on('popup_close', () => {
+                panel.hide();
+                panel.destroy();
             });
 
             panel.show({

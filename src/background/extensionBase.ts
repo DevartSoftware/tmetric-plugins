@@ -36,6 +36,10 @@ class ExtensionBase {
 
     private _currentIssue: Integrations.WebToolIssue;
 
+    private _projects: Models.Project[];
+
+    private _tags: Models.Tag[];
+
     constructor(public port: Firefox.Port) {
 
         this.port.on('updateTimer', timer => {
@@ -62,11 +66,19 @@ class ExtensionBase {
             this._userProfile = profile;
         });
 
+        this.port.on('updateProjects', projects => {
+            this._projects = projects;
+        });
+
+        this.port.on('updateTags', tags => {
+            this._tags = tags;
+        });
+
         this.port.emit('init', trackerServiceUrl);
 
-        this.listenPopupAction<void, boolean>('isLoggedIn', this.isLoggedInPopup);
-        this.listenPopupAction<void, IPopupInitData>('initialize', this.initializePopup);
-        this.listenPopupAction<void, Models.Timer>('putTimer', this.putTimer);
+        this.listenPopupAction<void, void>('login', this.loginPopupAction);
+        this.listenPopupAction<void, IPopupData>('initialize', this.initializePopupAction);
+        this.listenPopupAction<Integrations.WebToolIssueTimer, IPopupData>('updateTimer', this.updateTimerPopupAction);
     }
 
     /** Handles messages from in-page scripts */
@@ -391,17 +403,17 @@ class ExtensionBase {
 
     // popup action listeners
 
-    private popupActions = {};
+    private _popupActions = {};
 
     listenPopupAction<TParams, TResult>(action: string, handler: (TParams) => Promise<TResult>) {
-        this.popupActions[action] = handler;
+        this._popupActions[action] = handler;
     }
 
     onPopupRequest(request: IPopupRequest, callback: (response: IPopupResponse) => void) {
         var action = request.action;
-        var handler = this.popupActions[action];
+        var handler = this._popupActions[action];
         if (action && handler) {
-            handler(request.data).then((result) => {
+            handler.call(this, request.data).then((result: IPopupData) => {
                 callback({ action: action, data: result });
             }).catch((error) => {
                 callback({ action: action, error: error });
@@ -413,14 +425,36 @@ class ExtensionBase {
 
     // popup methods
 
-    isLoggedInPopup(): Promise<boolean> {
-        return Promise.resolve(!!this._userProfile);
+    private _getPopupData(): IPopupData {
+        return {
+            issue: this._currentIssue,
+            timer: this._timer,
+            projects: this._projects,
+            tags: this._tags
+        };
     }
 
-    initializePopup(): Promise<IPopupInitData> {
-        return Promise.resolve({
-            issue: this._currentIssue,
-            timer: this._timer
+    initializePopupAction(): Promise<IPopupData> {
+        return new Promise((resolve, reject) => {
+            if (this._timer) {
+                resolve(this._getPopupData());
+            } else {
+                this.reconnect().then(() => {
+                    resolve(this._getPopupData());
+                }).catch(() => {
+                    reject('Connection error');
+                });
+            }
         });
+    }
+
+    loginPopupAction() {
+        this.showLoginDialog();
+        return Promise.resolve(null);
+    }
+
+    updateTimerPopupAction(timer) {
+        this.putTimer(timer);
+        return Promise.resolve(null);
     }
 }

@@ -1,5 +1,9 @@
 ﻿class PopupChrome extends PopupBase {
 
+    constructor() {
+        super();
+    }
+
     callBackground(request: IPopupRequest) {
         console.log('popup callBackground', request);
         return new Promise((resolve, reject) => {
@@ -10,8 +14,8 @@
         });
     }
 
-    constructor() {
-        super();
+    close() {
+        window.close();
     }
 }
 

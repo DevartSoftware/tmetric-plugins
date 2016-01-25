@@ -47,6 +47,18 @@
                 }
             });
 
+            this.hubProxy.on('updateProjects', (accountId: number) => {
+                if (this.userProfile && this.userProfile.activeAccountId == accountId) {
+                    this.getProjects();
+                }
+            });
+
+            this.hubProxy.on('updateTags', (accountId: number) => {
+                if (this.userProfile && this.userProfile.activeAccountId == accountId) {
+                    this.getTags();
+                }
+            });
+
             this.reconnect().catch(() => { });
         });
 
@@ -117,23 +129,22 @@
                 callback(this.userProfile);
                 return;
             }
-            this.getProfile()
-                .then(profile => {
-                    this.hub.start()
-                        .then(() => {
-                            this.hubConnected = true;
-                            this.setRetryPending(false);
+            this.getProfile().then((profile) => {
+                Promise.all<any>([this.getProjects(), this.getTags()]).then(([projects, tags]) => {
+                    this.hub.start().then(() => {
+                        this.hubConnected = true;
+                        this.setRetryPending(false);
 
-                            this.hub.disconnected(() =>
-                                this.disconnect().then(() => this.setRetryPending(true)));
+                        this.hub.disconnected(() =>
+                            this.disconnect().then(() =>
+                                this.setRetryPending(true)));
 
-                            this.hubProxy.invoke('register', profile.userProfileId)
-                                .then(() => callback(profile))
-                                .fail(reject);
-                        })
-                        .fail(reject);
-                })
-                .catch(reject);
+                        this.hubProxy.invoke('register', profile.userProfileId)
+                            .then(() => callback(profile))
+                            .fail(reject);
+                    }).fail(reject);
+                }).catch(reject);
+            }).catch(reject);
         });
     }
 
@@ -225,6 +236,26 @@
             var all = Promise.all<any>([timer, tracker]).then(() => <void>undefined);
             all.catch(() => this.disconnect());
             return all;
+        });
+    }
+
+    getProjects() {
+        return this.checkProfile().then(profile => {
+            var url = 'api/accounts/' + profile.activeAccountId + '/projects';
+            return this.get<Models.Project[]>(url).then(projects => {
+                self.port.emit('updateProjects', projects);
+                return projects;
+            });
+        });
+    }
+
+    getTags() {
+        return this.checkProfile().then(profile => {
+            var url = 'api/accounts/' + profile.activeAccountId + '/tags';
+            return this.get<Models.Tag[]>(url).then(tags => {
+                self.port.emit('updateTags', tags);
+                return tags;
+            });
         });
     }
 

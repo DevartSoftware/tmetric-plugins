@@ -1,4 +1,4 @@
-﻿@background-color: #ddd;
+﻿@background-color: #fff;
 @background-color-dark: darken(@background-color, 50%);
 @background-color-light: lighten(@background-color, 50%);
 @border-width: 0.1em;
@@ -21,6 +21,10 @@
 @padding-double: @padding * 2;
 @padding-half: @padding / 2;
 
+// settled as firefox default popup size to prevent flickering
+@body-width: 320px;
+@body-height: 240px;
+
 @input-background-color: @background-color-light;
 @input-color: @color;
 @input-button-background-color: @color-light;
@@ -31,14 +35,17 @@
 @border: @border-width @border-style @border-color;
 
 body {
-    width: 20em;
+    width: @body-width;
+    min-width: @body-width;
     height: auto;
-    margin: 0;
+    min-height: @body-height;
+    margin: auto;
     padding: @padding;
     font-family: @font-family;
     font-size: @font-size;
     color: @color;
     background-color: @background-color;
+    overflow: hidden;
 }
 
 header {
@@ -144,11 +151,16 @@ input[type=button] {
     }
 }
 
+#error {
+    margin: @margin-large;
+    text-align: center;
+    color: red;
+}
+
 #loader {
-    > * {
-        margin: @margin-large;
-        text-align: center;
-    }
+    margin: @margin-large;
+    text-align: center;
+    /*height: 20em;*/
 }
 
 #login-form {
@@ -208,14 +220,6 @@ input[type=button] {
             display: none;
         }
     }
-}
-
-#cancel {
-    position: absolute;
-    top: 0;
-    right: 0;
-    height: 2em;
-    width: 2em;
 }
 
 // select2 styles

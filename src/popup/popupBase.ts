@@ -1,29 +1,57 @@
 ﻿class PopupBase {
 
-    callBackground(message: IPopupRequest): Promise<IPopupResponse> {
-        return;
-    };
-
     constructor() {
-        this.showLoader();
-        this.isLoggedIn().then((loggedIn) => {
-            if (loggedIn) {
-                this.initialize().then((data) => {
-                    this.issue = data.issue;
-                    this.timer = data.timer;
-                    this.showEdit();
-                });
-            } else {
-                this.showLogin();
-            }
+        this.initControls();
+        this.switchState(this._states.loading);
+        this.initializeAction().then((data) => {
+            this.edit(data);
+        }).catch((error) => {
+            this.switchState(this._states.authenticating);
         });
     }
 
-    private profile: Models.UserProfile;
-    private projects: Models.Project[];
-    private tags: Models.Tag[];
-    private timer: Models.Timer;
-    private issue: Integrations.WebToolIssue;
+    private _issue: Integrations.WebToolIssue;
+    private _timer: Models.Timer;
+    private _projects: Models.Project[];
+    private _tags: Models.Tag[];
+
+    callBackground(message: IPopupRequest): Promise<IPopupResponse> { return; };
+
+    close(): void { }
+
+    edit(data: IPopupData) {
+        if (data.timer) {
+            this._issue = data.issue;
+            this._timer = data.timer;
+            this._projects = data.projects;
+            this._tags = data.tags;
+            this.updateEdit();
+            this.switchState(this._states.editing);
+        } else {
+            this.close();
+        }
+    }
+
+    updateTimer(timer: Integrations.WebToolIssueTimer) {
+        this.switchState(this._states.loading);
+        this.updateTimerAction(timer);
+        this.close();
+    }
+
+    makeTimer(issue: Integrations.WebToolIssue, started: boolean) {
+
+        var timer = <Integrations.WebToolIssueTimer>JSON.parse(JSON.stringify(issue));
+
+        timer.isStarted = started;
+        timer.issueName = $('#task').val();
+
+        var projectOptions = $('#project').prop('selectedOptions');
+        if (projectOptions && projectOptions.length) {
+            timer.projectName = projectOptions[0].textContent;
+        }
+
+        return timer;
+    }
 
     // actions
 
@@ -46,45 +74,21 @@
         };
     }
 
-    initialize = this.wrapBackgroundAction<void, IPopupInitData>('initialize');
-    isLoggedIn = this.wrapBackgroundAction<void, boolean>('isLoggedIn');
-    login = this.wrapBackgroundAction<void, any>('login');
-    getTimer = this.wrapBackgroundAction<void, Integrations.WebToolIssueTimer>('getTimer');
-    start = this.wrapBackgroundAction<void, void>('start');
-    stop = this.wrapBackgroundAction<void, void>('stop');
-    apply = this.wrapBackgroundAction<void, void>('apply');
-
-    makeTimer(issue: Integrations.WebToolIssue, started: boolean) {
-
-        var timer = <Integrations.WebToolIssueTimer>JSON.parse(JSON.stringify(issue));
-
-        timer.isStarted = started;
-        timer.issueName = $('#task').val();
-
-        var projectOptions = $('#project').prop('selectedOptions');
-        if (projectOptions && projectOptions.length) {
-            timer.projectName = projectOptions[0].textContent;
-        }
-
-        return timer;
-    }
+    initializeAction = this.wrapBackgroundAction<void, IPopupData>('initialize');
+    loginAction = this.wrapBackgroundAction<void, void>('login');
+    updateTimerAction = this.wrapBackgroundAction<Integrations.WebToolIssueTimer, IPopupData>('updateTimer');
 
     // ui mutations
 
-    showBlank() {
-        $('content').attr('class', 'blank');
-    }
+    private _states = {
+        blank: 'blank',
+        loading: 'loading',
+        authenticating: 'authenticating',
+        editing: 'editing'
+    };
 
-    showLoader() {
-        $('content').attr('class', 'loading');
-    }
-
-    showLogin() {
-        $('content').attr('class', 'authenticating');
-    }
-
-    showEdit() {
-        $('content').attr('class', 'editing');
+    switchState(name: string) {
+        $('content').attr('class', name);
     }
 
     updateEdit() {
@@ -94,8 +98,8 @@
 
         var isStarted = false, workTask: Models.WorkTask;
 
-        var timer = this.timer;
-        var issue = this.issue;
+        var timer = this._timer;
+        var issue = this._issue;
 
         if (timer && issue) {
 
@@ -123,16 +127,19 @@
         $('#task').val(task);
         $('#project').find('option').remove().end().append($(this.makeProjectOptions(projectSelectedFilter)));
         $('#tags').find('option').remove().end().append($(this.makeTagOptions()));
+
+        $('#project').select2({ minimumResultsForSearch: 1 });
+        $('#tags').select2({ minimumResultsForSearch: 1 });
     }
 
     makeProjectOptions(selectedFilter: Function): HTMLOptionElement[] {
-        return this.projects.map((project) => {
+        return this._projects.map((project) => {
             return new Option(project.projectName, '' + project.projectId, false, selectedFilter ? selectedFilter(project) : false);
         });
     }
 
     makeTagOptions() {
-        return this.tags.map((tag) => {
+        return this._tags.map((tag) => {
             return new Option(tag.tagName, '' + tag.tagId);
         });
     }
@@ -140,13 +147,26 @@
     // ui event handlers
 
     initControls() {
+        $('#login').click(() => this._onLoginClick());
+        $('#start').click(() => this._onStartClick());
+        $('#stop').click(() => this._onStopClick());
+        $('#apply').click(() => this._onApplyClick());
+    }
 
-        $('#login').click(() => this.login());
-        $('#start').click(() => this.start());
-        $('#stop').click(() => this.stop());
-        $('#apply').click(() => this.apply());
+    private _onLoginClick() {
+        this.close();
+        this.loginAction();
+    }
 
-        $('#project').select2();
-        $('#tags').select2();
+    private _onStartClick() {
+        this.updateTimer(this.makeTimer(this._issue, true));
+    }
+
+    private _onStopClick() {
+        this.updateTimer(this.makeTimer(this._issue, false));
+    }
+
+    private _onApplyClick() {
+        this.updateTimer(this.makeTimer(this._issue, true));
     }
 }
