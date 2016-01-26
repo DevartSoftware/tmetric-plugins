@@ -8,30 +8,62 @@
 </head>
 <body>
     <header>
-        <h3>TMetric</h3>
+        <a id="site-link" href="#">
+            <img src="../images/logo.png" />
+        </a>
     </header>
     <content class="blank">
-        <!--<div id="loader">Loading...</div>-->
+        <div id="error"></div>
         <div id="loader"></div>
         <div id="login-form">
             <div class="row actions">
                 <input id="login" type="button" value="Login" />
             </div>
         </div>
+        <div id="view-form">
+            <div class="row time">
+                <span class="label">Active Task</span><span class="value"></span>
+            </div>
+            <div class="row">
+                <div class="task">
+                    <span class="value"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="project">
+                    <span class="label">Project</span><span class="value"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="tags">
+                    <span class="label">Tags</span><span class="value"></span>
+                </div>
+            </div>
+            <div class="row links">
+                <a id="edit-link" class="link" href="#">Edit Task</a>
+                <a id="create-link" class="link" href="#">New Task</a>
+            </div>
+            <div class="row actions">
+                <input id="stop" type="button" value="Stop" />
+            </div>
+        </div>
         <div id="edit-form">
-            <div class="row">
-                <input id="task" type="text" placeholder="Description" />
+            <div class="row title">
+                <span id="create-title" class="label">New Task</span>
+                <span id="edit-title" class="label">Edit Task</span>
             </div>
             <div class="row">
-                <select id="project" placeholder="Project"></select>
+                <input class="task" type="text" placeholder="Description" />
             </div>
             <div class="row">
-                <select id="tags" placeholder="Tags" multiple="multiple"></select>
+                <select class="project" placeholder="Project"></select>
+            </div>
+            <div class="row">
+                <select class="tags" placeholder="Tags" multiple="multiple"></select>
             </div>
             <div class="row actions">
                 <input id="start" type="button" value="Start" />
-                <input id="stop" type="button" value="Stop" />
-                <input id="apply" type="button" value="Apply" />
+                <input id="save" type="button" value="Save" />
             </div>
         </div>
     </content>

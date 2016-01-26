@@ -416,7 +416,7 @@ class ExtensionBase {
             handler.call(this, request.data).then((result: IPopupData) => {
                 callback({ action: action, data: result });
             }).catch((error) => {
-                callback({ action: action, error: error });
+                callback({ action: action, error: error || 'Error' });
             });
         } else {
             callback({ action: action, error: 'Not found handler for action ' + action });

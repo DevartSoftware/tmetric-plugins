@@ -4,7 +4,14 @@
         this.initControls();
         this.switchState(this._states.loading);
         this.initializeAction().then((data) => {
-            this.edit(data);
+            this.setData(data);
+            if (this.isStarted()) {
+                this.updateView();
+                this.switchState(this._states.viewing);
+            } else {
+                this.updateCreate();
+                this.switchState(this._states.creating);
+            }
         }).catch((error) => {
             this.switchState(this._states.authenticating);
         });
@@ -19,17 +26,19 @@
 
     close(): void { }
 
-    edit(data: IPopupData) {
+    setData(data: IPopupData) {
         if (data.timer) {
             this._issue = data.issue;
             this._timer = data.timer;
             this._projects = data.projects;
             this._tags = data.tags;
-            this.updateEdit();
-            this.switchState(this._states.editing);
         } else {
             this.close();
         }
+    }
+
+    isStarted() {
+        return this._timer && this._timer.isStarted;
     }
 
     updateTimer(timer: Integrations.WebToolIssueTimer) {
@@ -57,15 +66,15 @@
 
     private wrapBackgroundAction<TData, TResult>(action: string) {
         return (data?: TData) => {
-            return new Promise((resolve: (value: TResult | Thenable<TResult>) => void, reject: (error?: string) => void) => {
+            return new Promise<TResult>((resolve, reject) => {
                 this.callBackground({
                     action: action,
                     data: data
                 }).then((response) => {
                     if (response.error) {
-                        reject(<string>response.error);
+                        reject(response.error);
                     } else {
-                        resolve(<TResult>response.data);
+                        resolve(response.data);
                     }
                 }).catch((error) => {
                     reject(<string>error);
@@ -84,6 +93,8 @@
         blank: 'blank',
         loading: 'loading',
         authenticating: 'authenticating',
+        creating: 'creating',
+        viewing: 'viewing',
         editing: 'editing'
     };
 
@@ -91,45 +102,105 @@
         $('content').attr('class', name);
     }
 
+    updateView() {
+
+        var task = this._timer && this._timer.workTask;
+
+        if (task) {
+            $('#view-form .time .value').text(this.getDuration(this._timer.startTime));
+            $('#view-form .task .value').text(task.description);
+            $('#view-form .project .value').text(this.getProjectName(task.projectId));
+            $('#view-form .tags .value').text(this.makeTagText());
+        }
+    }
+
+    getDuration(startTime: string) {
+
+        var MINUTE = 1000 * 60;
+        var HOUR = MINUTE * 60;
+        var DAY = HOUR * 24;
+
+        var start = new Date(startTime).getTime();
+        var now = new Date().getTime();
+
+        var duration = Math.abs(start - now);
+
+        var days = Math.floor(duration / DAY);
+        var hours = Math.floor((duration - days * DAY) / HOUR);
+        var minutes = Math.floor((duration - days * DAY - hours * HOUR) / MINUTE);
+
+        var daysStr = days > 0 ? (days + (days == 1 ? ' day' : ' days')) : '';
+        var hoursStr = hours > 0 ? (hours + (hours == 1 ? ' hour' : ' hours')) : '';
+        var minutesStr = minutes > 0 ? (minutes + (minutes == 1 ? ' min' : ' mins')) : '';
+
+        var result = daysStr;
+        result = result ? result + ' ' + hoursStr : hoursStr;
+        result = result ? result + ' ' + minutesStr : minutesStr;
+        result = result ? result : '< 1 min';
+
+        return result;
+    }
+
+    getProjectName(projectId: number) {
+        var name = '';
+        if (this._projects) {
+            var projects = this._projects.filter((project) => {
+                return project.projectId == projectId;
+            });
+            if (projects.length) {
+                name = projects[0].projectName;
+            }
+        }
+        return name;
+    }
+
+    makeTagText() {
+        return this._tags.map((tag) => {
+            return tag.tagName;
+        }).join(', ');
+    }
+
+    updateCreate() {
+
+        var issue = this._issue;
+
+        if (issue) {
+
+            $('#edit-form').attr('class', 'create');
+
+            $('#edit-form .task').val(issue.issueName);
+            $('#edit-form .project').find('option').remove().end().append($(this.makeProjectOptions((project: Models.Project) => {
+                return project.projectName == issue.projectName;
+            })));
+            $('#edit-form .tags').find('option').remove().end().append($(this.makeTagOptions()));
+
+            $('#edit-form .project').select2({ minimumResultsForSearch: 1 });
+            $('#edit-form .tags').select2({ minimumResultsForSearch: 1 });
+        }
+    }
+
     updateEdit() {
 
-        var task = '';
         var projectSelectedFilter: Function;
-
-        var isStarted = false, workTask: Models.WorkTask;
 
         var timer = this._timer;
         var issue = this._issue;
 
-        if (timer && issue) {
+        var task = this._timer && this._timer.workTask;
 
-            isStarted = timer.isStarted;
-            workTask = timer.workTask;
+        if (task) {
 
-            if (isStarted) {
-                // user have running task
-                task = workTask.description;
-                projectSelectedFilter = (project: Models.Project) => project.projectId == workTask.projectId;
-            } else {
-                // user have no running task
-                if (issue.projectName) {
-                    // page contain issue to start
-                    projectSelectedFilter = (project: Models.Project) => project.projectName == issue.projectName;
-                } else {
-                    // page do not contain issue to start
-                    task = issue.issueName;
-                }
-            }
+            $('#edit-form').attr('class', 'edit');
+
+            $('#edit-form .task').val(task.description);
+            $('#edit-form .project').find('option').remove().end().append($(this.makeProjectOptions((project: Models.Project) => {
+                return project.projectId == task.projectId;
+            })));
+            $('#edit-form .tags').find('option').remove().end().append($(this.makeTagOptions()));
+
+            $('#edit-form .project').select2({ minimumResultsForSearch: 1 });
+            $('#edit-form .tags').select2({ minimumResultsForSearch: 1 });
         }
-
-        $('#edit-form').attr('class', isStarted ? 'timer-started' : 'timer-stopped');
-
-        $('#task').val(task);
-        $('#project').find('option').remove().end().append($(this.makeProjectOptions(projectSelectedFilter)));
-        $('#tags').find('option').remove().end().append($(this.makeTagOptions()));
-
-        $('#project').select2({ minimumResultsForSearch: 1 });
-        $('#tags').select2({ minimumResultsForSearch: 1 });
     }
 
     makeProjectOptions(selectedFilter: Function): HTMLOptionElement[] {
@@ -150,12 +221,14 @@
         $('#login').click(() => this._onLoginClick());
         $('#start').click(() => this._onStartClick());
         $('#stop').click(() => this._onStopClick());
-        $('#apply').click(() => this._onApplyClick());
+        $('#save').click(() => this._onSaveClick());
+        $('#edit-link').click(() => this._onEditClick());
+        $('#create-link').click(() => this._onCreateClick());
     }
 
     private _onLoginClick() {
-        this.close();
         this.loginAction();
+        this.close();
     }
 
     private _onStartClick() {
@@ -166,7 +239,16 @@
         this.updateTimer(this.makeTimer(this._issue, false));
     }
 
-    private _onApplyClick() {
+    private _onSaveClick() {
         this.updateTimer(this.makeTimer(this._issue, true));
+    }
+
+    private _onEditClick() {
+        this.updateEdit();
+        this.switchState(this._states.editing);
+    }
+    private _onCreateClick() {
+        this.updateCreate();
+        this.switchState(this._states.creating);
     }
 }

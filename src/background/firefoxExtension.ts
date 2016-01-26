@@ -206,6 +206,7 @@ class FirefoxExtension extends ExtensionBase {
             });
 
             panel.port.on('popup_resize', ({width, height}) => {
+                console.log(width, height);
                 panel.resize(width, height);
             });
 
@@ -215,7 +216,9 @@ class FirefoxExtension extends ExtensionBase {
             });
 
             panel.show({
-                position: this.actionButton
+                position: this.actionButton,
+                width: 0,
+                height: 0
             });
         };
 

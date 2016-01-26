@@ -21,14 +21,19 @@
 @padding-double: @padding * 2;
 @padding-half: @padding / 2;
 
-// settled as firefox default popup size to prevent flickering
-@body-width: 320px;
-@body-height: 240px;
+@body-width: 20em;
+@body-height: 25em;
 
 @input-background-color: @background-color-light;
 @input-color: @color;
 @input-button-background-color: @color-light;
 @input-button-color: @background-color-light;
+
+@login-button-color: #67809f;
+@start-button-color: #44b6ae;
+@stop-button-color: #e26a6a;
+@save-button-color: #67809f;
+@fix-timer-button-color: #67809f;
 
 @dropdown-max-height: 8em;
 
@@ -38,9 +43,9 @@ body {
     width: @body-width;
     min-width: @body-width;
     height: auto;
-    min-height: @body-height;
+    min-height: initial;
     margin: auto;
-    padding: @padding;
+    padding: @padding-double;
     font-family: @font-family;
     font-size: @font-size;
     color: @color;
@@ -49,11 +54,26 @@ body {
 }
 
 header {
-    margin: @margin-large 0;
+    margin: 0;
     text-align: center;
 }
 
 content {
+    #loader {
+        display: none;
+    }
+
+    #login-form {
+        display: none;
+    }
+
+    #view-form {
+        display: none;
+    }
+
+    #edit-form {
+        display: none;
+    }
 }
 
 .blank {
@@ -62,6 +82,10 @@ content {
     }
 
     #login-form {
+        display: none;
+    }
+
+    #view-form {
         display: none;
     }
 
@@ -79,6 +103,10 @@ content {
         display: none;
     }
 
+    #view-form {
+        display: none;
+    }
+
     #edit-form {
         display: none;
     }
@@ -93,8 +121,48 @@ content {
         display: block;
     }
 
+    #view-form {
+        display: none;
+    }
+
     #edit-form {
         display: none;
+    }
+}
+
+.viewing {
+    #loader {
+        display: none;
+    }
+
+    #login-form {
+        display: none;
+    }
+
+    #view-form {
+        display: block;
+    }
+
+    #edit-form {
+        display: none;
+    }
+}
+
+.creating {
+    #loader {
+        display: none;
+    }
+
+    #login-form {
+        display: none;
+    }
+
+    #view-form {
+        display: none;
+    }
+
+    #edit-form {
+        display: block;
     }
 }
 
@@ -104,6 +172,10 @@ content {
     }
 
     #login-form {
+        display: none;
+    }
+
+    #view-form {
         display: none;
     }
 
@@ -135,89 +207,171 @@ input[type=button] {
     > * {
         width: 100%;
         box-sizing: border-box;
-        line-height: 2em;
-        height: 2em;
+        line-height: 2.5em;
+        min-height: 2.5em;
+    }
+
+    > input, > select {
+        line-height: 2.5em;
+        min-height: 2.5em;
+    }
+
+    .label {
+        display: inline-block;
+        width: auto;
+        margin: 0 @margin 0 0;
+    }
+
+    .value {
+        display: inline;
+        width: auto;
+        margin: 0;
+    }
+
+    .project .label, .tags .label {
+        width: 4em;
+    }
+
+    .link {
+        text-decoration: none;
+        margin: 0 @margin;
+        color: #00bdf3;
+    }
+
+    .link:last-child {
+        margin: 0 0 0 @margin;
+    }
+
+    .link:first-child {
+        margin: 0 @margin 0 0;
+    }
+
+    .link:hover {
+        color: #0082a7;
     }
 }
 
 .row.actions {
-    min-height: @dropdown-max-height;
-    display: flex;
-    justify-content: center;
+    #login {
+        background-color: @login-button-color;
+    }
 
-    > * {
-        width: 5em;
-        margin: auto @margin;
+    #login:hover {
+        background-color: darken(@login-button-color, 10%);
+    }
+
+    #login:active {
+        background-color: darken(@login-button-color, 20%);
+    }
+
+    #start {
+        background-color: @start-button-color;
+    }
+
+    #start:hover {
+        background-color: darken(@start-button-color, 10%);
+    }
+
+    #start:active {
+        background-color: darken(@start-button-color, 20%);
+    }
+
+    #stop {
+        background-color: @stop-button-color;
+    }
+
+    #stop:hover {
+        background-color: darken(@stop-button-color, 10%);
+    }
+
+    #stop:active {
+        background-color: darken(@stop-button-color, 20%);
+    }
+
+    #save {
+        background-color: @save-button-color;
+    }
+
+    #save:hover {
+        background-color: darken(@save-button-color, 10%);
+    }
+
+    #save:active {
+        background-color: darken(@save-button-color, 20%);
     }
 }
 
 #error {
-    margin: @margin-large;
     text-align: center;
     color: red;
 }
 
 #loader {
-    margin: @margin-large;
     text-align: center;
-    /*height: 20em;*/
-}
-
-#login-form {
-    .actions {
-        #login {
-            background-color: rgb(68,182,174);
-        }
-    }
 }
 
 #edit-form {
+    .title {
+        #create-title {
+            display: none;
+        }
+
+        #edit-title {
+            display: none;
+        }
+    }
+
     .actions {
         #start {
             display: none;
-            background-color: rgb(68,182,174);
         }
 
-        #stop {
+        #save {
             display: none;
-            background-color: rgb(226,106,106);
-        }
-
-        #apply {
-            display: none;
-            background-color: rgb(150,167,187);
         }
     }
 }
 
-#edit-form.timer-started {
-    .actions {
-        #start {
+#edit-form.create {
+    .title {
+        #create-title {
+            display: initial;
+        }
+
+        #edit-title {
             display: none;
         }
+    }
 
-        #stop {
+    .actions {
+        #start {
             display: initial;
         }
 
-        #apply {
-            display: initial;
+        #save {
+            display: none;
         }
     }
 }
 
-#edit-form.timer-stopped {
-    .actions {
-        #start {
+#edit-form.edit {
+    .title {
+        #create-title {
+            display: none;
+        }
+
+        #edit-title {
             display: initial;
         }
+    }
 
-        #stop {
+    .actions {
+        #start {
             display: none;
         }
 
-        #apply {
-            display: none;
+        #save {
+            display: initial;
         }
     }
 }
