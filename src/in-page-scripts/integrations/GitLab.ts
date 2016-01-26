@@ -12,7 +12,7 @@
         }
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
-            var host = $$('.page-title .pull-right') || $$('.page-title');
+            var host = $$('.detail-page-header .pull-right');
             if (host) {
                 linkElement.classList.add('gitlab');
                 linkElement.classList.add('btn');
@@ -40,8 +40,10 @@
             var issueType = match[2];
             issueId = (issueType == 'merge_requests' ? '!' : '#') + issueId;
 
-            // <h2 class="issue-title">IssueName</h2>
-            var issueName = $$.try('.issue-title').textContent;
+            // <div class="detail-page-description gray-content-block second-block">
+            //      <h2 class="title">IssueName</h2>
+            // </div>
+            var issueName = $$.try('.detail-page-description .title').textContent;
             if (!issueName) {
                 return;
             }
