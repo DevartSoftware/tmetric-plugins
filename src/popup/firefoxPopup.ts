@@ -2,6 +2,15 @@
 
     constructor() {
         super();
+        $('.tags').on("select2:select", () => this.resize());
+        $('.tags').on("select2:unselect", () => this.resize());
+    }
+
+    resize() {
+        self.port.emit('popup_resize', {
+            width: document.body.offsetWidth,
+            height: document.body.offsetHeight
+        });
     }
 
     callBackground(request: IPopupRequest) {
@@ -20,10 +29,7 @@
 
     switchState(name: string) {
         super.switchState(name);
-        self.port.emit('popup_resize', {
-            width: document.body.offsetWidth,
-            height: document.body.offsetHeight
-        });
+        this.resize();
     }
 }
 
