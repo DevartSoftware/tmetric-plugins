@@ -29,6 +29,9 @@
 @input-button-background-color: @color-light;
 @input-button-color: @background-color-light;
 
+@field-min-height: 2.5em;
+@field-line-height: 2.5em;
+
 @login-button-color: #67809f;
 @start-button-color: #44b6ae;
 @stop-button-color: #e26a6a;
@@ -202,18 +205,13 @@ input[type=button] {
 }
 
 .row {
-    margin: 0.5em 0;
+    margin: @margin-double 0;
 
     > * {
         width: 100%;
         box-sizing: border-box;
-        line-height: 2.5em;
-        min-height: 2.5em;
-    }
-
-    > input, > select {
-        line-height: 2.5em;
-        min-height: 2.5em;
+        line-height: @field-line-height;
+        min-height: @field-min-height;
     }
 
     .label {
@@ -251,7 +249,17 @@ input[type=button] {
     }
 }
 
+.row.title {
+    .label {
+        font-size: large;
+        line-height: initial;
+        min-height: initial;
+    }
+}
+
 .row.actions {
+    margin: (@margin-large + @padding-double) 0 @margin-large 0;
+
     #login {
         background-color: @login-button-color;
     }
@@ -381,12 +389,45 @@ input[type=button] {
 .select2 {
     width: 100% !important;
     box-sizing: border-box !important;
-    line-height: initial !important;
-    height: initial !important;
 
     .select2-selection {
         border: @border !important;
         border-radius: @border-raduis !important;
+        height: unset !important;
+        min-height: unset !important;
+        line-height: unset !important;
+
+        * {
+            height: unset !important;
+            min-height: unset !important;
+            line-height: unset !important;
+        }
+
+        .select2-selection__rendered, .select2-selection__arrow {
+            display: block !important;
+            min-height: @field-min-height !important;
+            line-height: @field-line-height !important;
+        }
+
+        ul.select2-selection__rendered {
+            padding: @padding-small !important;
+
+            .select2-selection__choice, .select2-search {
+                box-sizing: border-box !important;
+                margin: @margin-small !important;
+                padding: 0 @padding-half !important;
+                height: (@field-min-height - 2 * @margin-small - 2 * @padding-small) !important;
+                line-height: (@field-min-height - 2 * @margin-small - 2 * @padding-small) !important;
+            }
+
+            .select2-search {
+                padding: 0 !important;
+
+                .select2-search__field {
+                    margin: 0 !important;
+                }
+            }
+        }
     }
 }
 

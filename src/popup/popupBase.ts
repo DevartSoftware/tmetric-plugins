@@ -43,14 +43,6 @@
         return this._timer && this._timer.isStarted;
     }
 
-    makeIssue() {
-        var issue = <Integrations.WebToolIssue>{};
-        if (this._timer && this._timer.workTask && this._timer.workTask.integrationId) {
-            issue = JSON.parse(JSON.stringify(this._issue));
-        }
-        return issue;
-    }
-
     updateTimer(timer: Integrations.WebToolIssueTimer) {
         this.switchState(this._states.loading);
         this.updateTimerAction(timer);
@@ -131,7 +123,7 @@
         var task = this._timer && this._timer.workTask;
 
         if (task) {
-            $('#view-form .time .value').text(this.getDuration(this._timer.startTime));
+            $('#view-form .time').text(this.getDuration(this._timer.startTime));
             $('#view-form .task .value').text(task.description);
             $('#view-form .project .value').text(this.getProjectName(task.projectId));
             $('#view-form .tags .value').text(this.getTimerTagsText());
