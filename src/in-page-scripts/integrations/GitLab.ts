@@ -8,7 +8,7 @@
         ];
 
         match(source: Source): boolean {
-            return $$.getAttribute('meta[name=description]', 'content').indexOf('GitLab') >= 0;
+            return $$.try('.gitlab-text-container').textContent.indexOf('GitLab') >= 0;
         }
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
