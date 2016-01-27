@@ -94,10 +94,13 @@ declare module Models {
     }
 
     interface TimeEntry {
+        timeEntryId: number;
         workTask: WorkTask;
+        workTaskId: number;
         startTime: string;
-        endTime: string;
+        endTime?: string;
         projectName: string;
+        tagsIdentifiers?: number[];
     }
 
     interface Project {

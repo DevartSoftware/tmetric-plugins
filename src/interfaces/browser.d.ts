@@ -33,6 +33,7 @@ interface IWindowMessage {
 interface IPopupData {
     issue: Integrations.WebToolIssue;
     timer: Models.Timer;
+    timerTagsIds: number[];
     projects: Models.Project[];
     tags: Models.Tag[];
 }

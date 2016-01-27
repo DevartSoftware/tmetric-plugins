@@ -429,9 +429,23 @@ class ExtensionBase {
         return {
             issue: this._currentIssue,
             timer: this._timer,
+            timerTagsIds: this._getTimerTagsIds(),
             projects: this._projects,
             tags: this._tags
         };
+    }
+
+    private _getTimerTagsIds(): number[] {
+        var ids = [];
+        if (this._timer && this._timer.isStarted && this._timeEntries) {
+            var timeEntry = this._timeEntries.filter((entry) => {
+                return entry.startTime === this._timer.startTime;
+            })[0];
+            if (timeEntry && timeEntry.tagsIdentifiers) {
+                ids = [].concat(timeEntry.tagsIdentifiers);
+            }
+        }
+        return ids;
     }
 
     initializePopupAction(): Promise<IPopupData> {
