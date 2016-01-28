@@ -122,6 +122,15 @@ class ExtensionBase {
         }
     }
 
+    fixTimer() {
+        var url = trackerServiceUrl;
+        if (this._userProfile && this._userProfile.activeAccountId) {
+            url += '#/tracker/' + this._userProfile.activeAccountId + '/';
+        }
+        this.openPage(url);
+        this.showNotification('You should fix the timer.');
+    }
+
     putTimer(url: string, title: string)
     putTimer(timer: Integrations.WebToolIssueTimer)
     putTimer(param1: any, param2?: any) {
@@ -140,6 +149,18 @@ class ExtensionBase {
             }
         }
 
+        this.putData(timer,
+            timer => this.putTimerWithExistingIntegration(timer),
+            timer => {
+                // Show error and exit when timer has no integration
+                if (timer.serviceUrl || timer.projectName) {
+                    return this.putTimerWithNewIntegration(timer)
+                }
+            });
+    }
+
+    putData<T>(data: T, action: (data: T) => Promise<any>, retryAction?: (data: T) => Promise<any>) {
+
         var onFail = (status: AjaxStatus, showDialog: boolean) => {
 
             this._actionOnConnect = null;
@@ -151,27 +172,24 @@ class ExtensionBase {
 
                 if (showDialog) {
                     disconnectPromise.then(() => {
-                        this._actionOnConnect = () => {
-                            // Do not change task after connect if timer already started
-                            if (this.buttonState == ButtonState.fixtimer || !this._timer || !this._timer.isStarted) {
-                                onConnect(false);
-                            }
-                        };
+                        this._actionOnConnect = () => onConnect(false);
                         this.showLoginDialog();
                     });
                 };
             }
             else {
 
-                var error = this.getErrorText(status);
+                let error = this.getErrorText(status);
 
-                // Show error and exit when timer has no integration
-                if (status.statusCode != HttpStatusCode.Forbidden || (!timer.serviceUrl && !timer.projectName)) {
-                    this.showError(error);
+                if (status.statusCode == HttpStatusCode.Forbidden && retryAction) {
+                    let promise = retryAction(data);
+                    if (promise) {
+                        promise.catch(() => this.showError(error));
+                        return;
+                    }
                 }
-                else {
-                    this.putTimerWithNewIntegration(timer).catch(() => this.showError(error));
-                }
+
+                this.showError(error);
             }
         };
 
@@ -180,21 +198,12 @@ class ExtensionBase {
             if (this.buttonState == ButtonState.fixtimer) {
 
                 // ensure connection before page open to prevent login duplication (#67759)
-                this._actionOnConnect = () => {
-                    var url = trackerServiceUrl;
-                    if (this._userProfile && this._userProfile.activeAccountId) {
-                        url += '#/tracker/' + this._userProfile.activeAccountId + '/';
-                    }
-                    this.openPage(url);
-                    this.showNotification('You should fix the timer.');
-                };
-
+                this._actionOnConnect = () => this.fixTimer();
                 this.getTimer().catch(status => onFail(status, showDialog));
                 return;
             }
 
-            this.putTimerWithExistingIntegration(timer)
-                .catch(status => onFail(status, showDialog));
+            action(data).catch(status => onFail(status, showDialog));
         };
 
         if (this._timer == null) {
@@ -216,12 +225,12 @@ class ExtensionBase {
                 if (this.getDuration(this._timer) > 10 * 60 * 60000) {
                     state = ButtonState.fixtimer;
                     text = 'Started (Need User Action)\n'
-                    + 'It looks like you forgot to stop the timer';
+                        + 'It looks like you forgot to stop the timer';
                 }
                 else {
                     state = ButtonState.stop;
                     text = 'Started\n'
-                    + (this._timer.workTask.description || '(No task description)');
+                        + (this._timer.workTask.description || '(No task description)');
                 }
             }
             else {
@@ -229,8 +238,8 @@ class ExtensionBase {
                 text = 'Paused';
             }
             text += '\nToday Total - '
-            + this.durationToString(this.getDuration(this._timeEntries))
-            + ' hours';
+                + this.durationToString(this.getDuration(this._timeEntries))
+                + ' hours';
         }
         this.buttonState = state;
         this.setButtonIcon(state == ButtonState.stop || state == ButtonState.fixtimer ? 'active' : 'inactive', text);
