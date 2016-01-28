@@ -5,7 +5,7 @@
         this.switchState(this._states.loading);
         this.initializeAction().then((data) => {
             this.setData(data);
-            if (this.isStarted()) {
+            if (this._timer && this._timer.isStarted) {
                 this.updateView();
                 this.switchState(this._states.viewing);
             } else {
@@ -27,7 +27,7 @@
 
     close(): void { }
 
-    setData(data: IPopupData) {
+    setData(data: IPopupInitData) {
         if (data.timer) {
             this._issue = data.issue;
             this._timer = data.timer;
@@ -39,43 +39,14 @@
         }
     }
 
-    isStarted() {
-        return this._timer && this._timer.isStarted;
-    }
-
-    updateTimer(timer: Integrations.WebToolIssueTimer) {
+    putTimer(timer: Models.Timer) {
         this.switchState(this._states.loading);
-        this.updateTimerAction(timer);
+        this.putTimerAction(timer);
         this.close();
     }
 
-    makeTimer(edited: boolean, started: boolean) {
-
-        var timer = <Integrations.WebToolIssueTimer>{};
-        if (edited) {
-            if (this._timer && this._timer.workTask && this._timer.workTask.integrationId) {
-                timer = JSON.parse(JSON.stringify(this._issue));
-            }
-        }
-
-        timer.isStarted = started;
-        timer.issueName = $('#edit-form .task').val();
-
-        var projectOptions = <HTMLCollection>$('#edit-form .project').prop('selectedOptions');
-        if (projectOptions && projectOptions.length) {
-            timer.projectName = projectOptions[0].textContent;
-        }
-
-        var tagsOptions = <HTMLCollection>$('#edit-form .tags').prop('selectedOptions');
-        if (tagsOptions && tagsOptions.length) {
-            var ids = <number[]>[];
-            for (var index = 0, size = tagsOptions.length; index < size; index += 1) {
-                ids.push(parseInt((<HTMLOptionElement>tagsOptions[index]).value));
-            }
-            timer.tagsIdentifiers = ids;
-        }
-
-        return timer;
+    private clone(obj: any) {
+        return JSON.parse(JSON.stringify(obj));
     }
 
     // actions
@@ -99,9 +70,9 @@
         };
     }
 
-    initializeAction = this.wrapBackgroundAction<void, IPopupData>('initialize');
+    initializeAction = this.wrapBackgroundAction<void, IPopupInitData>('initialize');
     loginAction = this.wrapBackgroundAction<void, void>('login');
-    updateTimerAction = this.wrapBackgroundAction<Integrations.WebToolIssueTimer, IPopupData>('updateTimer');
+    putTimerAction = this.wrapBackgroundAction<Models.Timer, IPopupInitData>('putTimer');
 
     // ui mutations
 
@@ -126,7 +97,7 @@
             $('#view-form .time').text(this.getDuration(this._timer.startTime));
             $('#view-form .task .value').text(task.description);
             $('#view-form .project .value').text(this.getProjectName(task.projectId));
-            $('#view-form .tags .value').text(this.getTimerTagsText());
+            $('#view-form .tags .value').text(this.makeTimerTagsText());
         }
     }
 
@@ -157,7 +128,7 @@
         return result;
     }
 
-    getProjectName(projectId: number) {
+    getProjectName(projectId: number): string {
         var name = '';
         if (this._projects) {
             var projects = this._projects.filter((project) => {
@@ -170,7 +141,7 @@
         return name;
     }
 
-    getProjectId(projectName: string) {
+    getProjectId(projectName: string): number {
         var id = null;
         if (this._projects) {
             var projects = this._projects.filter((project) => {
@@ -189,11 +160,47 @@
         })[0];
     }
 
-    getTimerTagsText() {
+    makeTimerTagsText() {
         return this._timerTagsIds.map((id) => {
             var tag = this.getTag(id);
             return tag ? tag.tagName : '';
         }).join(', ');
+    }
+
+    makeProjectSelectData() {
+        return this._projects.map((project) => {
+            return { id: project.projectId, text: project.projectName };
+        });
+    }
+
+    makeTagSelectData() {
+        return this._tags.map((tag) => {
+            return { id: tag.tagId, text: tag.tagName };
+        });
+    }
+
+    getDescriptionFieldValue(): string {
+        return $('#edit-form .task').val();
+    }
+
+    setDescriptionFieldValue(value: string) {
+        $('#edit-form .task').val(value);
+    }
+
+    getProjectIdField(): number {
+        return parseInt($('#edit-form .project').select2().val() || 0);
+    }
+
+    setProjectIdFieldValue(id: number) {
+        $('#edit-form .project').select2({ data: this.makeProjectSelectData() }).val('' + id).trigger("change");
+    }
+
+    getTagsIdsFieldValue(): number[] {
+        return ($('#edit-form .tags').select2().val() || []).map(id => parseInt(id));
+    }
+
+    setTagsIdsFieldValue(ids: number[]) {
+        $('#edit-form .tags').select2({ data: this.makeTagSelectData() }).val(ids.map(id => '' + id)).trigger("change");
     }
 
     updateCreate() {
@@ -210,9 +217,9 @@
                 issueName = '';
             }
 
-            $('#edit-form .task').val(issueName);
-            $('#edit-form .project').select2({ data: this.getProjectSelectData() }).val('' + this.getProjectId(issue.projectName)).trigger("change");
-            $('#edit-form .tags').select2({ data: this.getTagSelectData() }).val(null).trigger("change");
+            this.setDescriptionFieldValue(issueName);
+            this.setProjectIdFieldValue(this.getProjectId(issue.projectName));
+            this.setTagsIdsFieldValue([]);
         }
     }
 
@@ -224,22 +231,10 @@
 
             $('#edit-form').attr('class', 'edit');
 
-            $('#edit-form .task').val(task.description);
-            $('#edit-form .project').select2({ data: this.getProjectSelectData() }).val('' + task.projectId).trigger("change");
-            $('#edit-form .tags').select2({ data: this.getTagSelectData() }).val(this._timerTagsIds.map(id => '' + id)).trigger("change");
+            this.setDescriptionFieldValue(task.description);
+            this.setProjectIdFieldValue(task.projectId);
+            this.setTagsIdsFieldValue(this._timerTagsIds);
         }
-    }
-
-    getProjectSelectData() {
-        return this._projects.map((project) => {
-            return { id: project.projectId, text: project.projectName };
-        });
-    }
-
-    getTagSelectData() {
-        return this._tags.map((tag) => {
-            return { id: tag.tagId, text: tag.tagName };
-        });
     }
 
     // ui event handlers
@@ -259,15 +254,33 @@
     }
 
     private _onStartClick() {
-        this.updateTimer(this.makeTimer(false, true));
+        var timer = <Models.Timer>{};
+        timer.isStarted = true;
+        var now = new Date();
+        timer.startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toJSON();
+        timer.workTask = <Models.WorkTask>{};
+        timer.workTask.description = this.getDescriptionFieldValue();
+        timer.workTask.projectId = this.getProjectIdField();
+        timer.tagsIdentifiers = this.getTagsIdsFieldValue();
+        this.putTimer(timer);
     }
 
     private _onStopClick() {
-        this.updateTimer(this.makeTimer(true, false));
+        var timer = this.clone(this._timer);
+        timer.isStarted = false;
+        timer.workTask.description = this.getDescriptionFieldValue();
+        timer.workTask.projectId = this.getProjectIdField();
+        timer.tagsIdentifiers = this.getTagsIdsFieldValue();
+        this.putTimer(timer);
     }
 
     private _onSaveClick() {
-        this.updateTimer(this.makeTimer(true, true));
+        var timer = this.clone(this._timer);
+        timer.isStarted = true;
+        timer.workTask.description = this.getDescriptionFieldValue();
+        timer.workTask.projectId = this.getProjectIdField();
+        timer.tagsIdentifiers = this.getTagsIdsFieldValue();
+        this.putTimer(timer);
     }
 
     private _onEditClick() {

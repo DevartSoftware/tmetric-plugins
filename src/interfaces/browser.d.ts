@@ -30,7 +30,7 @@ interface IWindowMessage {
     origin: string;
 }
 
-interface IPopupData {
+interface IPopupInitData {
     issue: Integrations.WebToolIssue;
     timer: Models.Timer;
     timerTagsIds: number[];

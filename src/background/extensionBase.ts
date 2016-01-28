@@ -76,9 +76,9 @@ class ExtensionBase {
 
         this.port.emit('init', trackerServiceUrl);
 
+        this.listenPopupAction<void, IPopupInitData>('initialize', this.initializePopupAction);
         this.listenPopupAction<void, void>('login', this.loginPopupAction);
-        this.listenPopupAction<void, IPopupData>('initialize', this.initializePopupAction);
-        this.listenPopupAction<Integrations.WebToolIssueTimer, IPopupData>('updateTimer', this.updateTimerPopupAction);
+        this.listenPopupAction<Models.Timer, void>('putTimer', this.putTimerPopupAction);
     }
 
     /** Handles messages from in-page scripts */
@@ -97,7 +97,7 @@ class ExtensionBase {
                 break;
 
             case 'putTimer':
-                this.putTimer(message.data);
+                this.putTabTimer(message.data);
                 break;
         }
     }
@@ -131,9 +131,15 @@ class ExtensionBase {
         this.showNotification('You should fix the timer.');
     }
 
-    putTimer(url: string, title: string)
-    putTimer(timer: Integrations.WebToolIssueTimer)
-    putTimer(param1: any, param2?: any) {
+    putPopupTimer(timer: Models.Timer) {
+        this.putData(timer, (timer) => {
+            return this.putTimer(timer);
+        });
+    }
+
+    putTabTimer(url: string, title: string)
+    putTabTimer(timer: Integrations.WebToolIssueTimer)
+    putTabTimer(param1: any, param2?: any) {
 
         var timer: Integrations.WebToolIssueTimer;
         if (typeof param1 !== 'string') {
@@ -225,12 +231,12 @@ class ExtensionBase {
                 if (this.getDuration(this._timer) > 10 * 60 * 60000) {
                     state = ButtonState.fixtimer;
                     text = 'Started (Need User Action)\n'
-                        + 'It looks like you forgot to stop the timer';
+                    + 'It looks like you forgot to stop the timer';
                 }
                 else {
                     state = ButtonState.stop;
                     text = 'Started\n'
-                        + (this._timer.workTask.description || '(No task description)');
+                    + (this._timer.workTask.description || '(No task description)');
                 }
             }
             else {
@@ -238,8 +244,8 @@ class ExtensionBase {
                 text = 'Paused';
             }
             text += '\nToday Total - '
-                + this.durationToString(this.getDuration(this._timeEntries))
-                + ' hours';
+            + this.durationToString(this.getDuration(this._timeEntries))
+            + ' hours';
         }
         this.buttonState = state;
         this.setButtonIcon(state == ButtonState.stop || state == ButtonState.fixtimer ? 'active' : 'inactive', text);
@@ -404,7 +410,8 @@ class ExtensionBase {
 
     private disconnect = this.wrapPortAction<void, void>('disconnect');
     private getTimer = this.wrapPortAction<void, void>('getTimer');
-    private putTimerWithExistingIntegration = this.wrapPortAction<Integrations.WebToolIssueTimer, void>('putTimer');
+    private putTimer = this.wrapPortAction<Models.Timer, void>('putTimer');
+    private putTimerWithExistingIntegration = this.wrapPortAction<Integrations.WebToolIssueTimer, void>('putExternalTimer');
     private postIntegration = this.wrapPortAction<Models.IntegratedProjectIdentifier, void>('postIntegration');
     private getIntegration = this.wrapPortAction<Models.IntegratedProjectIdentifier, Models.IntegratedProjectStatus>('getIntegration');
     private setAccountToPost = this.wrapPortAction<number, void>('setAccountToPost');
@@ -422,7 +429,7 @@ class ExtensionBase {
         var action = request.action;
         var handler = this._popupActions[action];
         if (action && handler) {
-            handler.call(this, request.data).then((result: IPopupData) => {
+            handler.call(this, request.data).then((result: IPopupInitData) => {
                 callback({ action: action, data: result });
             }).catch((error) => {
                 callback({ action: action, error: error || 'Error' });
@@ -432,19 +439,19 @@ class ExtensionBase {
         }
     }
 
-    // popup methods
+    // popup actions
 
-    private _getPopupData(): IPopupData {
+    private getPopupData(): IPopupInitData {
         return {
             issue: this._currentIssue,
             timer: this._timer,
-            timerTagsIds: this._getTimerTagsIds(),
+            timerTagsIds: this.getTimerTagsIds(),
             projects: this._projects,
             tags: this._tags
         };
     }
 
-    private _getTimerTagsIds(): number[] {
+    private getTimerTagsIds(): number[] {
         var ids = [];
         if (this._timer && this._timer.isStarted && this._timeEntries) {
             var timeEntry = this._timeEntries.filter((entry) => {
@@ -457,13 +464,13 @@ class ExtensionBase {
         return ids;
     }
 
-    initializePopupAction(): Promise<IPopupData> {
+    initializePopupAction(): Promise<IPopupInitData> {
         return new Promise((resolve, reject) => {
             if (this._timer) {
-                resolve(this._getPopupData());
+                resolve(this.getPopupData());
             } else {
                 this.reconnect().then(() => {
-                    resolve(this._getPopupData());
+                    resolve(this.getPopupData());
                 }).catch(() => {
                     reject('Connection error');
                 });
@@ -476,8 +483,8 @@ class ExtensionBase {
         return Promise.resolve(null);
     }
 
-    updateTimerPopupAction(timer) {
-        this.putTimer(timer);
+    putTimerPopupAction(timer: Models.Timer) {
+        this.putPopupTimer(timer);
         return Promise.resolve(null);
     }
 }

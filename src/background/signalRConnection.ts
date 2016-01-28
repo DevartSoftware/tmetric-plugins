@@ -65,7 +65,8 @@
         this.listenPortAction<void>('disconnect', this.disconnect);
         this.listenPortAction<void>('reconnect', this.reconnect);
         this.listenPortAction<Integrations.WebToolIssueTimer>('getTimer', this.getTimer);
-        this.listenPortAction<Integrations.WebToolIssueTimer>('putTimer', this.putTimer);
+        this.listenPortAction<Models.Timer>('putTimer', this.putTimer);
+        this.listenPortAction<Integrations.WebToolIssueTimer>('putExternalTimer', this.putExternalTimer);
         this.listenPortAction<Models.IntegratedProjectIdentifier>('postIntegration', this.postIntegration);
         this.listenPortAction<Models.IntegratedProjectIdentifier>('getIntegration', this.getIntegration);
         this.listenPortAction<number>('setAccountToPost', this.setAccountToPost);
@@ -160,7 +161,17 @@
         });
     }
 
-    putTimer(timer: Integrations.WebToolIssueTimer) {
+    putTimer(timer: Models.Timer) {
+        return this.connect().then(profile => {
+            var accountId = this.accountToPost || profile.activeAccountId;
+            if (timer.isStarted) {
+                return this.put('api/timer/' + accountId, timer);
+            }
+            return this.put('api/timer/' + accountId, <Models.Timer>{ isStarted: false });
+        });
+    }
+
+    putExternalTimer(timer: Integrations.WebToolIssueTimer) {
         return this.connect().then(profile => {
             var accountId = this.accountToPost || profile.activeAccountId;
             if (timer.isStarted) {
