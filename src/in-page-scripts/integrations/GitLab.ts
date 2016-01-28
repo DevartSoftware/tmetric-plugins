@@ -8,7 +8,7 @@
         ];
 
         match(source: Source): boolean {
-            return $$.try('.gitlab-text-container').textContent.indexOf('GitLab') >= 0;
+            return !!$$('.gitlab-text-container');
         }
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
