@@ -22,7 +22,7 @@
         "gulp-webdriver": "1.0.1",
         "gulp-zip": "3.0.2",
         "jpm": "*",
-        "jquery": "2.1.4",
+        "jquery": "2.2.0",
         "jsonfile": "2.2.2",
         "merge-stream": "1.0.0",
         "mkdirp": "0.5.1",
