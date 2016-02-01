@@ -20,13 +20,6 @@
 
                 this.switchState(this._states.viewing);
             } else {
-
-                this.fillTaskForm(this._forms.edit, {
-                    description: data.task.description,
-                    projectId: data.task.projectId,
-                    tagIds: data.task.tagIds
-                });
-
                 this.switchState(this._states.creating);
             }
         }).catch((error) => {
@@ -128,7 +121,7 @@
         timer.workTask = timer.workTask || <Models.WorkTask>{};
         timer.workTask.description = $(selector + ' .task').val();
         timer.workTask.projectId = parseInt($(selector + ' .project').select2().val() || null);
-        timer.tagsIdentifiers = $(selector + ' .tags').select2().val().map(tag => parseInt(tag));
+        timer.tagsIdentifiers = ($(selector + ' .tags').select2().val() || []).map(tag => parseInt(tag));
     }
 
     getDuration(startTime: string) {

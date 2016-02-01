@@ -231,12 +231,12 @@ class ExtensionBase {
                 if (this.getDuration(this._timer) > 10 * 60 * 60000) {
                     state = ButtonState.fixtimer;
                     text = 'Started (Need User Action)\n'
-                        + 'It looks like you forgot to stop the timer';
+                    + 'It looks like you forgot to stop the timer';
                 }
                 else {
                     state = ButtonState.stop;
                     text = 'Started\n'
-                        + (this._timer.workTask.description || '(No task description)');
+                    + (this._timer.workTask.description || '(No task description)');
                 }
             }
             else {
@@ -244,8 +244,8 @@ class ExtensionBase {
                 text = 'Paused';
             }
             text += '\nToday Total - '
-                + this.durationToString(this.getDuration(this._timeEntries))
-                + ' hours';
+            + this.durationToString(this.getDuration(this._timeEntries))
+            + ' hours';
         }
         this.buttonState = state;
         this.setButtonIcon(state == ButtonState.stop || state == ButtonState.fixtimer ? 'active' : 'inactive', text);
@@ -442,8 +442,11 @@ class ExtensionBase {
     // popup actions
 
     private getPopupData(): IPopupInitData {
-        var description;
-        var projectId;
+
+        var description: string;
+        var projectId: number;
+        var tagIds = [];
+
         if (this._currentIssue && this._currentIssue.serviceType) {
             description = '';
             projectId = this.toProjectId(this._currentIssue && this._currentIssue.projectName);
@@ -452,12 +455,9 @@ class ExtensionBase {
             description = this._currentIssue && this._currentIssue.issueName;
             projectId = null;
         }
+
         return {
-            task: {
-                description: description,
-                projectId: projectId,
-                tagIds: []
-            },
+            task: { description, projectId, tagIds },
             timer: this._timer,
             projects: this._projects,
             tags: this._tags
