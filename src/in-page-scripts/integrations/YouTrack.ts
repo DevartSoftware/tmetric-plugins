@@ -79,27 +79,10 @@
                 return;
             }
 
-            // charisma.ComboBoxHelper.create(
-            //   byid(id)
-            //   "P1",
-            //   { "multi": false, "values": [{ "text": "Project 1", "id": "P1", "styleClass": "" }] });
-            var newIssueScript = $$.try('#newIssueDialog script').textContent;
-            var projectsMatch = /ComboBoxHelper.*"values":\s*(\[.*\])/.exec(newIssueScript);
-            if (projectsMatch) {
-                let projects: { text: string, id: string }[];
-                let projectsJSON = projectsMatch[1].replace(/\\\'/g, '\'');
-                try {
-                    projects = JSON.parse(projectsJSON);
-                }
-                catch (e) {
-                }
-                if (projects) {
-                    let projectId = issueId.split('-')[0];
-                    let project = projects.filter(project => project.id === projectId)[0];
-                    if (project) {
-                        var projectName = project.text;
-                    }
-                }
+            // project name can be resolved for logged in users only
+            var projectSelector = $$('.sb-agile-dlg-projects');
+            if (projectSelector) {
+                var projectName = $$.try('label[for=editAgileProjects_' + issueId.split('-')[0] + ']', projectSelector).textContent;
             }
 
             var serviceType = 'YouTrack';
