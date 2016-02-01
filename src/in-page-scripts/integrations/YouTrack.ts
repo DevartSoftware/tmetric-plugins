@@ -84,11 +84,12 @@
             //   "P1",
             //   { "multi": false, "values": [{ "text": "Project 1", "id": "P1", "styleClass": "" }] });
             var newIssueScript = $$.try('#newIssueDialog script').textContent;
-            var projectsJSON = /ComboBoxHelper.*"values":\s*(\[.*\])/.exec(newIssueScript);
-            if (projectsJSON) {
+            var projectsMatch = /ComboBoxHelper.*"values":\s*(\[.*\])/.exec(newIssueScript);
+            if (projectsMatch) {
                 let projects: { text: string, id: string }[];
+                let projectsJSON = projectsMatch[1].replace(/\\\'/g, '\'');
                 try {
-                    projects = JSON.parse(projectsJSON[1]);
+                    projects = JSON.parse(projectsJSON);
                 }
                 catch (e) {
                 }
