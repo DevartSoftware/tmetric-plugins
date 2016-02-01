@@ -231,12 +231,12 @@ class ExtensionBase {
                 if (this.getDuration(this._timer) > 10 * 60 * 60000) {
                     state = ButtonState.fixtimer;
                     text = 'Started (Need User Action)\n'
-                    + 'It looks like you forgot to stop the timer';
+                        + 'It looks like you forgot to stop the timer';
                 }
                 else {
                     state = ButtonState.stop;
                     text = 'Started\n'
-                    + (this._timer.workTask.description || '(No task description)');
+                        + (this._timer.workTask.description || '(No task description)');
                 }
             }
             else {
@@ -244,8 +244,8 @@ class ExtensionBase {
                 text = 'Paused';
             }
             text += '\nToday Total - '
-            + this.durationToString(this.getDuration(this._timeEntries))
-            + ' hours';
+                + this.durationToString(this.getDuration(this._timeEntries))
+                + ' hours';
         }
         this.buttonState = state;
         this.setButtonIcon(state == ButtonState.stop || state == ButtonState.fixtimer ? 'active' : 'inactive', text);
@@ -491,17 +491,13 @@ class ExtensionBase {
             if (this._timer) {
                 resolve(this.getPopupData());
             } else {
-                this.reconnect().then(() => {
-                    resolve(this.getPopupData());
-                }).catch(() => {
-                    reject('Connection error');
-                });
+                reject('Not connected');
             }
         });
     }
 
     loginPopupAction() {
-        this.showLoginDialog();
+        this.reconnect().catch(() => this.showLoginDialog());
         return Promise.resolve(null);
     }
 
