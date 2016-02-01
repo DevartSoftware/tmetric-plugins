@@ -77,22 +77,8 @@ content {
     #edit-form {
         display: none;
     }
-}
 
-.blank {
-    #loader {
-        display: none;
-    }
-
-    #login-form {
-        display: none;
-    }
-
-    #view-form {
-        display: none;
-    }
-
-    #edit-form {
+    #create-form {
         display: none;
     }
 }
@@ -101,88 +87,28 @@ content {
     #loader {
         display: block;
     }
-
-    #login-form {
-        display: none;
-    }
-
-    #view-form {
-        display: none;
-    }
-
-    #edit-form {
-        display: none;
-    }
 }
 
 .authenticating {
-    #loader {
-        display: none;
-    }
-
     #login-form {
         display: block;
-    }
-
-    #view-form {
-        display: none;
-    }
-
-    #edit-form {
-        display: none;
     }
 }
 
 .viewing {
-    #loader {
-        display: none;
-    }
-
-    #login-form {
-        display: none;
-    }
-
     #view-form {
-        display: block;
-    }
-
-    #edit-form {
-        display: none;
-    }
-}
-
-.creating {
-    #loader {
-        display: none;
-    }
-
-    #login-form {
-        display: none;
-    }
-
-    #view-form {
-        display: none;
-    }
-
-    #edit-form {
         display: block;
     }
 }
 
 .editing {
-    #loader {
-        display: none;
-    }
-
-    #login-form {
-        display: none;
-    }
-
-    #view-form {
-        display: none;
-    }
-
     #edit-form {
+        display: block;
+    }
+}
+
+.creating {
+    #create-form {
         display: block;
     }
 }
@@ -257,55 +183,35 @@ input[type=button] {
     }
 }
 
+.button-states(@color) {
+    background-color: @color;
+
+    &:hover {
+        background-color: darken(@color, 10%);
+    }
+
+    &:active {
+        background-color: darken(@color, 20%);
+    }
+}
+
 .row.actions {
     margin: (@margin-large + @padding-double) 0 @margin-large 0;
 
     #login {
-        background-color: @login-button-color;
-    }
-
-    #login:hover {
-        background-color: darken(@login-button-color, 10%);
-    }
-
-    #login:active {
-        background-color: darken(@login-button-color, 20%);
+        .button-states(@login-button-color);
     }
 
     #start {
-        background-color: @start-button-color;
-    }
-
-    #start:hover {
-        background-color: darken(@start-button-color, 10%);
-    }
-
-    #start:active {
-        background-color: darken(@start-button-color, 20%);
+        .button-states(@start-button-color);
     }
 
     #stop {
-        background-color: @stop-button-color;
-    }
-
-    #stop:hover {
-        background-color: darken(@stop-button-color, 10%);
-    }
-
-    #stop:active {
-        background-color: darken(@stop-button-color, 20%);
+        .button-states(@stop-button-color);
     }
 
     #save {
-        background-color: @save-button-color;
-    }
-
-    #save:hover {
-        background-color: darken(@save-button-color, 10%);
-    }
-
-    #save:active {
-        background-color: darken(@save-button-color, 20%);
+        .button-states(@save-button-color);
     }
 }
 
@@ -316,72 +222,6 @@ input[type=button] {
 
 #loader {
     text-align: center;
-}
-
-#edit-form {
-    .title {
-        #create-title {
-            display: none;
-        }
-
-        #edit-title {
-            display: none;
-        }
-    }
-
-    .actions {
-        #start {
-            display: none;
-        }
-
-        #save {
-            display: none;
-        }
-    }
-}
-
-#edit-form.create {
-    .title {
-        #create-title {
-            display: initial;
-        }
-
-        #edit-title {
-            display: none;
-        }
-    }
-
-    .actions {
-        #start {
-            display: initial;
-        }
-
-        #save {
-            display: none;
-        }
-    }
-}
-
-#edit-form.edit {
-    .title {
-        #create-title {
-            display: none;
-        }
-
-        #edit-title {
-            display: initial;
-        }
-    }
-
-    .actions {
-        #start {
-            display: none;
-        }
-
-        #save {
-            display: initial;
-        }
-    }
 }
 
 // select2 styles

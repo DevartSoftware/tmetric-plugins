@@ -442,27 +442,49 @@ class ExtensionBase {
     // popup actions
 
     private getPopupData(): IPopupInitData {
+        var description;
+        var projectId;
+        if (this._currentIssue && this._currentIssue.serviceType) {
+            description = '';
+            projectId = this.toProjectId(this._currentIssue && this._currentIssue.projectName);
+        }
+        else {
+            description = this._currentIssue && this._currentIssue.issueName;
+            projectId = null;
+        }
         return {
-            issue: this._currentIssue,
+            task: {
+                description: description,
+                projectId: projectId,
+                tagIds: []
+            },
             timer: this._timer,
-            timerTagsIds: this.getTimerTagsIds(),
             projects: this._projects,
             tags: this._tags
         };
     }
 
-    private getTimerTagsIds(): number[] {
-        var ids = [];
-        if (this._timer && this._timer.isStarted && this._timeEntries) {
-            var timeEntry = this._timeEntries.filter((entry) => {
-                return entry.startTime === this._timer.startTime;
-            })[0];
-            if (timeEntry && timeEntry.tagsIdentifiers) {
-                ids = [].concat(timeEntry.tagsIdentifiers);
+    private toProjectId(projectName: string) {
+        var id = null;
+        if (this._projects) {
+            var projects = this._projects.filter(project => project.projectName === projectName);
+            if (projects.length) {
+                id = projects[0].projectId;
             }
         }
-        return ids;
-    }
+        return id;
+    };
+
+    private toProjectName(projectId: number) {
+        var name = '';
+        if (this._projects) {
+            var projects = this._projects.filter(project => project.projectId === projectId);
+            if (projects.length) {
+                name = projects[0].projectName;
+            }
+        }
+        return name;
+    };
 
     initializePopupAction(): Promise<IPopupInitData> {
         return new Promise((resolve, reject) => {

@@ -4,12 +4,29 @@
         this.initControls();
         this.switchState(this._states.loading);
         this.initializeAction().then((data) => {
+
             this.setData(data);
-            if (this._timer && this._timer.isStarted) {
-                this.updateView();
+
+            this.fillViewForm(data.timer);
+            this.fillTaskForm(this._forms.create, data.task);
+
+            if (data.timer && data.timer.isStarted) {
+
+                this.fillTaskForm(this._forms.edit, {
+                    description: data.timer.workTask.description,
+                    projectId: data.timer.workTask.projectId,
+                    tagIds: data.timer.tagsIdentifiers
+                });
+
                 this.switchState(this._states.viewing);
             } else {
-                this.updateCreate();
+
+                this.fillTaskForm(this._forms.edit, {
+                    description: data.task.description,
+                    projectId: data.task.projectId,
+                    tagIds: data.task.tagIds
+                });
+
                 this.switchState(this._states.creating);
             }
         }).catch((error) => {
@@ -17,9 +34,8 @@
         });
     }
 
-    private _issue: Integrations.WebToolIssue;
-    private _timer: Models.Timer;
-    private _timerTagsIds: number[];
+    private _task: ITaskInfo;
+    private _activeTimer: Models.Timer;
     private _projects: Models.Project[];
     private _tags: Models.Tag[];
 
@@ -29,9 +45,8 @@
 
     setData(data: IPopupInitData) {
         if (data.timer) {
-            this._issue = data.issue;
-            this._timer = data.timer;
-            this._timerTagsIds = data.timerTagsIds;
+            this._task = data.task;
+            this._activeTimer = data.timer;
             this._projects = data.projects;
             this._tags = data.tags;
         } else {
@@ -40,7 +55,6 @@
     }
 
     putTimer(timer: Models.Timer) {
-        this.switchState(this._states.loading);
         this.putTimerAction(timer);
         this.close();
     }
@@ -76,8 +90,14 @@
 
     // ui mutations
 
+    private _forms = {
+        login: '#login-form',
+        view: '#view-form',
+        edit: '#edit-form',
+        create: '#create-form'
+    };
+
     private _states = {
-        blank: 'blank',
         loading: 'loading',
         authenticating: 'authenticating',
         creating: 'creating',
@@ -89,46 +109,51 @@
         $('content').attr('class', name);
     }
 
-    updateView() {
-
-        var task = this._timer && this._timer.workTask;
-
-        if (task) {
-            $('#view-form .time').text(this.getDuration(this._timer.startTime));
-            $('#view-form .task .value').text(task.description);
-            $('#view-form .project .value').text(this.getProjectName(task.projectId));
-            $('#view-form .tags .value').text(this.makeTimerTagsText());
+    fillViewForm(timer: Models.Timer) {
+        if (timer && timer.workTask) {
+            $(this._forms.view + ' .time').text(this.getDuration(timer.startTime));
+            $(this._forms.view + ' .task .value').text(timer.workTask.description);
+            $(this._forms.view + ' .project .value').text(this.toProjectName(timer.workTask.projectId));
+            $(this._forms.view + ' .tags .value').text(this.makeTimerTagsText());
         }
+    }
+
+    fillTaskForm(selector: string, task: ITaskInfo) {
+        $(selector + ' .task').val(task.description);
+        this.setSelectValue(selector + ' .project', { data: this.makeProjectSelectData() }, '' + task.projectId);
+        this.setSelectValue(selector + ' .tags', { data: this.makeTagSelectData() }, task.tagIds.map(function (tag) { return '' + tag; }));
+    }
+
+    fillTaskTimer(selector: string, timer: Models.Timer) {
+        timer.workTask = timer.workTask || <Models.WorkTask>{};
+        timer.workTask.description = $(selector + ' .task').val();
+        timer.workTask.projectId = parseInt($(selector + ' .project').select2().val() || null);
+        timer.tagsIdentifiers = $(selector + ' .tags').select2().val().map(tag => parseInt(tag));
     }
 
     getDuration(startTime: string) {
 
         var MINUTE = 1000 * 60;
         var HOUR = MINUTE * 60;
-        var DAY = HOUR * 24;
 
         var start = new Date(startTime).getTime();
         var now = new Date().getTime();
 
         var duration = Math.abs(start - now);
 
-        var days = Math.floor(duration / DAY);
-        var hours = Math.floor((duration - days * DAY) / HOUR);
-        var minutes = Math.floor((duration - days * DAY - hours * HOUR) / MINUTE);
+        var hours = Math.floor(duration / HOUR);
+        var minutes = Math.floor((duration - hours * HOUR) / MINUTE);
 
-        var daysStr = days > 0 ? (days + (days == 1 ? ' day' : ' days')) : '';
-        var hoursStr = hours > 0 ? (hours + (hours == 1 ? ' hour' : ' hours')) : '';
-        var minutesStr = minutes > 0 ? (minutes + (minutes == 1 ? ' min' : ' mins')) : '';
+        var result = [];
+        if (hours) {
+            result.push(hours + ' h');
+        }
+        result.push(minutes + ' min');
 
-        var result = daysStr;
-        result = result ? result + ' ' + hoursStr : hoursStr;
-        result = result ? result + ' ' + minutesStr : minutesStr;
-        result = result ? result : '0 min';
-
-        return result;
+        return result.join(' ');
     }
 
-    getProjectName(projectId: number): string {
+    toProjectName(projectId: number): string {
         var name = '';
         if (this._projects) {
             var projects = this._projects.filter((project) => {
@@ -141,7 +166,7 @@
         return name;
     }
 
-    getProjectId(projectName: string): number {
+    toProjectId(projectName: string): number {
         var id = null;
         if (this._projects) {
             var projects = this._projects.filter((project) => {
@@ -161,7 +186,7 @@
     }
 
     makeTimerTagsText() {
-        return this._timerTagsIds.map((id) => {
+        return this._activeTimer.tagsIdentifiers.map((id) => {
             var tag = this.getTag(id);
             return tag ? tag.tagName : '';
         }).join(', ');
@@ -179,117 +204,52 @@
         });
     }
 
-    getDescriptionFieldValue(): string {
-        return $('#edit-form .task').val();
-    }
-
-    setDescriptionFieldValue(value: string) {
-        $('#edit-form .task').val(value);
-    }
-
-    getProjectIdField(): number {
-        return parseInt($('#edit-form .project').select2().val() || 0);
-    }
-
-    setProjectIdFieldValue(id: number) {
-        $('#edit-form .project').select2({ data: this.makeProjectSelectData() }).val('' + id).trigger("change");
-    }
-
-    getTagsIdsFieldValue(): number[] {
-        return ($('#edit-form .tags').select2().val() || []).map(id => parseInt(id));
-    }
-
-    setTagsIdsFieldValue(ids: number[]) {
-        $('#edit-form .tags').select2({ data: this.makeTagSelectData() }).val(ids.map(id => '' + id)).trigger("change");
-    }
-
-    updateCreate() {
-
-        var issue = this._issue;
-
-        if (issue) {
-
-            $('#edit-form').attr('class', 'create');
-
-            var issueName = issue.issueName;
-            // REQUIREMENT: when create issue for integrated page do not set issue name
-            if (issue.serviceType) {
-                issueName = '';
-            }
-
-            this.setDescriptionFieldValue(issueName);
-            this.setProjectIdFieldValue(this.getProjectId(issue.projectName));
-            this.setTagsIdsFieldValue([]);
-        }
-    }
-
-    updateEdit() {
-
-        var task = this._timer && this._timer.workTask;
-
-        if (task) {
-
-            $('#edit-form').attr('class', 'edit');
-
-            this.setDescriptionFieldValue(task.description);
-            this.setProjectIdFieldValue(task.projectId);
-            this.setTagsIdsFieldValue(this._timerTagsIds);
-        }
-    }
+    setSelectValue(selector: string, options: Select2Options, value: string | string[]) {
+        $(selector).select2(options).val(value).trigger("change");
+    };
 
     // ui event handlers
 
     initControls() {
-        $('#login').click(() => this._onLoginClick());
-        $('#start').click(() => this._onStartClick());
-        $('#stop').click(() => this._onStopClick());
-        $('#save').click(() => this._onSaveClick());
-        $('#edit-link').click(() => this._onEditClick());
-        $('#create-link').click(() => this._onCreateClick());
+        $('#login').click(() => this.onLoginClick());
+        $('#start').click(() => this.onStartClick());
+        $('#stop').click(() => this.onStopClick());
+        $('#save').click(() => this.onSaveClick());
+        $('#edit-link').click(() => this.onEditClick());
+        $('#create-link').click(() => this.onCreateClick());
     }
 
-    private _onLoginClick() {
+    private onLoginClick() {
         this.loginAction();
         this.close();
     }
 
-    private _onStartClick() {
+    private onStartClick() {
         var timer = <Models.Timer>{};
-        timer.isStarted = true;
         var now = new Date();
-        timer.startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toJSON();
-        timer.workTask = <Models.WorkTask>{};
-        timer.workTask.description = this.getDescriptionFieldValue();
-        timer.workTask.projectId = this.getProjectIdField();
-        timer.tagsIdentifiers = this.getTagsIdsFieldValue();
-        this.putTimer(timer);
-    }
-
-    private _onStopClick() {
-        var timer = this.clone(this._timer);
-        timer.isStarted = false;
-        timer.workTask.description = this.getDescriptionFieldValue();
-        timer.workTask.projectId = this.getProjectIdField();
-        timer.tagsIdentifiers = this.getTagsIdsFieldValue();
-        this.putTimer(timer);
-    }
-
-    private _onSaveClick() {
-        var timer = this.clone(this._timer);
         timer.isStarted = true;
-        timer.workTask.description = this.getDescriptionFieldValue();
-        timer.workTask.projectId = this.getProjectIdField();
-        timer.tagsIdentifiers = this.getTagsIdsFieldValue();
+        timer.startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toJSON();
+        this.fillTaskTimer(this._forms.create, timer);
         this.putTimer(timer);
     }
 
-    private _onEditClick() {
-        this.updateEdit();
+    private onStopClick() {
+        var timer = this.clone(this._activeTimer);
+        timer.isStarted = false;
+        this.putTimer(timer);
+    }
+
+    private onSaveClick() {
+        var timer = this.clone(this._activeTimer);
+        this.fillTaskTimer(this._forms.edit, timer);
+        this.putTimer(timer);
+    }
+
+    private onEditClick() {
         this.switchState(this._states.editing);
     }
 
-    private _onCreateClick() {
-        this.updateCreate();
+    private onCreateClick() {
         this.switchState(this._states.creating);
     }
 }

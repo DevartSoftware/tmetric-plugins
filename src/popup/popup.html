@@ -49,8 +49,24 @@
         </div>
         <div id="edit-form">
             <div class="row title">
-                <span id="create-title" class="label">New Task</span>
-                <span id="edit-title" class="label">Edit Task</span>
+                <span class="label">Edit Task</span>
+            </div>
+            <div class="row">
+                <input class="task" type="text" placeholder="Description" />
+            </div>
+            <div class="row">
+                <select class="project" placeholder="Project" data-placeholder="Project"></select>
+            </div>
+            <div class="row">
+                <select class="tags" placeholder="Tags" data-placeholder="Tags" multiple="multiple"></select>
+            </div>
+            <div class="row actions">
+                <input id="save" type="button" value="Save" />
+            </div>
+        </div>
+        <div id="create-form">
+            <div class="row title">
+                <span class="label">New Task</span>
             </div>
             <div class="row">
                 <input class="task" type="text" placeholder="Description" />
@@ -63,7 +79,6 @@
             </div>
             <div class="row actions">
                 <input id="start" type="button" value="Start" />
-                <input id="save" type="button" value="Save" />
             </div>
         </div>
     </content>

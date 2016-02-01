@@ -30,10 +30,15 @@ interface IWindowMessage {
     origin: string;
 }
 
+interface ITaskInfo {
+    description: string;
+    projectId: number;
+    tagIds: number[];
+}
+
 interface IPopupInitData {
-    issue: Integrations.WebToolIssue;
+    task: ITaskInfo;
     timer: Models.Timer;
-    timerTagsIds: number[];
     projects: Models.Project[];
     tags: Models.Tag[];
 }

@@ -164,10 +164,7 @@
     putTimer(timer: Models.Timer) {
         return this.connect().then(profile => {
             var accountId = this.accountToPost || profile.activeAccountId;
-            if (timer.isStarted) {
-                return this.put('api/timer/' + accountId, timer);
-            }
-            return this.put('api/timer/' + accountId, <Models.Timer>{ isStarted: false });
+            return this.put('api/timer/' + accountId, timer);
         });
     }
 
