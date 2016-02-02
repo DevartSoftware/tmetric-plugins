@@ -113,23 +113,6 @@ content {
     }
 }
 
-input {
-    border: @border;
-    border-radius: @border-raduis;
-    padding: 0 @padding;
-    font-family: @font-family;
-    font-size: @font-size;
-    color: @input-color;
-    background-color: @input-background-color;
-}
-
-input[type=button] {
-    border: 0;
-    color: @input-button-color;
-    background-color: @input-button-background-color;
-    cursor: pointer;
-}
-
 .row {
     margin: @margin-double 0;
 
@@ -146,14 +129,25 @@ input[type=button] {
         margin: 0 @margin 0 0;
     }
 
+    &.title {
+        .label {
+            font-size: large;
+            line-height: initial;
+            min-height: initial;
+        }
+    }
+
+    &.project, &.tags {
+        .label {
+            width: 4em;
+            color: @color-light;
+        }
+    }
+
     .value {
         display: inline;
         width: auto;
         margin: 0;
-    }
-
-    .project .label, .tags .label {
-        width: 4em;
     }
 
     .link {
@@ -173,45 +167,54 @@ input[type=button] {
     .link:hover {
         color: #0082a7;
     }
-}
 
-.row.title {
-    .label {
-        font-size: large;
-        line-height: initial;
-        min-height: initial;
-    }
-}
-
-.button-states(@color) {
-    background-color: @color;
-
-    &:hover {
-        background-color: darken(@color, 10%);
+    .input {
+        border: @border;
+        border-radius: @border-raduis;
+        padding: 0 @padding;
+        font-family: @font-family;
+        font-size: @font-size;
+        color: @input-color;
+        background-color: @input-background-color;
     }
 
-    &:active {
-        background-color: darken(@color, 20%);
-    }
-}
-
-.row.actions {
-    margin: (@margin-large + @padding-double) 0 @margin-large 0;
-
-    #login {
-        .button-states(@login-button-color);
+    .input[type=button] {
+        border: 0;
+        color: @input-button-color;
+        background-color: @input-button-background-color;
+        cursor: pointer;
     }
 
-    #start {
-        .button-states(@start-button-color);
+    .button-states(@color) {
+        background-color: @color;
+
+        &:hover {
+            background-color: darken(@color, 10%);
+        }
+
+        &:active {
+            background-color: darken(@color, 20%);
+        }
     }
 
-    #stop {
-        .button-states(@stop-button-color);
-    }
+    &.actions {
+        margin: (@margin-large + @padding-double) 0 @margin-large 0;
 
-    #save {
-        .button-states(@save-button-color);
+        #login {
+            .button-states(@login-button-color);
+        }
+
+        #start {
+            .button-states(@start-button-color);
+        }
+
+        #stop {
+            .button-states(@stop-button-color);
+        }
+
+        #save {
+            .button-states(@save-button-color);
+        }
     }
 }
 

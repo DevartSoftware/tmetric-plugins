@@ -104,24 +104,40 @@
 
     fillViewForm(timer: Models.Timer) {
         if (timer && timer.workTask) {
+
             $(this._forms.view + ' .time').text(this.getDuration(timer.startTime));
-            $(this._forms.view + ' .task .value').text(timer.workTask.description);
-            $(this._forms.view + ' .project .value').text(this.toProjectName(timer.workTask.projectId));
-            $(this._forms.view + ' .tags .value').text(this.makeTimerTagsText());
+
+            if (timer.workTask.description) {
+                $(this._forms.view + ' .task .value').text(timer.workTask.description);
+            } else {
+                $(this._forms.view + ' .task .value').text('(No description)');
+            }
+
+            if (timer.workTask.projectId) {
+                $(this._forms.view + ' .project .value').text(this.toProjectName(timer.workTask.projectId)).show();
+            } else {
+                $(this._forms.view + ' .project').hide();
+            }
+
+            if (timer.tagsIdentifiers && timer.tagsIdentifiers.length) {
+                $(this._forms.view + ' .tags .value').text(this.makeTimerTagsText(timer.tagsIdentifiers)).show();
+            } else {
+                $(this._forms.view + ' .tags').hide();
+            }
         }
     }
 
     fillTaskForm(selector: string, task: ITaskInfo) {
-        $(selector + ' .task').val(task.description);
-        this.setSelectValue(selector + ' .project', { data: this.makeProjectSelectData() }, '' + task.projectId);
-        this.setSelectValue(selector + ' .tags', { data: this.makeTagSelectData() }, task.tagIds.map(function (tag) { return '' + tag; }));
+        $(selector + ' .task .input').val(task.description);
+        this.setSelectValue(selector + ' .project .input', { data: this.makeProjectSelectData() }, '' + task.projectId);
+        this.setSelectValue(selector + ' .tags .input', { data: this.makeTagSelectData() }, task.tagIds.map(function (tag) { return '' + tag; }));
     }
 
     fillTaskTimer(selector: string, timer: Models.Timer) {
         timer.workTask = timer.workTask || <Models.WorkTask>{};
-        timer.workTask.description = $(selector + ' .task').val();
-        timer.workTask.projectId = parseInt($(selector + ' .project').select2().val() || null);
-        timer.tagsIdentifiers = ($(selector + ' .tags').select2().val() || []).map(tag => parseInt(tag));
+        timer.workTask.description = $(selector + ' .task .input').val();
+        timer.workTask.projectId = parseInt($(selector + ' .project .input').select2().val() || null);
+        timer.tagsIdentifiers = ($(selector + ' .tags .input').select2().val() || []).map(tag => parseInt(tag));
     }
 
     getDuration(startTime: string) {
@@ -173,13 +189,20 @@
     }
 
     getTag(id: number) {
-        return this._tags.filter((tag) => {
-            return tag.tagId === id;
-        })[0];
+        var tag = null;
+        if (this._tags) {
+            var tags = this._tags.filter((tag) => {
+                return tag.tagId === id;
+            });
+            if (tags.length) {
+                tag = tags[0];
+            }
+        }
+        return tag;
     }
 
-    makeTimerTagsText() {
-        return this._activeTimer.tagsIdentifiers.map((id) => {
+    makeTimerTagsText(timerTags: number[]) {
+        return timerTags.map((id) => {
             var tag = this.getTag(id);
             return tag ? tag.tagName : '';
         }).join(', ');
