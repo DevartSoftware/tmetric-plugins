@@ -206,7 +206,7 @@ class FirefoxExtension extends ExtensionBase {
             });
 
             panel.port.on('popup_resize', ({width, height}) => {
-                console.log(width, height);
+                console.log('popup_resize', width, height);
                 if (panel.isShowing) {
                     panel.resize(width, height);
                 } else {

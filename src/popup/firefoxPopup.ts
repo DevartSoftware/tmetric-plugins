@@ -2,8 +2,24 @@
 
     constructor() {
         super();
-        $('.tags').on("select2:select", () => this.resize());
-        $('.tags').on("select2:unselect", () => this.resize());
+        this.initResizeListener();
+    }
+
+    initResizeListener() {
+
+        var target = document.querySelector('body');
+        var config = { attributes: true, childList: true, characterData: true, subtree: true };
+        var bodyHeightOld = null;
+
+        var observer = new MutationObserver((mutations) => {
+            var bodyHeight = document.body.offsetHeight;
+            if (bodyHeightOld != bodyHeight) {
+                bodyHeightOld = bodyHeight;
+                this.resize();
+            }
+        });
+
+        observer.observe(target, config);
     }
 
     resize() {
@@ -14,7 +30,6 @@
     }
 
     callBackground(request: IPopupRequest) {
-        console.log('popup callBackground', request);
         return new Promise((resolve, reject) => {
             self.port.once('popup_request_' + request.action + '_response', (response: IPopupResponse) => {
                 resolve(response);
@@ -25,11 +40,6 @@
 
     close() {
         self.port.emit('popup_close');
-    }
-
-    switchState(name: string) {
-        super.switchState(name);
-        this.resize();
     }
 }
 
