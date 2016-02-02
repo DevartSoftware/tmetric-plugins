@@ -116,7 +116,9 @@
 
             if (this.isSameIssue(oldIssueTimer, newIssueTimer) &&
                 newIssueTimer.isStarted == oldIssueTimer.isStarted &&
-                oldSession == this.session) {
+                newIssueTimer.projectName == oldIssueTimer.projectName &&
+                oldSession == this.session
+            ) {
                 // Issue is not changed and belong to same session (#67711)
                 return;
             }
