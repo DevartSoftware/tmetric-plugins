@@ -6,11 +6,12 @@
 
         matchUrl = '*://www.producteev.com/workspace/t/*';
 
-        issueElementSelector = '#task-details-container';
+        issueElementSelector = '#task-details';
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
             var host = $$('.td-attributes', issueElement);
             if (host) {
+                linkElement.classList.add('devart-timer-link-producteev');
                 host.insertBefore(linkElement, host.firstElementChild);
             }
         }
@@ -36,7 +37,7 @@
                 return;
             }
 
-            var projectName = $$.try('.list.projects .active .title').textContent;
+            var projectName = $$.try('.dropdown-project .title').textContent;
 
             var serviceType = 'Producteev';
 
