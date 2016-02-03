@@ -7,19 +7,22 @@
 
             this.setData(data);
 
-            this.fillViewForm(data.timer);
-            this.fillTaskForm(this._forms.create, data.task);
-
             if (data.timer && data.timer.isStarted) {
-
-                this.fillTaskForm(this._forms.edit, {
-                    description: data.timer.workTask.description,
-                    projectId: data.timer.workTask.projectId,
-                    tagIds: data.timer.tagsIdentifiers
-                });
-
-                this.switchState(this._states.viewing);
+                if (this.isLongRunning(data.timer.startTime)) {
+                    this.fillFixForm(data.timer);
+                    this.switchState(this._states.fixing);
+                } else {
+                    this.fillViewForm(data.timer);
+                    this.fillTaskForm(this._forms.create, data.task);
+                    this.fillTaskForm(this._forms.edit, {
+                        description: data.timer.workTask.description,
+                        projectId: data.timer.workTask.projectId,
+                        tagIds: data.timer.tagsIdentifiers
+                    });
+                    this.switchState(this._states.viewing);
+                }
             } else {
+                this.fillTaskForm(this._forms.create, data.task);
                 this.switchState(this._states.creating);
             }
         }).catch((error) => {
@@ -79,20 +82,33 @@
 
     initializeAction = this.wrapBackgroundAction<void, IPopupInitData>('initialize');
     loginAction = this.wrapBackgroundAction<void, void>('login');
+    fixTimerAction = this.wrapBackgroundAction<void, void>('fixTimer');
     putTimerAction = this.wrapBackgroundAction<Models.Timer, IPopupInitData>('putTimer');
 
     // ui mutations
 
     private _forms = {
         login: '#login-form',
+        fix: '#fix-form',
         view: '#view-form',
         edit: '#edit-form',
         create: '#create-form'
     };
 
+    private _messageTypes = {
+        error: 'error',
+        warning: 'warning',
+        info: 'info'
+    };
+
+    showMessage(type: string, message: string) {
+        $('#message').attr('class', type).html(message);
+    }
+
     private _states = {
         loading: 'loading',
         authenticating: 'authenticating',
+        fixing: 'fixing',
         creating: 'creating',
         viewing: 'viewing',
         editing: 'editing'
@@ -102,16 +118,21 @@
         $('content').attr('class', name);
     }
 
+    fillFixForm(timer: Models.Timer) {
+        if (timer && timer.workTask) {
+            var message = 'It looks like you forgot to stop the timer.<br>';
+            message += this.toDescription(timer.workTask.description) + '<br>';
+            message += this.toLongRunningDurationString(timer.startTime);
+            this.showMessage(this._messageTypes.warning, message);
+        }
+    }
+
     fillViewForm(timer: Models.Timer) {
         if (timer && timer.workTask) {
 
-            $(this._forms.view + ' .time').text(this.getDuration(timer.startTime));
+            $(this._forms.view + ' .time').text(this.toDurationString(timer.startTime));
 
-            if (timer.workTask.description) {
-                $(this._forms.view + ' .task .value').text(timer.workTask.description);
-            } else {
-                $(this._forms.view + ' .task .value').text('(No description)');
-            }
+            $(this._forms.view + ' .task .value').text(this.toDescription(timer.workTask.description));
 
             if (timer.workTask.projectId) {
                 $(this._forms.view + ' .project .value').text(this.toProjectName(timer.workTask.projectId)).show();
@@ -142,14 +163,18 @@
 
     getDuration(startTime: string) {
 
-        var MINUTE = 1000 * 60;
-        var HOUR = MINUTE * 60;
-
         var start = new Date(startTime).getTime();
         var now = new Date().getTime();
 
-        var duration = Math.abs(start - now);
+        return Math.abs(start - now);
+    }
 
+    toDurationString(startTime: string) {
+
+        var MINUTE = 1000 * 60;
+        var HOUR = MINUTE * 60;
+
+        var duration = this.getDuration(startTime);
         var hours = Math.floor(duration / HOUR);
         var minutes = Math.floor((duration - hours * HOUR) / MINUTE);
 
@@ -160,6 +185,49 @@
         result.push(minutes + ' min');
 
         return result.join(' ');
+    }
+
+    isLongRunning(startTime: string) {
+
+        var HOUR = 1000 * 60 * 60;
+        var LONG_RUNNING_DURATION = 10 * HOUR;
+
+        var duration = this.getDuration(startTime);
+
+        return duration >= LONG_RUNNING_DURATION;
+    }
+
+    toLongRunningDurationString(startTime: string) {
+
+        var DAY = 1000 * 60 * 60 * 24;
+
+        var duration = this.getDuration(startTime);
+
+        var now = new Date();
+        var durationToday = this.getDuration(new Date(now.getFullYear(), now.getMonth(), now.getDay()).toJSON());
+        var durationYesterday = durationToday + DAY;
+
+        var result = '';
+        if (duration <= durationToday) {
+            result = 'Started today';
+        } else if (duration <= durationYesterday) {
+            result = 'Started yesterday';
+        } else {
+            // Input:
+            // Wed Feb 03 2016 15:31:26 GMT+0200 (FLE Standard Time)
+            // Output:
+            // Started Wed, 03 Feb at 15:31
+            var dateParts = new Date(startTime).toString().split(' ');
+            var timeParts = dateParts[4].split(':');
+            result = 'Started ' + dateParts[0] + ', ' + dateParts[2] + ' ' + dateParts[1]
+            result += ' at ' + timeParts[0] + ':' + timeParts[1];
+        }
+
+        return result;
+    }
+
+    toDescription(description: string) {
+        return description || '(No description)';
     }
 
     toProjectName(projectId: number): string {
@@ -222,12 +290,13 @@
 
     setSelectValue(selector: string, options: Select2Options, value: string | string[]) {
         $(selector).select2(options).val(value).trigger("change");
-    };
+    }
 
     // ui event handlers
 
     initControls() {
         $('#login').click(() => this.onLoginClick());
+        $('#fix').click(() => this.onFixClick());
         $('#start').click(() => this.onStartClick());
         $('#stop').click(() => this.onStopClick());
         $('#save').click(() => this.onSaveClick());
@@ -237,6 +306,11 @@
 
     private onLoginClick() {
         this.loginAction();
+        this.close();
+    }
+
+    private onFixClick() {
+        this.fixTimerAction();
         this.close();
     }
 

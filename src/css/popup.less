@@ -33,14 +33,24 @@
 @field-line-height: 2.5em;
 
 @login-button-color: #67809f;
+@fix-button-color: #67809f;
 @start-button-color: #44b6ae;
 @stop-button-color: #e26a6a;
 @save-button-color: #67809f;
-@fix-timer-button-color: #67809f;
 
 @dropdown-max-height: 8em;
 
 @border: @border-width @border-style @border-color;
+
+@error-color: #8A6D3B;
+@error-background-color: #FCF8E3;
+@error-border-color: #FAEBCC;
+@warning-color: #8A6D3B;
+@warning-background-color: #FCF8E3;
+@warning-border-color: #FAEBCC;
+@info-color: #8A6D3B;
+@info-background-color: #FCF8E3;
+@info-border-color: #FAEBCC;
 
 body {
     width: @body-width;
@@ -59,58 +69,6 @@ body {
 header {
     margin: 0;
     text-align: center;
-}
-
-content {
-    #loader {
-        display: none;
-    }
-
-    #login-form {
-        display: none;
-    }
-
-    #view-form {
-        display: none;
-    }
-
-    #edit-form {
-        display: none;
-    }
-
-    #create-form {
-        display: none;
-    }
-}
-
-.loading {
-    #loader {
-        display: block;
-    }
-}
-
-.authenticating {
-    #login-form {
-        display: block;
-    }
-}
-
-.viewing {
-    #view-form {
-        display: block;
-    }
-}
-
-.editing {
-    #edit-form {
-        display: block;
-    }
-}
-
-.creating {
-    #create-form {
-        display: block;
-    }
 }
 
 .row {
@@ -204,6 +162,10 @@ content {
             .button-states(@login-button-color);
         }
 
+        #fix {
+            .button-states(@fix-button-color);
+        }
+
         #start {
             .button-states(@start-button-color);
         }
@@ -218,13 +180,107 @@ content {
     }
 }
 
-#error {
+#message {
+    display: none;
+    margin: @margin-large 0;
+    border: @border;
+    border-radius: @border-raduis;
+    padding: @padding;
     text-align: center;
-    color: red;
+    line-height: 2em;
+
+    &.error {
+        display: block;
+        color: @error-color;
+        background-color: @error-background-color;
+        border-color: @error-border-color;
+    }
+
+    &.warning {
+        display: block;
+        color: @warning-color;
+        background-color: @warning-background-color;
+        border-color: @warning-border-color;
+    }
+
+    &.info {
+        display: block;
+        color: @info-color;
+        background-color: @info-background-color;
+        border-color: @info-border-color;
+    }
 }
 
 #loader {
     text-align: center;
+}
+
+// states
+
+content {
+    #loader {
+        display: none;
+    }
+
+    #login-form {
+        display: none;
+    }
+
+    #fix-form {
+        display: none;
+
+        .actions {
+            margin: 0;
+        }
+    }
+
+    #view-form {
+        display: none;
+    }
+
+    #edit-form {
+        display: none;
+    }
+
+    #create-form {
+        display: none;
+    }
+}
+
+content.loading {
+    #loader {
+        display: block;
+    }
+}
+
+content.authenticating {
+    #login-form {
+        display: block;
+    }
+}
+
+content.fixing {
+    #fix-form {
+        display: block;
+    }
+}
+
+content.viewing {
+    #view-form {
+        display: block;
+    }
+}
+
+content.editing {
+    #edit-form {
+        display: block;
+    }
+}
+
+content.creating {
+    #create-form {
+        display: block;
+    }
 }
 
 // select2 styles

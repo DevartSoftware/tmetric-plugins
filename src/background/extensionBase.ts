@@ -78,6 +78,7 @@ class ExtensionBase {
 
         this.listenPopupAction<void, IPopupInitData>('initialize', this.initializePopupAction);
         this.listenPopupAction<void, void>('login', this.loginPopupAction);
+        this.listenPopupAction<void, void>('fixTimer', this.fixTimerPopupAction);
         this.listenPopupAction<Models.Timer, void>('putTimer', this.putTimerPopupAction);
     }
 
@@ -498,6 +499,11 @@ class ExtensionBase {
 
     loginPopupAction() {
         this.reconnect().catch(() => this.showLoginDialog());
+        return Promise.resolve(null);
+    }
+
+    fixTimerPopupAction() {
+        this.fixTimer();
         return Promise.resolve(null);
     }
 
