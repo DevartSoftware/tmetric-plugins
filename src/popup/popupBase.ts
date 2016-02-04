@@ -166,8 +166,9 @@
     private _weekdaysShort = 'Sun_Mon_Tue_Wed_Thu_Fri_Sat'.split('_');
     private _monthsShort = 'Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec'.split('_');
 
-    getDuration(startTime: string) {
-        var result = new Date().getTime() - new Date(startTime).getTime();
+    getDuration(startTime: any) {
+        var startDate = startTime instanceof Date ? startTime : new Date(startTime);
+        var result = new Date().getTime() - startDate.getTime();
         return result > 0 ? result : 0;
     }
 
@@ -205,11 +206,8 @@
 
         var now = new Date();
 
-        var todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDay());
-        var durationToday = this.getDuration(todayDate.toString());
-
-        var yesterdayDate = new Date(now.getFullYear(), now.getMonth(), now.getDay() - 1);
-        var durationYesterday = this.getDuration(yesterdayDate.toString());
+        var durationToday = this.getDuration(new Date(now.getFullYear(), now.getMonth(), now.getDay()));
+        var durationYesterday = this.getDuration(new Date(now.getFullYear(), now.getMonth(), now.getDay() - 1));
 
         var startDate = new Date(startTime);
 
@@ -231,11 +229,11 @@
             result += ' at ' + hours + ':' + (minutes < 10 ? '0' + minutes : minutes);
         } else {
             var period: string;
-            if (hours > 12) {
-                period = 'p.m.';
+            if (hours >= 12) {
+                period = 'pm';
                 hours -= 12;
             } else {
-                period = 'a.m.';
+                period = 'am';
             }
             result += ' at ' + (hours == 0 ? 12 : hours) + ':' + (minutes < 10 ? '0' + minutes : minutes) + ' ' + period;
         }
