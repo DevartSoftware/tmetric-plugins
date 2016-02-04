@@ -39,6 +39,7 @@ interface ITaskInfo {
 interface IPopupInitData {
     task: ITaskInfo;
     timer: Models.Timer;
+    timeFormat: string;
     projects: Models.Project[];
     tags: Models.Tag[];
 }

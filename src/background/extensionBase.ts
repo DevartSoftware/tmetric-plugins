@@ -460,6 +460,7 @@ class ExtensionBase {
         return {
             task: { description, projectId, tagIds },
             timer: this._timer,
+            timeFormat: this._userProfile && this._userProfile.timeFormat,
             projects: this._projects,
             tags: this._tags
         };

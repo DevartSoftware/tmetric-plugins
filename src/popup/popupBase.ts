@@ -32,6 +32,7 @@
 
     private _task: ITaskInfo;
     private _activeTimer: Models.Timer;
+    private _timeFormat: string;
     private _projects: Models.Project[];
     private _tags: Models.Tag[];
 
@@ -43,6 +44,7 @@
         if (data.timer) {
             this._task = data.task;
             this._activeTimer = data.timer;
+            this._timeFormat = data.timeFormat;
             this._projects = data.projects;
             this._tags = data.tags;
         } else {
@@ -161,12 +163,12 @@
         timer.tagsIdentifiers = ($(selector + ' .tags .input').select2().val() || []).map(tag => parseInt(tag));
     }
 
+    private _weekdaysShort = 'Sun_Mon_Tue_Wed_Thu_Fri_Sat'.split('_');
+    private _monthsShort = 'Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec'.split('_');
+
     getDuration(startTime: string) {
-
-        var start = new Date(startTime).getTime();
-        var now = new Date().getTime();
-
-        return Math.abs(start - now);
+        var result = new Date().getTime() - new Date(startTime).getTime();
+        return result > 0 ? result : 0;
     }
 
     toDurationString(startTime: string) {
@@ -199,28 +201,43 @@
 
     toLongRunningDurationString(startTime: string) {
 
-        var DAY = 1000 * 60 * 60 * 24;
-
         var duration = this.getDuration(startTime);
 
         var now = new Date();
-        var durationToday = this.getDuration(new Date(now.getFullYear(), now.getMonth(), now.getDay()).toJSON());
-        var durationYesterday = durationToday + DAY;
 
+        var todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDay());
+        var durationToday = this.getDuration(todayDate.toString());
+
+        var yesterdayDate = new Date(now.getFullYear(), now.getMonth(), now.getDay() - 1);
+        var durationYesterday = this.getDuration(yesterdayDate.toString());
+
+        var startDate = new Date(startTime);
+
+        // Output:
+        // Started Wed, 03 Feb at 15:31
         var result = '';
         if (duration <= durationToday) {
             result = 'Started today';
         } else if (duration <= durationYesterday) {
             result = 'Started yesterday';
         } else {
-            // Input:
-            // Wed Feb 03 2016 15:31:26 GMT+0200 (FLE Standard Time)
-            // Output:
-            // Started Wed, 03 Feb at 15:31
-            var dateParts = new Date(startTime).toString().split(' ');
-            var timeParts = dateParts[4].split(':');
-            result = 'Started ' + dateParts[0] + ', ' + dateParts[2] + ' ' + dateParts[1]
-            result += ' at ' + timeParts[0] + ':' + timeParts[1];
+            result = 'Started ' + this._weekdaysShort[startDate.getDay()] + ', ' + startDate.getDate() + ' ' + this._monthsShort[startDate.getMonth()];
+        }
+
+        var hours = startDate.getHours();
+        var minutes = startDate.getMinutes();
+
+        if (this._timeFormat == 'H:mm') {
+            result += ' at ' + hours + ':' + (minutes < 10 ? '0' + minutes : minutes);
+        } else {
+            var period: string;
+            if (hours > 12) {
+                period = 'p.m.';
+                hours -= 12;
+            } else {
+                period = 'a.m.';
+            }
+            result += ' at ' + (hours == 0 ? 12 : hours) + ':' + (minutes < 10 ? '0' + minutes : minutes) + ' ' + period;
         }
 
         return result;
