@@ -166,8 +166,8 @@
     private _weekdaysShort = 'Sun_Mon_Tue_Wed_Thu_Fri_Sat'.split('_');
     private _monthsShort = 'Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec'.split('_');
 
-    getDuration(startTime: any) {
-        var startDate = startTime instanceof Date ? startTime : new Date(startTime);
+    getDuration(startTime: Date | string) {
+        var startDate = startTime instanceof Date ? startTime : new Date(<string>startTime);
         var result = new Date().getTime() - startDate.getTime();
         return result > 0 ? result : 0;
     }
