@@ -83,6 +83,7 @@
     }
 
     initializeAction = this.wrapBackgroundAction<void, IPopupInitData>('initialize');
+    openTrackerAction = this.wrapBackgroundAction<void, void>('openTracker');
     loginAction = this.wrapBackgroundAction<void, void>('login');
     fixTimerAction = this.wrapBackgroundAction<void, void>('fixTimer');
     putTimerAction = this.wrapBackgroundAction<Models.Timer, IPopupInitData>('putTimer');
@@ -310,6 +311,7 @@
     // ui event handlers
 
     initControls() {
+        $('#site-link').click(() => this.onSiteLinkClick());
         $('#login').click(() => this.onLoginClick());
         $('#fix').click(() => this.onFixClick());
         $('#start').click(() => this.onStartClick());
@@ -317,6 +319,11 @@
         $('#save').click(() => this.onSaveClick());
         $('#edit-link').click(() => this.onEditClick());
         $('#create-link').click(() => this.onCreateClick());
+    }
+
+    private onSiteLinkClick() {
+        this.openTrackerAction();
+        this.close();
     }
 
     private onLoginClick() {

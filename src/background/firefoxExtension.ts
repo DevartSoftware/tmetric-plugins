@@ -188,25 +188,22 @@ class FirefoxExtension extends ExtensionBase {
                     "./popup/firefoxPopup.js"
                 ],
                 onShow: () => {
-                    console.log('showed');
                     panel.port.emit('popup_showed');
                 },
                 onHide: () => {
-                    console.log('hidden');
                     panel.port.emit('popup_hidden');
+                    panel.destroy();
                     this.actionButton.state(window, { checked: false });
                 }
             });
 
             panel.port.on('popup_request', (message: IPopupRequest) => {
-                console.log('panel port popup_request', message);
                 this.onPopupRequest(message, (response) => {
                     panel.port.emit('popup_request_' + message.action + '_response', response);
                 });
             });
 
             panel.port.on('popup_resize', ({width, height}) => {
-                console.log('popup_resize', width, height);
                 if (panel.isShowing) {
                     panel.resize(width, height);
                 } else {
@@ -220,7 +217,6 @@ class FirefoxExtension extends ExtensionBase {
 
             panel.port.on('popup_close', () => {
                 panel.hide();
-                panel.destroy();
             });
         };
 
@@ -376,20 +372,39 @@ class FirefoxExtension extends ExtensionBase {
     }
 
     openPage(url: string) {
-        var window = windows.browserWindows.activeWindow;
-        if (window != null) {
-            var tab = this.getActiveTab();
-            if (tab && tab.url == url) {
-                return;
-            }
-            for (var i = window.tabs.length - 1; i >= 0; i--) {
-                if (window.tabs[i].url == url) {
-                    window.tabs[i].activate();
-                    return;
-                }
+
+        var activeWindow = windows.browserWindows.activeWindow;
+        var activeTabId = tabs.activeTab.id;
+        var pageTabs = [];
+        for (let index = 0, size = tabs.length; index < size; index++) {
+            let tab = tabs[index];
+            if (tab.url == url) {
+                pageTabs.push(tab);
             }
         }
-        tabs.open(<Firefox.TabOpenOptions>{ url })
+
+        if (pageTabs.length) {
+
+            var anyWindowTab: Firefox.Tab, anyWindowActiveTab: Firefox.Tab, currentWindowTab: Firefox.Tab, currentWindowActiveTab: Firefox.Tab;
+            for (let index = 0, size = pageTabs.length; index < size; index += 1) {
+                anyWindowTab = pageTabs[index];
+                if (anyWindowTab == anyWindowTab.window.tabs.activeTab) {
+                    anyWindowActiveTab = anyWindowTab;
+                }
+                if (anyWindowTab.window == activeWindow) {
+                    currentWindowTab = anyWindowTab;
+                }
+                if (currentWindowTab && currentWindowTab == currentWindowTab.window.tabs.activeTab) {
+                    currentWindowActiveTab = currentWindowTab;
+                }
+            }
+
+            var tabToActivate = currentWindowActiveTab || currentWindowTab || anyWindowActiveTab || anyWindowTab;
+            tabToActivate.window.activate();
+            tabToActivate.activate();
+        } else {
+            tabs.open(<Firefox.TabOpenOptions>{ url });
+        }
     }
 }
 

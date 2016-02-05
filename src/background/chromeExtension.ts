@@ -36,7 +36,6 @@ class ChromeExtension extends ExtensionBase {
             }
         }
         chrome.runtime.onMessage.addListener((message: ITabMessage | IPopupRequest, sender: chrome.runtime.MessageSender, senderResponse: (IPopupResponse) => void) => {
-            console.log('extension chrome.runtime.onMessage', message, sender);
             if (sender.tab) {
                 if (sender.tab.id == this.loginTabId) { // Ignore login dialog
                     return;
@@ -215,18 +214,36 @@ class ChromeExtension extends ExtensionBase {
     }
 
     openPage(url: string) {
-        chrome.windows.getLastFocused(window => {
-            chrome.tabs.query({ windowId: window.id, url: url.split('#')[0] }, tabs => {
-                tabs = (tabs || []).filter(tab => tab.url == url);
-                if (tabs.length > 0) {
-                    if (!tabs.some(tab => tab.active)) {
-                        chrome.tabs.update(tabs[tabs.length - 1].id, { active: true });
+        chrome.tabs.query({ active: true, windowId: chrome.windows.WINDOW_ID_CURRENT }, tabs => {
+
+            var currentWindowId = tabs && tabs.length && tabs[0].windowId;
+
+            // chrome.tabs.query do not support tab search with hashed urls
+            // https://developer.chrome.com/extensions/match_patterns
+            chrome.tabs.query({ url: url.split('#')[0] }, tabs => {
+                // filter tabs queried without hashes by actual url
+                var pageTabs = tabs.filter(tab => tab.url == url);
+                if (pageTabs.length) {
+
+                    var anyWindowTab: chrome.tabs.Tab, anyWindowActiveTab: chrome.tabs.Tab, currentWindowTab: chrome.tabs.Tab, currentWindowActiveTab: chrome.tabs.Tab;
+                    for (let index = 0, size = pageTabs.length; index < size; index += 1) {
+                        anyWindowTab = pageTabs[index];
+                        if (anyWindowTab.active) {
+                            anyWindowActiveTab = anyWindowTab;
+                        }
+                        if (anyWindowTab.windowId == currentWindowId) {
+                            currentWindowTab = anyWindowTab;
+                        }
+                        if (currentWindowTab && currentWindowTab.active) {
+                            currentWindowActiveTab = currentWindowTab;
+                        }
                     }
-                }
-                else {
-                    chrome.windows.getLastFocused(window => {
-                        chrome.tabs.create({ active: true, windowId: window.id, url })
-                    })
+
+                    var tabToActivate = currentWindowActiveTab || currentWindowTab || anyWindowActiveTab || anyWindowTab;
+                    chrome.windows.update(tabToActivate.windowId, { focused: true });
+                    chrome.tabs.update(tabToActivate.id, { active: true });
+                } else {
+                    chrome.tabs.create({ active: true, windowId: currentWindowId, url });
                 }
             });
         });

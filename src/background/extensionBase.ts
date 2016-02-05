@@ -77,6 +77,7 @@ class ExtensionBase {
         this.port.emit('init', trackerServiceUrl);
 
         this.listenPopupAction<void, IPopupInitData>('initialize', this.initializePopupAction);
+        this.listenPopupAction<void, void>('openTracker', this.openTrackerPagePopupAction);
         this.listenPopupAction<void, void>('login', this.loginPopupAction);
         this.listenPopupAction<void, void>('fixTimer', this.fixTimerPopupAction);
         this.listenPopupAction<Models.Timer, void>('putTimer', this.putTimerPopupAction);
@@ -123,12 +124,16 @@ class ExtensionBase {
         }
     }
 
-    fixTimer() {
+    openTrackerPage() {
         var url = trackerServiceUrl;
         if (this._userProfile && this._userProfile.activeAccountId) {
             url += '#/tracker/' + this._userProfile.activeAccountId + '/';
         }
         this.openPage(url);
+    }
+
+    fixTimer() {
+        this.openTrackerPage();
         this.showNotification('You should fix the timer.');
     }
 
@@ -498,18 +503,27 @@ class ExtensionBase {
         });
     }
 
+    openTrackerPagePopupAction() {
+        return Promise.resolve(null).then(() => {
+            this.openTrackerPage();
+        });
+    }
+
     loginPopupAction() {
-        this.reconnect().catch(() => this.showLoginDialog());
-        return Promise.resolve(null);
+        return Promise.resolve(null).then(() => {
+            this.reconnect().catch(() => this.showLoginDialog());
+        });
     }
 
     fixTimerPopupAction() {
-        this.fixTimer();
-        return Promise.resolve(null);
+        return Promise.resolve(null).then(() => {
+            this.fixTimer();
+        });
     }
 
     putTimerPopupAction(timer: Models.Timer) {
-        this.putPopupTimer(timer);
-        return Promise.resolve(null);
+        return Promise.resolve(null).then(() => {
+            this.putPopupTimer(timer);
+        });
     }
 }
