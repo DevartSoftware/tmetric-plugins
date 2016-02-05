@@ -86,7 +86,7 @@
     openTrackerAction = this.wrapBackgroundAction<void, void>('openTracker');
     loginAction = this.wrapBackgroundAction<void, void>('login');
     fixTimerAction = this.wrapBackgroundAction<void, void>('fixTimer');
-    putTimerAction = this.wrapBackgroundAction<Models.Timer, IPopupInitData>('putTimer');
+    putTimerAction = this.wrapBackgroundAction<Models.Timer, void>('putTimer');
 
     // ui mutations
 

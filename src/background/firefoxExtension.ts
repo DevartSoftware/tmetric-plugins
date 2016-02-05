@@ -375,7 +375,7 @@ class FirefoxExtension extends ExtensionBase {
 
         var activeWindow = windows.browserWindows.activeWindow;
         var activeTabId = tabs.activeTab.id;
-        var pageTabs = [];
+        var pageTabs = <Firefox.Tab[]>[];
         for (let index = 0, size = tabs.length; index < size; index++) {
             let tab = tabs[index];
             if (tab.url == url) {
@@ -386,16 +386,16 @@ class FirefoxExtension extends ExtensionBase {
         if (pageTabs.length) {
 
             var anyWindowTab: Firefox.Tab, anyWindowActiveTab: Firefox.Tab, currentWindowTab: Firefox.Tab, currentWindowActiveTab: Firefox.Tab;
-            for (let index = 0, size = pageTabs.length; index < size; index += 1) {
+            for (let index = 0, size = pageTabs.length; index < size; index++) {
                 anyWindowTab = pageTabs[index];
                 if (anyWindowTab == anyWindowTab.window.tabs.activeTab) {
                     anyWindowActiveTab = anyWindowTab;
                 }
                 if (anyWindowTab.window == activeWindow) {
                     currentWindowTab = anyWindowTab;
-                }
-                if (currentWindowTab && currentWindowTab == currentWindowTab.window.tabs.activeTab) {
-                    currentWindowActiveTab = currentWindowTab;
+                    if (currentWindowTab == currentWindowTab.window.tabs.activeTab) {
+                        currentWindowActiveTab = currentWindowTab;
+                    }
                 }
             }
 

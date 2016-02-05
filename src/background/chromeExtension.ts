@@ -233,9 +233,9 @@ class ChromeExtension extends ExtensionBase {
                         }
                         if (anyWindowTab.windowId == currentWindowId) {
                             currentWindowTab = anyWindowTab;
-                        }
-                        if (currentWindowTab && currentWindowTab.active) {
-                            currentWindowActiveTab = currentWindowTab;
+                            if (currentWindowTab.active) {
+                                currentWindowActiveTab = currentWindowTab;
+                            }
                         }
                     }
 
