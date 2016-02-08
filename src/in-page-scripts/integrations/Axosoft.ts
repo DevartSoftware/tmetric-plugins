@@ -19,9 +19,10 @@
         }
 
         issueTypes = {
-            Bug: 'defects',
-            Feature: 'features',
-            Ticket: 'incidents'
+            'Bug': 'defects',
+            'Feature': 'features',
+            'Ticket': 'incidents',
+            'Work Item': 'features'
         };
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
@@ -33,13 +34,14 @@
                 return;
             }
 
-            var projectNameFieldLabel = $$.all('.item-field-label', issueElement).filter(label => label.textContent == 'Project:')[0];
-            if (projectNameFieldLabel && projectNameFieldLabel.parentElement && projectNameFieldLabel.parentElement.parentElement) {
-                var projectNameField = $$('.field', projectNameFieldLabel.parentElement.parentElement);
-                if (projectNameField) {
-                    var projectName = $$.try('select option[selected=selected]', projectNameField).textContent || projectNameField.textContent;
-                }
-            }
+            var projectNameCell = $$.all('.item-field-table .item-field-row > div', issueElement).filter(div => {
+                return $$.try('.item-field-label', div).textContent == 'Project:';
+            })[0];
+            var projectNameField = projectNameCell && $$('.field', projectNameCell);
+            var projectName = projectNameField && (
+                $$.try('select option[selected=selected]', projectNameField).textContent || // edit form
+                projectNameField.textContent // view form
+            );
 
             var serviceType = 'Axosoft';
 
