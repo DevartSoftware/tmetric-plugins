@@ -8,6 +8,7 @@ var less = require('gulp-less');                // A LESS plugin for Gulp
 var mergeStream = require('merge-stream');      // Create a stream that emits events from multiple other streams.
 var path = require('path');                     // Node.js Path System module
 var rename = require('gulp-rename');            // Simple file renaming methods.
+var stripDebug = require('gulp-strip-debug');   // Strip console and debugger statements from JavaScript code.
 var selenium = require('selenium-standalone');  // Installs a selenium-standalone command line to install and start a standalone selenium server
 var webdriver = require('selenium-webdriver');  // Selenium is a browser automation library
 var webdriverGulp = require('gulp-webdriver');  // Runs selenium tests with the WebdriverIO testrunner
@@ -128,6 +129,10 @@ gulp.task('prepackage:chrome', ['compile', 'lib'], function () {
     return gulp.src(files.common.concat(files.chrome), { base: src }).pipe(gulp.dest(distChromeUnpacked));
 });
 
+gulp.task('prepackage:chrome:strip', ['prepackage:chrome'], function () {
+    return gulp.src(distChromeUnpacked + '**/*.js', { base: distChromeUnpacked }).pipe(stripDebug()).pipe(gulp.dest(distChromeUnpacked));
+});
+
 gulp.task('prepackage:chrome:test', ['prepackage:chrome'], function () {
     var constants = gulp.src(src + 'test/constants.js').pipe(gulp.dest(distChromeUnpacked + 'background/'));
     var shortcut = gulp.src([
@@ -139,7 +144,7 @@ gulp.task('prepackage:chrome:test', ['prepackage:chrome'], function () {
     return mergeStream(constants, shortcut);
 });
 
-gulp.task('package:chrome', ['prepackage:chrome'], packageChrome);
+gulp.task('package:chrome', ['prepackage:chrome', 'prepackage:chrome:strip'], packageChrome);
 gulp.task('package:chrome:test', ['prepackage:chrome:test'], packageChrome);
 
 function packageChrome() {
@@ -170,11 +175,15 @@ gulp.task('prepackage:firefox:files', ['compile', 'lib'], function () {
     return mergeStream(root, index, data);
 });
 
+gulp.task('prepackage:firefox:strip', ['prepackage:firefox'], function () {
+    return gulp.src(distFirefoxUnpacked + '**/*.js', { base: distFirefoxUnpacked }).pipe(stripDebug()).pipe(gulp.dest(distFirefoxUnpacked));
+});
+
 gulp.task('prepackage:firefox:test', ['prepackage:firefox'], function () {
     return gulp.src(files.firefox.index.test).pipe(concat('index.js')).pipe(gulp.dest(distFirefoxUnpacked));
 });
 
-gulp.task('package:firefox', ['prepackage:firefox'], packageFirefox);
+gulp.task('package:firefox', ['prepackage:firefox', 'prepackage:firefox:strip'], packageFirefox);
 gulp.task('package:firefox:test', ['prepackage:firefox:test'], packageFirefox);
 
 function packageFirefox(callback) {

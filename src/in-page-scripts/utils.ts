@@ -84,12 +84,14 @@ $$.getAttribute = function (selector: string, attributeName: string, element?: N
 
 $$.getRelativeUrl = function (baseUrl: string, url: string) {
 
+    var c = console || { error: (any) => { } }; // save console to prevent strip in release;
+
     if (!url) {
-        console.error('Url is not specified.');
+        c.error('Url is not specified.');
         url = '/';
     }
     else if (!baseUrl) {
-        console.error('Base url is not specified.');
+        c.error('Base url is not specified.');
     }
     else {
 
