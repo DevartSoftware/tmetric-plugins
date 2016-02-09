@@ -33,6 +33,7 @@
 @field-line-height: 2.5em;
 
 @login-button-color: #67809f;
+@retry-button-color: #67809f;
 @fix-button-color: #67809f;
 @start-button-color: #44b6ae;
 @stop-button-color: #e26a6a;
@@ -42,9 +43,9 @@
 
 @border: @border-width @border-style @border-color;
 
-@error-color: #8A6D3B;
-@error-background-color: #FCF8E3;
-@error-border-color: #FAEBCC;
+@error-color: #A94442;
+@error-background-color: #F2DEDE;
+@error-border-color: #EBCCD1;
 @warning-color: #8A6D3B;
 @warning-background-color: #FCF8E3;
 @warning-border-color: #FAEBCC;
@@ -162,6 +163,10 @@ header {
             .button-states(@login-button-color);
         }
 
+        #retry {
+            .button-states(@retry-button-color);
+        }
+
         #fix {
             .button-states(@fix-button-color);
         }
@@ -226,6 +231,14 @@ content {
         display: none;
     }
 
+    #retry-form {
+        display: none;
+
+        .actions {
+            /*margin: 0;*/
+        }
+    }
+
     #fix-form {
         display: none;
 
@@ -255,6 +268,12 @@ content.loading {
 
 content.authenticating {
     #login-form {
+        display: block;
+    }
+}
+
+content.retrying {
+    #retry-form {
         display: block;
     }
 }

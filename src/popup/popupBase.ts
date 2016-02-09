@@ -26,7 +26,14 @@
                 this.switchState(this._states.creating);
             }
         }).catch((error) => {
-            this.switchState(this._states.authenticating);
+            this.isRetryingAction().then((retrying) => {
+                if (retrying) {
+                    this.fillRetryForm();
+                    this.switchState(this._states.retrying);
+                } else {
+                    this.switchState(this._states.authenticating);
+                }
+            });
         });
     }
 
@@ -85,6 +92,8 @@
     initializeAction = this.wrapBackgroundAction<void, IPopupInitData>('initialize');
     openTrackerAction = this.wrapBackgroundAction<void, void>('openTracker');
     loginAction = this.wrapBackgroundAction<void, void>('login');
+    isRetryingAction = this.wrapBackgroundAction<void, boolean>('isRetrying');
+    retryAction = this.wrapBackgroundAction<void, void>('retry');
     fixTimerAction = this.wrapBackgroundAction<void, void>('fixTimer');
     putTimerAction = this.wrapBackgroundAction<Models.Timer, void>('putTimer');
 
@@ -110,6 +119,7 @@
 
     private _states = {
         loading: 'loading',
+        retrying: 'retrying',
         authenticating: 'authenticating',
         fixing: 'fixing',
         creating: 'creating',
@@ -119,6 +129,11 @@
 
     switchState(name: string) {
         $('content').attr('class', name);
+    }
+
+    fillRetryForm() {
+        var message = 'Connection to the server is lost. We`ll try to recover in a while.';
+        this.showMessage(this._messageTypes.error, message);
     }
 
     fillFixForm(timer: Models.Timer) {
@@ -313,6 +328,7 @@
     initControls() {
         $('#site-link').click(() => this.onSiteLinkClick());
         $('#login').click(() => this.onLoginClick());
+        $('#retry').click(() => this.onRetryClick());
         $('#fix').click(() => this.onFixClick());
         $('#start').click(() => this.onStartClick());
         $('#stop').click(() => this.onStopClick());
@@ -328,6 +344,11 @@
 
     private onLoginClick() {
         this.loginAction();
+        this.close();
+    }
+
+    private onRetryClick() {
+        this.retryAction();
         this.close();
     }
 

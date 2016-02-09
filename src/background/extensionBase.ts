@@ -78,6 +78,8 @@ class ExtensionBase {
 
         this.listenPopupAction<void, IPopupInitData>('initialize', this.initializePopupAction);
         this.listenPopupAction<void, void>('openTracker', this.openTrackerPagePopupAction);
+        this.listenPopupAction<void, boolean>('isRetrying', this.isRetryingPopupAction);
+        this.listenPopupAction<void, void>('retry', this.retryPopupAction);
         this.listenPopupAction<void, void>('login', this.loginPopupAction);
         this.listenPopupAction<void, void>('fixTimer', this.fixTimerPopupAction);
         this.listenPopupAction<Models.Timer, void>('putTimer', this.putTimerPopupAction);
@@ -415,13 +417,14 @@ class ExtensionBase {
     }
 
     private disconnect = this.wrapPortAction<void, void>('disconnect');
+    protected reconnect = this.wrapPortAction<void, void>('reconnect');
+    private isRetrying = this.wrapPortAction<void, boolean>('isRetrying');
     private getTimer = this.wrapPortAction<void, void>('getTimer');
     private putTimer = this.wrapPortAction<Models.Timer, void>('putTimer');
     private putTimerWithExistingIntegration = this.wrapPortAction<Integrations.WebToolIssueTimer, void>('putExternalTimer');
     private postIntegration = this.wrapPortAction<Models.IntegratedProjectIdentifier, void>('postIntegration');
     private getIntegration = this.wrapPortAction<Models.IntegratedProjectIdentifier, Models.IntegratedProjectStatus>('getIntegration');
     private setAccountToPost = this.wrapPortAction<number, void>('setAccountToPost');
-    protected reconnect = this.wrapPortAction<void, void>('reconnect');
 
     // popup action listeners
 
@@ -506,6 +509,28 @@ class ExtensionBase {
     openTrackerPagePopupAction() {
         return Promise.resolve(null).then(() => {
             this.openTrackerPage();
+        });
+    }
+
+    isRetryingPopupAction(): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            this.isRetrying().then(retrying => {
+                resolve(retrying);
+            });
+        });
+    }
+
+    retryPopupAction() {
+        return Promise.resolve(null).then(() => {
+            this.isRetrying().then(retrying => {
+                if (!retrying) {
+                    this.reconnect().catch((error) => {
+                        if (error && error.statusCode == 0) {
+                            this.retryPopupAction();
+                        }
+                    });
+                }
+            });
         });
     }
 
