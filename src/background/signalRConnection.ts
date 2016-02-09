@@ -24,6 +24,13 @@
         self.port.once('init', (url: string) => {
             this.url = url;
             this.hub = $.hubConnection(url);
+
+            this.hub.disconnected(() =>
+                this.disconnect().then(() => {
+                    console.log('disconnected');
+                    this.enableConnectionRetry(true);
+                }));
+
             this.hubProxy = this.hub.createHubProxy('timeTrackerHub');
 
             this.hubProxy.on('updateTimer', (accountId: number) => {
@@ -152,13 +159,6 @@
                         //this.hub['disconnectTimeout'] = 1000; // for dev
                         this.hubConnected = true;
                         this.enableConnectionRetry(false);
-
-                        this.hub.disconnected(() =>
-                            this.disconnect().then(() => {
-                                console.log('disconnected');
-                                this.enableConnectionRetry(true);
-                            }));
-
                         this.hubProxy.invoke('register', profile.userProfileId)
                             .then(() => callback(profile))
                             .fail(reject);
