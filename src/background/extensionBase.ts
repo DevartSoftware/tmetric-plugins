@@ -418,7 +418,7 @@ class ExtensionBase {
 
     private disconnect = this.wrapPortAction<void, void>('disconnect');
     protected reconnect = this.wrapPortAction<void, void>('reconnect');
-    private isRetrying = this.wrapPortAction<void, boolean>('isRetrying');
+    private isConnectionRetryEnabled = this.wrapPortAction<void, boolean>('isConnectionRetryEnabled');
     private getTimer = this.wrapPortAction<void, void>('getTimer');
     private putTimer = this.wrapPortAction<Models.Timer, void>('putTimer');
     private putTimerWithExistingIntegration = this.wrapPortAction<Integrations.WebToolIssueTimer, void>('putExternalTimer');
@@ -514,7 +514,7 @@ class ExtensionBase {
 
     isRetryingPopupAction(): Promise<boolean> {
         return new Promise((resolve, reject) => {
-            this.isRetrying().then(retrying => {
+            this.isConnectionRetryEnabled().then(retrying => {
                 resolve(retrying);
             });
         });
@@ -522,15 +522,7 @@ class ExtensionBase {
 
     retryPopupAction() {
         return Promise.resolve(null).then(() => {
-            this.isRetrying().then(retrying => {
-                if (!retrying) {
-                    this.reconnect().catch((error) => {
-                        if (error && error.statusCode == 0) {
-                            this.retryPopupAction();
-                        }
-                    });
-                }
-            });
+            this.reconnect();
         });
     }
 

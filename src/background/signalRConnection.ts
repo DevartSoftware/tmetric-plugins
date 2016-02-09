@@ -12,11 +12,11 @@
 
     accountToPost: number;
 
-    retryInProgress: boolean;
+    connectionRetryInProgress: boolean;
 
     retryTimeout: number;
 
-    retryTimeoutHandle: number;
+    connectionRetryPendingHandle: number;
 
     retryTimeStamp = new Date();
 
@@ -64,7 +64,7 @@
 
         this.listenPortAction<void>('disconnect', this.disconnect);
         this.listenPortAction<void>('reconnect', this.reconnect);
-        this.listenPortAction<void>('isRetrying', this.isRetrying);
+        this.listenPortAction<void>('isConnectionRetryEnabled', this.isConnectionRetryEnabled);
         this.listenPortAction<Integrations.WebToolIssueTimer>('getTimer', this.getTimer);
         this.listenPortAction<Models.Timer>('putTimer', this.putTimer);
         this.listenPortAction<Integrations.WebToolIssueTimer>('putExternalTimer', this.putExternalTimer);
@@ -88,20 +88,22 @@
     }
 
     reconnect() {
-        var retry = this.retryInProgress;
+        console.log('reconnect');
         return this.disconnect()
             .then(() => {
-                if (retry) {
-                    this.setRetryPending(true);
-                }
+                this.enableConnectionRetry(true);
             })
             .then(() => this.connect())
-            .then(() => this.getTimer());
+            .then(() => this.getTimer())
+            .catch((error) => {
+                console.log('reconnect error', error);
+                this.enableConnectionRetry(true);
+            });
     }
 
-    setRetryPending(value: boolean) {
+    enableConnectionRetry(value: boolean) {
 
-        this.retryInProgress = value;
+        this.connectionRetryInProgress = value;
 
         if (value) {
             var timeout = this.retryTimeout;
@@ -116,24 +118,25 @@
             timeout *= 1 + Math.random(); // Random for uniform server load
             //timeout = 3000; // for dev
 
-            this.retryTimeoutHandle = setTimeout(() => {
+            clearTimeout(this.connectionRetryPendingHandle);
+            this.connectionRetryPendingHandle = setTimeout(() => {
                 if (this.hubConnected) {
-                    this.setRetryPending(false);
+                    this.enableConnectionRetry(false);
                 } else {
                     this.reconnect().catch(() => {
-                        this.setRetryPending(true);
+                        this.enableConnectionRetry(true);
                     });
                 }
             }, timeout);
         }
-        else if (this.retryTimeoutHandle) {
-            clearTimeout(this.retryTimeoutHandle);
-            this.retryTimeoutHandle = null;
+        else if (this.connectionRetryPendingHandle) {
+            clearTimeout(this.connectionRetryPendingHandle);
+            this.connectionRetryPendingHandle = null;
         }
     };
 
-    isRetrying() {
-        return Promise.resolve(!!(this.retryTimeoutHandle || this.retryInProgress));
+    isConnectionRetryEnabled() {
+        return Promise.resolve(!!(this.connectionRetryPendingHandle || this.connectionRetryInProgress));
     }
 
     connect() {
@@ -148,12 +151,12 @@
                     this.hub.start().then(() => {
                         //this.hub['disconnectTimeout'] = 1000; // for dev
                         this.hubConnected = true;
-
-                        this.setRetryPending(false);
+                        this.enableConnectionRetry(false);
 
                         this.hub.disconnected(() =>
                             this.disconnect().then(() => {
-                                this.setRetryPending(true);
+                                console.log('disconnected');
+                                this.enableConnectionRetry(true);
                             }));
 
                         this.hubProxy.invoke('register', profile.userProfileId)
@@ -172,7 +175,7 @@
                 self.port.emit('updateTimer', null);
                 this.hub.stop(false);
             }
-            this.setRetryPending(false);
+            this.enableConnectionRetry(false);
             callback();
         });
     }
