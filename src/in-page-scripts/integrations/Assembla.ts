@@ -4,7 +4,9 @@
 
         observeMutations = true;
 
-        matchUrl = '*://www.assembla.com/spaces/*';
+        // Urls:
+        // https://[www|PORTFOLIO].assembla.com/spaces/*
+        matchUrl = '*://*.assembla.com/spaces/*';
 
         issueElementSelector = '#tickets-show';
 
@@ -20,10 +22,10 @@
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
             // Full urls
-            // https://www.assembla.com/spaces/WORKSPACE/tickets/TICKET_NUMBER-TICKET_NAME_DASHED_AND_LOWERCASED/details
-            // https://www.assembla.com/spaces/WORKSPACE/simple_planner#/ticket:TICKET_NUMBER
-            // https://www.assembla.com/spaces/WORKSPACE/tickets/new_cardwall#ticket:TICKET_NUMBER
-            // https://www.assembla.com/spaces/WORKSPACE/tickets/agile_planner
+            // https://[www|PORTFOLIO].assembla.com/spaces/WORKSPACE/tickets/TICKET_NUMBER-TICKET_NAME_DASHED_AND_LOWERCASED/details
+            // https://[www|PORTFOLIO].assembla.com/spaces/WORKSPACE/simple_planner#/ticket:TICKET_NUMBER
+            // https://[www|PORTFOLIO].assembla.com/spaces/WORKSPACE/tickets/new_cardwall#ticket:TICKET_NUMBER
+            // https://[www|PORTFOLIO].assembla.com/spaces/WORKSPACE/tickets/agile_planner
             // Effective url
             // https://www.assembla.com/spaces/WORKSPACE/tickets/TICKET_NUMBER
             var match = /^\/spaces\/([^\/]+)\/.+$/.exec(source.path);
@@ -50,7 +52,8 @@
 
             var serviceType = 'Assembla';
 
-            var serviceUrl = source.protocol + source.host;
+            // used www instead of portfolio name to prevent task duplication
+            var serviceUrl = source.protocol + 'www.assembla.com';
 
             var issueUrl = 'spaces/' + match[1] + '/tickets/' + issueIdNumber;
 
