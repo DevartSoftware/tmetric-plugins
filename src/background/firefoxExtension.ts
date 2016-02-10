@@ -12,6 +12,7 @@ import storage = require('sdk/simple-storage');
 import style = require('sdk/stylesheet/style');
 import contentMod = require('sdk/content/mod');
 import pageMod = require("sdk/page-mod");
+import core = require("sdk/view/core");
 
 var windowWatcher = chrome.Cc['@mozilla.org/embedcomp/window-watcher;1'].getService(chrome.Ci.nsIWindowWatcher);
 var alertsService = chrome.Cc['@mozilla.org/alerts-service;1'].getService(chrome.Ci.nsIAlertsService);
@@ -218,6 +219,9 @@ class FirefoxExtension extends ExtensionBase {
             panel.port.on('popup_close', () => {
                 panel.hide();
             });
+
+            // prevent popup auto hidding and handle it in popup
+            core.getActiveView(panel).setAttribute("noautohide", true);
         };
 
         //

@@ -326,6 +326,7 @@
     // ui event handlers
 
     initControls() {
+
         $('#site-link').click(() => this.onSiteLinkClick());
         $('#login').click(() => this.onLoginClick());
         $('#retry').click(() => this.onRetryClick());
@@ -335,6 +336,15 @@
         $('#save').click(() => this.onSaveClick());
         $('#edit-link').click(() => this.onEditClick());
         $('#create-link').click(() => this.onCreateClick());
+
+        // close popup when escape key pressed and no selectors are opened
+        window.addEventListener('keydown', (event) => {
+            if (event.keyCode == 27) {
+                if (!$('body > .select2-container').length) {
+                    this.close();
+                }
+            }
+        }, true);
     }
 
     private onSiteLinkClick() {

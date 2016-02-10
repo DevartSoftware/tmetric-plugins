@@ -3,6 +3,7 @@
     constructor() {
         super();
         this.initResizeListener();
+        this.initWindow();
     }
 
     initResizeListener() {
@@ -20,6 +21,18 @@
         });
 
         observer.observe(target, config);
+    }
+
+    initWindow() {
+        // focus window to make popup hiding work on escape key pressed
+        self.port.on('popup_showed', () => {
+            window.focus();
+        });
+        // close popup when window loses focus
+        // e.g., mouse click outside popup
+        window.addEventListener('blur', (event) => {
+            this.close();
+        }, false);
     }
 
     resize() {

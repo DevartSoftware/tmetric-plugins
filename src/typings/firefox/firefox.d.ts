@@ -269,6 +269,7 @@ declare module 'sdk/tabs'
 declare module 'sdk/view/core'
 {
     function viewFor(window: Firefox.BrowserWindow): Window;
+    function getActiveView(any: any): any;
 }
 
 declare module 'sdk/window/utils'
