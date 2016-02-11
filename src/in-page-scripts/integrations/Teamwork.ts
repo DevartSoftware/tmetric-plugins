@@ -10,11 +10,12 @@
         matchUrl = new RegExp('.*:\/\/.*\.' + hosts + '\/.*');
 
         issueElementSelector() {
-            return $$.all('#Task > .titleHolder').concat($$.all('.taskInner'))
+            return $$.all('#Task').concat($$.all('.taskInner'))
         }
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
-            if (issueElement.parentElement.id == 'Task') {
+            if (issueElement.id == 'Task') {
+                // single task view
                 let host = $$('.options', issueElement);
                 if (host) {
                     let linkContainer = $$.create('li');
@@ -23,6 +24,7 @@
                     host.insertBefore(linkContainer, host.firstElementChild);
                 }
             } else {
+                // task list view
                 let host = $$('.taskUsedOps', issueElement);
                 if (host) {
                     let linkContainer = $$.create('span', 'devart-timer-link-teamwork');
@@ -36,7 +38,7 @@
 
             var issueName =
                 $$.try('.taskName', issueElement).textContent || // tasks from list
-                $$.try('#TaskContent .taskDetailsName').textContent; // top task in single view
+                $$.try('#TaskContent .taskDetailsName', issueElement).textContent; // top task in single view
             if (!issueName) {
                 return;
             }
@@ -44,7 +46,7 @@
             // get identifier from href or from top task in single view
             var issueHref = $$.getAttribute('.taskRHSText .ql.tipped', 'href', issueElement);
             var issueHrefMatch = /^.*tasks\/(\d+)$/.exec(issueHref);
-            var issueIdNumber = issueHrefMatch ? issueHrefMatch[1] : $$.getAttribute('#ViewTaskSidebar', 'data-taskid');
+            var issueIdNumber = issueHrefMatch ? issueHrefMatch[1] : $$.getAttribute('.commentForm input[name=objectId]', 'value', issueElement);
 
             if (issueIdNumber) {
                 var issueId = '#' + issueIdNumber;
