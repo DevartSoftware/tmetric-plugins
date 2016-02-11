@@ -123,8 +123,7 @@
         authenticating: 'authenticating',
         fixing: 'fixing',
         creating: 'creating',
-        viewing: 'viewing',
-        editing: 'editing'
+        viewing: 'viewing'
     };
 
     switchState(name: string) {
@@ -334,7 +333,6 @@
         $('#start').click(() => this.onStartClick());
         $('#stop').click(() => this.onStopClick());
         $('#save').click(() => this.onSaveClick());
-        $('#edit-link').click(() => this.onEditClick());
         $('#create-link').click(() => this.onCreateClick());
 
         // close popup when escape key pressed and no selectors are opened
@@ -386,10 +384,6 @@
         var timer = this.clone(this._activeTimer);
         this.fillTaskTimer(this._forms.edit, timer);
         this.putTimer(timer);
-    }
-
-    private onEditClick() {
-        this.switchState(this._states.editing);
     }
 
     private onCreateClick() {
