@@ -26,7 +26,7 @@
                 this.switchState(this._states.creating);
             }
         }).catch((error) => {
-            this.isRetryingAction().then((retrying) => {
+            this.isConnectionRetryEnabledAction().then((retrying) => {
                 if (retrying) {
                     this.fillRetryForm();
                     this.switchState(this._states.retrying);
@@ -92,7 +92,7 @@
     initializeAction = this.wrapBackgroundAction<void, IPopupInitData>('initialize');
     openTrackerAction = this.wrapBackgroundAction<void, void>('openTracker');
     loginAction = this.wrapBackgroundAction<void, void>('login');
-    isRetryingAction = this.wrapBackgroundAction<void, boolean>('isRetrying');
+    isConnectionRetryEnabledAction = this.wrapBackgroundAction<void, boolean>('isConnectionRetryEnabled');
     retryAction = this.wrapBackgroundAction<void, void>('retry');
     fixTimerAction = this.wrapBackgroundAction<void, void>('fixTimer');
     putTimerAction = this.wrapBackgroundAction<Models.Timer, void>('putTimer');

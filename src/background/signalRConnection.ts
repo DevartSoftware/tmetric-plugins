@@ -12,11 +12,11 @@
 
     accountToPost: number;
 
-    connectionRetryInProgress: boolean;
+    retryInProgress: boolean;
 
     retryTimeout: number;
 
-    connectionRetryPendingHandle: number;
+    retryPendingHandle: number;
 
     retryTimeStamp = new Date();
 
@@ -25,11 +25,12 @@
             this.url = url;
             this.hub = $.hubConnection(url);
 
-            this.hub.disconnected(() =>
+            this.hub.disconnected(() => {
+                console.log('disconnected');
                 this.disconnect().then(() => {
-                    console.log('disconnected');
-                    this.enableConnectionRetry(true);
-                }));
+                    this.setRetryPending(true);
+                });
+            });
 
             this.hubProxy = this.hub.createHubProxy('timeTrackerHub');
 
@@ -78,6 +79,7 @@
         this.listenPortAction<Models.IntegratedProjectIdentifier>('postIntegration', this.postIntegration);
         this.listenPortAction<Models.IntegratedProjectIdentifier>('getIntegration', this.getIntegration);
         this.listenPortAction<number>('setAccountToPost', this.setAccountToPost);
+        this.listenPortAction<void>('retryConnection', this.retryConnection);
     }
 
     listenPortAction<TParam>(actionName: string, action: (param: TParam) => Promise<any>) {
@@ -97,22 +99,17 @@
     reconnect() {
         console.log('reconnect');
         return this.disconnect()
-            .then(() => {
-                this.enableConnectionRetry(true);
-            })
             .then(() => this.connect())
             .then(() => this.getTimer())
-            .catch((error) => {
-                console.log('reconnect error', error);
-                this.enableConnectionRetry(true);
-            });
     }
 
-    enableConnectionRetry(value: boolean) {
+    setRetryPending(isRetryPending: boolean) {
 
-        this.connectionRetryInProgress = value;
+        if (!!this.retryPendingHandle == isRetryPending) {
+            return;
+        }
 
-        if (value) {
+        if (isRetryPending) {
             var timeout = this.retryTimeout;
             var fromPreviousRetry = new Date().getTime() - this.retryTimeStamp.getTime();
             if (!timeout || fromPreviousRetry > 5 * 60000) {
@@ -125,28 +122,31 @@
             timeout *= 1 + Math.random(); // Random for uniform server load
             //timeout = 3000; // for dev
 
-            clearTimeout(this.connectionRetryPendingHandle);
-            this.connectionRetryPendingHandle = setTimeout(() => {
-                if (this.hubConnected) {
-                    this.enableConnectionRetry(false);
-                } else {
-                    this.reconnect().catch(() => {
-                        this.enableConnectionRetry(true);
-                    });
-                }
-            }, timeout);
+            this.retryPendingHandle = setTimeout(() => this.retryConnection(), timeout);
         }
-        else if (this.connectionRetryPendingHandle) {
-            clearTimeout(this.connectionRetryPendingHandle);
-            this.connectionRetryPendingHandle = null;
+        else if (this.retryPendingHandle) {
+            clearTimeout(this.retryPendingHandle);
+            this.retryPendingHandle = null;
         }
     };
 
+    retryConnection() {
+        this.setRetryPending(false);
+        if (!this.hubConnected) {
+            this.retryInProgress = true;
+            this.reconnect()
+                .catch(() => this.setRetryPending(true))
+                .then(() => this.retryInProgress = false);
+        }
+        return Promise.resolve();
+    }
+
     isConnectionRetryEnabled() {
-        return Promise.resolve(!!(this.connectionRetryPendingHandle || this.connectionRetryInProgress));
+        return Promise.resolve(!!(this.retryPendingHandle || this.retryInProgress));
     }
 
     connect() {
+        console.log('connect');
         return new Promise<Models.UserProfile>((callback, reject) => {
             if (this.hubConnected) {
                 callback(this.userProfile);
@@ -158,7 +158,7 @@
                     this.hub.start().then(() => {
                         //this.hub['disconnectTimeout'] = 1000; // for dev
                         this.hubConnected = true;
-                        this.enableConnectionRetry(false);
+                        this.setRetryPending(false);
                         this.hubProxy.invoke('register', profile.userProfileId)
                             .then(() => callback(profile))
                             .fail(reject);
@@ -175,7 +175,7 @@
                 self.port.emit('updateTimer', null);
                 this.hub.stop(false);
             }
-            this.enableConnectionRetry(false);
+            this.setRetryPending(false);
             callback();
         });
     }
