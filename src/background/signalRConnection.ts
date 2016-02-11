@@ -132,7 +132,7 @@
 
     retryConnection() {
         this.setRetryPending(false);
-        if (!this.hubConnected) {
+        if (!this.hubConnected && !this.retryInProgress) {
             this.retryInProgress = true;
             this.reconnect()
                 .catch(() => this.setRetryPending(true))
