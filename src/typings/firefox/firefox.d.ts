@@ -189,6 +189,57 @@
         port: Port;
     }
 
+    interface PanelOptions {
+        width?: number;
+        height?: number;
+        position?: ToggleButton | PanelPosition;
+        focus?: boolean;
+        allow?: { script: boolean },
+        contentURL?: string;
+        contentScriptFile?: string | string[];
+        contentScript?: string | string[];
+        contentScriptWhen?: string; // "start" | "ready" | "end"
+        contentScriptOptions?: Object;
+        contentStyleFile?: string | string[];
+        contentStyle?: string | string[];
+        contextMenu?: boolean;
+        onMessage?: Function;
+        onShow?: Function;
+        onHide?: Function;
+        onError?: Function;
+    }
+
+    interface Panel {
+        destroy();
+        postMessage(message: Object);
+        show(options: PanelOptions);
+        hide();
+        resize(width: number, height: number);
+        on(type: string, listener: Function);
+        on(type: 'show', listener: () => void);
+        on(type: 'hide', listener: () => void);
+        on(type: 'message', listener: (value: Object) => void);
+        on(type: 'error', listener: (value: Error) => void);
+        removeListener(type: string, listener: Function);
+        port: Port;
+        isShowing: boolean;
+        height: number;
+        width: number;
+        focus: boolean;
+        contentURL?: string;
+        contentScriptFile?: string | string[];
+        contentScript?: string | string[];
+        contentScriptWhen?: string;
+        contentScriptOptions?: Object;
+    }
+
+    interface PanelPosition {
+        top: number;
+        right: number;
+        bottom: number;
+        left: number;
+    }
+
     interface Modification {
     }
 
@@ -260,6 +311,10 @@ declare module 'sdk/ui/button/toggle'
     function ToggleButton(descriptor: Firefox.ButtonDescriptor): Firefox.ToggleButton;
 }
 
+declare module 'sdk/panel' {
+    function Panel(options: Firefox.PanelOptions): Firefox.Panel;
+}
+
 declare module 'sdk/tabs'
 {
     var tabs: Firefox.Tabs;
@@ -268,8 +323,12 @@ declare module 'sdk/tabs'
 
 declare module 'sdk/view/core'
 {
+    interface ViewCore {
+        setAttribute(name: string, value: any): void;
+    }
+
     function viewFor(window: Firefox.BrowserWindow): Window;
-    function getActiveView(any: any): any;
+    function getActiveView(panel: Firefox.Panel): ViewCore;
 }
 
 declare module 'sdk/window/utils'
@@ -386,10 +445,6 @@ declare module 'sdk/tabs/utils' {
     function getTabContentType(tab: Firefox.Tab)
     function getSelectedTab(window: Object)
     function getTabForBrowser(browser: Object)
-}
-
-declare module 'sdk/panel' {
-    function Panel(options: any): any;
 }
 
 interface Window {
