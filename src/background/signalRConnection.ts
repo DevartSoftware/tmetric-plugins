@@ -135,7 +135,12 @@
         if (!this.hubConnected && !this.retryInProgress) {
             this.retryInProgress = true;
             this.reconnect()
-                .catch(() => this.setRetryPending(true))
+                .catch((err: AjaxStatus) => {
+                    // Stop retrying when server returns error code
+                    if (!(err.statusCode > 0)) {
+                        this.setRetryPending(true);
+                    }
+                })
                 .then(() => this.retryInProgress = false);
         }
         return Promise.resolve();
