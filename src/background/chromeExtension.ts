@@ -171,7 +171,7 @@ class ChromeExtension extends ExtensionBase {
             this.loginWindowPending = true;
             try {
                 var width = 450;
-                var height = 540;
+                var height = 600;
                 var left = 400;
                 var top = 300;
 
