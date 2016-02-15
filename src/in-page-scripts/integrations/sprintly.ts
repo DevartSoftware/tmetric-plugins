@@ -9,9 +9,19 @@
         issueElementSelector = '.card';
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
-            var host = $$('.actions .buttons', issueElement);
-            if (host) {
-                host.appendChild(linkElement);
+            if ($$.closest('.modal-content', issueElement)) {
+                let host = $$('.actions .buttons', issueElement);
+                if (host) {
+                    host.appendChild(linkElement);
+                }
+            }
+            else {
+                let host = $$('.settings .popup ul', issueElement);
+                if (host) {
+                    let li = $$.create('li', 'devart-timer-link-sprintly');
+                    li.appendChild(linkElement);
+                    host.insertBefore(li, host.firstChild);
+                }
             }
         }
 
