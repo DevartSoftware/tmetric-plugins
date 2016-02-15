@@ -10,11 +10,11 @@
         matchUrl = new RegExp('.*:\/\/.*\.' + hosts + '\/.*');
 
         issueElementSelector() {
-            return $$.all('#Task').concat($$.all('.taskInner'))
+            return $$.all('#Task > .titleHolder').concat($$.all('.taskInner'));
         }
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
-            if (issueElement.id == 'Task') {
+            if (issueElement.parentElement.id == 'Task') {
                 // single task view
                 let host = $$('.options', issueElement);
                 if (host) {
@@ -38,7 +38,7 @@
 
             var issueName =
                 $$.try('.taskName', issueElement).textContent || // tasks from list
-                $$.try('#TaskContent .taskDetailsName', issueElement).textContent; // top task in single view
+                $$.try('#Task .taskDetailsName').textContent; // top task in single view
             if (!issueName) {
                 return;
             }
@@ -46,7 +46,7 @@
             // get identifier from href or from top task in single view
             var issueHref = $$.getAttribute('.taskRHSText .ql.tipped', 'href', issueElement);
             var issueHrefMatch = /^.*tasks\/(\d+)$/.exec(issueHref);
-            var issueIdNumber = issueHrefMatch ? issueHrefMatch[1] : $$.getAttribute('.commentForm input[name=objectId]', 'value', issueElement);
+            var issueIdNumber = issueHrefMatch ? issueHrefMatch[1] : $$.getAttribute('#Task .commentForm input[name=objectId]', 'value');
 
             if (issueIdNumber) {
                 var issueId = '#' + issueIdNumber;
