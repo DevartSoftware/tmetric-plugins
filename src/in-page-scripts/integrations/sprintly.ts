@@ -9,19 +9,22 @@
         issueElementSelector = '.card';
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
+
+            // Add link to actions if card opens in modal mode
             if ($$.closest('.modal-content', issueElement)) {
                 let host = $$('.actions .buttons', issueElement);
                 if (host) {
                     host.appendChild(linkElement);
+                    return;
                 }
             }
-            else {
-                let host = $$('.settings .popup ul', issueElement);
-                if (host) {
-                    let li = $$.create('li', 'devart-timer-link-sprintly');
-                    li.appendChild(linkElement);
-                    host.insertBefore(li, host.firstChild);
-                }
+
+            // Add link to menu otherwise
+            let host = $$('.settings .popup ul', issueElement);
+            if (host) {
+                let li = $$.create('li', 'devart-timer-link-sprintly');
+                li.appendChild(linkElement);
+                host.insertBefore(li, host.firstChild);
             }
         }
 
