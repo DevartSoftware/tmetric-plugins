@@ -4,16 +4,27 @@
 
         observeMutations = true;
 
-        // Workspace task url:
-        // https://app.teamweek.com/#timeline/task/WORKSPACE_ID/TASK_ID
         matchUrl = '*://sprint.ly/*';
 
         issueElementSelector = '.card';
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
-            var host = $$('.actions .buttons', issueElement);
+
+            // Add link to actions if card opens in modal mode
+            if ($$.closest('.modal-content', issueElement)) {
+                let host = $$('.actions .buttons', issueElement);
+                if (host) {
+                    host.appendChild(linkElement);
+                    return;
+                }
+            }
+
+            // Add link to menu otherwise
+            let host = $$('.settings .popup ul', issueElement);
             if (host) {
-                host.appendChild(linkElement);
+                let li = $$.create('li', 'devart-timer-link-sprintly');
+                li.appendChild(linkElement);
+                host.insertBefore(li, host.firstChild);
             }
         }
 
