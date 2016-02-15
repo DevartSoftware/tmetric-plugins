@@ -114,9 +114,9 @@
                 var issueIdNumber = $$.try('#ticketId', issueElement).textContent;
                 var issueUrlPrefix = 'desk/#/tickets/';
             } else {
-                issueName = $$.try('h5 > a:first-child > span:first-child', issueElement).textContent;
+                issueName = $$.try('h5 > a > span', issueElement).textContent;
                 var projectName = $$.try('ul li a', issueElement, el => /\/projects\/\d+$/.test(el.getAttribute('href'))).textContent;
-                let issueHref = $$.getAttribute('h5 > a:first-child', 'href', issueElement);
+                let issueHref = $$.getAttribute('h5 > a', 'href', issueElement);
                 let issueHrefMatch = /^.*tasks\/(\d+)$/.exec(issueHref);
                 issueIdNumber = issueHrefMatch && issueHrefMatch[1];
                 issueUrlPrefix = 'tasks/';
