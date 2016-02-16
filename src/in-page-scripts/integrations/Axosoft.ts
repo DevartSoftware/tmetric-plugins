@@ -45,12 +45,12 @@
 
             var serviceType = 'Axosoft';
 
-            var issueIdText = $$.try('.item-field-id').textContent;
-            if (issueIdText) {
-                var issueId = /^\d+$/.test(issueIdText) ? '#' + issueIdText : issueIdText;
-                var issueType = this.issueTypes[$$.try('.form-subtitle').textContent] || this.issueTypes.Feature;
-                var issueUrl = 'viewitem?id=' + issueIdText + '&type=' + issueType;
+            var issueId = $$.try('.item-field-id').textContent;
+            if (issueId) {
                 var serviceUrl = source.protocol + source.host;
+                var issueType = this.issueTypes[$$.try('.form-subtitle').textContent] || this.issueTypes.Feature;
+                var issueUrl = 'viewitem?id=' + issueId + '&type=' + issueType;
+                if (/^\d+$/.test(issueId)) issueId = '#' + issueId;
             }
 
             return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
