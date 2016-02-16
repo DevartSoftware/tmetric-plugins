@@ -46,11 +46,11 @@
             var serviceType = 'Axosoft';
 
             var issueId = $$.try('.item-field-id').textContent;
-            var issueType = this.issueTypes[$$.try('.form-subtitle').textContent];
-
-            if (issueId && issueType) {
+            if (issueId) {
                 var serviceUrl = source.protocol + source.host;
+                var issueType = this.issueTypes[$$.try('.form-subtitle').textContent] || this.issueTypes.Feature;
                 var issueUrl = 'viewitem?id=' + issueId + '&type=' + issueType;
+                if (/^\d+$/.test(issueId)) issueId = '#' + issueId;
             }
 
             return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
