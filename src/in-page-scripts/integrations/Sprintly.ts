@@ -10,8 +10,8 @@
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
-            // Add link to actions if card opens in modal mode
-            if ($$.closest('.modal-content', issueElement)) {
+            // Add link to actions if card opens in single mode
+            if ($$.closest('#product-item-view', issueElement)) {
                 let host = $$('.actions .buttons', issueElement);
                 if (host) {
                     host.appendChild(linkElement);
