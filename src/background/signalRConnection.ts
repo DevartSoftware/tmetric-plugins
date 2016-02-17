@@ -20,12 +20,15 @@
 
     retryTimeStamp = new Date();
 
+    expectedTimerUpdate = false;
+
     constructor() {
         self.port.once('init', (url: string) => {
             this.url = url;
             this.hub = $.hubConnection(url);
 
             this.hub.disconnected(() => {
+                this.expectedTimerUpdate = false;
                 console.log('disconnected');
                 this.disconnect().then(() => {
                     this.setRetryPending(true);
@@ -38,15 +41,24 @@
                 if (this.userProfile && accountId != this.userProfile.activeAccountId) {
                     return;
                 }
-                var previousProfileId = this.userProfile && this.userProfile.userProfileId;
-                this.getProfile().then(profile => {
-                    if (profile.userProfileId != previousProfileId) {
-                        this.reconnect();
-                    }
-                    else {
-                        this.getTimer();
-                    }
-                });
+
+                console.log('updateTimer: ' + this.expectedTimerUpdate);
+
+                if (this.expectedTimerUpdate) {
+                    this.expectedTimerUpdate = false;
+                    this.getTimer();
+                }
+                else {
+                    // timer changed from outside - check that profile still the same
+                    this.isProfileChanged().then(isProfileChanged => {
+                        if (isProfileChanged) {
+                            this.reconnect();
+                        }
+                        else {
+                            this.getTimer();
+                        }
+                    });
+                }
             });
 
             this.hubProxy.on('updateActiveAccount', (accountId: number) => {
@@ -80,6 +92,19 @@
         this.listenPortAction<Models.IntegratedProjectIdentifier>('getIntegration', this.getIntegration);
         this.listenPortAction<number>('setAccountToPost', this.setAccountToPost);
         this.listenPortAction<void>('retryConnection', this.retryConnection);
+    }
+
+    isProfileChanged() {
+        let previousProfileId = this.userProfile && this.userProfile.userProfileId;
+        return this.getProfile().then(profile => profile.userProfileId != previousProfileId);
+    }
+
+    checkProfileChange() {
+        this.isProfileChanged().then(isProfileChanged => {
+            if (isProfileChanged) {
+                this.reconnect();
+            }
+        });
     }
 
     listenPortAction<TParam>(actionName: string, action: (param: TParam) => Promise<any>) {
@@ -188,17 +213,33 @@
     putTimer(timer: Models.Timer) {
         return this.connect().then(profile => {
             var accountId = this.accountToPost || profile.activeAccountId;
-            return this.put('api/timer/' + accountId, timer);
+            this.expectedTimerUpdate = true;
+            return this.put('api/timer/' + accountId, timer)
+                .then(() => {
+                    this.checkProfileChange();
+                })
+                .catch(() => {
+                    this.expectedTimerUpdate = false;
+                });
         });
     }
 
     putExternalTimer(timer: Integrations.WebToolIssueTimer) {
+
+        if (!timer.isStarted) {
+            return this.putTimer(<Models.Timer>{ isStarted: false });
+        }
+
         return this.connect().then(profile => {
-            var accountId = this.accountToPost || profile.activeAccountId;
-            if (timer.isStarted) {
-                return this.post('api/timer/external/' + accountId, timer)
-            }
-            return this.put('api/timer/' + accountId, <Models.Timer>{ isStarted: false })
+            let accountId = this.accountToPost || profile.activeAccountId;
+            this.expectedTimerUpdate = true;
+            return this.post('api/timer/external/' + accountId, timer)
+                .then(() => {
+                    this.checkProfileChange();
+                })
+                .catch(() => {
+                    this.expectedTimerUpdate = false;
+                });
         });
     }
 
