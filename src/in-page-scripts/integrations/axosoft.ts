@@ -38,10 +38,12 @@
                 return $$.try('.item-field-label', div).textContent == 'Project:';
             })[0];
             var projectNameField = projectNameCell && $$('.field', projectNameCell);
-            var projectName = projectNameField && (
-                $$.try('select option[selected=selected]', projectNameField).textContent || // edit form
-                projectNameField.textContent // view form
-            );
+            if (projectNameField) {
+                var projectNameSelect = <HTMLSelectElement>$$('select', projectNameField);
+                var projectName = projectNameSelect ?
+                    (projectNameSelect.options[projectNameSelect.selectedIndex] || {}).textContent : // edit form
+                    projectNameField.textContent; // view form
+            }
 
             var serviceType = 'Axosoft';
 
