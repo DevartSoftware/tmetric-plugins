@@ -78,6 +78,7 @@ class ExtensionBase {
 
         this.listenPopupAction<void, IPopupInitData>('initialize', this.initializePopupAction);
         this.listenPopupAction<void, void>('openTracker', this.openTrackerPagePopupAction);
+        this.listenPopupAction<string, void>('openPage', this.openPagePopupAction);
         this.listenPopupAction<void, boolean>('isConnectionRetryEnabled', this.isConnectionRetryEnabledPopupAction);
         this.listenPopupAction<void, void>('retry', this.retryConnectionPopupAction);
         this.listenPopupAction<void, void>('login', this.loginPopupAction);
@@ -510,6 +511,12 @@ class ExtensionBase {
     openTrackerPagePopupAction() {
         return Promise.resolve(null).then(() => {
             this.openTrackerPage();
+        });
+    }
+
+    openPagePopupAction(url) {
+        return Promise.resolve(null).then(() => {
+            this.openPage(url);
         });
     }
 

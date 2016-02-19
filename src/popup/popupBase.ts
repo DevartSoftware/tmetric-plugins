@@ -91,6 +91,7 @@
 
     initializeAction = this.wrapBackgroundAction<void, IPopupInitData>('initialize');
     openTrackerAction = this.wrapBackgroundAction<void, void>('openTracker');
+    openPageAction = this.wrapBackgroundAction<string, void>('openPage');
     loginAction = this.wrapBackgroundAction<void, void>('login');
     isConnectionRetryEnabledAction = this.wrapBackgroundAction<void, boolean>('isConnectionRetryEnabled');
     retryAction = this.wrapBackgroundAction<void, void>('retry');
@@ -149,16 +150,27 @@
 
             $(this._forms.view + ' .time').text(this.toDurationString(timer.startTime));
 
-            $(this._forms.view + ' .task .value').text(this.toDescription(timer.workTask.description));
+            if (timer.workTask.externalIssueId) {
+                var url = this.getTaskUrl(timer.workTask);
+                if (url) {
+                    $(this._forms.view + ' .task .id .link').attr('href', url).text(timer.workTask.externalIssueId);
+                } else {
+                    $(this._forms.view + ' .task .id').text(timer.workTask.externalIssueId);
+                }
+            } else {
+                $(this._forms.view + ' .task .id').hide();
+            }
+
+            $(this._forms.view + ' .task .name').text(this.toDescription(timer.workTask.description));
 
             if (timer.workTask.projectId) {
-                $(this._forms.view + ' .project .value').text(this.toProjectName(timer.workTask.projectId)).show();
+                $(this._forms.view + ' .project .name').text(this.toProjectName(timer.workTask.projectId)).show();
             } else {
                 $(this._forms.view + ' .project').hide();
             }
 
             if (timer.tagsIdentifiers && timer.tagsIdentifiers.length) {
-                $(this._forms.view + ' .tags .value').text(this.makeTimerTagsText(timer.tagsIdentifiers)).show();
+                $(this._forms.view + ' .tags .items').text(this.makeTimerTagsText(timer.tagsIdentifiers)).show();
             } else {
                 $(this._forms.view + ' .tags').hide();
             }
@@ -176,6 +188,10 @@
         timer.workTask.description = $(selector + ' .task .input').val();
         timer.workTask.projectId = parseInt($(selector + ' .project .input').select2().val() || null);
         timer.tagsIdentifiers = ($(selector + ' .tags .input').select2().val() || []).map(tag => parseInt(tag));
+    }
+
+    getTaskUrl(task: Models.WorkTask) {
+        return task.integrationUrl && task.relativeIssueUrl ? task.integrationUrl + task.relativeIssueUrl : '';
     }
 
     private _weekdaysShort = 'Sun_Mon_Tue_Wed_Thu_Fri_Sat'.split('_');
@@ -327,6 +343,7 @@
     initControls() {
 
         $('#site-link').click(() => this.onSiteLinkClick());
+        $('#task-link').click(() => this.onTaskLinkClick());
         $('#login').click(() => this.onLoginClick());
         $('#retry').click(() => this.onRetryClick());
         $('#fix').click(() => this.onFixClick());
@@ -348,6 +365,14 @@
     private onSiteLinkClick() {
         this.openTrackerAction();
         this.close();
+    }
+
+    private onTaskLinkClick() {
+        var url = this.getTaskUrl(this._activeTimer.workTask);
+        if (url) {
+            this.openPageAction(url);
+            this.close();
+        }
     }
 
     private onLoginClick() {
