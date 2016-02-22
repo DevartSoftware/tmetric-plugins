@@ -150,13 +150,9 @@
 
             $(this._forms.view + ' .time').text(this.toDurationString(timer.startTime));
 
-            if (timer.workTask.externalIssueId) {
-                var url = this.getTaskUrl(timer.workTask);
-                if (url) {
-                    $(this._forms.view + ' .task .id .link').attr('href', url).text(timer.workTask.externalIssueId);
-                } else {
-                    $(this._forms.view + ' .task .id').text(timer.workTask.externalIssueId);
-                }
+            var url = this.getTaskUrl(timer.workTask);
+            if (url && timer.workTask.externalIssueId) {
+                $(this._forms.view + ' .task .id .link').attr('href', url).text(timer.workTask.externalIssueId);
             } else {
                 $(this._forms.view + ' .task .id').hide();
             }
