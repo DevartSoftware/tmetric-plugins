@@ -233,8 +233,8 @@
 
         var now = new Date();
 
-        var durationToday = this.getDuration(new Date(now.getFullYear(), now.getMonth(), now.getDay()));
-        var durationYesterday = this.getDuration(new Date(now.getFullYear(), now.getMonth(), now.getDay() - 1));
+        var durationToday = this.getDuration(new Date(now.getFullYear(), now.getMonth(), now.getDate()));
+        var durationYesterday = this.getDuration(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1));
 
         var startDate = new Date(startTime);
 
