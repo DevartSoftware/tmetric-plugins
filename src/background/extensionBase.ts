@@ -536,7 +536,7 @@ class ExtensionBase {
 
     fixTimerPopupAction() {
         return Promise.resolve(null).then(() => {
-            this.fixTimer();
+            this.openTrackerPage();
         });
     }
 
