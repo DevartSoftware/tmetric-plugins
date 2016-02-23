@@ -471,7 +471,7 @@ class ExtensionBase {
             task: { description, projectId, tagIds },
             timer: this._timer,
             timeFormat: this._userProfile && this._userProfile.timeFormat,
-            projects: this._projects,
+            projects: this._projects.filter(project => project.projectStatus == Models.ProjectStatus.Open),
             tags: this._tags
         };
     }
