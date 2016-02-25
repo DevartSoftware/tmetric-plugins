@@ -157,7 +157,6 @@ header {
     }
 
     &.actions {
-        margin: (@margin-large + @padding-double) 0 @margin-large 0;
 
         #login {
             .button-states(@login-button-color);
@@ -187,7 +186,7 @@ header {
 
 #message {
     display: none;
-    margin: @margin-large 0;
+    margin: @margin 0 0 0;
     border: @border;
     border-radius: @border-raduis;
     padding: @padding;
@@ -229,13 +228,17 @@ content {
 
     #login-form {
         display: none;
+
+        .actions {
+            margin: @margin-double 0 0 0;
+        }
     }
 
     #retry-form {
         display: none;
 
         .actions {
-            /*margin: 0;*/
+            margin: @margin-double 0 0 0;
         }
     }
 
@@ -243,16 +246,24 @@ content {
         display: none;
 
         .actions {
-            margin: 0;
+            margin: @margin-double 0 0 0;
         }
     }
 
     #view-form {
         display: none;
+
+        .actions {
+            margin: @margin-double 0 0 0;
+        }
     }
 
     #create-form {
         display: none;
+
+        .actions {
+            margin: (@margin-large + @padding-double) 0 @margin-large 0;
+        }
     }
 }
 
