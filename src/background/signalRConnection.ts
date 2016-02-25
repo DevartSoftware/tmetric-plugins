@@ -22,6 +22,8 @@
 
     expectedTimerUpdate = false;
 
+    disconnecting = false;
+
     constructor() {
         self.port.once('init', (url: string) => {
             this.url = url;
@@ -29,10 +31,12 @@
 
             this.hub.disconnected(() => {
                 this.expectedTimerUpdate = false;
-                console.log('disconnected');
-                this.disconnect().then(() => {
-                    this.setRetryPending(true);
-                });
+                console.log('hub.disconnected');
+                if (!this.disconnecting) {
+                    this.disconnect().then(() => {
+                        this.setRetryPending(true);
+                    });
+                }
             });
 
             this.hubProxy = this.hub.createHubProxy('timeTrackerHub');
@@ -130,6 +134,8 @@
 
     setRetryPending(isRetryPending: boolean) {
 
+        console.log('setRetryPending: ' + isRetryPending);
+
         if (!!this.retryPendingHandle == isRetryPending) {
             return;
         }
@@ -156,6 +162,7 @@
     };
 
     retryConnection() {
+        console.log('retryConnection');
         this.setRetryPending(false);
         if (!this.hubConnected && !this.retryInProgress) {
             this.retryInProgress = true;
@@ -172,6 +179,7 @@
     }
 
     isConnectionRetryEnabled() {
+        console.log('retryPending: ' + !!this.retryPendingHandle + ', retryInProgress: ' + !!this.retryInProgress);
         return Promise.resolve(!!(this.retryPendingHandle || this.retryInProgress));
     }
 
@@ -179,6 +187,7 @@
         console.log('connect');
         return new Promise<Models.UserProfile>((callback, reject) => {
             if (this.hubConnected) {
+                console.log('connect: hubConnected');
                 callback(this.userProfile);
                 return;
             }
@@ -194,33 +203,44 @@
                             .fail(reject);
                     }).fail(reject);
                 }).catch(reject);
-            }).catch(reject);
+            }).catch(e => {
+                console.log('connect: getProfile failed');
+                reject(e);
+            });
         });
     }
 
     disconnect() {
-        return new Promise<void>((callback, reject) => {
+        this.disconnecting = true;
+        var promise = new Promise<void>((callback, reject) => {
             if (this.hubConnected) {
                 this.hubConnected = false;
                 self.port.emit('updateTimer', null);
+                console.log('disconnect: stop hub');
                 this.hub.stop(false);
             }
+            console.log('disconnect: disable retrying');
             this.setRetryPending(false);
             callback();
         });
+        promise.then(() => this.disconnecting = false);
+        promise.catch(() => this.disconnecting = false);
+        return promise;
     }
 
     putTimer(timer: Models.Timer) {
         return this.connect().then(profile => {
             var accountId = this.accountToPost || profile.activeAccountId;
             this.expectedTimerUpdate = true;
-            return this.put('api/timer/' + accountId, timer)
-                .then(() => {
-                    this.checkProfileChange();
-                })
-                .catch(() => {
-                    this.expectedTimerUpdate = false;
-                });
+
+            var promise = this.put('api/timer/' + accountId, timer)
+                .then(() => this.checkProfileChange());
+
+            promise.catch(() => {
+                this.expectedTimerUpdate = false;
+            });
+
+            return promise;
         });
     }
 

@@ -140,12 +140,6 @@ class ExtensionBase {
         this.showNotification('You should fix the timer.');
     }
 
-    putPopupTimer(timer: Models.Timer) {
-        this.putData(timer, (timer) => {
-            return this.putTimer(timer);
-        });
-    }
-
     putTabTimer(url: string, title: string)
     putTabTimer(timer: Integrations.WebToolIssueTimer)
     putTabTimer(param1: any, param2?: any) {
@@ -222,7 +216,6 @@ class ExtensionBase {
         };
 
         if (this._timer == null) {
-
             // connect before action to get actual state
             this._actionOnConnect = () => onConnect(true);
             this.reconnect().catch(status => onFail(status, true));
@@ -240,12 +233,12 @@ class ExtensionBase {
                 if (this.getDuration(this._timer) > 10 * 60 * 60000) {
                     state = ButtonState.fixtimer;
                     text = 'Started (Need User Action)\n'
-                    + 'It looks like you forgot to stop the timer';
+                        + 'It looks like you forgot to stop the timer';
                 }
                 else {
                     state = ButtonState.stop;
                     text = 'Started\n'
-                    + (this._timer.workTask.description || '(No task description)');
+                        + (this._timer.workTask.description || '(No task description)');
                 }
             }
             else {
@@ -253,8 +246,8 @@ class ExtensionBase {
                 text = 'Paused';
             }
             text += '\nToday Total - '
-            + this.durationToString(this.getDuration(this._timeEntries))
-            + ' hours';
+                + this.durationToString(this.getDuration(this._timeEntries))
+                + ' hours';
         }
         this.buttonState = state;
         this.setButtonIcon(state == ButtonState.stop || state == ButtonState.fixtimer ? 'active' : 'inactive', text);
@@ -500,6 +493,8 @@ class ExtensionBase {
 
     initializePopupAction(): Promise<IPopupInitData> {
         return new Promise((resolve, reject) => {
+            // Forget about old action when user open popup again
+            this._actionOnConnect = null;
             if (this._timer) {
                 resolve(this.getPopupData());
             } else {
@@ -541,8 +536,7 @@ class ExtensionBase {
     }
 
     putTimerPopupAction(timer: Models.Timer) {
-        return Promise.resolve(null).then(() => {
-            this.putPopupTimer(timer);
-        });
+        return Promise.resolve(null).then(() =>
+            this.putData(timer, timer => this.putTimer(timer)));
     }
 }
