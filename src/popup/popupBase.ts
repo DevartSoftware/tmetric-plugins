@@ -13,16 +13,11 @@
                     this.switchState(this._states.fixing);
                 } else {
                     this.fillViewForm(data.timer);
-                    this.fillTaskForm(this._forms.create, data.task);
-                    this.fillTaskForm(this._forms.edit, {
-                        description: data.timer.workTask.description,
-                        projectId: data.timer.workTask.projectId,
-                        tagIds: data.timer.tagsIdentifiers
-                    });
+                    this.fillCreateForm(data.task);
                     this.switchState(this._states.viewing);
                 }
             } else {
-                this.fillTaskForm(this._forms.create, data.task);
+                this.fillCreateForm(data.task);
                 this.switchState(this._states.creating);
             }
         }).catch((error) => {
@@ -129,6 +124,9 @@
 
     switchState(name: string) {
         $('content').attr('class', name);
+        if (name == this._states.creating) {
+            this.initCreatingForm();
+        }
     }
 
     fillRetryForm() {
@@ -173,10 +171,14 @@
         }
     }
 
-    fillTaskForm(selector: string, task: ITaskInfo) {
-        $(selector + ' .task .input').val(task.description);
-        this.setSelectValue(selector + ' .project .input', { data: this.makeProjectSelectData() }, '' + task.projectId);
-        this.setSelectValue(selector + ' .tags .input', { data: this.makeTagSelectData() }, task.tagIds.map(function (tag) { return '' + tag; }));
+    fillCreateForm(task: ITaskInfo) {
+        $(this._forms.create + ' .task .input').val(task.description).focus().select();
+        this.setSelectValue(this._forms.create + ' .project .input', { data: this.makeProjectSelectData() }, '' + task.projectId);
+        this.setSelectValue(this._forms.create + ' .tags .input', { data: this.makeTagSelectData() }, task.tagIds.map(function (tag) { return '' + tag; }));
+    }
+
+    initCreatingForm() {
+        $(this._forms.create + ' .task .input').focus().select();
     }
 
     fillTaskTimer(selector: string, timer: Models.Timer) {
