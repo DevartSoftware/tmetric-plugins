@@ -99,7 +99,6 @@
         login: '#login-form',
         fix: '#fix-form',
         view: '#view-form',
-        edit: '#edit-form',
         create: '#create-form'
     };
 
@@ -174,7 +173,7 @@
     fillCreateForm(task: ITaskInfo) {
         $(this._forms.create + ' .task .input').val(task.description).focus().select();
         this.setSelectValue(this._forms.create + ' .project .input', { data: this.makeProjectSelectData() }, '' + task.projectId);
-        this.setSelectValue(this._forms.create + ' .tags .input', { data: this.makeTagSelectData() }, task.tagIds.map(function (tag) { return '' + tag; }));
+        this.setSelectValue(this._forms.create + ' .tags .input', { data: this.makeTagSelectData() }, task.tagIds.map(tag => '' + tag));
     }
 
     initCreatingForm() {
@@ -347,7 +346,6 @@
         $('#fix').click(() => this.onFixClick());
         $('#start').click(() => this.onStartClick());
         $('#stop').click(() => this.onStopClick());
-        $('#save').click(() => this.onSaveClick());
         $('#create-link').click(() => this.onCreateClick());
 
         // close popup when escape key pressed and no selectors are opened
@@ -400,12 +398,6 @@
     private onStopClick() {
         var timer = this.clone(this._activeTimer);
         timer.isStarted = false;
-        this.putTimer(timer);
-    }
-
-    private onSaveClick() {
-        var timer = this.clone(this._activeTimer);
-        this.fillTaskTimer(this._forms.edit, timer);
         this.putTimer(timer);
     }
 
