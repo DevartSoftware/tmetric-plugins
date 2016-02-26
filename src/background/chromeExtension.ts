@@ -131,7 +131,7 @@ class ChromeExtension extends ExtensionBase {
         }
         title = title || 'TMetric';
         var type = 'basic';
-        var iconUrl = 'images/icon.png';
+        var iconUrl = 'images/icon80.png';
         chrome.notifications.create(
             null,
             { title, message, type, iconUrl },
