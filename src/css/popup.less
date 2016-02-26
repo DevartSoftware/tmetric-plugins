@@ -103,6 +103,10 @@ header {
         }
     }
 
+    &.tags {
+        margin-bottom: @dropdown-max-height / 2; // button below should give more space
+    }
+
     .value, .name, .items {
         display: inline;
         width: auto;
@@ -157,6 +161,7 @@ header {
     }
 
     &.actions {
+        margin: @margin-large 0;
 
         #login {
             .button-states(@login-button-color);
@@ -186,7 +191,7 @@ header {
 
 #message {
     display: none;
-    margin: @margin 0 0 0;
+    margin: (2 * @margin-double) 0;
     border: @border;
     border-radius: @border-raduis;
     padding: @padding;
@@ -228,42 +233,22 @@ content {
 
     #login-form {
         display: none;
-
-        .actions {
-            margin: @margin-double 0 0 0;
-        }
     }
 
     #retry-form {
         display: none;
-
-        .actions {
-            margin: @margin-double 0 0 0;
-        }
     }
 
     #fix-form {
         display: none;
-
-        .actions {
-            margin: @margin-double 0 0 0;
-        }
     }
 
     #view-form {
         display: none;
-
-        .actions {
-            margin: @margin-double 0 0 0;
-        }
     }
 
     #create-form {
         display: none;
-
-        .actions {
-            margin: (@margin-large + @padding-double) 0 @margin-large 0;
-        }
     }
 }
 
