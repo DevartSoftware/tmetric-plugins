@@ -264,6 +264,8 @@ class FirefoxExtension extends ExtensionBase {
             setUpdateTimeout();
         }, (60 - new Date().getSeconds()) * 1000);
         setUpdateTimeout();
+
+        this.getActiveTabTitle = () => Promise.resolve(tabs.activeTab.title);
     }
 
     dispose() {

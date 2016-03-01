@@ -13,11 +13,11 @@
                     this.switchState(this._states.fixing);
                 } else {
                     this.fillViewForm(data.timer);
-                    this.fillCreateForm(data.task);
+                    this.fillCreateForm(data.title);
                     this.switchState(this._states.viewing);
                 }
             } else {
-                this.fillCreateForm(data.task);
+                this.fillCreateForm(data.title);
                 this.switchState(this._states.creating);
             }
         }).catch((error) => {
@@ -32,7 +32,6 @@
         });
     }
 
-    private _task: ITaskInfo;
     private _activeTimer: Models.Timer;
     private _timeFormat: string;
     private _projects: Models.Project[];
@@ -44,7 +43,6 @@
 
     setData(data: IPopupInitData) {
         if (data.timer) {
-            this._task = data.task;
             this._activeTimer = data.timer;
             this._timeFormat = data.timeFormat;
             this._projects = data.projects;
@@ -170,10 +168,10 @@
         }
     }
 
-    fillCreateForm(task: ITaskInfo) {
-        $(this._forms.create + ' .task .input').val(task.description).focus().select();
-        this.setSelectValue(this._forms.create + ' .project .input', { data: this.makeProjectSelectData() }, '' + task.projectId);
-        this.setSelectValue(this._forms.create + ' .tags .input', { data: this.makeTagSelectData() }, task.tagIds.map(tag => '' + tag));
+    fillCreateForm(description: string) {
+        $(this._forms.create + ' .task .input').val(description).focus().select();
+        this.setSelectValue(this._forms.create + ' .project .input', { data: this.makeProjectSelectData() }, '');
+        this.setSelectValue(this._forms.create + ' .tags .input', { data: this.makeTagSelectData() }, '');
     }
 
     initCreatingForm() {
@@ -183,8 +181,8 @@
     fillTaskTimer(selector: string, timer: Models.Timer) {
         timer.workTask = timer.workTask || <Models.WorkTask>{};
         timer.workTask.description = $(selector + ' .task .input').val();
-        timer.workTask.projectId = parseInt($(selector + ' .project .input').select2().val() || null);
-        timer.tagsIdentifiers = ($(selector + ' .tags .input').select2().val() || []).map(tag => parseInt(tag));
+        timer.workTask.projectId = parseInt(this.getSelectValue(selector + ' .project .input') || null);
+        timer.tagsIdentifiers = (this.getSelectValue(selector + ' .tags .input') || []).map(tag => parseInt(tag));
     }
 
     getTaskUrl(task: Models.WorkTask) {
@@ -329,6 +327,10 @@
         return this._tags.map((tag) => {
             return { id: tag.tagId, text: tag.tagName };
         });
+    }
+
+    getSelectValue(selector: string) {
+        return $(selector).select().val();
     }
 
     setSelectValue(selector: string, options: Select2Options, value: string | string[]) {

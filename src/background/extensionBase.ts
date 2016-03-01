@@ -22,6 +22,8 @@ class ExtensionBase {
 
     openPage(url: string) { }
 
+    getActiveTabTitle: () => Promise<string>;
+
     buttonState = ButtonState.start;
 
     private _actionOnConnect: () => void;
@@ -233,12 +235,12 @@ class ExtensionBase {
                 if (this.getDuration(this._timer) > 10 * 60 * 60000) {
                     state = ButtonState.fixtimer;
                     text = 'Started (Need User Action)\n'
-                        + 'It looks like you forgot to stop the timer';
+                    + 'It looks like you forgot to stop the timer';
                 }
                 else {
                     state = ButtonState.stop;
                     text = 'Started\n'
-                        + (this._timer.workTask.description || '(No task description)');
+                    + (this._timer.workTask.description || '(No task description)');
                 }
             }
             else {
@@ -246,8 +248,8 @@ class ExtensionBase {
                 text = 'Paused';
             }
             text += '\nToday Total - '
-                + this.durationToString(this.getDuration(this._timeEntries))
-                + ' hours';
+            + this.durationToString(this.getDuration(this._timeEntries))
+            + ' hours';
         }
         this.buttonState = state;
         this.setButtonIcon(state == ButtonState.stop || state == ButtonState.fixtimer ? 'active' : 'inactive', text);
@@ -445,28 +447,18 @@ class ExtensionBase {
 
     // popup actions
 
-    private getPopupData(): IPopupInitData {
-
-        var description: string;
-        var projectId: number;
-        var tagIds = [];
-
-        if (this._currentIssue && this._currentIssue.serviceType) {
-            description = '';
-            projectId = this.toProjectId(this._currentIssue && this._currentIssue.projectName);
-        }
-        else {
-            description = this._currentIssue && this._currentIssue.issueName;
-            projectId = null;
-        }
-
-        return {
-            task: { description, projectId, tagIds },
-            timer: this._timer,
-            timeFormat: this._userProfile && this._userProfile.timeFormat,
-            projects: this._projects.filter(project => project.projectStatus == Models.ProjectStatus.Open),
-            tags: this._tags
-        };
+    private getPopupData(): Promise<IPopupInitData> {
+        return new Promise((resolve, reject) => {
+            this.getActiveTabTitle().then((title) => {
+                resolve({
+                    title: title,
+                    timer: this._timer,
+                    timeFormat: this._userProfile && this._userProfile.timeFormat,
+                    projects: this._projects.filter(project => project.projectStatus == Models.ProjectStatus.Open),
+                    tags: this._tags
+                });
+            });
+        });
     }
 
     private toProjectId(projectName: string) {

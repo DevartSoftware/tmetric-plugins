@@ -119,6 +119,17 @@ class ChromeExtension extends ExtensionBase {
             setUpdateTimeout();
         }, (60 - new Date().getSeconds()) * 1000);
         setUpdateTimeout();
+
+        this.getActiveTabTitle = () => {
+            return new Promise((resolve, reject) => {
+                chrome.tabs.query({ currentWindow: true, active: true },
+                    function (tabs) {
+                        var activeTab = tabs[0];
+                        var title = activeTab && activeTab.title;
+                        resolve(title);
+                    });
+            });
+        }
     }
 
     showError(message: string) {
