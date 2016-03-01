@@ -71,7 +71,7 @@ class ChromeExtension extends ExtensionBase {
         });
 
         var updateCurrentTab = (canReset?: boolean) => {
-            chrome.tabs.query({ lastFocusedWindow: true, active: true }, tabs => {
+            chrome.tabs.query({ currentWindow: true, active: true }, tabs => {
                 var tab = tabs[0];
                 if (tab) {
                     if (tab.id != this.loginTabId) {
