@@ -107,7 +107,7 @@
     };
 
     showMessage(type: string, message: string) {
-        $('#message').attr('class', type).html(message);
+        $('#message').attr('class', type).text(message);
     }
 
     private _states = {
@@ -133,8 +133,8 @@
 
     fillFixForm(timer: Models.Timer) {
         if (timer && timer.workTask) {
-            var message = 'It looks like you forgot to stop the timer.<br>';
-            message += this.toDescription(timer.workTask.description) + '<br>';
+            var message = 'It looks like you forgot to stop the timer.\n';
+            message += this.toDescription(timer.workTask.description) + '\n';
             message += this.toLongRunningDurationString(timer.startTime);
             this.showMessage(this._messageTypes.warning, message);
         }
