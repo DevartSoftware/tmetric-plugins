@@ -447,14 +447,6 @@ class ExtensionBase {
 
     // popup actions
 
-    private projectNameComparator(projectOne: Models.Project, projectTwo: Models.Project) {
-        var projectOneName = projectOne.projectName.toLowerCase();
-        var projectTwoName = projectTwo.projectName.toLowerCase();
-        if (projectOneName > projectTwoName) return 1;
-        if (projectOneName < projectTwoName) return -1;
-        return 0;
-    }
-
     private getPopupData(): Promise<IPopupInitData> {
         return new Promise((resolve, reject) => {
             this.getActiveTabTitle().then((title) => {
@@ -464,7 +456,7 @@ class ExtensionBase {
                     timeFormat: this._userProfile && this._userProfile.timeFormat,
                     projects: this._projects
                         .filter(project => project.projectStatus == Models.ProjectStatus.Open)
-                        .sort(this.projectNameComparator),
+                        .sort((a, b) => a.projectName.localeCompare(b.projectName, [], {sensitivity:'base'})),
                     tags: this._tags
                 });
             });
