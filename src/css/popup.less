@@ -32,6 +32,9 @@
 @field-min-height: 2.5em;
 @field-line-height: 2.5em;
 
+@field-min-height-viewing: 1.2em;
+@field-line-height-viewing: 1.2em;
+
 @login-button-color: #67809f;
 @retry-button-color: #67809f;
 @fix-button-color: #67809f;
@@ -74,6 +77,7 @@ header {
 
 .row {
     margin: @margin-double 0;
+    word-wrap: break-word;
 
     > * {
         width: 100%;
@@ -83,8 +87,6 @@ header {
     }
 
     .label, .id {
-        display: inline-block;
-        width: auto;
         margin: 0 @margin 0 0;
     }
 
@@ -96,19 +98,21 @@ header {
         }
     }
 
+    &.task {
+        .id {
+            .link {
+                margin: 0;
+            }
+        }
+    }
+
     &.project, &.tags {
         .label {
-            width: 4em;
             color: @color-light;
         }
     }
 
-    &.tags {
-        margin-bottom: @dropdown-max-height / 2; // button below should give more space
-    }
-
     .value, .name, .items {
-        display: inline;
         width: auto;
         margin: 0;
     }
@@ -161,7 +165,7 @@ header {
     }
 
     &.actions {
-        margin: @margin-large 0;
+        margin: (2 * @margin-double) 0;
 
         #login {
             .button-states(@login-button-color);
@@ -281,11 +285,29 @@ content.viewing {
     #view-form {
         display: block;
     }
+
+    .row {
+        > * {
+            min-height: @field-min-height-viewing;
+            line-height: @field-line-height-viewing;
+        }
+    }
+
+    .row.actions {
+        > * {
+            min-height: @field-min-height;
+            line-height: @field-line-height;
+        }
+    }
 }
 
 content.creating {
     #create-form {
         display: block;
+
+        .row.tags {
+            margin-bottom: @dropdown-max-height / 2; // button below should give more space
+        }
     }
 }
 
