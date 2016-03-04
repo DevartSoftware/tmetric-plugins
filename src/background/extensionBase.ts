@@ -456,7 +456,7 @@ class ExtensionBase {
                     timeFormat: this._userProfile && this._userProfile.timeFormat,
                     projects: this._projects
                         .filter(project => project.projectStatus == Models.ProjectStatus.Open)
-                        .sort((a, b) => a.projectName.localeCompare(b.projectName, [], {sensitivity:'base'})),
+                        .sort((a, b) => a.projectName.localeCompare(b.projectName, [], { sensitivity: 'base' })),
                     tags: this._tags
                 });
             });

@@ -34,6 +34,7 @@ declare module Models {
         accountId: number;
         accountName: string;
         accountOwnerName: string;
+        isPaid: boolean;
     }
 
     interface AccountMember {

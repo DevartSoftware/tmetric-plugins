@@ -253,13 +253,13 @@
         return this.connect().then(profile => {
             let accountId = this.accountToPost || profile.activeAccountId;
             this.expectedTimerUpdate = true;
-            return this.post('api/timer/external/' + accountId, timer)
-                .then(() => {
-                    this.checkProfileChange();
-                })
-                .catch(() => {
-                    this.expectedTimerUpdate = false;
-                });
+            var promise = this.post('api/timer/external/' + accountId, timer).then(() => {
+                this.checkProfileChange();
+            });
+            promise.catch(() => {
+                this.expectedTimerUpdate = false;
+            });
+            return promise;
         });
     }
 
