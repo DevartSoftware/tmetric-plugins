@@ -13,7 +13,6 @@
         </a>
     </header>
     <content>
-        <div id="message"></div>
         <div id="loader"></div>
         <div id="login-form">
             <div class="row actions">
@@ -21,11 +20,19 @@
             </div>
         </div>
         <div id="retry-form">
+            <div class="message error">
+              <div>Connection to the server is lost. We`ll try to recover in a while.</div>
+            </div>
             <div class="row actions">
                 <input id="retry" class="input" type="button" value="Retry Now" />
             </div>
         </div>
         <div id="fix-form">
+            <div class="message warning">
+              <div>It looks like you forgot to stop the timer.</div>
+              <div class="description"></div>
+              <div class="startTime"></div>
+            </div>
             <div class="row actions">
                 <input id="fix" class="input" type="button" value="Fix Timer" />
             </div>

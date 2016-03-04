@@ -23,7 +23,6 @@
         }).catch((error) => {
             this.isConnectionRetryEnabledAction().then((retrying) => {
                 if (retrying) {
-                    this.fillRetryForm();
                     this.switchState(this._states.retrying);
                 } else {
                     this.switchState(this._states.authenticating);
@@ -106,10 +105,6 @@
         info: 'info'
     };
 
-    showMessage(type: string, message: string) {
-        $('#message').attr('class', type).text(message);
-    }
-
     private _states = {
         loading: 'loading',
         retrying: 'retrying',
@@ -126,17 +121,10 @@
         }
     }
 
-    fillRetryForm() {
-        var message = 'Connection to the server is lost. We`ll try to recover in a while.';
-        this.showMessage(this._messageTypes.error, message);
-    }
-
     fillFixForm(timer: Models.Timer) {
         if (timer && timer.workTask) {
-            var message = 'It looks like you forgot to stop the timer.\n';
-            message += this.toDescription(timer.workTask.description) + '\n';
-            message += this.toLongRunningDurationString(timer.startTime);
-            this.showMessage(this._messageTypes.warning, message);
+            $(this._forms.fix + ' .description').text(this.toDescription(timer.workTask.description));
+            $(this._forms.fix + ' .startTime').text(this.toLongRunningDurationString(timer.startTime));
         }
     }
 
