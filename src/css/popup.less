@@ -103,7 +103,7 @@ header {
         background-color: @info-background-color;
         border-color: @info-border-color;
     }
-    
+
     > * {
         margin: @margin-double 0;
         white-space: pre-wrap;
@@ -168,6 +168,11 @@ header {
 
     .link:hover {
         color: #0082a7;
+    }
+
+    input {
+        color: @input-color;
+        background-color: @input-background-color;
     }
 
     .input {
@@ -339,12 +344,16 @@ content.creating {
             line-height: @field-line-height !important;
         }
 
+        @multiselect-container-padding: @padding-small;
+        @multiselect-tag-margin: @margin-small;
+        @multiselect-search-margin: @margin - @multiselect-container-padding - @multiselect-tag-margin;
+
         ul.select2-selection__rendered {
-            padding: @padding-small !important;
+            padding: @multiselect-container-padding !important;
 
             .select2-selection__choice, .select2-search {
                 box-sizing: border-box !important;
-                margin: @margin-small !important;
+                margin: @multiselect-tag-margin !important;
                 padding: 0 @padding-half !important;
                 height: (@field-min-height - 2 * @margin-small - 2 * @padding-small) !important;
                 line-height: (@field-min-height - 2 * @margin-small - 2 * @padding-small) !important;
@@ -354,7 +363,7 @@ content.creating {
                 padding: 0 !important;
 
                 .select2-search__field {
-                    margin: 0 !important;
+                    margin: 0 @multiselect-search-margin !important;
                 }
             }
         }
