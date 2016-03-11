@@ -169,7 +169,7 @@
     fillTaskTimer(selector: string, timer: Models.Timer) {
         timer.workTask = timer.workTask || <Models.WorkTask>{};
         timer.workTask.description = $(selector + ' .task .input').val();
-        timer.workTask.projectId = parseInt(this.getSelectValue(selector + ' .project .input') || null);
+        timer.workTask.projectId = parseInt(this.getSelectValue(selector + ' .project .input')) || null;
         timer.tagsIdentifiers = (this.getSelectValue(selector + ' .tags .input') || []).map(tag => parseInt(tag));
     }
 
@@ -305,10 +305,12 @@
         }).join(', ');
     }
 
+    private _noProjectOption: IdTextPair = { id: 0, text: 'No Project' };
+
     makeProjectSelectData() {
-        return this._projects.map((project) => {
+        return [this._noProjectOption].concat(this._projects.map((project) => {
             return { id: project.projectId, text: project.projectName };
-        });
+        }));
     }
 
     makeTagSelectData() {
