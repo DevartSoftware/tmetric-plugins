@@ -5,8 +5,6 @@ class ChromeExtension extends ExtensionBase {
 
     loginWindowPending: boolean;
 
-    checkCloseTimeout: number;
-
     lastNotificationId: string;
 
     constructor() {
@@ -56,14 +54,6 @@ class ChromeExtension extends ExtensionBase {
                 this.loginWinId = null;
                 this.reconnect();
             }
-
-            if (this.checkCloseTimeout) {
-                clearTimeout(this.checkCloseTimeout);
-            }
-
-            this.checkCloseTimeout = setTimeout(() => {
-                this.checkCloseTimeout = null;
-            }, 60000);
         });
 
         var updateCurrentTab = (canReset?: boolean) => {

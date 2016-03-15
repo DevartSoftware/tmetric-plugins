@@ -25,8 +25,6 @@ class FirefoxExtension extends ExtensionBase {
 
     loginWindowPending: boolean;
 
-    checkCloseTimeout: number;
-
     actionButton: Firefox.ToggleButton;
 
     windowObserver: Firefox.nsIObserver;
@@ -59,21 +57,10 @@ class FirefoxExtension extends ExtensionBase {
             contentStyleFile: self.data.url("./css/timer-link.css")
         });
 
-        tabs.on('close', tab => {
-            if (this.checkCloseTimeout) {
-                timers.clearTimeout(this.checkCloseTimeout);
-            }
-
-            this.checkCloseTimeout = timers.setTimeout(() => forEachLiveTab(), 60000);
-        });
-
-        var forEachLiveTab = (action?: (worker: Firefox.Worker) => void) => {
-            this.checkCloseTimeout = null;
-            var allUrls = <string[]>[];
+        var forEachLiveTab = (action: (worker: Firefox.Worker) => void) => {
             var allTabIds = {};
             for (var i in tabs) {
                 allTabIds[tabs[i].id] = true;
-                allUrls.push(tabs[i].url);
             }
             for (var i in this.attachedTabs) {
                 if (!allTabIds[i]) {
@@ -271,10 +258,6 @@ class FirefoxExtension extends ExtensionBase {
         if (this.windowObserver) {
             windowWatcher.unregisterNotification(this.windowObserver);
             this.windowObserver = null;
-        }
-        if (this.checkCloseTimeout) {
-            timers.clearTimeout(this.checkCloseTimeout);
-            this.checkCloseTimeout = null;
         }
     }
 
