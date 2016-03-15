@@ -83,7 +83,6 @@ class FirefoxExtension extends ExtensionBase {
                     action(this.attachedTabs[i]);
                 }
             }
-            this.cleanUpTabInfo(allUrls);
         }
 
         this.sendToTabs = (message, tabId?) => {

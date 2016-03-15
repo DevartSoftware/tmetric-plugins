@@ -28,8 +28,6 @@ class ExtensionBase {
 
     private _actionOnConnect: () => void;
 
-    private _urlToIssue = <{ [url: string]: Integrations.WebToolIssue }>{};
-
     private _timer: Models.Timer;
 
     private _timeEntries: Models.TimeEntry[];
@@ -112,21 +110,6 @@ class ExtensionBase {
     setCurrentTab(url: string, title: string) {
         this._currentIssue = this.getTabIssue(url, title);
         this.updateState();
-    }
-
-    cleanUpTabInfo(allUrls: string[]) {
-        var containsUrl = <{ [url: string]: boolean }>{};
-        allUrls.forEach(url => {
-            var url = this.normalizeUrl(url);
-            if (url) {
-                (containsUrl[url] = true)
-            }
-        });
-        for (var url in this._urlToIssue) {
-            if (!containsUrl[url]) {
-                delete this._urlToIssue[url];
-            }
-        }
     }
 
     openTrackerPage() {
@@ -336,8 +319,7 @@ class ExtensionBase {
     }
 
     private getTabIssue(url: string, title: string): Integrations.WebToolIssue {
-        url = this.normalizeUrl(url);
-        return this._urlToIssue[url] || { issueName: title || url };
+        return { issueName: title || this.normalizeUrl(url) };
     }
 
     private setTabIssue(isTabActive: boolean, tabInfo: ITabInfo) {
@@ -345,12 +327,8 @@ class ExtensionBase {
         var title = tabInfo.title;
         var issue = tabInfo.issue;
 
-        if (issue) {
-            this._urlToIssue[url] = issue;
-        }
-        else {
-            delete this._urlToIssue[url];
-            issue = { issueName: title || url };
+        if (!issue) {
+            issue = this.getTabIssue(url, title);
         }
 
         if (isTabActive) {

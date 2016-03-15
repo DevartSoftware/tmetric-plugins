@@ -63,10 +63,6 @@ class ChromeExtension extends ExtensionBase {
 
             this.checkCloseTimeout = setTimeout(() => {
                 this.checkCloseTimeout = null;
-                chrome.tabs.query({}, tabs => {
-                    var allUrls = tabs.map(tab => tab.url);
-                    this.cleanUpTabInfo(allUrls);
-                });
             }, 60000);
         });
 
