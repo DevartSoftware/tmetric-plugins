@@ -38,7 +38,7 @@
             });
         }
 
-        static updateLinks(checkAllIntegrations: boolean) {
+        static checkIntegrations(checkAllIntegrations: boolean) {
             var source = this.getSourceInfo(document.URL);
 
             if (!this._possibleIntegrations || checkAllIntegrations) {
@@ -51,33 +51,14 @@
 
             var issues = <WebToolIssue[]>[];
 
+            // search first possible integration where issues can be parsed
             this._possibleIntegrations.some(integration => {
-
-                let elements = [<HTMLElement>null];
-                let selector = integration.issueElementSelector;
-                if (selector) {
-                    if ((<() => HTMLElement[]>selector).apply) {
-                        elements = (<() => HTMLElement[]>selector)();
-                    }
-                    else {
-                        elements = $$.all(<string>selector);
-                    }
-                }
-
+                let elements = IntegrationService.getIntegrationElements(integration);
                 elements.forEach(element => {
-
-                    var issue = integration.getIssue(element, source);
+                    var issue = IntegrationService.getIntegrationElementIssue(integration, element, source);
                     if (issue) {
-                        // trim all string values
-                        issue.issueId = this.trimText(issue.issueId, 128);
-                        issue.issueName = this.trimText(issue.issueName, 400);
-                        issue.issueUrl = this.trimText(issue.issueUrl, 256);
-                        issue.serviceUrl = this.trimText(issue.serviceUrl, 1024);
-                        issue.serviceType = this.trimText(issue.serviceType, 128);
-                        issue.projectName = this.trimText(issue.projectName, 255);
                         issues.push(issue);
                     }
-                    this.updateLink(element, integration, issue);
                 });
 
                 if (issues.length) {
@@ -86,7 +67,37 @@
                 }
             });
 
-            return { issues, observeMutations: this._possibleIntegrations.some(i => i.observeMutations) };
+            var observeMutations = this._possibleIntegrations.some(i => i.observeMutations);
+
+            return { issues, observeMutations };
+        }
+
+        private static getIntegrationElements(integration: WebToolIntegration): HTMLElement[] {
+            let elements = [<HTMLElement>null];
+            let selector = integration.issueElementSelector;
+            if (selector) {
+                if ((<() => HTMLElement[]>selector).apply) {
+                    elements = (<() => HTMLElement[]>selector)();
+                }
+                else {
+                    elements = $$.all(<string>selector);
+                }
+            }
+            return elements;
+        }
+
+        private static getIntegrationElementIssue(integration: WebToolIntegration, element: HTMLElement, source: Source): WebToolIssue {
+            var issue = integration.getIssue(element, source);
+            if (issue) {
+                // trim all string values
+                issue.issueId = this.trimText(issue.issueId, 128);
+                issue.issueName = this.trimText(issue.issueName, 400);
+                issue.issueUrl = this.trimText(issue.issueUrl, 256);
+                issue.serviceUrl = this.trimText(issue.serviceUrl, 1024);
+                issue.serviceType = this.trimText(issue.serviceType, 128);
+                issue.projectName = this.trimText(issue.projectName, 255);
+            }
+            return issue;
         }
 
         private static trimText(text: string, maxLength: number): string {
@@ -97,6 +108,19 @@
                 }
             }
             return text || null;
+        }
+
+        static updateLinks() {
+            var source = this.getSourceInfo(document.URL);
+            this._possibleIntegrations.forEach(integration => {
+                var elements = IntegrationService.getIntegrationElements(integration);
+                elements.forEach(element => {
+                    var issue = IntegrationService.getIntegrationElementIssue(integration, element, source);
+                    if (issue) {
+                        this.updateLink(element, integration, issue);
+                    }
+                });
+            });
         }
 
         static updateLink(element: HTMLElement, integration: WebToolIntegration, newIssue: WebToolIssue) {
