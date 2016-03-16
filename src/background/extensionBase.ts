@@ -34,8 +34,6 @@ class ExtensionBase {
 
     private _userProfile: Models.UserProfile;
 
-    private _currentIssue: Integrations.WebToolIssue;
-
     private _projects: Models.Project[];
 
     private _tags: Models.Tag[];
@@ -93,10 +91,6 @@ class ExtensionBase {
 
         switch (message.action) {
 
-            case 'setTabInfo':
-                this.setTabIssue(isTabActive, message.data);
-                break;
-
             case 'getTimer':
                 this.sendToTabs({ action: 'setTimer', data: this._timer }, tabId);
                 break;
@@ -105,11 +99,6 @@ class ExtensionBase {
                 this.putTabTimer(message.data);
                 break;
         }
-    }
-
-    setCurrentTab(url: string, title: string) {
-        this._currentIssue = this.getTabIssue(url, title);
-        this.updateState();
     }
 
     openTrackerPage() {
@@ -320,21 +309,6 @@ class ExtensionBase {
 
     private getTabIssue(url: string, title: string): Integrations.WebToolIssue {
         return { issueName: title || this.normalizeUrl(url) };
-    }
-
-    private setTabIssue(isTabActive: boolean, tabInfo: ITabInfo) {
-        var url = this.normalizeUrl(tabInfo.url);
-        var title = tabInfo.title;
-        var issue = tabInfo.issue;
-
-        if (!issue) {
-            issue = this.getTabIssue(url, title);
-        }
-
-        if (isTabActive) {
-            this._currentIssue = issue;
-            this.updateState();
-        }
     }
 
     private getDuration(timer: Models.Timer): number

@@ -212,37 +212,13 @@ class FirefoxExtension extends ExtensionBase {
 
         //
 
-        var updateCurrentTab = (tab?: Firefox.Tab) => {
-            if (this.loginWindowPending) {
-                return;
-            }
-
-            var canReset = tab != null;
-
-            tab = tab || this.getActiveTab();
-
-            if (tab) {
-                if (tab.id != this.loginTabId) {
-                    this.setCurrentTab(tab.url, tab.title);
-                }
-            }
-            else if (canReset) {
-                this.setCurrentTab(null, null);
-            }
-        };
-
         tabs.on('activate', tab => {
             if (!this.attachedTabs[tab.id] && tab.url && tab.url.indexOf('http') == 0 &&
                 (tab.readyState == "interactive" || tab.readyState == "complete")) {
                 // Firefox does not attach to some tabs after browser session restore
                 attachTab(tab);
             }
-
-            updateCurrentTab(tab);
         });
-        tabs.on('pageshow', () => updateCurrentTab());
-
-        updateCurrentTab();
 
         // Update hint once per minute
         var setUpdateTimeout = () => timers.setTimeout(() => {

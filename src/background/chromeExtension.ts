@@ -56,20 +56,6 @@ class ChromeExtension extends ExtensionBase {
             }
         });
 
-        var updateCurrentTab = (canReset?: boolean) => {
-            chrome.tabs.query({ currentWindow: true, active: true }, tabs => {
-                var tab = tabs[0];
-                if (tab) {
-                    if (tab.id != this.loginTabId) {
-                        this.setCurrentTab(tab.url, tab.title);
-                    }
-                }
-                else if (canReset) {
-                    this.setCurrentTab(null, null);
-                }
-            });
-        };
-
         chrome.runtime.onMessageExternal.addListener((request: any, sender: any, sendResponse: Function) => {
             if (request.message == "version") {
                 sendResponse({ version: "0.1.0" });
@@ -77,7 +63,6 @@ class ChromeExtension extends ExtensionBase {
         });
 
         chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-
             if (tabId == this.loginTabId && changeInfo.url) {
                 var tabUrl = changeInfo.url.toLowerCase();
                 var serviceUrl = trackerServiceUrl.toLowerCase();
@@ -86,18 +71,7 @@ class ChromeExtension extends ExtensionBase {
                     return;
                 }
             }
-
-            updateCurrentTab();
         });
-
-        // When user switch windows, tabs.onUpdated does not fire
-        chrome.windows.onFocusChanged.addListener(() => updateCurrentTab());
-
-        chrome.tabs.onActivated.addListener(activeInfo => {
-            updateCurrentTab(true);
-        });
-
-        updateCurrentTab();
 
         // Update hint once per minute
         var setUpdateTimeout = () => setTimeout(() => {

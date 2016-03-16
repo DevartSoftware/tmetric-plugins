@@ -146,25 +146,6 @@
             mutationObserver.takeRecords();
         }
 
-        var issue: Integrations.WebToolIssue = null;
-        if (issues) {
-            issue = issues[0];
-            if (issues.some(i => !Integrations.IntegrationService.isSameIssue(i, issue))) {
-
-                // If page contains several issues, keep project only
-                var projectName = issue.projectName;
-                issue = { issueName: '' };
-
-                if (projectName && issues.every(i => i.projectName == projectName)) {
-                    issue.projectName = projectName;
-                }
-            }
-        }
-
-        var data = <ITabInfo>{ url, title, issue };
-
-        sendBackgroundMessage({ action: 'setTabInfo', data });
-
         if (!isFinalized && observeMutations && !mutationObserver) {
             mutationObserver = new MutationObserver(parsePage);
             mutationObserver.observe(document, { childList: true, subtree: true });
