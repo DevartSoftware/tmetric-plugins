@@ -139,8 +139,7 @@
         oldUrl = url;
         oldTitle = title;
 
-        var { issues, observeMutations } = Integrations.IntegrationService.checkIntegrations(checkAllIntegrations);
-        Integrations.IntegrationService.updateLinks();
+        var { issues, observeMutations } = Integrations.IntegrationService.updateLinks(checkAllIntegrations);
 
         if (mutationObserver) {
             // clear queue to prevent observer reentering

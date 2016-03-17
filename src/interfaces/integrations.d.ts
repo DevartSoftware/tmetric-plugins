@@ -37,4 +37,9 @@ declare module Integrations {
         isStarted: boolean;
         tagsIdentifiers: number[];
     }
+
+    interface ParsedIssue {
+        element: HTMLElement;
+        issue: WebToolIssue;
+    }
 }
