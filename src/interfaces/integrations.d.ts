@@ -24,11 +24,18 @@ declare module Integrations {
         path: string;
     }
 
-    interface WebToolIssue {
+    interface WebToolIssueIdentifier {
+        serviceUrl?: string;
+        issueUrl?: string;
+    }
+
+    interface WebToolIssueDuration extends WebToolIssueIdentifier {
+        duration: number;
+    }
+
+    interface WebToolIssue extends WebToolIssueIdentifier {
         issueName: string;
         issueId?: string;
-        issueUrl?: string;
-        serviceUrl?: string;
         serviceType?: string;
         projectName?: string;
     }
@@ -38,7 +45,7 @@ declare module Integrations {
         tagsIdentifiers: number[];
     }
 
-    interface ParsedIssue {
+    interface WebToolParsedIssue {
         element: HTMLElement;
         issue: WebToolIssue;
     }

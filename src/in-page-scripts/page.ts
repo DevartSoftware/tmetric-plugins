@@ -19,6 +19,8 @@
             if (Integrations.IntegrationService.needsUpdate()) {
                 parseAfterPings = true;
             }
+        } else if (message.action == 'setIssuesDurations') {
+            Integrations.IntegrationService.setIssuesDurations(message.data);
         }
 
         if (parseAfterPings) {

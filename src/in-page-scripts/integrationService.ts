@@ -50,7 +50,7 @@
                 (!integration.match || integration.match(source)));
 
             var issues = <WebToolIssue[]>[];
-            var parsedIssues = <ParsedIssue[]>[];
+            var parsedIssues = <WebToolParsedIssue[]>[];
 
             this._possibleIntegrations.some(integration => {
 
@@ -84,8 +84,10 @@
                 if (issues.length) {
                     this._possibleIntegrations = [integration];
 
-                    parsedIssues.forEach(({ element, issue }) => {
-                        this.updateLink(element, integration, issue);
+                    this.getIssuesDurations(issues).then(durations => {
+                        parsedIssues.forEach(({ element, issue }) => {
+                            this.updateLink(element, integration, issue);
+                        });
                     });
 
                     return true;
@@ -93,6 +95,30 @@
             });
 
             return { issues, observeMutations: this._possibleIntegrations.some(i => i.observeMutations) };
+        }
+
+        private static _issuesDurations = <WebToolIssueDuration[]>[];
+        private static _issuesDurationsResolver = <(value: WebToolIssueDuration[]) => void> null;
+
+        static setIssuesDurations(durations) {
+            this._issuesDurations = durations;
+            if (this._issuesDurationsResolver) {
+                this._issuesDurationsResolver(durations);
+            }
+        }
+
+        static getIssuesDurations(issues: WebToolIssueIdentifier[]): Promise<WebToolIssueDuration[]> {
+            return new Promise(resolve => {
+                sendBackgroundMessage({ action: 'getIssuesDurations', data: issues });
+                this._issuesDurationsResolver = resolve;
+            });
+        }
+
+        static getIssueDuration(issue: WebToolIssueIdentifier): WebToolIssueDuration {
+            return this._issuesDurations.filter(duration =>
+                duration.issueUrl == issue.issueUrl &&
+                duration.serviceUrl == issue.serviceUrl
+            )[0];
         }
 
         private static trimText(text: string, maxLength: number): string {
@@ -105,6 +131,17 @@
             return text || null;
         }
 
+        private static formatIssueDuration(duration: number) {
+
+            var MINUTE = 1000 * 60;
+            var HOUR = MINUTE * 60;
+
+            var hours = Math.floor(duration / HOUR);
+            var minutes = Math.floor((duration - hours * HOUR) / MINUTE);
+
+            return hours + ':' + (minutes < 10 ? '0' + minutes : minutes);
+        }
+
         static updateLink(element: HTMLElement, integration: WebToolIntegration, newIssue: WebToolIssue) {
 
             var oldLink = $$('a.' + this.affix, element);
@@ -114,8 +151,10 @@
                 return;
             }
 
+            var isNewIssueStarted = this.isIssueStarted(newIssue);
+
             var newIssueTimer = <WebToolIssueTimer>{
-                isStarted: !this.isIssueStarted(newIssue)
+                isStarted: !isNewIssueStarted
             };
             for (var i in newIssue) {
                 newIssueTimer[i] = newIssue[i];
@@ -123,6 +162,7 @@
 
             if (oldLink) {
                 var oldIssueTimer = <WebToolIssueTimer>JSON.parse(oldLink.getAttribute('data-' + this.affix));
+                var oldIssueDuration = oldLink.getAttribute('data-duration');
                 var oldSession = parseInt(oldLink.getAttribute('data-session'));
             }
 
@@ -133,6 +173,12 @@
             ) {
                 // Issue is not changed and belong to same session (#67711)
                 return;
+            }
+
+            var issueDuration = this.getIssueDuration(newIssue);
+            var newIssueDuration = issueDuration && issueDuration.duration || 0;
+            if (isNewIssueStarted) {
+                newIssueDuration += Date.now() - Date.parse(this._timer.startTime);
             }
 
             this.removeLink(oldLink);
@@ -154,6 +200,9 @@
             newLink.appendChild(spanWithIcon);
             var span = document.createElement('span');
             span.textContent = newIssueTimer.isStarted ? 'Start timer' : 'Stop timer';
+            if (newIssueDuration) {
+                span.textContent += ' (' + this.formatIssueDuration(newIssueDuration) + ')';
+            }
             newLink.appendChild(span);
 
             integration.render(element, newLink);

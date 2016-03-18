@@ -96,6 +96,7 @@
         this.listenPortAction<Models.IntegratedProjectIdentifier>('getIntegration', this.getIntegration);
         this.listenPortAction<number>('setAccountToPost', this.setAccountToPost);
         this.listenPortAction<void>('retryConnection', this.retryConnection);
+        this.listenPortAction<Integrations.WebToolIssueIdentifier[]>('fetchIssuesDurations', this.fetchIssuesDurations);
     }
 
     isProfileChanged() {
@@ -283,6 +284,12 @@
         });
     }
 
+    fetchIssuesDurations(issues: Integrations.WebToolIssueIdentifier[]) {
+        return this.checkProfile().then(profile =>
+            this.postWithPesponse<Integrations.WebToolIssueIdentifier[], Integrations.WebToolIssueDuration[]>(
+                'api/timeentries/' + profile.activeAccountId + '/external/summary', issues));
+    }
+
     checkProfile() {
         return new Promise<Models.UserProfile>((callback, reject) => {
             var profile = this.userProfile;
@@ -352,24 +359,28 @@
         });
     }
 
-    get<T>(url: string): Promise<T> {
+    get<TRes>(url: string): Promise<TRes> {
         return this.ajax(url, 'GET');
     }
 
-    post<T>(url: string, data: T): Promise<void> {
-        return this.ajax(url, 'POST', data);
+    post<TReq>(url: string, data: TReq): Promise<void> {
+        return this.ajax<TReq, void>(url, 'POST', data);
     }
 
-    put<T>(url: string, data: T): Promise<void> {
-        return this.ajax(url, 'PUT', data);
+    postWithPesponse<TReq, TRes>(url: string, data: TReq): Promise<TRes> {
+        return this.ajax<TReq, TRes>(url, 'POST', data);
     }
 
-    ajax(url: string, method: string, postData?: any) {
+    put<TReq>(url: string, data: TReq): Promise<void> {
+        return this.ajax<TReq, void>(url, 'PUT', data);
+    }
+
+    ajax<TReq, TRes>(url: string, method: string, dataReq?: TReq): Promise<TRes> {
         var settings = <JQueryAjaxSettings>{};
         settings.url = this.url + url;
 
-        if (postData !== undefined) {
-            settings.data = JSON.stringify(postData);
+        if (dataReq !== undefined) {
+            settings.data = JSON.stringify(dataReq);
             settings.contentType = "application/json";
         }
 
@@ -385,13 +396,13 @@
             settings.headers['X-HTTP-Method-Override'] = method;
         }
 
-        return new Promise<any>((callback, reject) => {
+        return new Promise<TRes>((callback, reject) => {
 
             var xhr = $.ajax(settings);
 
-            xhr.done(data => {
+            xhr.done(dataRes => {
                 if (xhr.status >= 200 && xhr.status < 400) {
-                    callback(isGet ? data : undefined);
+                    callback(dataRes);
                 }
                 else {
                     reject(fail);

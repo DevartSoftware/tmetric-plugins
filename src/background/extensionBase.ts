@@ -41,6 +41,8 @@ class ExtensionBase {
     constructor(public port: Firefox.Port) {
 
         this.port.on('updateTimer', timer => {
+            this.removeTimerIssueDurationFromCache(this._timer);
+            this.removeTimerIssueDurationFromCache(timer);
             this._timer = timer;
             this.updateState();
             this.sendToTabs({ action: 'setTimer', data: timer });
@@ -97,6 +99,12 @@ class ExtensionBase {
 
             case 'putTimer':
                 this.putTabTimer(message.data);
+                break;
+
+            case 'getIssuesDurations':
+                this.getIssuesDurations(message.data).then(durations => {
+                    this.sendToTabs({ action: 'setIssuesDurations', data: durations }, tabId);
+                });
                 break;
         }
     }
@@ -349,6 +357,96 @@ class ExtensionBase {
         return 'Connection to the server failed or was aborted.';
     }
 
+    // issues durations cache
+    
+    private _issuesDurationsCache = {};
+
+    private makeIssueDurationKey(identifier: Integrations.WebToolIssueIdentifier): string {
+        return identifier.serviceUrl + '/' + identifier.issueUrl;
+    }
+    
+    private getIssueDurationFromCache(identifier: Integrations.WebToolIssueIdentifier): Integrations.WebToolIssueDuration {
+        return this._issuesDurationsCache[this.makeIssueDurationKey(identifier)];
+    }
+
+    private getIssuesDurationsFromCache(identifiers: Integrations.WebToolIssueIdentifier[]): Integrations.WebToolIssueDuration[] {
+        var durations = [];
+        identifiers.forEach(identifier => {
+            var duration = this.getIssueDurationFromCache(identifier);
+            if (duration) {
+                durations.push(duration);
+            }
+        });
+        return durations;
+    }
+
+    private putIssueDurationToCache(duration: Integrations.WebToolIssueDuration) {
+        this._issuesDurationsCache[this.makeIssueDurationKey(duration)] = duration;
+    }
+
+    private putIssuesDurationsToCache(durations: Integrations.WebToolIssueDuration[]) {
+        durations.forEach(duration => this.putIssueDurationToCache(duration));
+    }
+
+    private removeIssueDurationFromCache(identifier: Integrations.WebToolIssueIdentifier) {
+        delete this._issuesDurationsCache[this.makeIssueDurationKey(identifier)];
+    }
+
+    private removeTimerIssueDurationFromCache(timer: Models.Timer) {
+        var task = timer && timer.workTask;
+        if (task) {
+            var identifier = <Integrations.WebToolIssueIdentifier>{
+                serviceUrl: task.integrationUrl,
+                issueUrl: task.relativeIssueUrl
+            };
+            this.removeIssueDurationFromCache(identifier);
+        }
+    }
+
+    private clearIssuesDurationsCache() {
+        this._issuesDurationsCache = {};
+    }
+   
+    // array to store issues durations fetches
+    // fetches organized in chain
+    private issuesDurationsFetches = [];
+    
+    private makeIssuesDurationsFetch (identifiers: Integrations.WebToolIssueIdentifier[]) {
+        return new Promise(resolve => {
+            this.fetchIssuesDurations(identifiers).then(durations => {
+                this.issuesDurationsFetches.shift();
+                this.putIssuesDurationsToCache(durations);
+                resolve(durations);
+            }, () => {
+                this.issuesDurationsFetches.shift();
+                resolve([]);
+            });
+        });
+    }
+    
+    getIssuesDurations(identifiers: Integrations.WebToolIssueIdentifier[]): Promise<Integrations.WebToolIssueDuration[]> {
+        var durations = this.getIssuesDurationsFromCache(identifiers);
+        if (durations.length == identifiers.length) {
+            return Promise.resolve(durations);
+        } else {
+            if (this.issuesDurationsFetches.length) {
+                var lastFetch = this.issuesDurationsFetches[this.issuesDurationsFetches.length - 1];
+                var dalayedFetch = lastFetch.then(() => {
+                    return this.makeIssuesDurationsFetch(identifiers);
+                });
+                this.issuesDurationsFetches.push(dalayedFetch);
+                return dalayedFetch;
+            } else {
+                var fetch = this.makeIssuesDurationsFetch(identifiers);
+                this.issuesDurationsFetches.push(fetch);
+                return fetch;
+            }
+
+        }
+    }
+
+    // port actions
+
     private wrapPortAction<TParam, TResult>(actionName: string) {
         var callbackName = actionName + '_callback';
         return (param?: TParam) => new Promise<TResult>((callback, reject) => {
@@ -374,6 +472,7 @@ class ExtensionBase {
     private postIntegration = this.wrapPortAction<Models.IntegratedProjectIdentifier, void>('postIntegration');
     private getIntegration = this.wrapPortAction<Models.IntegratedProjectIdentifier, Models.IntegratedProjectStatus>('getIntegration');
     private setAccountToPost = this.wrapPortAction<number, void>('setAccountToPost');
+    private fetchIssuesDurations = this.wrapPortAction<Integrations.WebToolIssueIdentifier[], Integrations.WebToolIssueDuration[]>('fetchIssuesDurations');
 
     // popup action listeners
 
