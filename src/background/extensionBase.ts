@@ -64,6 +64,7 @@ class ExtensionBase {
 
         this.port.on('updateProfile', profile => {
             this._userProfile = profile;
+            this.clearIssuesDurationsCache();
         });
 
         this.port.on('updateProjects', projects => {
@@ -358,13 +359,13 @@ class ExtensionBase {
     }
 
     // issues durations cache
-    
-    private _issuesDurationsCache = {};
+
+    private _issuesDurationsCache: { [key: string]: Integrations.WebToolIssueDuration } = {};
 
     private makeIssueDurationKey(identifier: Integrations.WebToolIssueIdentifier): string {
         return identifier.serviceUrl + '/' + identifier.issueUrl;
     }
-    
+
     private getIssueDurationFromCache(identifier: Integrations.WebToolIssueIdentifier): Integrations.WebToolIssueDuration {
         return this._issuesDurationsCache[this.makeIssueDurationKey(identifier)];
     }
@@ -406,42 +407,22 @@ class ExtensionBase {
     private clearIssuesDurationsCache() {
         this._issuesDurationsCache = {};
     }
-   
-    // array to store issues durations fetches
-    // fetches organized in chain
-    private issuesDurationsFetches = [];
-    
-    private makeIssuesDurationsFetch (identifiers: Integrations.WebToolIssueIdentifier[]) {
-        return new Promise(resolve => {
-            this.fetchIssuesDurations(identifiers).then(durations => {
-                this.issuesDurationsFetches.shift();
-                this.putIssuesDurationsToCache(durations);
-                resolve(durations);
-            }, () => {
-                this.issuesDurationsFetches.shift();
-                resolve([]);
-            });
-        });
-    }
-    
+
+    private durationFetchCount = 0;
+
     getIssuesDurations(identifiers: Integrations.WebToolIssueIdentifier[]): Promise<Integrations.WebToolIssueDuration[]> {
         var durations = this.getIssuesDurationsFromCache(identifiers);
         if (durations.length == identifiers.length) {
             return Promise.resolve(durations);
         } else {
-            if (this.issuesDurationsFetches.length) {
-                var lastFetch = this.issuesDurationsFetches[this.issuesDurationsFetches.length - 1];
-                var dalayedFetch = lastFetch.then(() => {
-                    return this.makeIssuesDurationsFetch(identifiers);
+            return new Promise(resolve => {
+                this.fetchIssuesDurations(++this.durationFetchCount, identifiers).then(durations => {
+                    this.putIssuesDurationsToCache(durations);
+                    resolve(durations);
+                }, () => {
+                    resolve([]);
                 });
-                this.issuesDurationsFetches.push(dalayedFetch);
-                return dalayedFetch;
-            } else {
-                var fetch = this.makeIssuesDurationsFetch(identifiers);
-                this.issuesDurationsFetches.push(fetch);
-                return fetch;
-            }
-
+            });
         }
     }
 
@@ -462,6 +443,21 @@ class ExtensionBase {
         });
     }
 
+    private wrapPortSerialAction<TParam, TResult>(actionName: string) {
+        return (id: number, param?: TParam) => new Promise<TResult>((callback, reject) => {
+            var callbackName = actionName + '_' + id + '_callback';
+            this.port.once(callbackName, (isFulfilled: boolean, result: any) => {
+                if (isFulfilled) {
+                    callback(result);
+                }
+                else {
+                    reject(result);
+                }
+            });
+            this.port.emit(actionName, { id, param });
+        });
+    }
+
     protected reconnect = this.wrapPortAction<void, void>('reconnect');
     private disconnect = this.wrapPortAction<void, void>('disconnect');
     private retryConnection = this.wrapPortAction<void, void>('retryConnection');
@@ -472,7 +468,7 @@ class ExtensionBase {
     private postIntegration = this.wrapPortAction<Models.IntegratedProjectIdentifier, void>('postIntegration');
     private getIntegration = this.wrapPortAction<Models.IntegratedProjectIdentifier, Models.IntegratedProjectStatus>('getIntegration');
     private setAccountToPost = this.wrapPortAction<number, void>('setAccountToPost');
-    private fetchIssuesDurations = this.wrapPortAction<Integrations.WebToolIssueIdentifier[], Integrations.WebToolIssueDuration[]>('fetchIssuesDurations');
+    private fetchIssuesDurations = this.wrapPortSerialAction<Integrations.WebToolIssueIdentifier[], Integrations.WebToolIssueDuration[]>('fetchIssuesDurations');
 
     // popup action listeners
 
