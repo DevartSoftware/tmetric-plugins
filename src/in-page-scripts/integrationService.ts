@@ -86,7 +86,8 @@
 
                     this.getIssuesDurations(issues).then(durations => {
                         parsedIssues.forEach(({ element, issue }) => {
-                            this.updateLink(element, integration, issue);
+                            var duration = this.getIssueDuration(durations, issue);
+                            this.updateLink(element, integration, issue, duration);
                         });
                     });
 
@@ -97,13 +98,12 @@
             return { issues, observeMutations: this._possibleIntegrations.some(i => i.observeMutations) };
         }
 
-        private static _issuesDurations = <WebToolIssueDuration[]>[];
         private static _issuesDurationsResolver = <(value: WebToolIssueDuration[]) => void> null;
 
         static setIssuesDurations(durations) {
-            this._issuesDurations = durations;
             if (this._issuesDurationsResolver) {
                 this._issuesDurationsResolver(durations);
+                this._issuesDurationsResolver = null;
             }
         }
 
@@ -114,8 +114,8 @@
             });
         }
 
-        static getIssueDuration(issue: WebToolIssueIdentifier): WebToolIssueDuration {
-            return this._issuesDurations.filter(duration =>
+        static getIssueDuration(durations: WebToolIssueDuration[], issue: WebToolIssueIdentifier): WebToolIssueDuration {
+            return durations.filter(duration =>
                 duration.issueUrl == issue.issueUrl &&
                 duration.serviceUrl == issue.serviceUrl
             )[0];
@@ -142,7 +142,7 @@
             return hours + ':' + (minutes < 10 ? '0' + minutes : minutes);
         }
 
-        static updateLink(element: HTMLElement, integration: WebToolIntegration, newIssue: WebToolIssue) {
+        static updateLink(element: HTMLElement, integration: WebToolIntegration, newIssue: WebToolIssue, issueDuration: WebToolIssueDuration) {
 
             var oldLink = $$('a.' + this.affix, element);
 
@@ -162,7 +162,6 @@
 
             if (oldLink) {
                 var oldIssueTimer = <WebToolIssueTimer>JSON.parse(oldLink.getAttribute('data-' + this.affix));
-                var oldIssueDuration = oldLink.getAttribute('data-duration');
                 var oldSession = parseInt(oldLink.getAttribute('data-session'));
             }
 
@@ -175,10 +174,9 @@
                 return;
             }
 
-            var issueDuration = this.getIssueDuration(newIssue);
-            var newIssueDuration = issueDuration && issueDuration.duration || 0;
+            var duration = issueDuration && issueDuration.duration || 0;
             if (isNewIssueStarted) {
-                newIssueDuration += Date.now() - Date.parse(this._timer.startTime);
+                duration += Date.now() - Date.parse(this._timer.startTime);
             }
 
             this.removeLink(oldLink);
@@ -200,8 +198,8 @@
             newLink.appendChild(spanWithIcon);
             var span = document.createElement('span');
             span.textContent = newIssueTimer.isStarted ? 'Start timer' : 'Stop timer';
-            if (newIssueDuration) {
-                span.textContent += ' (' + this.formatIssueDuration(newIssueDuration) + ')';
+            if (duration) {
+                span.textContent += ' (' + this.formatIssueDuration(duration) + ')';
             }
             newLink.appendChild(span);
 
