@@ -411,14 +411,24 @@ class ExtensionBase {
     private durationFetchCount = 0;
 
     getIssuesDurations(identifiers: Integrations.WebToolIssueIdentifier[]): Promise<Integrations.WebToolIssueDuration[]> {
-        var durations = this.getIssuesDurationsFromCache(identifiers);
+        var durations = <Integrations.WebToolIssueDuration[]>[];
+        var fetchIdentifiers = <Integrations.WebToolIssueIdentifier[]>[];
+        identifiers.forEach(identifier => {
+            var duration = this.getIssueDurationFromCache(identifier);
+            if (duration) {
+                durations.push(duration);
+            } else {
+                fetchIdentifiers.push(identifier);
+            }
+        });
+        
         if (durations.length == identifiers.length) {
             return Promise.resolve(durations);
         } else {
             return new Promise(resolve => {
-                this.fetchIssuesDurations(++this.durationFetchCount, identifiers).then(durations => {
-                    this.putIssuesDurationsToCache(durations);
-                    resolve(durations);
+                this.fetchIssuesDurations(fetchIdentifiers).then(fetchDurations => {
+                    this.putIssuesDurationsToCache(fetchDurations);
+                    resolve(this.getIssuesDurationsFromCache(identifiers));
                 }, () => {
                     resolve([]);
                 });
