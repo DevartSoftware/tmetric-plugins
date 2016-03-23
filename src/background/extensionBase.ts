@@ -429,8 +429,9 @@ class ExtensionBase {
     // port actions
 
     private wrapPortAction<TParam, TResult>(actionName: string) {
-        var callbackName = actionName + '_callback';
+        var actionId = 0;
         return (param?: TParam) => new Promise<TResult>((callback, reject) => {
+            var callbackName = actionName + '_' + ++actionId + '_callback';
             this.port.once(callbackName, (isFulfilled: boolean, result: any) => {
                 if (isFulfilled) {
                     callback(result);
@@ -439,22 +440,7 @@ class ExtensionBase {
                     reject(result);
                 }
             });
-            this.port.emit(actionName, param);
-        });
-    }
-
-    private wrapPortSerialAction<TParam, TResult>(actionName: string) {
-        return (id: number, param?: TParam) => new Promise<TResult>((callback, reject) => {
-            var callbackName = actionName + '_' + id + '_callback';
-            this.port.once(callbackName, (isFulfilled: boolean, result: any) => {
-                if (isFulfilled) {
-                    callback(result);
-                }
-                else {
-                    reject(result);
-                }
-            });
-            this.port.emit(actionName, { id, param });
+            this.port.emit(actionName, actionId, param);
         });
     }
 
@@ -468,7 +454,7 @@ class ExtensionBase {
     private postIntegration = this.wrapPortAction<Models.IntegratedProjectIdentifier, void>('postIntegration');
     private getIntegration = this.wrapPortAction<Models.IntegratedProjectIdentifier, Models.IntegratedProjectStatus>('getIntegration');
     private setAccountToPost = this.wrapPortAction<number, void>('setAccountToPost');
-    private fetchIssuesDurations = this.wrapPortSerialAction<Integrations.WebToolIssueIdentifier[], Integrations.WebToolIssueDuration[]>('fetchIssuesDurations');
+    private fetchIssuesDurations = this.wrapPortAction<Integrations.WebToolIssueIdentifier[], Integrations.WebToolIssueDuration[]>('fetchIssuesDurations');
 
     // popup action listeners
 

@@ -96,7 +96,7 @@
         this.listenPortAction<Models.IntegratedProjectIdentifier>('getIntegration', this.getIntegration);
         this.listenPortAction<number>('setAccountToPost', this.setAccountToPost);
         this.listenPortAction<void>('retryConnection', this.retryConnection);
-        this.listenPortSerialAction<Integrations.WebToolIssueIdentifier[]>('fetchIssuesDurations', this.fetchIssuesDurations);
+        this.listenPortAction<Integrations.WebToolIssueIdentifier[]>('fetchIssuesDurations', this.fetchIssuesDurations);
     }
 
     isProfileChanged() {
@@ -114,23 +114,9 @@
 
     listenPortAction<TParam>(actionName: string, action: (param: TParam) => Promise<any>) {
         action = action.bind(this);
-        var callbackName = actionName + '_callback';
-        self.port.on(actionName, (param: TParam) => {
+        self.port.on(actionName, (actionId, param) => {
+            var callbackName = actionName + '_' + actionId + '_callback';
             action(param)
-                .then(result => {
-                    self.port.emit(callbackName, true, result);
-                })
-                .catch(error => {
-                    self.port.emit(callbackName, false, error);
-                });
-        });
-    }
-
-    listenPortSerialAction<TParam>(actionName: string, action: (param: TParam) => Promise<any>) {
-        action = action.bind(this);
-        self.port.on(actionName, (payload: { id: number, param: TParam }) => {
-            var callbackName = actionName + '_' + payload.id + '_callback';
-            action(payload.param)
                 .then(result => {
                     self.port.emit(callbackName, true, result);
                 })
