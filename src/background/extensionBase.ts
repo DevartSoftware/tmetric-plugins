@@ -62,7 +62,6 @@ class ExtensionBase {
 
         this.port.on('updateProfile', profile => {
             this._userProfile = profile;
-            this.clearIssuesDurationsCache();
         });
 
         this.port.on('updateProjects', projects => {
@@ -71,6 +70,10 @@ class ExtensionBase {
 
         this.port.on('updateTags', tags => {
             this._tags = tags;
+        });
+
+        this.port.on('updateActiveAccount', acountId => {
+            this.clearIssuesDurationsCache();
         });
 
         this.port.on('removeExternalIssuesDurations', identifiers => {

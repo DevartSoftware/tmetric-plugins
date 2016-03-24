@@ -66,6 +66,7 @@
             });
 
             this.hubProxy.on('updateActiveAccount', (accountId: number) => {
+                self.port.emit('updateActiveAccount', accountId);
                 if (!this.userProfile || accountId != this.userProfile.activeAccountId) {
                     this.reconnect();
                 }
