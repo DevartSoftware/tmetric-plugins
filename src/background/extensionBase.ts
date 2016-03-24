@@ -41,8 +41,6 @@ class ExtensionBase {
     constructor(public port: Firefox.Port) {
 
         this.port.on('updateTimer', timer => {
-            this.removeTimerIssueDurationFromCache(this._timer);
-            this.removeTimerIssueDurationFromCache(timer);
             this._timer = timer;
             this.updateState();
             this.sendToTabs({ action: 'setTimer', data: timer });
@@ -73,6 +71,10 @@ class ExtensionBase {
 
         this.port.on('updateTags', tags => {
             this._tags = tags;
+        });
+
+        this.port.on('removeExternalIssuesDurations', identifiers => {
+            this.removeIssuesDurationsFromCache(identifiers);
         });
 
         this.port.emit('init', trackerServiceUrl);
@@ -393,6 +395,10 @@ class ExtensionBase {
         delete this._issuesDurationsCache[this.makeIssueDurationKey(identifier)];
     }
 
+    private removeIssuesDurationsFromCache(identifiers: Integrations.WebToolIssueIdentifier[]) {
+        identifiers.forEach(identifier => this.removeIssueDurationFromCache(identifier));
+    }
+
     private removeTimerIssueDurationFromCache(timer: Models.Timer) {
         var task = timer && timer.workTask;
         if (task) {
@@ -407,8 +413,6 @@ class ExtensionBase {
     private clearIssuesDurationsCache() {
         this._issuesDurationsCache = {};
     }
-
-    private durationFetchCount = 0;
 
     getIssuesDurations(identifiers: Integrations.WebToolIssueIdentifier[]): Promise<Integrations.WebToolIssueDuration[]> {
         var durations = <Integrations.WebToolIssueDuration[]>[];

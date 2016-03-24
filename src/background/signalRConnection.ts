@@ -82,6 +82,12 @@
                     this.getTags();
                 }
             });
+            
+            this.hubProxy.on('updateExternalIssuesDurations', (accountId: number, identifiers: Integrations.WebToolIssueIdentifier[]) => {
+                if (this.userProfile && this.userProfile.activeAccountId == accountId) {
+                    self.port.emit('removeExternalIssuesDurations', identifiers);
+                }
+            });
 
             this.reconnect().catch(() => { });
         });
@@ -284,10 +290,11 @@
         });
     }
 
-    fetchIssuesDurations(issues: Integrations.WebToolIssueIdentifier[]) {
+    fetchIssuesDurations(identifiers: Integrations.WebToolIssueIdentifier[]) {
+        console.log('fetchIssuesDurations', identifiers);
         return this.checkProfile().then(profile =>
             this.postWithPesponse<Integrations.WebToolIssueIdentifier[], Integrations.WebToolIssueDuration[]>(
-                'api/timeentries/' + profile.activeAccountId + '/external/summary', issues));
+                'api/timeentries/' + profile.activeAccountId + '/external/summary', identifiers));
     }
 
     checkProfile() {
