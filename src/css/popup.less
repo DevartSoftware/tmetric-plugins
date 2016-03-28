@@ -205,7 +205,7 @@ header {
     }
 
     &.actions {
-        margin: (2 * @margin-double) 0;
+        margin: @margin-large + @margin-double 0 @margin-large 0;
 
         #login {
             .button-states(@login-button-color);
@@ -312,10 +312,6 @@ content.viewing {
 content.creating {
     #create-form {
         display: block;
-
-        .row.tags {
-            margin-bottom: @dropdown-max-height / 2; // button below should give more space
-        }
     }
 }
 
