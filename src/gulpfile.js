@@ -62,8 +62,7 @@ var files = {
             test: [
                 'test/constants.js',
                 'background/extensionBase.js',
-                'background/firefoxExtension.js',
-                'test/shortcut.firefox.index.js'
+                'background/firefoxExtension.js'
             ]
         },
         data: [
@@ -134,14 +133,7 @@ gulp.task('prepackage:chrome:strip', ['prepackage:chrome'], function () {
 });
 
 gulp.task('prepackage:chrome:test', ['prepackage:chrome'], function () {
-    var constants = gulp.src(src + 'test/constants.js').pipe(gulp.dest(distChromeUnpacked + 'background/'));
-    var shortcut = gulp.src([
-        distChromeUnpacked + 'manifest.json',
-        src + 'test/shortcut.chrome.manifest.json'
-    ])
-    .pipe(extend('manifest.json', true, 2))
-    .pipe(gulp.dest(distChromeUnpacked));
-    return mergeStream(constants, shortcut);
+    return gulp.src(src + 'test/constants.js').pipe(gulp.dest(distChromeUnpacked + 'background/'));
 });
 
 gulp.task('package:chrome', ['prepackage:chrome', 'prepackage:chrome:strip'], packageChrome);
@@ -220,98 +212,7 @@ gulp.task('profile:firefox:test', ['package:firefox:test'], function () {
 // =============================================================================
 
 gulp.task('test', ['build'], function () {
-    return runTestsOnDev(false);
 });
 
 gulp.task('test:dev', ['build:test'], function () {
-    return runTestsOnDev(true);
 });
-
-function runTestsOnDev(runsOnDevServer) {
-
-    var options = getWdioOptions(runsOnDevServer);
-    var configsPath = test + 'webdriverio/configs/';
-
-    var configs = fs.readdirSync(configsPath).filter(function (file) {
-        return /^.*\.js$/.test(file);
-    });
-
-    return new Promise(function (resolve, reject) {
-
-        var testErrors = [];
-
-        configs.reduce(function (promise, file, index) {
-            return promise
-                .then(function () {
-                    return runTests(configsPath + file, options);
-                })
-                .then(function (result) {
-                    // result is a resolved result of promise returned by runTests
-                    if (result) {
-                        testErrors.push(result);
-                    }
-                });
-        }, Promise.resolve(true)).then(function () {
-            if (testErrors.length) {
-                reject(new Error('Tests error'));
-            } else {
-                resolve();
-            }
-        });
-
-    });
-
-}
-
-function runTests(configPath, options) {
-
-    return new Promise(function (resolve, reject) {
-
-        selenium.start(function (startError, serverProcess) { // launch selenium server
-
-            if (startError) {
-                // error is an Error object from selenium.start
-                resolve(startError);
-                return;
-            }
-
-            var streamError;
-
-            gulp
-                .src(configPath)
-                .pipe(webdriverGulp(options))
-                .on('error', function (error) {
-                    // Parameter 'error' is an Error object from webdriverGulp
-                    // what indicates about test fail.
-                    // Actual test results handled by reporter given in wdio.conf.js
-                    streamError = error;
-                })
-                .on('finish', function () {
-                    serverProcess.kill();
-                    resolve(streamError);
-                });
-
-        });
-
-    });
-
-}
-
-function getWdioOptions(runsOnDevServer) {
-    // gulp-webdriver incorrectly locates WebdriverIO binary
-    // we need to fix it
-    var isWin = /^win/.test(process.platform);
-    var options = { wdioBin: path.join(process.cwd(), 'node_modules', '.bin', isWin ? 'wdio.cmd' : 'wdio') };
-
-    if (runsOnDevServer) {
-        // substitute baseUrl option in wdio.conf.js with a trackerServiceUrl from /test/constants.js
-        var constants = fs.readFileSync(test + 'constants.js', 'utf8');
-        var regex = /var trackerServiceUrl = ['"]([^'"]+)['"]/m;
-        var match = constants.match(regex);
-        if (match) {
-            options.baseUrl = match[1];
-        }
-    }
-
-    return options;
-}

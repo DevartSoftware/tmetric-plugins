@@ -17,6 +17,7 @@ To build and extensions from sources you need:
 This can be done with the following script
 ```sh
 $ npm install
+$ npm update jpm
 $ npm -g install gulp-cli
 $ gulp build
 ```
