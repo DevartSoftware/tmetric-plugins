@@ -25,16 +25,11 @@
         "gulp-rename": "1.2.2",
         "gulp-strip-debug": "1.1.0",
         "gulp-tsc": "1.1.4",
-        "gulp-webdriver": "1.0.1",
         "gulp-zip": "3.0.2",
         "jpm": "*",
         "jsonfile": "2.2.2",
         "merge-stream": "1.0.0",
-        "mkdirp": "0.5.1",
         "mocha": "2.3.3",
         "typescript": "1.6"
-    },
-    "scripts": {
-        "postinstall": "npm link selenium-standalone"
     }
 }

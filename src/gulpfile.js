@@ -1,6 +1,5 @@
 var del = require('del');                       // Delete files/folders using globs.
 var concat = require('gulp-concat');            // Concatenates files.
-var extend = require('gulp-extend');            // A gulp plugin to extend (merge) JSON contents.
 var fs = require('fs');                         // Node.js File System module
 var gulp = require('gulp');                     // The streaming build system.
 var jsonfile = require('jsonfile');             // Easily read/write JSON files.
@@ -9,9 +8,6 @@ var mergeStream = require('merge-stream');      // Create a stream that emits ev
 var path = require('path');                     // Node.js Path System module
 var rename = require('gulp-rename');            // Simple file renaming methods.
 var stripDebug = require('gulp-strip-debug');   // Strip console and debugger statements from JavaScript code.
-var selenium = require('selenium-standalone');  // Installs a selenium-standalone command line to install and start a standalone selenium server
-var webdriver = require('selenium-webdriver');  // Selenium is a browser automation library
-var webdriverGulp = require('gulp-webdriver');  // Runs selenium tests with the WebdriverIO testrunner
 
 // =============================================================================
 // Global variables
@@ -79,7 +75,7 @@ var files = {
 
 gulp.task('default', ['build']);
 gulp.task('build', ['package:chrome', 'package:firefox']);
-gulp.task('build:test', ['package:chrome:test', 'package:firefox:test', 'profile:firefox:test']);
+gulp.task('build:test', ['package:chrome:test', 'package:firefox:test']);
 
 gulp.task('clean', function () {
     return del.sync([
@@ -188,31 +184,3 @@ function packageFirefox(callback) {
         callback();
     });
 }
-
-// prepare firefox encoded profile (with extension) to run test on
-gulp.task('profile:firefox:test', ['package:firefox:test'], function () {
-
-    var extensionFileName = fs.readdirSync(distFirefox).filter(function (filename) {
-        return /\.xpi$/.test(filename);
-    })[0];
-
-    var firefox = require('selenium-webdriver/firefox');
-    var profile = new firefox.Profile();
-
-    profile.addExtension(distFirefox + extensionFileName);
-
-    return profile.encode().then(function (encodedProfile) {
-        fs.writeFileSync(test + 'webdriverio/profiles/firefox/profile', encodedProfile);
-    });
-
-});
-
-// =============================================================================
-// Tasks for running automated tests
-// =============================================================================
-
-gulp.task('test', ['build'], function () {
-});
-
-gulp.task('test:dev', ['build:test'], function () {
-});

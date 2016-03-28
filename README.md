@@ -19,6 +19,7 @@ This can be done with the following script
 $ npm install
 $ npm update jpm
 $ npm -g install gulp-cli
+$ npm -g install typescript@1.6.x
 $ gulp build
 ```
 
