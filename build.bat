@@ -6,4 +6,8 @@ call npm install
 call npm update jpm
 call gulp build
 
+IF DEFINED TestServerUrl (
+    call gulp build:test
+)
+
 popd

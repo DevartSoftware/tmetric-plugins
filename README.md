@@ -25,19 +25,4 @@ $ gulp build
 
 If you are building on Windows you can simply run `install.bat` and `build.bat`/
 
-Built extensions can be found in `/dist/chrome/` and `/dist/firefox/` folders.
-
-## Running Automated Tests
-
-**Additional Requirements**
- - [Java](https://www.java.com/download)
- 
- For end-to-end automated testing project uses [Selenium 2.0](http://www.seleniumhq.org/projects/webdriver/),
- [WebdriverIO](http://webdriver.io/), and [Mocha](https://mochajs.org/).
- 
-**IMPORTANT:**
-Before running tests you should:
-1. Copy `/test/webdriverio/logins.template.js` to `/test/webdriverio/logins.conf.js`   
-2. Provide valid login information for all services listed in the file.
- 
-To run tests simply execute `gulp test` command or run `test.bat` (only on Windows).
+Built extensions can be found in `/dist/release/chrome/` and `/dist/release/firefox/` folders.

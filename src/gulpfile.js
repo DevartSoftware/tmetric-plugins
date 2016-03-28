@@ -15,12 +15,21 @@ var stripDebug = require('gulp-strip-debug');   // Strip console and debugger st
 
 // Output folders for *.crx and *.xpi files
 var src = process.cwd() + '/';
-var dist = path.normalize(src + '/../dist/');
-var distChrome = dist + 'chrome/';
-var distChromeUnpacked = distChrome + 'unpacked/';
-var distFirefox = dist + 'firefox/';
-var distFirefoxUnpacked = distFirefox + 'unpacked/';
 var test = src + 'test/';
+
+var dist = path.normalize(src + '/../dist/');
+var distRelease = dist + 'release/';
+var distTest = dist + 'test/';
+
+var distReleaseChrome = distRelease + 'chrome/';
+var distReleaseChromeUnpacked = distReleaseChrome + 'unpacked/';
+var distReleaseFirefox = distRelease + 'firefox/';
+var distReleaseFirefoxUnpacked = distReleaseFirefox + 'unpacked/';
+
+var distTestChrome = distTest + 'chrome/';
+var distTestChromeUnpacked = distTestChrome + 'unpacked/';
+var distTestFirefox = distTest + 'firefox/';
+var distTestFirefoxUnpacked = distTestFirefox + 'unpacked/';
 
 var files = {
     common: [
@@ -74,22 +83,32 @@ var files = {
 // =============================================================================
 
 gulp.task('default', ['build']);
-gulp.task('build', ['package:chrome', 'package:firefox']);
+gulp.task('build', ['package:chrome:release', 'package:firefox:release']);
 gulp.task('build:test', ['package:chrome:test', 'package:firefox:test']);
 
-gulp.task('clean', function () {
-    return del.sync([
-      dist + '**', // remove all children and the parent.
-      './**/*.map',
-      'background/*.js',
-      'css/*.css',
-      'in-page-scripts/**/*.js',
-      'lib/*',
-      'popup/*.js'
-    ], { force: true });
-});
+// clean
 
-gulp.task('lib', ['clean'], function () {
+function clean(input) {
+    return del.sync(input, { force: true });
+}
+
+gulp.task('clean:sources', () => {
+    clean([
+        './**/*.map',
+        'background/*.js',
+        'css/*.css',
+        'in-page-scripts/**/*.js',
+        'lib/*',
+        'popup/*.js'
+    ]);
+});
+gulp.task('clean:release', ['clean:sources'], () => { clean([distRelease + '**']); });
+gulp.task('clean:test', ['clean:sources'], () => { clean([distTest + '**']); });
+gulp.task('clean', ['clean:sources'], () => { clean([dist + '**']); });
+
+// lib
+
+gulp.task('lib', ['clean:sources'], function () {
     var lib = src + 'lib/';
     var jquery = gulp.src('node_modules/jquery/dist/jquery.min.js').pipe(gulp.dest(lib));
     var signalr = gulp.src('node_modules/ms-signalr-client/jquery.signalr-2.2.0.min.js').pipe(rename('jquery.signalr.min.js')).pipe(gulp.dest(lib));
@@ -100,9 +119,11 @@ gulp.task('lib', ['clean'], function () {
     return mergeStream(jquery, signalr, select2);
 });
 
+// compile
+
 gulp.task('compile', ['compile:ts', 'compile:less']);
 
-gulp.task('compile:ts', ['clean'], function () {
+gulp.task('compile:ts', ['clean:sources'], function () {
     var tsc = require('gulp-tsc'); // TypeScript compiler for gulp.js
     var project = require('./tsconfig.json');
     project.compilerOptions.sourceMap = false;
@@ -112,75 +133,200 @@ gulp.task('compile:ts', ['clean'], function () {
       .pipe(gulp.dest(src));
 });
 
-gulp.task('compile:less', ['clean'], function () {
+gulp.task('compile:less', ['clean:sources'], function () {
     return gulp.src('css/*.less').pipe(less()).pipe(gulp.dest(src + 'css/'));
 });
+
+// common operations
+
+function replaceInFile(file, find, replace) {
+    var text = fs.readFileSync(file) + '';
+    if (text) {
+        text = text.replace(find, replace);
+        fs.writeFileSync(file, text);
+    }
+}
+
+function stripDebugCommon(folder) {
+    return gulp.src(folder + '**/*.js', { base: folder })
+        .pipe(stripDebug())
+        .pipe(gulp.dest(folder));
+}
+
+function setTestServerUrl(file) {
+    var testServer = process.env.TestServerUrl;
+    if (testServer) {
+        replaceInFile(file, /var trackerServiceUrl = ['"]([^'"]+)['"];/, 'var trackerServiceUrl ="' + testServer + '";');
+    }
+}
 
 // =============================================================================
 // Tasks for building Chrome extension
 // =============================================================================
 
-gulp.task('prepackage:chrome', ['compile', 'lib'], function () {
-    return gulp.src(files.common.concat(files.chrome), { base: src }).pipe(gulp.dest(distChromeUnpacked));
-});
-
-gulp.task('prepackage:chrome:strip', ['prepackage:chrome'], function () {
-    return gulp.src(distChromeUnpacked + '**/*.js', { base: distChromeUnpacked }).pipe(stripDebug()).pipe(gulp.dest(distChromeUnpacked));
-});
-
-gulp.task('prepackage:chrome:test', ['prepackage:chrome'], function () {
-    return gulp.src(src + 'test/constants.js').pipe(gulp.dest(distChromeUnpacked + 'background/'));
-});
-
-gulp.task('package:chrome', ['prepackage:chrome', 'prepackage:chrome:strip'], packageChrome);
-gulp.task('package:chrome:test', ['prepackage:chrome:test'], packageChrome);
-
-function packageChrome() {
-    var zip = require('gulp-zip'); // ZIP compress files.
-    var manifest = jsonfile.readFileSync(distChromeUnpacked + 'manifest.json');
-
-    return gulp.src(distChromeUnpacked + '**/*')
-      .pipe(zip(manifest.short_name.toLowerCase() + '-' + manifest.version + '.zip'))
-      .pipe(gulp.dest(distChrome));
+function copyFilesChrome(destFolder) {
+    return gulp.src(files.common.concat(files.chrome), { base: src })
+        .pipe(gulp.dest(destFolder));
 }
+
+function packageChrome(unpackedFolder, destFolder) {
+    var zip = require('gulp-zip'); // ZIP compress files.
+    var manifest = jsonfile.readFileSync(unpackedFolder + 'manifest.json');
+    return gulp.src(unpackedFolder + '**/*')
+      .pipe(zip(manifest.short_name.toLowerCase() + '-' + manifest.version + '.zip'))
+      .pipe(gulp.dest(destFolder));
+}
+
+// release
+
+gulp.task('prepackage:chrome:release', [
+    'prepackage:chrome:release:copy',
+    'prepackage:chrome:release:strip'
+]);
+
+gulp.task('prepackage:chrome:release:copy', ['clean:release', 'compile', 'lib'], function () {
+    return copyFilesChrome(distReleaseChromeUnpacked);
+});
+
+gulp.task('prepackage:chrome:release:strip', ['prepackage:chrome:release:copy'], function () {
+    return stripDebugCommon(distReleaseChromeUnpacked);
+});
+
+gulp.task('package:chrome:release', ['prepackage:chrome:release'], () => {
+    return packageChrome(distReleaseChromeUnpacked, distReleaseChrome);
+});
+
+// test
+
+gulp.task('prepackage:chrome:test', [
+    'prepackage:chrome:test:copy',
+    'prepackage:chrome:test:setup'
+]);
+
+gulp.task('prepackage:chrome:test:copy', ['clean:test', 'compile', 'lib'], function () {
+    return copyFilesChrome(distTestChromeUnpacked);
+});
+
+gulp.task('prepackage:chrome:test:setup', ['prepackage:chrome:test:copy'], (callback) => {
+    setTestServerUrl(distTestChromeUnpacked + 'background/constants.js');
+    callback();
+});
+
+gulp.task('package:chrome:test', ['prepackage:chrome:test'], () => {
+    return packageChrome(distTestChromeUnpacked, distTestChrome);
+});
 
 // =============================================================================
 // Tasks for building Firefox addon
 // =============================================================================
 
-gulp.task('prepackage:firefox', ['compile', 'lib', 'prepackage:firefox:files'], function () {
+function copyFilesFirefox(destFolder) {
+    var root = gulp.src(files.firefox.root).pipe(gulp.dest(destFolder));
+    var data = gulp.src(files.common.concat(files.firefox.data), { base: src }).pipe(gulp.dest(destFolder + 'data/'));
+    return mergeStream(root, data);
+}
+
+function makeIndexFirefox(files, destFolder) {
+    return gulp.src(files)
+        .pipe(concat('index.js'))
+        .pipe(gulp.dest(destFolder));
+}
+
+function stripHtmlFirefox(destFolder) {
     // Strip scripts from html for firefox
-    // They inserted in FirefoxExtension.ts as content scripts to allow cross site requests
-    var html = fs.readFileSync(src + 'popup/popup.html') + '';
-    html = html.replace(/\s*<script[^>]+>.*<\/script>/g, '');
-    fs.writeFileSync(distFirefoxUnpacked + 'data/popup/popup.html', html);
-});
+    // They are placed in FirefoxExtension.ts as content scripts to allow cross site requests
+    var srcHtml = src + 'popup/popup.html';
+    var destHtml = destFolder + 'data/popup/popup.html';
+    fs.writeFileSync(destHtml, fs.readFileSync(srcHtml));
+    replaceInFile(destHtml, /\s*<script[^>]+>.*<\/script>/g, '');
+}
 
-gulp.task('prepackage:firefox:files', ['compile', 'lib'], function () {
-    var root = gulp.src(files.firefox.root).pipe(gulp.dest(distFirefoxUnpacked));
-    var index = gulp.src(files.firefox.index.release).pipe(concat('index.js')).pipe(gulp.dest(distFirefoxUnpacked));
-    var data = gulp.src(files.common.concat(files.firefox.data), { base: src }).pipe(gulp.dest(distFirefoxUnpacked + 'data/'));
-    return mergeStream(root, index, data);
-});
-
-gulp.task('prepackage:firefox:strip', ['prepackage:firefox'], function () {
-    return gulp.src(distFirefoxUnpacked + '**/*.js', { base: distFirefoxUnpacked }).pipe(stripDebug()).pipe(gulp.dest(distFirefoxUnpacked));
-});
-
-gulp.task('prepackage:firefox:test', ['prepackage:firefox'], function () {
-    return gulp.src(files.firefox.index.test).pipe(concat('index.js')).pipe(gulp.dest(distFirefoxUnpacked));
-});
-
-gulp.task('package:firefox', ['prepackage:firefox', 'prepackage:firefox:strip'], packageFirefox);
-gulp.task('package:firefox:test', ['prepackage:firefox:test'], packageFirefox);
-
-function packageFirefox(callback) {
-    process.chdir(distFirefoxUnpacked);
+function packageFirefox(unpackedFolder, destFolder) {
+    // packaging for firefox should be run synchronously
+    process.chdir(unpackedFolder);
     var jpmXpi = require('jpm/lib/xpi'); // Packaging utility for Mozilla Jetpack Addons
-    var addonManifest = require(distFirefoxUnpacked + 'package.json');
-    var promise = jpmXpi(addonManifest, { xpiPath: distFirefox });
+    var addonManifest = require(unpackedFolder + 'package.json');
+    var promise = jpmXpi(addonManifest, { xpiPath: destFolder });
     promise.then(function () {
-        process.chdir(src)
+        process.chdir(src);
+    });
+    return promise;
+}
+
+// release
+
+gulp.task('prepackage:firefox:release', [
+    'prepackage:firefox:release:copy',
+    'prepackage:firefox:release:index',
+    'prepackage:firefox:release:strip'
+]);
+
+gulp.task('prepackage:firefox:release:copy', ['clean:release', 'compile', 'lib'], () => {
+    return copyFilesFirefox(distReleaseFirefoxUnpacked);
+});
+
+gulp.task('prepackage:firefox:release:index', ['prepackage:firefox:release:copy'], () => {
+    return makeIndexFirefox(files.firefox.index.release, distReleaseFirefoxUnpacked);
+});
+
+gulp.task('prepackage:firefox:release:strip', [
+    'prepackage:firefox:release:strip:js',
+    'prepackage:firefox:release:strip:html'
+]);
+
+gulp.task('prepackage:firefox:release:strip:js', ['prepackage:firefox:release:index'], () => {
+    return stripDebugCommon(distReleaseFirefoxUnpacked);
+});
+
+gulp.task('prepackage:firefox:release:strip:html', ['prepackage:firefox:release:copy'], (callback) => {
+    stripHtmlFirefox(distReleaseFirefoxUnpacked);
+    callback();
+});
+
+gulp.task('package:firefox:release', ['prepackage:firefox:release'], (callback) => {
+    packageFirefox(distReleaseFirefoxUnpacked, distReleaseFirefox).then(() => {
         callback();
     });
-}
+});
+
+// test
+
+gulp.task('prepackage:firefox:test', [
+    'prepackage:firefox:test:copy',
+    'prepackage:firefox:test:index',
+    'prepackage:firefox:test:strip',
+    'prepackage:firefox:test:setup'
+]);
+
+gulp.task('prepackage:firefox:test:copy', ['clean:test', 'compile', 'lib'], () => {
+    return copyFilesFirefox(distTestFirefoxUnpacked);
+});
+
+gulp.task('prepackage:firefox:test:index', ['prepackage:firefox:test:copy'], () => {
+    return makeIndexFirefox(files.firefox.index.test, distTestFirefoxUnpacked);
+});
+
+gulp.task('prepackage:firefox:test:strip', [
+    'prepackage:firefox:test:strip:js',
+    'prepackage:firefox:test:strip:html'
+]);
+
+gulp.task('prepackage:firefox:test:strip:js', ['prepackage:firefox:test:index'], () => {
+    return stripDebugCommon(distTestFirefoxUnpacked);
+});
+
+gulp.task('prepackage:firefox:test:strip:html', ['prepackage:firefox:test:copy'], (callback) => {
+    stripHtmlFirefox(distTestFirefoxUnpacked);
+    callback();
+});
+
+gulp.task('prepackage:firefox:test:setup', ['prepackage:firefox:test:strip'], (callback) => {
+    setTestServerUrl(distTestFirefoxUnpacked + 'index.js');
+    callback();
+});
+
+gulp.task('package:firefox:test', ['prepackage:firefox:test'], (callback) => {
+    packageFirefox(distTestFirefoxUnpacked, distTestFirefox).then(() => {
+        callback();
+    });
+});
