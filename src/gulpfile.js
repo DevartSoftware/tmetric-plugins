@@ -58,18 +58,11 @@ var files = {
             'firefox/package.json',
             'images/icon.png'
         ],
-        index: {
-            release: [
-                'background/constants.js',
-                'background/extensionBase.js',
-                'background/firefoxExtension.js'
-            ],
-            test: [
-                'test/constants.js',
-                'background/extensionBase.js',
-                'background/firefoxExtension.js'
-            ]
-        },
+        index: [
+            'background/constants.js',
+            'background/extensionBase.js',
+            'background/firefoxExtension.js'
+        ],
         data: [
             'images/firefox/*',
             'in-page-scripts/pageTalk.js',
@@ -139,6 +132,10 @@ gulp.task('compile:less', ['clean:sources'], function () {
 
 // common operations
 
+function appendToFile(file, append) {
+    fs.appendFileSync(file, append);
+}
+
 function replaceInFile(file, find, replace) {
     var text = fs.readFileSync(file) + '';
     if (text) {
@@ -158,6 +155,10 @@ function setTestServerUrl(file) {
     if (testServer) {
         replaceInFile(file, /var trackerServiceUrl = ['"]([^'"]+)['"];/, 'var trackerServiceUrl ="' + testServer + '";');
     }
+}
+
+function mockTestExtensionBase(file) {
+    appendToFile(file, fs.readFileSync(test + 'extensionBase.getIssuesDurations.js'));
 }
 
 // =============================================================================
@@ -209,6 +210,7 @@ gulp.task('prepackage:chrome:test:copy', ['clean:test', 'compile', 'lib'], funct
 
 gulp.task('prepackage:chrome:test:setup', ['prepackage:chrome:test:copy'], (callback) => {
     setTestServerUrl(distTestChromeUnpacked + 'background/constants.js');
+    mockTestExtensionBase(distTestChromeUnpacked + 'background/extensionBase.js');
     callback();
 });
 
@@ -266,7 +268,7 @@ gulp.task('prepackage:firefox:release:copy', ['clean:release', 'compile', 'lib']
 });
 
 gulp.task('prepackage:firefox:release:index', ['prepackage:firefox:release:copy'], () => {
-    return makeIndexFirefox(files.firefox.index.release, distReleaseFirefoxUnpacked);
+    return makeIndexFirefox(files.firefox.index, distReleaseFirefoxUnpacked);
 });
 
 gulp.task('prepackage:firefox:release:strip', [
@@ -303,7 +305,7 @@ gulp.task('prepackage:firefox:test:copy', ['clean:test', 'compile', 'lib'], () =
 });
 
 gulp.task('prepackage:firefox:test:index', ['prepackage:firefox:test:copy'], () => {
-    return makeIndexFirefox(files.firefox.index.test, distTestFirefoxUnpacked);
+    return makeIndexFirefox(files.firefox.index, distTestFirefoxUnpacked);
 });
 
 gulp.task('prepackage:firefox:test:strip', [
@@ -322,6 +324,7 @@ gulp.task('prepackage:firefox:test:strip:html', ['prepackage:firefox:test:copy']
 
 gulp.task('prepackage:firefox:test:setup', ['prepackage:firefox:test:strip'], (callback) => {
     setTestServerUrl(distTestFirefoxUnpacked + 'index.js');
+    mockTestExtensionBase(distTestFirefoxUnpacked + 'index.js');
     callback();
 });
 
