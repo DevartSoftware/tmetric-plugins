@@ -372,7 +372,11 @@ class ExtensionBase {
     }
 
     private getIssueDurationFromCache(identifier: Integrations.WebToolIssueIdentifier): Integrations.WebToolIssueDuration {
-        return this._issuesDurationsCache[this.makeIssueDurationKey(identifier)];
+        var duration = this._issuesDurationsCache[this.makeIssueDurationKey(identifier)];
+        if (duration) {
+            duration.duration += issueDurationExtra;
+        }
+        return duration;
     }
 
     private getIssuesDurationsFromCache(identifiers: Integrations.WebToolIssueIdentifier[]): Integrations.WebToolIssueDuration[] {

@@ -4,10 +4,10 @@ cd /d %~dp0\src
 
 call npm install
 call npm update jpm
-call gulp build
+call gulp
 
-IF DEFINED TestServerUrl (
-    call gulp build:test
+IF DEFINED trackerServiceUrl (
+    call gulp --test
 )
 
 popd
