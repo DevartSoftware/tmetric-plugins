@@ -80,7 +80,7 @@ class ExtensionBase {
             this.removeIssuesDurationsFromCache(identifiers);
         });
 
-        this.port.emit('init', trackerServiceUrl);
+        this.port.emit('init', serviceUrl);
 
         this.listenPopupAction<void, IPopupInitData>('initialize', this.initializePopupAction);
         this.listenPopupAction<void, void>('openTracker', this.openTrackerPagePopupAction);
@@ -116,7 +116,7 @@ class ExtensionBase {
     }
 
     openTrackerPage() {
-        var url = trackerServiceUrl;
+        var url = serviceUrl;
         if (this._userProfile && this._userProfile.activeAccountId) {
             url += '#/tracker/' + this._userProfile.activeAccountId + '/';
         }
@@ -243,11 +243,11 @@ class ExtensionBase {
 
     getLoginUrl(): string {
         var folder = '/'; // Pass folder in ReturnUrl
-        var folderIndex = trackerServiceUrl.indexOf('/', 10);
+        var folderIndex = serviceUrl.indexOf('/', 10);
         if (folderIndex > 0) {
-            folder = trackerServiceUrl.substring(folderIndex);
+            folder = serviceUrl.substring(folderIndex);
         }
-        return trackerServiceUrl + 'login';
+        return serviceUrl + 'login';
     }
 
     private putTimerWithNewIntegration(timer: Integrations.WebToolIssueTimer) {

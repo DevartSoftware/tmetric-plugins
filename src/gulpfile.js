@@ -19,22 +19,44 @@ var src = process.cwd() + '/';
 var test = src + 'test/';
 var dist = path.normalize(src + '/../dist/');
 
-var config = {
-    distDir: argv.distDir || dist + 'release/',
-    stripDebug: argv.stripDebug != undefined ? argv.stripDebug : true,
-    constants: {
-    }
-};
+var config;
 
 if (argv.test) {
-    config.distDir = argv.distDir || dist + 'test/';
-    config.stripDebug = argv.stripDebug != undefined ? argv.stripDebug : false;
-    config.constants.trackerServiceUrl = argv.trackerServiceUrl != undefined ? argv.trackerServiceUrl : process.env.trackerServiceUrl;
-    config.constants.issueDurationExtra = argv.issueDurationExtra != undefined ? argv.issueDurationExtra : process.env.issueDurationExtra || 3600000000;
+    config = {
+        distDir: dist + 'test/',
+        stripDebug: false,
+        constants: {
+            issueDurationExtra: 3600000000
+        }
+    };
 } else if (argv.debug) {
-    config.distDir = argv.distDir || dist + 'debug/';
-    config.stripDebug = argv.stripDebug != undefined ? argv.stripDebug : false;
-    config.constants.trackerServiceUrl = argv.trackerServiceUrl != undefined ? argv.trackerServiceUrl : process.env.trackerServiceUrl;
+    config = {
+        distDir: dist + 'debug/',
+        stripDebug: false,
+        constants: {}
+    };
+} else {
+    config = {
+        distDir: dist + 'release/',
+        stripDebug: true,
+        constants: {}
+    };
+}
+
+if (argv.distDir != null) {
+    config.distDir = argv.distDir + '/';
+}
+
+if (argv.stripDebug != null) {
+    config.stripDebug = argv.stripDebug;
+}
+
+if (argv.serviceUrl != null) {
+    config.constants.serviceUrl = argv.serviceUrl;
+}
+
+if (argv.issueDurationExtra != null) {
+    config.constants.issueDurationExtra = argv.issueDurationExtra;
 }
 
 var distDir = config.distDir;
