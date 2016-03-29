@@ -372,11 +372,7 @@ class ExtensionBase {
     }
 
     private getIssueDurationFromCache(identifier: Integrations.WebToolIssueIdentifier): Integrations.WebToolIssueDuration {
-        var duration = this._issuesDurationsCache[this.makeIssueDurationKey(identifier)];
-        if (duration) {
-            duration.duration += issueDurationExtra;
-        }
-        return duration;
+        return this._issuesDurationsCache[this.makeIssueDurationKey(identifier)];
     }
 
     private getIssuesDurationsFromCache(identifiers: Integrations.WebToolIssueIdentifier[]): Integrations.WebToolIssueDuration[] {
@@ -438,6 +434,7 @@ class ExtensionBase {
         } else {
             return new Promise(resolve => {
                 this.fetchIssuesDurations(fetchIdentifiers).then(fetchDurations => {
+                    fetchDurations.forEach(item => item.duration += issueDurationExtra);
                     this.putIssuesDurationsToCache(fetchDurations);
                     resolve(this.getIssuesDurationsFromCache(identifiers));
                 }, () => {
