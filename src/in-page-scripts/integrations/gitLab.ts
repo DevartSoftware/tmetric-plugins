@@ -12,7 +12,7 @@
         }
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
-            var host = $$('.detail-page-header .pull-right');
+            var host = $$('.detail-page-header .pull-right:last-child');
             if (host) {
                 linkElement.classList.add('gitlab');
                 linkElement.classList.add('btn');
