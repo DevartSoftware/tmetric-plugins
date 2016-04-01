@@ -12,11 +12,10 @@
         }
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
-            var host = $$('.detail-page-header .pull-right');
+            var host = $$('.detail-page-header .issue-btn-group') || // new layout
+                    $$('.detail-page-header .pull-right'); // old layout
             if (host) {
-                linkElement.classList.add('gitlab');
-                linkElement.classList.add('btn');
-                linkElement.classList.add('btn-grouped');
+                linkElement.classList.add('gitlab', 'btn', 'btn-grouped');
                 host.insertBefore(linkElement, host.firstElementChild);
             }
         }
@@ -66,7 +65,7 @@
 
             var serviceUrl = source.protocol + source.host + servicePath;
 
-            var issueUrl = source.path.replace(serviceUrl, '');
+            var issueUrl = $$.getRelativeUrl(serviceUrl, source.path);
 
             return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
         }
