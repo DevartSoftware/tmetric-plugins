@@ -8,7 +8,7 @@
         // https://[www|PORTFOLIO].assembla.com/spaces/*
         matchUrl = '*://*.assembla.com/spaces/*';
 
-        issueElementSelector = () => [$$('.v4-ticket-details') || $$('#tickets-show')];
+        issueElementSelector = () => [$$('.v4-ticket-details') || $$('#tickets-show') || $$('#ticketDetailsContainer')];
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
             var host = $$('.ticket-fields', issueElement);
@@ -33,15 +33,17 @@
                 return;
             }
 
+            var issue = $$.getAttribute('h1 > .zeroclipboard', 'data-clipboard-text', issueElement); // new design with react
+
             var issueId =
-                $$.try('strong[data-reactid="' + (issueElement && issueElement.dataset['reactid'])  + '.0.0.0.1"]', issueElement).textContent || // ticket view
+                issue.split(' - ')[0] || // ticket view
                 $$.try('.ticket-info .ticket-number', issueElement).textContent; // planner ticket dialog view
             if (!issueId) {
                 return;
             }
 
             var issueName =
-                $$.try('span[data-reactid="' + (issueElement && issueElement.dataset['reactid'])  + '.0.1.0.0.0"]', issueElement).textContent || // ticket view
+                issue.split(' - ')[1] || // ticket view
                 $$.try('#form-container .ticket-summary h1', issueElement).textContent; // planner ticket dialog view
             if (!issueName) {
                 return;
