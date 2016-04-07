@@ -45,7 +45,7 @@
                 if ($$('.sidebar_content .projects')) {
                     // workspace page
                     // project name can not be resolved for a task on the panel "My Work"
-                    projectName = $$.try('.workspace_header.panel_controls > h3', $$.closest('.panel', issueElement)).textContent;
+                    projectName = $$.try('header > div:nth-child(1) > div:nth-child(2) > div:nth-child(1)', $$.closest('.panel', issueElement)).textContent;
                 } else {
                     // project page
                     projectName = $$.try('.raw_context_name').textContent;
