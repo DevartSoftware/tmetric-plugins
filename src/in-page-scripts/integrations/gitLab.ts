@@ -39,22 +39,15 @@
             var issueType = match[2];
             issueId = (issueType == 'merge_requests' ? '!' : '#') + issueId;
 
-            // <div class="detail-page-description gray-content-block second-block">
-            //      <h2 class="title">IssueName</h2>
-            // </div>
             var issueName = $$.try('.detail-page-description .title').textContent;
             if (!issueName) {
                 return;
             }
 
-            // <h1 class="title">
-            //      <span>
-            //          <a href="/(u|groups)/NAMESPACE">NameSpace</a> /
-            //          <a href="/NAMESPACE/PROJECT">ProjectName</a> ·
-            //          <a href="/NAMESPACE/PROJECT/(issues|merge_requests)">(Issues|Merge Requests)</a>
-            //      </span>
-            //  </h1>
-            var projectName = $$.try('.title a:nth-last-child(2)').textContent;
+            var projectNameElement = $$.try('.title .project-item-select-holder').firstChild;
+            var projectName = projectNameElement ?
+                projectNameElement.textContent : // current design
+                $$.try('.title > span > a:nth-last-child(2)').textContent; // old design
 
             var serviceType = 'GitLab';
 
