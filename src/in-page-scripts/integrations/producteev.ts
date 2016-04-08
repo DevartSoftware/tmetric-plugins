@@ -43,7 +43,7 @@
 
             var serviceUrl = source.protocol + source.host;
 
-            var issueUrl = 'workspace/t/' + match[1];
+            var issueUrl = '/workspace/t/' + match[1];
 
             return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
         }
