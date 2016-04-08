@@ -43,7 +43,7 @@
             }
 
             var issueName =
-                issue.split(' - ')[1] || // ticket view
+                issue.split(' - ').slice(1).join(' - ') || // ticket view
                 $$.try('#form-container .ticket-summary h1', issueElement).textContent; // planner ticket dialog view
             if (!issueName) {
                 return;
