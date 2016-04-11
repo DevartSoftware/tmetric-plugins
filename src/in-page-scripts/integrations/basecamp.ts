@@ -30,7 +30,7 @@
                 return;
             }
 
-            var serviceUrl = source.protocol + source.host + source.path.split(match[1])[0];
+            var serviceUrl = source.protocol + source.host;
 
             var issueUrl = this.getIssueUrl(issueElement, source);
             if (!issueUrl) {

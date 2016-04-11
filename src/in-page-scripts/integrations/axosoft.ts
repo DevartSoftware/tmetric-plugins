@@ -51,7 +51,7 @@
             if (issueId) {
                 var serviceUrl = source.protocol + source.host;
                 var issueType = this.issueTypes[$$.try('.form-subtitle').textContent] || this.issueTypes.Feature;
-                var issueUrl = 'viewitem?id=' + issueId + '&type=' + issueType;
+                var issueUrl = '/viewitem?id=' + issueId + '&type=' + issueType;
                 if (/^\d+$/.test(issueId)) issueId = '#' + issueId;
             }
 

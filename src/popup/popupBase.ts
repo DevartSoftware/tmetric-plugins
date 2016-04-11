@@ -174,7 +174,8 @@
     }
 
     getTaskUrl(task: Models.WorkTask) {
-        return task.integrationUrl && task.relativeIssueUrl ? task.integrationUrl + task.relativeIssueUrl : '';
+        return (task.integrationUrl && task.relativeIssueUrl) ?
+            task.integrationUrl.replace(/\/*$/, '') + '/' + task.relativeIssueUrl.replace(/^\/*/, '') : '';
     }
 
     private _weekdaysShort = 'Sun_Mon_Tue_Wed_Thu_Fri_Sat'.split('_');

@@ -8,12 +8,12 @@
         // https://[www|PORTFOLIO].assembla.com/spaces/*
         matchUrl = '*://*.assembla.com/spaces/*';
 
-        issueElementSelector = '#tickets-show';
+        issueElementSelector = () => [$$('.v4-ticket-details') || $$('#tickets-show') || $$('#ticketDetailsContainer')];
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
             var host = $$('.ticket-fields', issueElement);
             if (host) {
-                var linkContainer = $$.create('div', 'mt-10');
+                var linkContainer = $$.create('div', 'devart-timer-link-assembla');
                 linkContainer.appendChild(linkElement);
                 host.parentElement.insertBefore(linkContainer, host.nextElementSibling);
             }
@@ -33,15 +33,18 @@
                 return;
             }
 
-            var issueId = $$.try('.ticket-info .ticket-number', issueElement).textContent;
-            var issueIdNumber = issueId.replace(/^[^\d]*/, '');
+            var issue = $$.getAttribute('h1 > .zeroclipboard', 'data-clipboard-text', issueElement); // new design with react
+
+            var issueId =
+                issue.split(' - ')[0] || // ticket view
+                $$.try('.ticket-info .ticket-number', issueElement).textContent; // planner ticket dialog view
             if (!issueId) {
                 return;
             }
 
             var issueName =
-                $$.try('.ticket-summary h1 span', issueElement).textContent || // full ticket view
-                $$.try('#form-container .ticket-summary h1', issueElement).textContent; // dialog ticket view
+                issue.split(' - ').slice(1).join(' - ') || // ticket view
+                $$.try('#form-container .ticket-summary h1', issueElement).textContent; // planner ticket dialog view
             if (!issueName) {
                 return;
             }
@@ -55,7 +58,7 @@
             // used www instead of portfolio name to prevent task duplication
             var serviceUrl = source.protocol + 'www.assembla.com';
 
-            var issueUrl = 'spaces/' + match[1] + '/tickets/' + issueIdNumber;
+            var issueUrl = 'spaces/' + match[1] + '/tickets/' + issueId.replace(/^[^\d]*/, '');
 
             return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
         }
