@@ -35,9 +35,8 @@
                 return;
             }
 
-
             var projectName: string;
-            
+
             // single task page
             var projectLinks = $$.all('.project > h2 > a');
             if (projectLinks.length == 1) {
@@ -47,8 +46,14 @@
             if (!projectName) {
                 if ($$('.sidebar_content .projects')) {
                     // workspace page
-                    // !!! project name can not be resolved for a task on the panel "My Work"
-                    projectName = $$.try('[class^="tn-PanelHeader__heading"]', $$.closest('.panel', issueElement)).textContent;
+                    let panel = $$.closest('.panel', issueElement);
+                    if (panel) {
+                        let panelType = panel.getAttribute('data-type');
+                        // Project name can not be resolved for a task on "Search" and "My Work" panels
+                        if (panelType && panelType != 'search' && panelType != 'my_work') {
+                            projectName = $$.try('[class^="tn-PanelHeader__heading"]', panel).textContent;
+                        }
+                    }
                 } else {
                     // project page
                     projectName = $$.try('.raw_context_name').textContent;
