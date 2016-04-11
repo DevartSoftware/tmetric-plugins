@@ -6,13 +6,7 @@
 
         matchUrl = '*://www.pivotaltracker.com/*';
 
-        issueElementSelector = () => {
-            var maximizedElements = $$.all('.maximized .story .model_details');
-            if (maximizedElements.length > 0) {
-                return maximizedElements;
-            }
-            return $$.all('.story .model_details');
-        }
+        issueElementSelector = '.story .model_details';
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
             var host = $$('aside > .wrapper', issueElement);
