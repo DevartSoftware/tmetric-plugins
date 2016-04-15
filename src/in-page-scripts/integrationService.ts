@@ -136,8 +136,8 @@
 
         private static formatIssueDuration(duration: number) {
 
-            var MINUTE = 1000 * 60;
-            var HOUR = MINUTE * 60;
+            const MINUTE = 1000 * 60;
+            const HOUR = MINUTE * 60;
 
             var hours = Math.floor(duration / HOUR);
             var minutes = Math.floor((duration - hours * HOUR) / MINUTE);
@@ -147,6 +147,8 @@
 
         static updateLink(element: HTMLElement, integration: WebToolIntegration, newIssue: WebToolIssue, issueDuration: WebToolIssueDuration) {
 
+            const HOUR = 1000 * 60 * 60;
+            
             var oldLink = $$('a.' + this.affix, element);
 
             if (!newIssue) {
@@ -180,7 +182,7 @@
             var duration = issueDuration && issueDuration.duration || 0;
             if (isNewIssueStarted) {
                 var timerDuration = Date.now() - Date.parse(this._timer.startTime);
-                if (timerDuration < 36000000) { // add current timer duration if timer is not long running
+                if (timerDuration < 10 * HOUR) { // add current timer duration if timer is not long running
                     duration += Date.now() - Date.parse(this._timer.startTime);
                 }
             }
