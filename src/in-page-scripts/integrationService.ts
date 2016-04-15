@@ -70,7 +70,7 @@
                     if (issue) {
                         // normalize urls
                         issue.serviceUrl = issue.serviceUrl ? issue.serviceUrl.replace(/\/+$/, '') : issue.serviceUrl;
-                        issue.issueUrl = issue.issueUrl ? issue.issueUrl.replace(/^\/+/, '') : issue.issueUrl;
+                        issue.issueUrl = issue.issueUrl ? issue.issueUrl.replace(/^\/+/, '/') : issue.issueUrl;
                         // trim all string values
                         issue.issueId = this.trimText(issue.issueId, 128);
                         issue.issueName = this.trimText(issue.issueName, 400);
