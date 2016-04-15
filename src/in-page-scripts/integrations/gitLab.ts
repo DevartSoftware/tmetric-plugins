@@ -39,7 +39,8 @@
             var issueType = match[2];
             issueId = (issueType == 'merge_requests' ? '!' : '#') + issueId;
 
-            var issueName = $$.try('.detail-page-description .title').textContent;
+            var issueNameElement = $$.try('.detail-page-description .title');
+            var issueName = issueNameElement.firstChild ? issueNameElement.firstChild.textContent : issueNameElement.textContent; 
             if (!issueName) {
                 return;
             }
