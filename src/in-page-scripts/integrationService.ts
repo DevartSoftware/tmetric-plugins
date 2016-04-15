@@ -179,7 +179,10 @@
 
             var duration = issueDuration && issueDuration.duration || 0;
             if (isNewIssueStarted) {
-                duration += Date.now() - Date.parse(this._timer.startTime);
+                var timerDuration = Date.now() - Date.parse(this._timer.startTime);
+                if (timerDuration < 36000000) { // add current timer duration if timer is not long running
+                    duration += Date.now() - Date.parse(this._timer.startTime);
+                }
             }
 
             this.removeLink(oldLink);
