@@ -41,6 +41,12 @@ class ExtensionBase {
     constructor(public port: Firefox.Port) {
 
         this.port.on('updateTimer', timer => {
+            
+            // looks like disconnect
+            if (timer == null) {
+                this.clearIssuesDurationsCache();
+            }
+            
             this._timer = timer;
             this.updateState();
             this.sendToTabs({ action: 'setTimer', data: timer });
