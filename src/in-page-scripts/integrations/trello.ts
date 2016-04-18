@@ -32,7 +32,7 @@
             issueId = '#' + issueId;
 
             // <h2 class="window-title-text current hide-on-edit js-card-title">ISSUE_NAME</h2>
-            var issueName = $$.try('.window-title-text').textContent;
+            var issueName = $$.try('.window-title h2').textContent;
             if (!issueName) {
                 return;
             }
@@ -40,7 +40,7 @@
             //  <a class="board-header-btn board-header-btn-name js-rename-board" href="#">
             //    <span class="board-header-btn-text">Test Board</span>
             //  </a>
-            var projectName = $$.try('.board-header-btn-text').textContent;
+            var projectName = $$.try('.board-header-btn-name > .board-header-btn-text').textContent;
 
             var serviceType = 'Trello';
 
