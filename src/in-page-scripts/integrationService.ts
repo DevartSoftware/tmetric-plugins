@@ -182,7 +182,7 @@
             var duration = issueDuration && issueDuration.duration || 0;
             if (isNewIssueStarted) {
                 var timerDuration = Date.now() - Date.parse(this._timer.startTime);
-                if (timerDuration < 10 * HOUR) { // add current timer duration if timer is not long running
+                if (timerDuration <= 10 * HOUR) { // add current timer duration if timer is not long running
                     duration += Date.now() - Date.parse(this._timer.startTime);
                 }
             }
