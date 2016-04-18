@@ -40,7 +40,7 @@
             issueId = (issueType == 'merge_requests' ? '!' : '#') + issueId;
 
             var issueNameElement = $$.try('.detail-page-description .title');
-            var issueName = issueNameElement.firstChild ? issueNameElement.firstChild.textContent : issueNameElement.textContent; 
+            var issueName = issueNameElement.firstChild ? issueNameElement.firstChild.textContent : issueNameElement.textContent;
             if (!issueName) {
                 return;
             }
