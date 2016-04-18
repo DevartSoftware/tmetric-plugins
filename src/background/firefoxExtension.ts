@@ -169,11 +169,16 @@ class FirefoxExtension extends ExtensionBase {
             label: 'TMetric',
             icon: this.getIconSet('inactive'),
             onClick: (state) => {
+                if (shownPanel) {
+                    shownPanel.hide();
+                }
                 if (state.checked) {
                     showPanel();
                 }
             }
         });
+
+        var shownPanel: Firefox.Panel;
 
         var showPanel = () => {
 
@@ -192,6 +197,9 @@ class FirefoxExtension extends ExtensionBase {
                     panel.port.emit('popup_showed');
                 },
                 onHide: () => {
+                    if (shownPanel == panel) {
+                        shownPanel = null;
+                    }
                     panel.port.emit('popup_hidden');
                     panel.destroy();
                     this.actionButton.state(window, { checked: false });
@@ -222,9 +230,9 @@ class FirefoxExtension extends ExtensionBase {
 
             // prevent popup auto hidding and handle it in popup
             core.getActiveView(panel).setAttribute("noautohide", true);
-        };
 
-        //
+            shownPanel = panel;
+        };
 
         var updateCurrentTab = (tab?: Firefox.Tab) => {
             if (this.loginWindowPending) {
