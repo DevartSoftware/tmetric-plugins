@@ -41,7 +41,7 @@
             if (projectNameField) {
                 var projectNameSelect = <HTMLSelectElement>$$('select', projectNameField);
                 var projectName = projectNameSelect ?
-                    (projectNameSelect.options[projectNameSelect.selectedIndex] || {}).textContent : // edit form
+                    (projectNameSelect.options[projectNameSelect.selectedIndex] || <Element>{}).textContent : // edit form
                     projectNameField.textContent; // view form
             }
 
