@@ -41,7 +41,7 @@
         "in-page-scripts/integrations/youTrack.ts",
         "in-page-scripts/integrationService.ts",
         "in-page-scripts/page.ts",
-        "in-page-scripts/pageTalk.ts",
+        "in-page-scripts/firefoxMessageListener.ts",
         "in-page-scripts/utils.ts",
         "popup/popupBase.ts",
         "popup/chromePopup.ts",

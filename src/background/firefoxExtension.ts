@@ -47,7 +47,7 @@ class FirefoxExtension extends ExtensionBase {
             include: ["*.alm-build", "*.localhost", "*.app.tmetric.com"],
             contentScriptWhen: "start",
             attachTo: ["existing", "top"],
-            contentScriptFile: "./in-page-scripts/pageTalk.js"
+            contentScriptFile: "./in-page-scripts/firefoxMessageListener.js"
         });
 
         pageMod.PageMod({

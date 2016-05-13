@@ -16,7 +16,6 @@ var stripDebug = require('gulp-strip-debug');   // Strip console and debugger st
 
 // Output folders for *.crx and *.xpi files
 var src = process.cwd() + '/';
-var test = src + 'test/';
 var dist = path.normalize(src + '/../dist/');
 
 var config;
@@ -41,6 +40,10 @@ if (argv.test) {
         stripDebug: true,
         constants: {}
     };
+}
+
+if (argv.version) {
+    config.version = argv.version;
 }
 
 if (argv.distDir != null) {
@@ -102,18 +105,65 @@ var files = {
         ],
         data: [
             'images/firefox/*',
-            'in-page-scripts/pageTalk.js',
+            'in-page-scripts/firefoxMessageListener.js',
             'popup/firefoxPopup.js'
         ]
     }
 };
+
+// common operations
+
+function replaceInFile(file, find, replace) {
+    var text = fs.readFileSync(file) + '';
+    if (text) {
+        text = text.replace(find, replace);
+        fs.writeFileSync(file, text);
+    }
+}
+
+function stripDebugCommon(folder) {
+    if (config.stripDebug) {
+        return gulp.src(folder + '**/*.js', { base: folder })
+            .pipe(stripDebug())
+            .pipe(gulp.dest(folder));
+    }
+}
+
+function setConstants(file, constants) {
+    for (var name in constants) {
+        var value = constants[name];
+        if (value != undefined) {
+            if (typeof value == 'number') {
+                replaceInFile(file, new RegExp('var ' + name + ' = [^;]+;'), 'var ' + name + ' = ' + value + ';');
+            } else {
+                replaceInFile(file, new RegExp('var ' + name + ' = [\'"][^\'"]+[\'"];'), 'var ' + name + ' = "' + value + '";');
+            }
+        }
+    }
+}
 
 // =============================================================================
 // Common tasks (used for both extensions)
 // =============================================================================
 
 gulp.task('default', ['build']);
-gulp.task('build', ['package:chrome', 'package:firefox']);
+gulp.task('build', ['version', 'package:chrome', 'package:firefox']);
+
+gulp.task('version', (callback) => {
+    if (config.version) {
+        [
+            src + 'manifest.json',
+            src + 'firefox/package.json',
+            src + 'background/chromeExtension.ts',
+            src + 'in-page-scripts/firefoxMessageListener.ts'
+        ].forEach(
+            file => replaceInFile(
+                file,
+                /(["']?version["']?: ["'])([\d\.]+)(["'])/,
+                (match, left, oldVersion, right) => (left + config.version + right)));
+    }
+    callback();
+});
 
 // clean
 
@@ -168,37 +218,6 @@ gulp.task('compile:ts', ['clean:sources'], function () {
 gulp.task('compile:less', ['clean:sources'], function () {
     return gulp.src('css/*.less').pipe(less()).pipe(gulp.dest(src + 'css/'));
 });
-
-// common operations
-
-function replaceInFile(file, find, replace) {
-    var text = fs.readFileSync(file) + '';
-    if (text) {
-        text = text.replace(find, replace);
-        fs.writeFileSync(file, text);
-    }
-}
-
-function stripDebugCommon(folder) {
-    if (config.stripDebug) {
-        return gulp.src(folder + '**/*.js', { base: folder })
-            .pipe(stripDebug())
-            .pipe(gulp.dest(folder));
-    }
-}
-
-function setConstants(file, constants) {
-    for (var name in constants) {
-        var value = constants[name];
-        if (value != undefined) {
-            if (typeof value == 'number') {
-                replaceInFile(file, new RegExp('var ' + name + ' = [^;]+;'), 'var ' + name + ' = ' + value + ';');
-            } else {
-                replaceInFile(file, new RegExp('var ' + name + ' = [\'"][^\'"]+[\'"];'), 'var ' + name + ' = "' + value + '";');
-            }
-        }
-    }
-}
 
 // =============================================================================
 // Tasks for building Chrome extension

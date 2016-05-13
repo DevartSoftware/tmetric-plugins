@@ -58,7 +58,7 @@ class ChromeExtension extends ExtensionBase {
 
         chrome.runtime.onMessageExternal.addListener((request: any, sender: any, sendResponse: Function) => {
             if (request.message == "version") {
-                sendResponse({ version: "0.1.0" });
+                sendResponse({ version: "1.1.0" });
             }
         });
 
