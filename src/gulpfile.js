@@ -111,6 +111,7 @@ gulp.task('version', (callback) => {
     if (config.version) {
         [
             src + 'manifest.json',
+            src + 'package.json',
             src + 'firefox/package.json',
             src + 'background/chromeExtension.ts',
             src + 'in-page-scripts/firefoxMessageListener.ts'
