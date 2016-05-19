@@ -43,6 +43,9 @@ class ExtensionBase {
     constructor(public port: Firefox.Port) {
 
         this.serviceUrl = this.getTestValue('tmetric.url') || 'https://app.tmetric.com/';
+        if (this.serviceUrl[this.serviceUrl.length - 1] != '/') {
+            this.serviceUrl += '/';
+        }
         this.extraHours = this.getTestValue('tmetric.extraHours');
         if (this.extraHours) {
             this.extraHours = parseFloat(<any>this.extraHours);
