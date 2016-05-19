@@ -1,4 +1,5 @@
 class ChromeExtension extends ExtensionBase {
+
     loginTabId: number;
 
     loginWinId: number;
@@ -64,8 +65,8 @@ class ChromeExtension extends ExtensionBase {
 
         chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
             if (tabId == this.loginTabId && changeInfo.url) {
-                var tabUrl = changeInfo.url.toLowerCase();
-                var serviceUrl = serviceUrl.toLowerCase();
+                let tabUrl = changeInfo.url.toLowerCase();
+                let serviceUrl = this.serviceUrl.toLowerCase();
                 if (tabUrl == serviceUrl || tabUrl.indexOf(serviceUrl + '#') == 0) {
                     chrome.tabs.remove(tabId);
                     return;
@@ -111,22 +112,6 @@ class ChromeExtension extends ExtensionBase {
 
     showConfirmation(message: string) {
         return confirm(message);
-    }
-
-    loadValue(key: string, callback: (value: any) => void) {
-        chrome.storage.sync.get(key, obj => {
-            var value;
-            if (obj) {
-                value = obj[key];
-            }
-            callback(value);
-        });
-    }
-
-    saveValue(key: string, value: any) {
-        var obj = {};
-        obj[key] = value;
-        chrome.storage.sync.set(obj);
     }
 
     showLoginDialog() {
@@ -218,6 +203,10 @@ class ChromeExtension extends ExtensionBase {
                 }
             });
         });
+    }
+
+    getTestValue(name: string): any {
+        return localStorage.getItem(name);
     }
 }
 

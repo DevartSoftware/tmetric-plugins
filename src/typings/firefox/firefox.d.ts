@@ -404,6 +404,17 @@ declare module 'sdk/simple-prefs' {
     var prefs: { [prefName: string]: any };
 }
 
+declare module 'sdk/preferences/service' {
+    function set(name: string, value: string | number | boolean);
+    function get(name: string, defaultValue?: string | number | boolean): string | number | boolean;
+    function has(name: string): boolean;
+    function keys(root: string): string[];
+    function isSet(name: string): boolean;
+    function reset(name: string);
+    function getLocalized(name: string, defaultValue?: string): string;
+    function setLocalized(name: string, value: string);
+}
+
 declare module 'sdk/simple-storage' {
     var storage: {};
 }

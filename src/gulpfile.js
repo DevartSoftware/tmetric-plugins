@@ -18,29 +18,10 @@ var stripDebug = require('gulp-strip-debug');   // Strip console and debugger st
 var src = process.cwd() + '/';
 var dist = path.normalize(src + '/../dist/');
 
-var config;
-
-if (argv.test) {
-    config = {
-        distDir: dist + 'test/',
-        stripDebug: false,
-        constants: {
-            issueDurationExtra: 3600000000
-        }
-    };
-} else if (argv.debug) {
-    config = {
-        distDir: dist + 'debug/',
-        stripDebug: false,
-        constants: {}
-    };
-} else {
-    config = {
-        distDir: dist + 'release/',
-        stripDebug: true,
-        constants: {}
-    };
-}
+var config = {
+    distDir: dist,
+    stripDebug: true,
+};
 
 if (argv.version) {
     config.version = argv.version;
@@ -52,14 +33,6 @@ if (argv.distDir != null) {
 
 if (argv.stripDebug != null) {
     config.stripDebug = argv.stripDebug;
-}
-
-if (argv.serviceUrl != null) {
-    config.constants.serviceUrl = argv.serviceUrl;
-}
-
-if (argv.issueDurationExtra != null) {
-    config.constants.issueDurationExtra = argv.issueDurationExtra;
 }
 
 var distDir = config.distDir;
@@ -86,7 +59,6 @@ var files = {
     ],
     chrome: [
         'background/chromeExtension.js',
-        'background/constants.js',
         'background/extensionBase.js',
         'background/shamPort.js',
         'images/chrome/*',
@@ -99,7 +71,6 @@ var files = {
             'images/icon.png'
         ],
         index: [
-            'background/constants.js',
             'background/extensionBase.js',
             'background/firefoxExtension.js'
         ],
@@ -126,19 +97,6 @@ function stripDebugCommon(folder) {
         return gulp.src(folder + '**/*.js', { base: folder })
             .pipe(stripDebug())
             .pipe(gulp.dest(folder));
-    }
-}
-
-function setConstants(file, constants) {
-    for (var name in constants) {
-        var value = constants[name];
-        if (value != undefined) {
-            if (typeof value == 'number') {
-                replaceInFile(file, new RegExp('var ' + name + ' = [^;]+;'), 'var ' + name + ' = ' + value + ';');
-            } else {
-                replaceInFile(file, new RegExp('var ' + name + ' = [\'"][^\'"]+[\'"];'), 'var ' + name + ' = "' + value + '";');
-            }
-        }
     }
 }
 
@@ -238,8 +196,7 @@ function packageChrome(unpackedFolder, destFolder) {
 
 gulp.task('prepackage:chrome', [
     'prepackage:chrome:copy',
-    'prepackage:chrome:strip',
-    'prepackage:chrome:constants'
+    'prepackage:chrome:strip'
 ]);
 
 gulp.task('prepackage:chrome:copy', ['clean:dist', 'compile', 'lib'], function () {
@@ -248,11 +205,6 @@ gulp.task('prepackage:chrome:copy', ['clean:dist', 'compile', 'lib'], function (
 
 gulp.task('prepackage:chrome:strip', ['prepackage:chrome:copy'], function () {
     return stripDebugCommon(chromeUnpackedDir);
-});
-
-gulp.task('prepackage:chrome:constants', ['prepackage:chrome:copy'], (callback) => {
-    setConstants(chromeUnpackedDir + 'background/constants.js', config.constants);
-    callback();
 });
 
 gulp.task('package:chrome', ['prepackage:chrome'], () => {
@@ -299,8 +251,7 @@ function packageFirefox(unpackedFolder, destFolder) {
 gulp.task('prepackage:firefox', [
     'prepackage:firefox:copy',
     'prepackage:firefox:index',
-    'prepackage:firefox:strip',
-    'prepackage:firefox:constants'
+    'prepackage:firefox:strip'
 ]);
 
 gulp.task('prepackage:firefox:copy', ['clean:dist', 'compile', 'lib'], () => {
@@ -322,11 +273,6 @@ gulp.task('prepackage:firefox:strip:js', ['prepackage:firefox:index'], () => {
 
 gulp.task('prepackage:firefox:strip:html', ['prepackage:firefox:copy'], (callback) => {
     stripHtmlFirefox(firefoxUnpackedDir);
-    callback();
-});
-
-gulp.task('prepackage:firefox:constants', ['prepackage:firefox:index'], (callback) => {
-    setConstants(firefoxUnpackedDir + 'index.js', config.constants);
     callback();
 });
 

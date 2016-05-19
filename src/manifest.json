@@ -32,7 +32,6 @@
         "scripts": [
             "lib/jquery.min.js",
             "lib/jquery.signalr.min.js",
-            "background/constants.js",
             "background/shamPort.js",
             "background/signalRConnection.js",
             "background/extensionBase.js",

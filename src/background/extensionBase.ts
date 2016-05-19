@@ -12,10 +12,6 @@ class ExtensionBase {
         return false;
     }
 
-    loadValue(key: string, callback: (value: any) => void) { }
-
-    saveValue(key: string, value: any) { }
-
     setButtonIcon(icon: string, tooltip: string) { }
 
     sendToTabs: (message: ITabMessage, tabId?: any) => void;
@@ -24,7 +20,13 @@ class ExtensionBase {
 
     getActiveTabTitle: () => Promise<string>;
 
+    getTestValue(name: string): any { }
+
     buttonState = ButtonState.start;
+
+    protected serviceUrl: string;
+
+    protected extraHours: number;
 
     private _actionOnConnect: () => void;
 
@@ -40,13 +42,22 @@ class ExtensionBase {
 
     constructor(public port: Firefox.Port) {
 
+        this.serviceUrl = this.getTestValue('tmetric.url') || 'https://app.tmetric.com/';
+        this.extraHours = this.getTestValue('tmetric.extraHours');
+        if (this.extraHours) {
+            this.extraHours = parseFloat(<any>this.extraHours);
+        }
+        else {
+            this.extraHours = 0;
+        }
+
         this.port.on('updateTimer', timer => {
-            
+
             // looks like disconnect
             if (timer == null) {
                 this.clearIssuesDurationsCache();
             }
-            
+
             this._timer = timer;
             this.updateState();
             this.sendToTabs({ action: 'setTimer', data: timer });
@@ -86,7 +97,7 @@ class ExtensionBase {
             this.removeIssuesDurationsFromCache(identifiers);
         });
 
-        this.port.emit('init', serviceUrl);
+        this.port.emit('init', this.serviceUrl);
 
         this.listenPopupAction<void, IPopupInitData>('initialize', this.initializePopupAction);
         this.listenPopupAction<void, void>('openTracker', this.openTrackerPagePopupAction);
@@ -115,6 +126,23 @@ class ExtensionBase {
 
             case 'getIssuesDurations':
                 this.getIssuesDurations(message.data).then(durations => {
+
+                    // show extra time on link for test purposes
+                    if (this.extraHours && this._timer && this._timer.isStarted) {
+                        let activeTask = this._timer.workTask;
+                        if (activeTask) {
+                            for (let i = 0; i < durations.length; i++) {
+                                let duration = durations[i];
+                                if (duration.issueUrl == activeTask.relativeIssueUrl && duration.serviceUrl == activeTask.integrationUrl) {
+                                    duration = JSON.parse(JSON.stringify(duration));
+                                    duration.duration += this.extraHours * 3600000;
+                                    durations[i] = duration;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
                     this.sendToTabs({ action: 'setIssuesDurations', data: durations }, tabId);
                 });
                 break;
@@ -122,7 +150,7 @@ class ExtensionBase {
     }
 
     openTrackerPage() {
-        var url = serviceUrl;
+        var url = this.serviceUrl;
         if (this._userProfile && this._userProfile.activeAccountId) {
             url += '#/tracker/' + this._userProfile.activeAccountId + '/';
         }
@@ -248,12 +276,7 @@ class ExtensionBase {
     }
 
     getLoginUrl(): string {
-        var folder = '/'; // Pass folder in ReturnUrl
-        var folderIndex = serviceUrl.indexOf('/', 10);
-        if (folderIndex > 0) {
-            folder = serviceUrl.substring(folderIndex);
-        }
-        return serviceUrl + 'login';
+        return this.serviceUrl + 'login';
     }
 
     private putTimerWithNewIntegration(timer: Integrations.WebToolIssueTimer) {
@@ -434,13 +457,12 @@ class ExtensionBase {
                 fetchIdentifiers.push(identifier);
             }
         });
-        
+
         if (durations.length == identifiers.length) {
             return Promise.resolve(durations);
         } else {
             return new Promise(resolve => {
                 this.fetchIssuesDurations(fetchIdentifiers).then(fetchDurations => {
-                    fetchDurations.forEach(item => item.duration += issueDurationExtra);
                     this.putIssuesDurationsToCache(fetchDurations);
                     resolve(this.getIssuesDurationsFromCache(identifiers));
                 }, () => {

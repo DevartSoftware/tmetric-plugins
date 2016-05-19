@@ -12,7 +12,6 @@
         "interfaces/browser.d.ts",
         "typings/tsd.d.ts",
         "background/chromeExtension.ts",
-        "background/constants.ts",
         "background/extensionBase.ts",
         "background/firefoxExtension.ts",
         "background/httpStatusCode.d.ts",

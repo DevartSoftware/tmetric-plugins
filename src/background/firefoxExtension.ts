@@ -7,8 +7,7 @@ import chrome = require('chrome'); // it is not Chrome browser, see https://deve
 import timers = require('sdk/timers');
 import pageWorker = require('sdk/page-worker');
 import self = require('sdk/self');
-import prefs = require('sdk/simple-prefs');
-import storage = require('sdk/simple-storage');
+import preferences = require('sdk/preferences/service');
 import style = require('sdk/stylesheet/style');
 import contentMod = require('sdk/content/mod');
 import pageMod = require("sdk/page-mod");
@@ -257,14 +256,6 @@ class FirefoxExtension extends ExtensionBase {
         return promptService.confirm(null, null, message);
     }
 
-    loadValue(key: string, callback: (value: any) => void) {
-        callback(storage.storage[key]);
-    }
-
-    saveValue(key: string, value: any) {
-        storage.storage[key] = value;
-    }
-
     showLoginDialog() {
         if (this.loginWindow != null) {
             this.loginWindow.focus();
@@ -377,6 +368,10 @@ class FirefoxExtension extends ExtensionBase {
         } else {
             tabs.open(<Firefox.TabOpenOptions>{ url });
         }
+    }
+
+    getTestValue(name: string): any {
+        return preferences.get(name);
     }
 }
 
