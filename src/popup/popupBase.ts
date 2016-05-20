@@ -171,6 +171,8 @@
         timer.workTask.description = $(selector + ' .task .input').val();
         timer.workTask.projectId = parseInt(this.getSelectValue(selector + ' .project .input')) || null;
         timer.tagsIdentifiers = (this.getSelectValue(selector + ' .tags .input') || []).map(tag => parseInt(tag));
+        var project = this.getProject(timer.workTask.projectId);
+        timer.isBillable = project ? project.isBillable : false;
     }
 
     getTaskUrl(task: Models.WorkTask) {
@@ -286,7 +288,20 @@
         return id;
     }
 
-    getTag(id: number) {
+    getProject(id: number): Models.Project {
+        var project = null;
+        if (this._projects) {
+            var projects = this._projects.filter((project) => {
+                return project.projectId === id;
+            });
+            if (projects.length) {
+                project = projects[0];
+            }
+        }
+        return project;
+    }
+
+    getTag(id: number): Models.Tag {
         var tag = null;
         if (this._tags) {
             var tags = this._tags.filter((tag) => {

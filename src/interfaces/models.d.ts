@@ -92,6 +92,7 @@ declare module Models {
         workTask: WorkTask;
         startTime: string;
         tagsIdentifiers: number[];
+        isBillable: boolean;
     }
 
     interface TimeEntry {
@@ -109,6 +110,7 @@ declare module Models {
         projectName: string;
         accountId: number;
         projectStatus: ProjectStatus;
+        isBillable: boolean;
     }
 
     interface Tag {
