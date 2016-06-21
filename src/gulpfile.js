@@ -20,7 +20,7 @@ var dist = path.normalize(src + '/../dist/');
 
 var config = {
     distDir: dist,
-    stripDebug: true,
+    keepDebug: false
 };
 
 if (argv.version) {
@@ -31,8 +31,8 @@ if (argv.distDir != null) {
     config.distDir = argv.distDir + '/';
 }
 
-if (argv.stripDebug != null) {
-    config.stripDebug = argv.stripDebug;
+if (argv.keepDebug != null) {
+    config.keepDebug = argv.keepDebug;
 }
 
 var distDir = config.distDir;
@@ -93,7 +93,7 @@ function replaceInFile(file, find, replace) {
 }
 
 function stripDebugCommon(folder) {
-    if (config.stripDebug) {
+    if (!config.keepDebug) {
         return gulp.src(folder + '**/*.js', { base: folder })
             .pipe(stripDebug())
             .pipe(gulp.dest(folder));
