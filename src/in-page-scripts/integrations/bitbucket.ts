@@ -71,10 +71,14 @@
                 return;
             }
 
-            // <h1>
-            //      <a href="/NAMESPACE/TRANSFORMED_PROJECT_NAME" title= "PROJECT_NAME" class="entity-name" >PROJECT_NAME</a>
-            // </h1>
-            var projectName = $$.try('.entity-name').textContent;
+            // <li class="aui-nav-selected" >
+            //   <a href="/account/user/almtoolsteam/projects/CR" > Code Review< /a>
+            // </li>
+            var projectName = $$.try(
+                '.aui-page-panel .aui-nav-selected a',
+                null,
+                el => /.+\/projects\/.+/.test(el.getAttribute('href'))
+            ).textContent;
 
             var serviceType = 'Bitbucket';
 
