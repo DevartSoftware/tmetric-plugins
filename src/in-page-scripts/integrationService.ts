@@ -72,12 +72,12 @@
                         issue.serviceUrl = issue.serviceUrl ? issue.serviceUrl.replace(/\/+$/, '') : issue.serviceUrl;
                         issue.issueUrl = issue.issueUrl ? issue.issueUrl.replace(/^\/*/, '/') : issue.issueUrl;
                         // trim all string values
-                        issue.issueId = this.trimText(issue.issueId, 128);
-                        issue.issueName = this.trimText(issue.issueName, 400);
-                        issue.issueUrl = this.trimText(issue.issueUrl, 256);
-                        issue.serviceUrl = this.trimText(issue.serviceUrl, 1024);
-                        issue.serviceType = this.trimText(issue.serviceType, 128);
-                        issue.projectName = this.trimText(issue.projectName, 255);
+                        issue.issueId = this.trimText(issue.issueId, Models.Limits.maxIssueId);
+                        issue.issueName = this.trimText(issue.issueName, Models.Limits.maxTask);
+                        issue.issueUrl = this.trimText(issue.issueUrl, Models.Limits.maxTaskRelativeUrl);
+                        issue.serviceUrl = this.trimText(issue.serviceUrl, Models.Limits.maxIntegrationUrl);
+                        issue.serviceType = this.trimText(issue.serviceType, Models.Limits.maxIntegrationType);
+                        issue.projectName = this.trimText(issue.projectName, Models.Limits.maxProjectName);
 
                         issues.push(issue);
                         parsedIssues.push({ element, issue });
@@ -101,7 +101,7 @@
             return { issues, observeMutations: this._possibleIntegrations.some(i => i.observeMutations) };
         }
 
-        private static _issuesDurationsResolver = <(value: WebToolIssueDuration[]) => void> null;
+        private static _issuesDurationsResolver = <(value: WebToolIssueDuration[]) => void>null;
 
         static setIssuesDurations(durations) {
             if (this._issuesDurationsResolver) {
@@ -148,7 +148,7 @@
         static updateLink(element: HTMLElement, integration: WebToolIntegration, newIssue: WebToolIssue, issueDuration: WebToolIssueDuration) {
 
             const HOUR = 1000 * 60 * 60;
-            
+
             var oldLink = $$('a.' + this.affix, element);
 
             if (!newIssue) {

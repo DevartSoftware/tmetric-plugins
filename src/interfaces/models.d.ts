@@ -1,5 +1,21 @@
 declare module Models {
 
+    export const enum Limits {
+        maxClientName = 255,
+        maxIntegrationUrl = 1024,
+        maxTaskRelativeUrl = 256,
+        maxIssueId = 128,
+        maxIntegrationAccessKey = 255,
+        maxIntegrationType = 128,
+        maxUserName = 255,
+        maxEmail = 128,
+        maxProjectName = 255,
+        maxAccountName = 128,
+        maxTag = 50,
+        maxTeamName = 255,
+        maxTask = 400
+    }
+
     interface TimeZoneInfo {
         id: string;
         displayName: string;

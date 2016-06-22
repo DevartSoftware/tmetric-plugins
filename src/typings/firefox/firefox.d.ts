@@ -288,8 +288,19 @@
         observe(aSubject: nsISupports, aTopic: string, aData: any);
     }
 
+    interface ServiceInterface<T> {
+    }
+
     interface nsISupports {
-        QueryInterface<T>(name: T): T;
+        QueryInterface<T>(name: ServiceInterface<T>): T;
+    }
+
+    interface ServiceInterfaces {
+        nsIWindowWatcher: ServiceInterface<nsIWindowWatcher>;
+        nsIDOMWindow: ServiceInterface<Window>;
+        nsIAlertsService: ServiceInterface<nsIAlertsService>;
+        nsIPromptService: ServiceInterface<nsIPromptService>;
+        nsIIdleService: ServiceInterface<nsIIdleService>;
     }
 
     type BrowserWindowCallback = (window: BrowserWindow) => void
@@ -347,16 +358,10 @@ declare module 'sdk/windows'
 declare module 'chrome'
 {
     var Cc: {
-        [lib: string]: { getService<T>(service: T): T }
+        [lib: string]: { getService<T>(service: Firefox.ServiceInterface<T>): T }
     }
 
-    var Ci: {
-        nsIWindowWatcher: Firefox.nsIWindowWatcher;
-        nsIDOMWindow: Window;
-        nsIAlertsService: Firefox.nsIAlertsService;
-        nsIPromptService: Firefox.nsIPromptService;
-        nsIIdleService: Firefox.nsIIdleService
-    }
+    var Ci: Firefox.ServiceInterfaces;
 }
 
 declare module 'sdk/timers'
