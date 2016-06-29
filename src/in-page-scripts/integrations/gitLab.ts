@@ -8,14 +8,14 @@
         ];
 
         match(source: Source): boolean {
-            return !!$$('.gitlab-text-container');
+            return !!$$('.detail-page-description .title');
         }
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
             var host = $$('.detail-page-header .issue-btn-group') || // new layout
                     $$('.detail-page-header .pull-right'); // old layout
             if (host) {
-                linkElement.classList.add('gitlab', 'btn', 'btn-grouped');
+                linkElement.classList.add('devart-timer-link-gitlab', 'btn', 'btn-grouped');
                 host.insertBefore(linkElement, host.firstElementChild);
             }
         }
