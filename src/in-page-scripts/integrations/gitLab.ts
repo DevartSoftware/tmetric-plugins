@@ -15,7 +15,7 @@
             var host = $$('.detail-page-header .issue-btn-group') || // new layout
                     $$('.detail-page-header .pull-right'); // old layout
             if (host) {
-                linkElement.classList.add('devart-timer-link-gitlab', 'btn', 'btn-grouped');
+                linkElement.classList.add('btn', 'btn-grouped');
                 host.insertBefore(linkElement, host.firstElementChild);
             }
         }
