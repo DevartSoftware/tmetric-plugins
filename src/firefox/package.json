@@ -21,6 +21,7 @@
             "https://localhost/",
             "https://app.tmetric.com/",
             "https://alm-build/"
-        ]
+        ],
+        "multiprocess": true
     }
 }
