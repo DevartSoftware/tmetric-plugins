@@ -10,7 +10,7 @@ Supported systems: [Asana](https://asana.com/), [Assembla](https://www.assembla.
 
 Project is using [gulp](http://gulpjs.com/) as a build system.
 
-To build and extensions from sources you need:
+To build extensions from sources you need:
 1. Install required `npm` packages.
 2. Run `build` task on gulp.
 
@@ -23,6 +23,6 @@ $ npm -g install typescript@1.8.x
 $ gulp build
 ```
 
-If you are building on Windows you can simply run `install.bat` and `build.bat`/
+If you are building on Windows you can simply run `install.bat` and `build.bat`.
 
-Built extensions can be found in `/dist/release/chrome/` and `/dist/release/firefox/` folders.
+Built extensions can be found in `/dist/chrome/` and `/dist/firefox/` folders.
