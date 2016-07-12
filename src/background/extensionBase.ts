@@ -42,8 +42,10 @@ class ExtensionBase {
 
     private currentApiVersion = 1.0;
 
+    private defaultApplicationUrl = 'https://app.tmetric.com/';
+
     constructor(public port: Firefox.Port) {
-        this.serviceUrl = this.getTestValue('tmetric.url') || 'https://app.tmetric.com/';
+        this.serviceUrl = this.getTestValue('tmetric.url') || this.defaultApplicationUrl;
         if (this.serviceUrl[this.serviceUrl.length - 1] != '/') {
             this.serviceUrl += '/';
         }
@@ -85,12 +87,6 @@ class ExtensionBase {
             this._userProfile = profile;
         });
 
-        this.port.once('getVersion', version => {
-            if (this.currentApiVersion > version) {
-                this.showError("You are connected to the outdated TMetric server. Extension may not function correctly. Please contact your system administrator.");
-            }
-        });
-
         this.port.on('updateProjects', projects => {
             this._projects = projects;
         });
@@ -107,7 +103,15 @@ class ExtensionBase {
             this.removeIssuesDurationsFromCache(identifiers);
         });
 
-        this.port.emit('init', this.serviceUrl);
+        this.init(this.serviceUrl).then(() => {
+            if (this.serviceUrl != this.defaultApplicationUrl) {
+                this.getVersion().then(version => {
+                    if (this.currentApiVersion > version) {
+                        this.showNotification("You are connected to the outdated TMetric server. Extension may not function correctly. Please contact your system administrator.");
+                    }
+                });
+            }
+        });
 
         this.listenPopupAction<void, IPopupInitData>('initialize', this.initializePopupAction);
         this.listenPopupAction<void, void>('openTracker', this.openTrackerPagePopupAction);
@@ -501,10 +505,12 @@ class ExtensionBase {
     }
 
     protected reconnect = this.wrapPortAction<void, void>('reconnect');
+    private init = this.wrapPortAction<string, void>('init');
     private disconnect = this.wrapPortAction<void, void>('disconnect');
     private retryConnection = this.wrapPortAction<void, void>('retryConnection');
     private isConnectionRetryEnabled = this.wrapPortAction<void, boolean>('isConnectionRetryEnabled');
     private getTimer = this.wrapPortAction<void, void>('getTimer');
+    private getVersion = this.wrapPortAction<void, number>('getVersion');
     private putTimer = this.wrapPortAction<Models.Timer, void>('putTimer');
     private putTimerWithExistingIntegration = this.wrapPortAction<Integrations.WebToolIssueTimer, void>('putExternalTimer');
     private postIntegration = this.wrapPortAction<Models.IntegratedProjectIdentifier, void>('postIntegration');

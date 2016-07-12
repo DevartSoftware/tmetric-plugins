@@ -94,7 +94,9 @@ class ChromeExtension extends ExtensionBase {
     }
 
     showError(message: string) {
-        alert(message);
+        // This needed to prevent alert cleaning via build.
+        var a = alert;
+        a(message);
     }
 
     showNotification(message: string, title?: string) {

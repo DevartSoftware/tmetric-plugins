@@ -24,81 +24,13 @@
 
     disconnecting = false;
 
-    private defaultApplicationUrl = 'https://app.tmetric.com/';
-
     constructor() {
-        self.port.once('init', (url: string) => {
-            this.url = url;
-            this.hub = $.hubConnection(url);
-
-            this.hub.disconnected(() => {
-                this.expectedTimerUpdate = false;
-                console.log('hub.disconnected');
-                if (!this.disconnecting) {
-                    this.disconnect().then(() => {
-                        this.setRetryPending(true);
-                    });
-                }
-            });
-
-            this.hubProxy = this.hub.createHubProxy('timeTrackerHub');
-
-            this.hubProxy.on('updateTimer', (accountId: number) => {
-                if (this.userProfile && accountId != this.userProfile.activeAccountId) {
-                    return;
-                }
-
-                console.log('updateTimer: ' + this.expectedTimerUpdate);
-
-                if (this.expectedTimerUpdate) {
-                    this.expectedTimerUpdate = false;
-                    this.getTimer();
-                }
-                else {
-                    // timer changed from outside - check that profile still the same
-                    this.isProfileChanged().then(isProfileChanged => {
-                        if (isProfileChanged) {
-                            this.reconnect();
-                        }
-                        else {
-                            this.getTimer();
-                        }
-                    });
-                }
-            });
-
-            this.hubProxy.on('updateActiveAccount', (accountId: number) => {
-                self.port.emit('updateActiveAccount', accountId);
-                if (!this.userProfile || accountId != this.userProfile.activeAccountId) {
-                    this.reconnect();
-                }
-            });
-
-            this.hubProxy.on('updateProjects', (accountId: number) => {
-                if (this.userProfile && this.userProfile.activeAccountId == accountId) {
-                    this.getProjects();
-                }
-            });
-
-            this.hubProxy.on('updateTags', (accountId: number) => {
-                if (this.userProfile && this.userProfile.activeAccountId == accountId) {
-                    this.getTags();
-                }
-            });
-
-            this.hubProxy.on('updateExternalIssuesDurations', (accountId: number, identifiers: Integrations.WebToolIssueIdentifier[]) => {
-                if (this.userProfile && this.userProfile.activeAccountId == accountId) {
-                    self.port.emit('removeExternalIssuesDurations', identifiers);
-                }
-            });
-
-            this.reconnect().catch(() => { });
-        });
-
+        this.listenPortAction<string>('init', this.init);
         this.listenPortAction<void>('disconnect', this.disconnect);
         this.listenPortAction<void>('reconnect', this.reconnect);
         this.listenPortAction<void>('isConnectionRetryEnabled', this.isConnectionRetryEnabled);
         this.listenPortAction<Integrations.WebToolIssueTimer>('getTimer', this.getTimer);
+        this.listenPortAction<number>('getVersion', this.getVersion);
         this.listenPortAction<Models.Timer>('putTimer', this.putTimer);
         this.listenPortAction<Integrations.WebToolIssueTimer>('putExternalTimer', this.putExternalTimer);
         this.listenPortAction<Models.IntegratedProjectIdentifier>('postIntegration', this.postIntegration);
@@ -106,6 +38,75 @@
         this.listenPortAction<number>('setAccountToPost', this.setAccountToPost);
         this.listenPortAction<void>('retryConnection', this.retryConnection);
         this.listenPortAction<Integrations.WebToolIssueIdentifier[]>('fetchIssuesDurations', this.fetchIssuesDurations);
+    }
+
+    init(url: string): Promise<void> {
+
+        this.url = url;
+        this.hub = $.hubConnection(url);
+
+        this.hub.disconnected(() => {
+            this.expectedTimerUpdate = false;
+            console.log('hub.disconnected');
+            if (!this.disconnecting) {
+                this.disconnect().then(() => {
+                    this.setRetryPending(true);
+                });
+            }
+        });
+
+        this.hubProxy = this.hub.createHubProxy('timeTrackerHub');
+
+        this.hubProxy.on('updateTimer', (accountId: number) => {
+            if (this.userProfile && accountId != this.userProfile.activeAccountId) {
+                return;
+            }
+
+            console.log('updateTimer: ' + this.expectedTimerUpdate);
+
+            if (this.expectedTimerUpdate) {
+                this.expectedTimerUpdate = false;
+                this.getTimer();
+            }
+            else {
+                // timer changed from outside - check that profile still the same
+                this.isProfileChanged().then(isProfileChanged => {
+                    if (isProfileChanged) {
+                        this.reconnect();
+                    }
+                    else {
+                        this.getTimer();
+                    }
+                });
+            }
+        });
+
+        this.hubProxy.on('updateActiveAccount', (accountId: number) => {
+            self.port.emit('updateActiveAccount', accountId);
+            if (!this.userProfile || accountId != this.userProfile.activeAccountId) {
+                this.reconnect();
+            }
+        });
+
+        this.hubProxy.on('updateProjects', (accountId: number) => {
+            if (this.userProfile && this.userProfile.activeAccountId == accountId) {
+                this.getProjects();
+            }
+        });
+
+        this.hubProxy.on('updateTags', (accountId: number) => {
+            if (this.userProfile && this.userProfile.activeAccountId == accountId) {
+                this.getTags();
+            }
+        });
+
+        this.hubProxy.on('updateExternalIssuesDurations', (accountId: number, identifiers: Integrations.WebToolIssueIdentifier[]) => {
+            if (this.userProfile && this.userProfile.activeAccountId == accountId) {
+                self.port.emit('removeExternalIssuesDurations', identifiers);
+            }
+        });
+
+        return this.reconnect().catch(() => { });
     }
 
     isProfileChanged() {
@@ -201,13 +202,6 @@
                 console.log('connect: hubConnected');
                 callback(this.userProfile);
                 return;
-            }
-
-            // Check version.
-            if (this.url != this.defaultApplicationUrl) {
-                this.get<number>("api/version").then(version => {
-                    self.port.emit('getVersion', version);
-                });
             }
 
             this.getProfile().then((profile) => {
@@ -328,6 +322,10 @@
         });
         profile.catch(() => this.disconnect());
         return profile;
+    }
+
+    getVersion() {
+        return this.get('api/version');
     }
 
     getTimer() {
