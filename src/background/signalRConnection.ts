@@ -24,6 +24,8 @@
 
     disconnecting = false;
 
+    private defaultApplicationUrl = 'https://app.tmetric.com/';
+
     constructor() {
         self.port.once('init', (url: string) => {
             this.url = url;
@@ -83,7 +85,7 @@
                     this.getTags();
                 }
             });
-            
+
             this.hubProxy.on('updateExternalIssuesDurations', (accountId: number, identifiers: Integrations.WebToolIssueIdentifier[]) => {
                 if (this.userProfile && this.userProfile.activeAccountId == accountId) {
                     self.port.emit('removeExternalIssuesDurations', identifiers);
@@ -192,12 +194,20 @@
     }
 
     connect() {
+
         console.log('connect');
         return new Promise<Models.UserProfile>((callback, reject) => {
             if (this.hubConnected) {
                 console.log('connect: hubConnected');
                 callback(this.userProfile);
                 return;
+            }
+
+            // Check version.
+            if (this.url != this.defaultApplicationUrl) {
+                this.get<number>("api/version").then(version => {
+                    self.port.emit('getVersion', version);
+                });
             }
 
             this.getProfile().then((profile) => {

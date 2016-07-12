@@ -40,8 +40,9 @@ class ExtensionBase {
 
     private _tags: Models.Tag[];
 
-    constructor(public port: Firefox.Port) {
+    private currentApiVersion = 1.0;
 
+    constructor(public port: Firefox.Port) {
         this.serviceUrl = this.getTestValue('tmetric.url') || 'https://app.tmetric.com/';
         if (this.serviceUrl[this.serviceUrl.length - 1] != '/') {
             this.serviceUrl += '/';
@@ -82,6 +83,12 @@ class ExtensionBase {
 
         this.port.on('updateProfile', profile => {
             this._userProfile = profile;
+        });
+
+        this.port.once('getVersion', version => {
+            if (this.currentApiVersion > version) {
+                this.showError("You are connected to the outdated TMetric server. Extension may not function correctly. Please contact your system administrator.");
+            }
         });
 
         this.port.on('updateProjects', projects => {
