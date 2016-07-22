@@ -37,20 +37,12 @@
             var issueType = match[2];
             issueId = (issueType == 'pull' ? '!' : '#') + issueId
 
-            // <h2 class="issue-title">IssueName</h2>
             var issueName = $$.try('.js-issue-title').textContent;
             if (!issueName) {
                 return;
             }
 
-            // <h1 class="title">
-            //      <span>
-            //          <a href="/(u|groups)/NAMESPACE">NameSpace</a> /
-            //          <a href="/NAMESPACE/PROJECT">ProjectName</a> ·
-            //          <a href="/NAMESPACE/PROJECT/(issues|pull)">(Issues|Merge Requests)</a>
-            //      </span>
-            //  </h1>
-            var projectName = $$.try('.entry-title > strong > a').textContent;
+            var projectName = $$.try('.repohead-details-container > h1 > strong > a').textContent;
 
             var serviceType = 'GitHub';
 
