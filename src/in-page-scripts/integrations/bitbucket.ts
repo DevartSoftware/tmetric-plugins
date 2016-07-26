@@ -71,14 +71,12 @@
                 return;
             }
 
-            // <li class="aui-nav-selected" >
-            //   <a href="/account/user/almtoolsteam/projects/CR" > Code Review< /a>
-            // </li>
-            var projectName = $$.try(
-                '.aui-page-panel .aui-nav-selected a',
-                null,
-                el => /.+\/projects\/.+/.test(el.getAttribute('href'))
-            ).textContent;
+            // <ol class="aui-nav aui-nav-breadcrumbs">
+            //   <li>
+            //     <a href="/sergeymul/test-bitbucket">test bitbucket</a>
+            //   </li>
+            // </ol>
+            var projectName = $$.try('.aui-page-panel .aui-nav li:last-child a').textContent;
 
             var serviceType = 'Bitbucket';
 
