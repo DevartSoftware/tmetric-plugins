@@ -62,8 +62,17 @@
     }
 }
 
-.devart-timer-link-teamwork-desk {
+.devart-timer-link-teamwork-desk-ticket {
     margin-top: 1em;
+}
+
+.devart-timer-link-teamwork-desk-task {
+    .task-row &.devart-timer-link-start {
+        display: none !important;
+    }
+    .task-row:hover &.devart-timer-link-start {
+        display: initial !important;
+    }
 }
 
 .devart-timer-link-teamweek {

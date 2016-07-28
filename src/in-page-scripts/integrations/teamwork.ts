@@ -84,10 +84,10 @@
         matchUrl = new RegExp('.*:\/\/.*\.' + hosts + '\/desk\/.*');
 
         issueElementSelector() {
-            return $$.all('.ticket--header').concat($$.all('.reply--box .content_wrap'));
+            return $$.all('.ticket--header').concat($$.all('.task-row'));
         }
 
-        isTicketElement(issueElement: HTMLElement) {
+        private isTicketElement(issueElement: HTMLElement) {
             return issueElement.classList.contains('ticket--header');
         }
 
@@ -95,37 +95,40 @@
             if (this.isTicketElement(issueElement)) {
                 let host = $$('.padding-wrap', issueElement);
                 if (host) {
-                    let linkContainer = $$.create('div', 'devart-timer-link-teamwork-desk');
+                    let linkContainer = $$.create('div', 'devart-timer-link-teamwork-desk-ticket');
                     linkContainer.appendChild(linkElement);
                     host.appendChild(linkContainer);
                 }
             } else {
-                let host = $$('h5', issueElement);
+                let host = $$('.task-options', issueElement);
                 if (host) {
-                    host.appendChild(linkElement);
+                    linkElement.classList.add('devart-timer-link-teamwork-desk-task');
+                    host.parentElement.insertBefore(linkElement, host);
                 }
             }
         }
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-            if (this.isTicketElement(issueElement)) {
-                var issueName = $$.try('.title-label a', issueElement).textContent;
-                var issueIdNumber = $$.try('#ticketId', issueElement).textContent;
-                var issueUrlPrefix = 'desk/#/tickets/';
-            } else {
-                issueName = $$.try('h5 > a > span', issueElement).textContent;
+            var issueName: string, issueId: string, issueIdNumber: string, issueUrlPrefix: string, projectName: string;
 
-                var projectName = $$.try(
+            if (this.isTicketElement(issueElement)) {
+                issueName = $$.try('.title-label a', issueElement).textContent;
+                issueId = $$.try('.id-hold', issueElement).textContent;
+                issueIdNumber = issueId.replace(/^\#/, '');
+                issueUrlPrefix = 'desk/#/tickets/';
+            } else {
+                issueName = $$.try('.title-label', issueElement).textContent;
+                let issueHref = $$.getAttribute('.title-label', 'href', issueElement);
+                let issueHrefMatch = /^.*tasks\/(\d+)$/.exec(issueHref);
+                issueIdNumber = issueHrefMatch && issueHrefMatch[1];
+                issueId = '#' + issueIdNumber;
+                issueUrlPrefix = 'tasks/';
+                projectName = $$.try(
                     'ul li a',
                     issueElement,
                     el => /\/projects\/\d+$/.test(el.getAttribute('href'))
                 ).textContent;
-
-                let issueHref = $$.getAttribute('h5 > a', 'href', issueElement);
-                let issueHrefMatch = /^.*tasks\/(\d+)$/.exec(issueHref);
-                issueIdNumber = issueHrefMatch && issueHrefMatch[1];
-                issueUrlPrefix = 'tasks/';
             }
 
             if (!issueName) {
@@ -133,7 +136,6 @@
             }
 
             if (issueIdNumber && (issueIdNumber = issueIdNumber.trim())) {
-                var issueId = '#' + issueIdNumber;
                 var issueUrl = issueUrlPrefix + issueIdNumber;
             }
 
