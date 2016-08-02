@@ -5,7 +5,7 @@
     "short_name": "TMetric",
     "description": "Integrates TMetric with popular task and project management tools.",
     "author": "Devart",
-    "version": "1.2.0",
+    "version": "1.2.1",
 
     "icons": {
         "16": "images/chrome/icon16.png",
