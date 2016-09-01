@@ -12,11 +12,16 @@
         }
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
-            var host = $$('.detail-page-header .issue-btn-group') || // new layout
-                    $$('.detail-page-header .pull-right'); // old layout
-            if (host) {
-                linkElement.classList.add('btn', 'btn-grouped');
-                host.insertBefore(linkElement, host.firstElementChild);
+            var header = $$('.detail-page-header');
+            if (header) {
+                var buttons = $$('.issue-btn-group', header);
+                if (buttons) {
+                    linkElement.classList.add('btn', 'btn-grouped');
+                    buttons.appendChild(linkElement);
+                } else {
+                    linkElement.classList.add('btn', 'devart-timer-link-margin-left');
+                    header.appendChild(linkElement);
+                }
             }
         }
 
