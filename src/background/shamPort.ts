@@ -1,14 +1,21 @@
 ﻿// Emulates Firefox port:
 // https://developer.mozilla.org/en-US/Add-ons/SDK/Guides/Content_Scripts/using_port
 
-class PortShim implements Firefox.Port {
+class ShamPort implements Firefox.Port {
 
     private _handlers = <{ [methodName: string]: [Function, boolean][] }>{};
 
-    link: PortShim;
+    private _link: ShamPort;
+
+    constructor(link?: ShamPort) {
+        if (link) {
+            this._link = link;
+            this._link._link = this;
+        }
+    }
 
     emit(method: string, ...args: any[]): void {
-        var link = this.link;
+        var link = this._link;
         Promise.resolve().then(() => {
             link.onemit.call(link, method, args);
         });
@@ -47,14 +54,12 @@ class PortShim implements Firefox.Port {
                     handlers.splice(i, 1);
                     i--;
                 }
-                handler.apply(this.link, args);
+                handler.apply(this._link, args);
             }
         }
     }
 }
 
-var backgroundPort = new PortShim(); // Port used in ChromeExtension
-var connectionPort = new PortShim(); // Port used in content (page) scripts
-backgroundPort.link = connectionPort;
-connectionPort.link = backgroundPort;
+var backgroundPort = new ShamPort(); // Port used in ChromeExtension
+var connectionPort = new ShamPort(backgroundPort); // Port used in content (page) scripts
 self.port = connectionPort;

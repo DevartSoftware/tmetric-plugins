@@ -101,6 +101,7 @@ class FirefoxExtension extends ExtensionBase {
             './in-page-scripts/integrations/sprintly.js',
             './in-page-scripts/integrations/teamweek.js',
             './in-page-scripts/integrations/teamwork.js',
+            './in-page-scripts/integrations/testLink.js',
             './in-page-scripts/integrations/tfs.js',
             './in-page-scripts/integrations/trac.js',
             './in-page-scripts/integrations/trello.js',
