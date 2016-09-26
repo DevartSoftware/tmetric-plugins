@@ -43,8 +43,8 @@
   },
   "content_scripts": [
     {
+      "matches": [ "http://*/*lib/execute/execSetResults.php*", "https://*/*lib/execute/execSetResults.php*" ],
       "all_frames": true,
-      "matches": [ "http://*/*", "https://*/*" ],
       "js": [
         "in-page-scripts/utils.js",
         "in-page-scripts/integrationService.js",
@@ -58,6 +58,7 @@
     },
     {
       "matches": [ "http://*/*", "https://*/*" ],
+      "exclude_matches": [ "http://*/*lib/execute/execSetResults.php*", "https://*/*lib/execute/execSetResults.php*" ],
       "js": [
         "in-page-scripts/utils.js",
         "in-page-scripts/integrationService.js",
