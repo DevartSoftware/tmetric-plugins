@@ -124,7 +124,7 @@ class ExtensionBase {
     }
 
     /** Handles messages from in-page scripts */
-    onTabMessage(message: ITabMessage, tabId: any, isTabActive: boolean) {
+    onTabMessage(message: ITabMessage, tabId: any) {
 
         this.sendToTabs({ action: message.action + '_callback' }, tabId);
 

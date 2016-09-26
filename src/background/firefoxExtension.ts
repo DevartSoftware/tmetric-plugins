@@ -52,7 +52,7 @@ class FirefoxExtension extends ExtensionBase {
         pageMod.PageMod({
             include: ["http://*", "https://*"],
             contentScriptWhen: "ready",
-            attachTo: ["existing", "top", "frame"],
+            attachTo: ["existing", "top"],
             contentStyleFile: self.data.url("./css/timer-link.css")
         });
 
@@ -124,7 +124,7 @@ class FirefoxExtension extends ExtensionBase {
                 contentScriptFile,
                 onMessage: (message: ITabMessage) => {
                     var activeTab = this.getActiveTab();
-                    this.onTabMessage(message, tabId, activeTab && activeTab.id == tabId);
+                    this.onTabMessage(message, tabId);
                 }
             });
 

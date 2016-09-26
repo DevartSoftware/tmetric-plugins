@@ -40,8 +40,7 @@ class ChromeExtension extends ExtensionBase {
                     return;
                 }
                 var tabId = sender.tab.id;
-                var isActive = sender.tab.active;
-                this.onTabMessage(message, tabId, isActive);
+                this.onTabMessage(message, tabId);
             } else if (sender.url && sender.url.match(/^chrome.+popup.html$/)) {
                 this.onPopupRequest(message, senderResponse);
                 // http://stackoverflow.com/questions/33614911/sending-message-between-content-js-and-background-js-fails
