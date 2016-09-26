@@ -43,20 +43,6 @@
   },
   "content_scripts": [
     {
-      "matches": [ "http://*/*lib/execute/execSetResults.php*", "https://*/*lib/execute/execSetResults.php*" ],
-      "all_frames": true,
-      "js": [
-        "in-page-scripts/utils.js",
-        "in-page-scripts/integrationService.js",
-        "in-page-scripts/integrations/testLink.js",
-        "in-page-scripts/page.js"
-      ],
-      "css": [
-        "css/timer-link.css"
-      ],
-      "run_at": "document_end"
-    },
-    {
       "matches": [ "http://*/*", "https://*/*" ],
       "exclude_matches": [ "http://*/*lib/execute/execSetResults.php*", "https://*/*lib/execute/execSetResults.php*" ],
       "js": [
@@ -83,6 +69,20 @@
         "in-page-scripts/integrations/waffle.js",
         "in-page-scripts/integrations/wrike.js",
         "in-page-scripts/integrations/youTrack.js",
+        "in-page-scripts/page.js"
+      ],
+      "css": [
+        "css/timer-link.css"
+      ],
+      "run_at": "document_end"
+    },
+    {
+      "matches": [ "http://*/*lib/execute/execSetResults.php*", "https://*/*lib/execute/execSetResults.php*" ],
+      "all_frames": true,
+      "js": [
+        "in-page-scripts/utils.js",
+        "in-page-scripts/integrationService.js",
+        "in-page-scripts/integrations/testLink.js",
         "in-page-scripts/page.js"
       ],
       "css": [
