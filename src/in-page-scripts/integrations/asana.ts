@@ -38,17 +38,17 @@
                 var serviceUrl = source.protocol + source.host;
             }
 
-            var issueName = $$.try<HTMLTextAreaElement>('.SingleTaskTitleRow .simpleTextarea', issueElement).value || //side view
-                $$.try<HTMLTextAreaElement>('#details_property_sheet_title', issueElement).value; // card view
+            var issueName = $$.try<HTMLTextAreaElement>('.SingleTaskTitleRow .simpleTextarea', issueElement).value || // new layout
+                $$.try<HTMLTextAreaElement>('#details_property_sheet_title', issueElement).value; // old layout
             if (!issueName) {
                 return;
             }
 
             var projectName =
-                $$.try('.TaskProjectToken-projectName').textContent || //side view task
-                $$.try('.TaskAncestry-ancestorProject').textContent || // side view subtask
-                $$.try('.tokens-container .token_name').textContent || // card view task
-                $$.try('.ancestor-projects .token').textContent; // card view subtask
+                $$.try('.TaskProjectToken-projectName').textContent || // new layout task
+                $$.try('.TaskAncestry-ancestorProject').textContent || // new layout subtask
+                $$.try('.tokens-container .token_name').textContent || // old layout task
+                $$.try('.ancestor-projects .token').textContent; // old layout subtask
 
             return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
         }
