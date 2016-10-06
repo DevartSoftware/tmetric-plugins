@@ -39,6 +39,7 @@
     "in-page-scripts/integrations/waffle.ts",
     "in-page-scripts/integrations/wrike.ts",
     "in-page-scripts/integrations/youTrack.ts",
+    "in-page-scripts/integrations/zendesk.ts",
     "in-page-scripts/integrationService.ts",
     "in-page-scripts/page.ts",
     "in-page-scripts/firefoxMessageListener.ts",
