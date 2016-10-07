@@ -105,6 +105,7 @@ class FirefoxExtension extends ExtensionBase {
             './in-page-scripts/integrations/tfs.js',
             './in-page-scripts/integrations/trac.js',
             './in-page-scripts/integrations/trello.js',
+            './in-page-scripts/integrations/uservoice.js',
             './in-page-scripts/integrations/waffle.js',
             './in-page-scripts/integrations/wrike.js',
             './in-page-scripts/integrations/youTrack.js',

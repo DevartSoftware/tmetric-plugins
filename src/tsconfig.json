@@ -36,6 +36,7 @@
     "in-page-scripts/integrations/tfs.ts",
     "in-page-scripts/integrations/trac.ts",
     "in-page-scripts/integrations/trello.ts",
+    "in-page-scripts/integrations/uservoice.ts",
     "in-page-scripts/integrations/waffle.ts",
     "in-page-scripts/integrations/wrike.ts",
     "in-page-scripts/integrations/youTrack.ts",
