@@ -34,6 +34,7 @@
     "in-page-scripts/integrations/teamwork.ts",
     "in-page-scripts/integrations/testLink.ts",
     "in-page-scripts/integrations/tfs.ts",
+    "in-page-scripts/integrations/todoist.ts",
     "in-page-scripts/integrations/trac.ts",
     "in-page-scripts/integrations/trello.ts",
     "in-page-scripts/integrations/uservoice.ts",
