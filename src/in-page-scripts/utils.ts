@@ -7,6 +7,8 @@
     getAttribute(selector: string, attributeName: string, element?: NodeSelector): string;
     create<TElement extends HTMLElement>(tagName: string, className?: string): TElement;
     getRelativeUrl(baseUrl: string, fullUrl: string): string;
+    findNode(selector: string, nodeType: number, element?: NodeSelector): Node;
+    findAllNodes(selector: string, nodeType: number, element?: NodeSelector): Node[];
 }
 
 var $$ = <Utils>function (selector: string, element?: NodeSelector, condition?: (el: Element) => boolean) {
@@ -104,4 +106,30 @@ $$.getRelativeUrl = function (baseUrl: string, url: string) {
         }
     }
     return url;
+}
+
+$$.findNode = (selector: string, nodeType: number, element?: NodeSelector) => {
+    let childNodes = $$.try(selector, element).childNodes;
+    if (childNodes) {
+        for (let i = 0; i < childNodes.length; i++) {
+            let node = childNodes[i];
+            if (node.nodeType == nodeType) {
+                return node;
+            }
+        }
+    }
+}
+
+$$.findAllNodes = (selector: string, nodeType: number, element?: NodeSelector) => {
+    let result = <Node[]>[];
+    let childNodes = $$.try(selector, element).childNodes;
+    if (childNodes) {
+        for (let i = 0; i < childNodes.length; i++) {
+            let node = childNodes[i];
+            if (node.nodeType == nodeType) {
+                result.push(node);
+            }
+        }
+    }
+    return result;
 }
