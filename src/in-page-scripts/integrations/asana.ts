@@ -45,10 +45,11 @@
             }
 
             var projectName =
-                $$.try('.TaskProjectToken-projectName').textContent || // new layout task
-                $$.try('.TaskAncestry-ancestorProject').textContent || // new layout subtask
-                $$.try('.tokens-container .token_name').textContent || // old layout task
-                $$.try('.ancestor-projects .token').textContent; // old layout subtask
+                $$.try('.TaskProjectToken-projectName').textContent || // new layout task project token
+                $$.try('.TaskProjectPill-projectName').textContent || // new layout task project pill
+                $$.try('.TaskAncestry-ancestorProject').textContent || // new layout subtask project
+                $$.try('.tokens-container .token_name').textContent || // old layout task project
+                $$.try('.ancestor-projects .token').textContent; // old layout subtask project
 
             return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
         }
