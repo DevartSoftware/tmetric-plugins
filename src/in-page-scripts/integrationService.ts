@@ -179,11 +179,17 @@
                 return;
             }
 
-            var duration = issueDuration && issueDuration.duration || 0;
-            if (isNewIssueStarted) {
-                var timerDuration = Date.now() - Date.parse(this._timer.startTime);
-                if (timerDuration <= 10 * HOUR) { // add current timer duration if timer is not long running
-                    duration += Date.now() - Date.parse(this._timer.startTime);
+            var duration = 0;
+            // show duration only for issues with id and url
+            // only these issues can be displayed with correct total duration
+            if (newIssue.issueId && newIssue.issueUrl) {
+                duration = issueDuration && issueDuration.duration;
+                if (isNewIssueStarted) {
+                    var timerDuration = Date.now() - Date.parse(this._timer.startTime);
+                    // add current timer duration if timer is not long running
+                    if (timerDuration <= 10 * HOUR) {
+                        duration += Date.now() - Date.parse(this._timer.startTime);
+                    }
                 }
             }
 
