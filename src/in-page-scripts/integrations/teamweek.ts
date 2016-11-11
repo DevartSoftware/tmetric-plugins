@@ -29,13 +29,13 @@
 
             var projectName = $$.try<HTMLInputElement>('[data-hook="input-project"]', issueElement).value;
 
-            var serviceType = 'Teamweek';
-
             if (match) {
                 var issueId = '#' + match[3];
                 var issueUrl = match[2] + '/' + match[3];
-                var serviceUrl = source.protocol + source.host;
             }
+
+            var serviceType = 'Teamweek';
+            var serviceUrl = source.protocol + source.host;
 
             return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
         }

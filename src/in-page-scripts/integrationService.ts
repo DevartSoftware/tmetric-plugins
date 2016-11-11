@@ -315,6 +315,18 @@
                 serviceUrl: task.integrationUrl
             };
 
+            if (!startedIssue.issueId || !issue.issueId) {
+                startedIssue.issueId = issue.issueId;
+            }
+
+            if (!startedIssue.issueUrl || !issue.issueUrl) {
+                startedIssue.issueUrl = issue.issueUrl;
+            }
+
+            if (!startedIssue.serviceUrl || !issue.serviceUrl) {
+                startedIssue.serviceUrl = issue.serviceUrl;
+            }
+
             return this.isSameIssue(startedIssue, issue);
         }
     }
