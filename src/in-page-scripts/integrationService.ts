@@ -321,6 +321,12 @@
                 serviceUrl: task.integrationUrl
             };
 
+            // On issue trackers, different pages for same issue can be parsed with or without id.
+            // To synchronize timer button state on such pages the issues should be normalized.
+            
+            // If timer issue or parsed issue have empty IssueId, IssueUrl or ServiceUrl
+            // then treat the issues as same.
+
             if (!startedIssue.issueId || !issue.issueId) {
                 startedIssue.issueId = issue.issueId;
             }
