@@ -170,7 +170,9 @@
                 var oldSession = parseInt(oldLink.getAttribute('data-session'));
             }
 
-            if (this.isSameIssue(oldIssueTimer, newIssueTimer) &&
+            var isSameIssue = this.isSameIssue(oldIssueTimer, newIssueTimer);
+
+            if (isSameIssue &&
                 newIssueTimer.isStarted == oldIssueTimer.isStarted &&
                 newIssueTimer.projectName == oldIssueTimer.projectName &&
                 oldSession == this.session
@@ -184,7 +186,7 @@
             // only these issues can be displayed with correct total duration
             if (newIssue.issueId && newIssue.issueUrl) {
                 duration = issueDuration && issueDuration.duration;
-                if (isNewIssueStarted) {
+                if (isSameIssue && isNewIssueStarted) {
                     var timerDuration = Date.now() - Date.parse(this._timer.startTime);
                     // add current timer duration if timer is not long running
                     if (timerDuration <= 10 * HOUR) {
