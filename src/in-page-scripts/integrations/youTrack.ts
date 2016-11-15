@@ -47,6 +47,52 @@
 
         observeMutations = true;
 
+        matchUrl = '*://*/agiles/*';
+
+        issueElementSelector = '.yt-issue-view';
+
+        render(issueElement: HTMLElement, linkElement: HTMLElement) {
+            var host = $$('.yt-issue-view__toolbar', issueElement);
+            if (host) {
+                host.parentElement.insertBefore(linkElement, host.nextElementSibling);
+            }
+        }
+
+        getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+
+            // Full url:
+            // https://HOST/PATH/agiles/*/*
+            var match = /^(.+)\/agiles\/.+$/.exec(source.fullUrl);
+            if (!match) {
+                return;
+            }
+
+            var issueId = $$.try('.yt-issue-view__issue-id', issueElement).textContent.trim();
+            if (!issueId) {
+                return;
+            }
+
+            var issueName = $$.try('.yt-issue-body__summary', issueElement).textContent;
+            if (!issueName) {
+                return;
+            }
+
+            var projectName = $$.try('.yt-issue-fields-panel__field-value', issueElement).textContent;
+
+            var serviceType = 'YouTrack';
+
+            var serviceUrl = match[1];
+
+            var issueUrl = 'issue/' + issueId;
+
+            return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+        }
+    }
+
+    class YouTrackBoardOld implements WebToolIntegration {
+
+        observeMutations = true;
+
         matchUrl = '*://*/rest/agile/*/sprint/*';
 
         issueElementSelector = '#editIssueDialog';
@@ -95,5 +141,5 @@
         }
     }
 
-    IntegrationService.register(new YouTrack(), new YouTrackBoard());
+    IntegrationService.register(new YouTrack(), new YouTrackBoard(), new YouTrackBoardOld());
 }
