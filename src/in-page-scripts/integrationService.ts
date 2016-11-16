@@ -34,7 +34,7 @@
             // If it is found we should refresh links on a page.
             return $$.all('a.' + this.affix).some(link => {
                 var linkTimer = <WebToolIssueTimer>JSON.parse(link.getAttribute('data-' + this.affix));
-                return !linkTimer.isStarted || this.isIssueStarted(linkTimer);
+                return !linkTimer.isStarted || this.isSimilarIssueStarted(linkTimer);
             });
         }
 
@@ -156,7 +156,7 @@
                 return;
             }
 
-            var isNewIssueStarted = this.isIssueStarted(newIssue);
+            var isNewIssueStarted = this.isSimilarIssueStarted(newIssue);
 
             var newIssueTimer = <WebToolIssueTimer>{
                 isStarted: !isNewIssueStarted
@@ -182,12 +182,18 @@
             }
 
             var duration = 0;
+
             // show duration only for issues with id and url
             // only these issues can be displayed with correct total duration
             if (newIssue.issueId && newIssue.issueUrl) {
+
                 duration = issueDuration && issueDuration.duration;
-                if (isSameIssue && isNewIssueStarted) {
+
+                // add current timer duration only if timer started for this issue
+                if (this.isSameIssueStarted(newIssue))  {
+
                     var timerDuration = Date.now() - Date.parse(this._timer.startTime);
+
                     // add current timer duration if timer is not long running
                     if (timerDuration <= 10 * HOUR) {
                         duration += Date.now() - Date.parse(this._timer.startTime);
@@ -305,7 +311,7 @@
             }
         }
 
-        private static isIssueStarted(issue: WebToolIssue): boolean {
+        private static isSimilarIssueStarted(issue: WebToolIssue): boolean {
             var timer = this._timer;
             if (!timer) {
                 return false;
@@ -340,6 +346,27 @@
             if (!startedIssue.serviceUrl || !issue.serviceUrl) {
                 startedIssue.serviceUrl = issue.serviceUrl;
             }
+
+            return this.isSameIssue(startedIssue, issue);
+        }
+
+        private static isSameIssueStarted(issue: WebToolIssue): boolean {
+            var timer = this._timer;
+            if (!timer) {
+                return false;
+            }
+
+            var task = timer.workTask;
+            if (!task && !timer.isStarted) {
+                return false;
+            }
+
+            var startedIssue = <WebToolIssue>{
+                issueId: task.externalIssueId,
+                issueName: task.description,
+                issueUrl: task.relativeIssueUrl,
+                serviceUrl: task.integrationUrl
+            };
 
             return this.isSameIssue(startedIssue, issue);
         }
