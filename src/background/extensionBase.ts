@@ -307,8 +307,8 @@ class ExtensionBase {
                 const contactAdmin = 'Please contact the account administrator to fix the problem.';
 
                 if (!status.projectStatus) {
-                    // No rights to create project
-                    if (status.serviceRole < Models.ServiceRole.ProjectCreator) {
+                    // No rights to create project or service is not specified
+                    if (status.serviceRole < Models.ServiceRole.ProjectCreator || !timer.serviceUrl) {
                         timer.projectName = undefined;
                     }
                 }

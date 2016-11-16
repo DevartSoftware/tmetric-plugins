@@ -27,9 +27,15 @@
             // Project search url:
             // https://app.asana.com/0/search/PROJECT_ID/TASK_ID
             var match = /^\/(\w+)(\/search)?\/(\d+)\/(\d+)(\/f)?$/.exec(source.path);
+
             if (match) {
                 var issueId = '#' + match[4];
+
                 var issueUrl = '/0/0/' + match[4];
+
+                var serviceType = 'Asana';
+
+                var serviceUrl = source.protocol + source.host;
             }
 
             var issueName = $$.try<HTMLTextAreaElement>('.SingleTaskTitleRow .simpleTextarea', issueElement).value || // new layout
@@ -44,9 +50,6 @@
                 $$.try('.TaskAncestry-ancestorProject').textContent || // new layout subtask project
                 $$.try('.tokens-container .token_name').textContent || // old layout task project
                 $$.try('.ancestor-projects .token').textContent; // old layout subtask project
-
-            var serviceType = 'Asana';
-            var serviceUrl = source.protocol + source.host;
 
             return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
         }

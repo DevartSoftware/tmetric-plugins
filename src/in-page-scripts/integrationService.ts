@@ -34,7 +34,7 @@
             // If it is found we should refresh links on a page.
             return $$.all('a.' + this.affix).some(link => {
                 var linkTimer = <WebToolIssueTimer>JSON.parse(link.getAttribute('data-' + this.affix));
-                return !linkTimer.isStarted || this.isSimilarIssueStarted(linkTimer);
+                return !linkTimer.isStarted || this.isIssueStarted(linkTimer);
             });
         }
 
@@ -156,7 +156,7 @@
                 return;
             }
 
-            var isNewIssueStarted = this.isSimilarIssueStarted(newIssue);
+            var isNewIssueStarted = this.isIssueStarted(newIssue);
 
             var newIssueTimer = <WebToolIssueTimer>{
                 isStarted: !isNewIssueStarted
@@ -170,9 +170,7 @@
                 var oldSession = parseInt(oldLink.getAttribute('data-session'));
             }
 
-            var isSameIssue = this.isSameIssue(oldIssueTimer, newIssueTimer);
-
-            if (isSameIssue &&
+            if (this.isSameIssue(oldIssueTimer, newIssueTimer) &&
                 newIssueTimer.isStarted == oldIssueTimer.isStarted &&
                 newIssueTimer.projectName == oldIssueTimer.projectName &&
                 oldSession == this.session
@@ -181,23 +179,11 @@
                 return;
             }
 
-            var duration = 0;
-
-            // show duration only for issues with id and url
-            // only these issues can be displayed with correct total duration
-            if (newIssue.issueId && newIssue.issueUrl) {
-
-                duration = issueDuration && issueDuration.duration;
-
-                // add current timer duration only if timer started for this issue
-                if (this.isSameIssueStarted(newIssue))  {
-
-                    var timerDuration = Date.now() - Date.parse(this._timer.startTime);
-
-                    // add current timer duration if timer is not long running
-                    if (timerDuration <= 10 * HOUR) {
-                        duration += Date.now() - Date.parse(this._timer.startTime);
-                    }
+            var duration = issueDuration && issueDuration.duration || 0;
+            if (isNewIssueStarted) {
+                var timerDuration = Date.now() - Date.parse(this._timer.startTime);
+                if (timerDuration <= 10 * HOUR) { // add current timer duration if timer is not long running
+                    duration += Date.now() - Date.parse(this._timer.startTime);
                 }
             }
 
@@ -311,46 +297,7 @@
             }
         }
 
-        private static isSimilarIssueStarted(issue: WebToolIssue): boolean {
-            var timer = this._timer;
-            if (!timer) {
-                return false;
-            }
-
-            var task = timer.workTask;
-            if (!task && !timer.isStarted) {
-                return false;
-            }
-
-            var startedIssue = <WebToolIssue>{
-                issueId: task.externalIssueId,
-                issueName: task.description,
-                issueUrl: task.relativeIssueUrl,
-                serviceUrl: task.integrationUrl
-            };
-
-            // On issue trackers, different pages for same issue can be parsed with or without id.
-            // To synchronize timer button state on such pages the issues should be normalized.
-            
-            // If timer issue or parsed issue have empty IssueId, IssueUrl or ServiceUrl
-            // then treat the issues as same.
-
-            if (!startedIssue.issueId || !issue.issueId) {
-                startedIssue.issueId = issue.issueId;
-            }
-
-            if (!startedIssue.issueUrl || !issue.issueUrl) {
-                startedIssue.issueUrl = issue.issueUrl;
-            }
-
-            if (!startedIssue.serviceUrl || !issue.serviceUrl) {
-                startedIssue.serviceUrl = issue.serviceUrl;
-            }
-
-            return this.isSameIssue(startedIssue, issue);
-        }
-
-        private static isSameIssueStarted(issue: WebToolIssue): boolean {
+        private static isIssueStarted(issue: WebToolIssue): boolean {
             var timer = this._timer;
             if (!timer) {
                 return false;
