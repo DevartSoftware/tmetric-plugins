@@ -139,14 +139,15 @@
             });
         }
 
-        static getIssueDuration(durations: WebToolIssueDuration[], issue: WebToolIssueIdentifier): WebToolIssueDuration {
-            return durations.filter(duration =>
-                duration.issueUrl == issue.issueUrl &&
-                duration.serviceUrl == issue.serviceUrl
-            )[0];
+        static getIssueDuration(durations: WebToolIssueDuration[], issue: WebToolIssueIdentifier) {
+            for (var duration of durations) {
+                if (duration.issueUrl == issue.issueUrl && duration.serviceUrl == issue.serviceUrl) {
+                    return duration;
+                }
+            }
         }
 
-        private static trimText(text: string, maxLength: number): string {
+        private static trimText(text: string, maxLength: number) {
             if (text) {
                 text = text.trim();
                 if (text.length > maxLength) {
@@ -203,9 +204,15 @@
 
             var duration = issueDuration && issueDuration.duration || 0;
             if (isNewIssueStarted && newIssue.issueId) {
+
                 var timerDuration = Date.now() - Date.parse(this._timer.startTime);
+
+                console.log("Start time   = " + this._timer.startTime);
+                console.log("Now          = " + new Date().toISOString());
+                console.log("Timer hours  = " + timerDuration / HOUR);
+
                 if (timerDuration <= 10 * HOUR) { // add current timer duration if timer is not long running
-                    duration += Date.now() - Date.parse(this._timer.startTime);
+                    duration += timerDuration;
                 }
             }
 

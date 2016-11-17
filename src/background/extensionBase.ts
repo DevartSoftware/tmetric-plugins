@@ -418,42 +418,16 @@ class ExtensionBase {
         return this._issuesDurationsCache[this.makeIssueDurationKey(identifier)];
     }
 
-    private getIssuesDurationsFromCache(identifiers: Integrations.WebToolIssueIdentifier[]): Integrations.WebToolIssueDuration[] {
-        var durations = [];
-        identifiers.forEach(identifier => {
-            var duration = this.getIssueDurationFromCache(identifier);
-            if (duration) {
-                durations.push(duration);
-            }
-        });
-        return durations;
-    }
-
-    private putIssueDurationToCache(duration: Integrations.WebToolIssueDuration) {
-        this._issuesDurationsCache[this.makeIssueDurationKey(duration)] = duration;
-    }
-
     private putIssuesDurationsToCache(durations: Integrations.WebToolIssueDuration[]) {
-        durations.forEach(duration => this.putIssueDurationToCache(duration));
-    }
-
-    private removeIssueDurationFromCache(identifier: Integrations.WebToolIssueIdentifier) {
-        delete this._issuesDurationsCache[this.makeIssueDurationKey(identifier)];
+        durations.forEach(duration => {
+            this._issuesDurationsCache[this.makeIssueDurationKey(duration)] = duration;
+        });
     }
 
     private removeIssuesDurationsFromCache(identifiers: Integrations.WebToolIssueIdentifier[]) {
-        identifiers.forEach(identifier => this.removeIssueDurationFromCache(identifier));
-    }
-
-    private removeTimerIssueDurationFromCache(timer: Models.Timer) {
-        var task = timer && timer.workTask;
-        if (task) {
-            var identifier = <Integrations.WebToolIssueIdentifier>{
-                serviceUrl: task.integrationUrl,
-                issueUrl: task.relativeIssueUrl
-            };
-            this.removeIssueDurationFromCache(identifier);
-        }
+        identifiers.forEach(identifier => {
+            delete this._issuesDurationsCache[this.makeIssueDurationKey(identifier)];
+        });
     }
 
     private clearIssuesDurationsCache() {
@@ -461,29 +435,34 @@ class ExtensionBase {
     }
 
     getIssuesDurations(identifiers: Integrations.WebToolIssueIdentifier[]): Promise<Integrations.WebToolIssueDuration[]> {
-        var durations = <Integrations.WebToolIssueDuration[]>[];
-        var fetchIdentifiers = <Integrations.WebToolIssueIdentifier[]>[];
+
+        let durations = <Integrations.WebToolIssueDuration[]>[];
+        let fetchIdentifiers = <Integrations.WebToolIssueIdentifier[]>[];
+
         identifiers.forEach(identifier => {
-            var duration = this.getIssueDurationFromCache(identifier);
+            let duration = this.getIssueDurationFromCache(identifier);
             if (duration) {
                 durations.push(duration);
-            } else {
+            }
+            else {
                 fetchIdentifiers.push(identifier);
             }
         });
 
         if (durations.length == identifiers.length) {
             return Promise.resolve(durations);
-        } else {
-            return new Promise(resolve => {
-                this.fetchIssuesDurations(fetchIdentifiers).then(fetchDurations => {
+        }
+
+        return new Promise<Integrations.WebToolIssueDuration[]>(resolve => {
+            this.fetchIssuesDurations(fetchIdentifiers)
+                .then(fetchDurations => {
                     this.putIssuesDurationsToCache(fetchDurations);
-                    resolve(this.getIssuesDurationsFromCache(identifiers));
-                }, () => {
+                    resolve(durations.concat(fetchDurations));
+                })
+                .catch(() => {
                     resolve([]);
                 });
-            });
-        }
+        });
     }
 
     // port actions
