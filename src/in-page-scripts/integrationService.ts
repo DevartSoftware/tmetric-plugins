@@ -68,9 +68,11 @@
                 elements.forEach(element => {
                     var issue = integration.getIssue(element, source);
                     if (issue) {
+
                         // normalize urls
                         issue.serviceUrl = issue.serviceUrl ? issue.serviceUrl.replace(/\/+$/, '') : issue.serviceUrl;
                         issue.issueUrl = issue.issueUrl ? issue.issueUrl.replace(/^\/*/, '/') : issue.issueUrl;
+
                         // trim all string values
                         issue.issueId = this.trimText(issue.issueId, Models.Limits.maxIssueId);
                         issue.issueName = this.trimText(issue.issueName, Models.Limits.maxTask);
@@ -78,6 +80,26 @@
                         issue.serviceUrl = this.trimText(issue.serviceUrl, Models.Limits.maxIntegrationUrl);
                         issue.serviceType = this.trimText(issue.serviceType, Models.Limits.maxIntegrationType);
                         issue.projectName = this.trimText(issue.projectName, Models.Limits.maxProjectName);
+
+                        // take issueId and issueUrl from started timer if workTask description matches issue name
+                        if (!issue.issueUrl
+                            && this._timer
+                            && this._timer.isStarted) {
+
+                            let workTask = this._timer.workTask;
+                            if (workTask
+                                && workTask.relativeIssueUrl
+                                && workTask.description == issue.issueName) {
+
+                                issue.issueUrl = workTask.relativeIssueUrl;
+                                issue.issueId = workTask.externalIssueId;
+                            }
+                        }
+
+                        if (!issue.issueUrl) {
+                            issue.serviceUrl = undefined;
+                            issue.serviceType = undefined;
+                        }
 
                         issues.push(issue);
                         parsedIssues.push({ element, issue });
@@ -180,7 +202,7 @@
             }
 
             var duration = issueDuration && issueDuration.duration || 0;
-            if (isNewIssueStarted) {
+            if (isNewIssueStarted && newIssue.issueId) {
                 var timerDuration = Date.now() - Date.parse(this._timer.startTime);
                 if (timerDuration <= 10 * HOUR) { // add current timer duration if timer is not long running
                     duration += Date.now() - Date.parse(this._timer.startTime);

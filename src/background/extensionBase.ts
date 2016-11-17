@@ -308,7 +308,7 @@ class ExtensionBase {
 
                 if (!status.projectStatus) {
                     // No rights to create project or service is not specified
-                    if (status.serviceRole < Models.ServiceRole.ProjectCreator || !timer.serviceUrl) {
+                    if (status.serviceRole < Models.ServiceRole.ProjectCreator) {
                         timer.projectName = undefined;
                     }
                 }
