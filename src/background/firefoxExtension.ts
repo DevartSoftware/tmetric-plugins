@@ -144,6 +144,7 @@ class FirefoxExtension extends ExtensionBase {
 
                     if (closedWindow == this.loginWindow) {
                         this.loginWindow = null;
+                        this.loginTabId = null;
                         this.reconnect();
                     }
                 }
@@ -228,6 +229,19 @@ class FirefoxExtension extends ExtensionBase {
                 (tab.readyState == "interactive" || tab.readyState == "complete")) {
                 // Firefox does not attach to some tabs after browser session restore
                 attachTab(tab);
+            }
+        });
+
+        tabs.on('ready', tab => {
+            // close login window
+            if (tab.id == this.loginTabId) {
+                let tabUrl = tab.url;
+                let serviceUrl = this.serviceUrl.toLowerCase();
+                if (tabUrl == serviceUrl || tabUrl.indexOf(serviceUrl + '#') == 0) {
+                    tab.close(() => {
+                        console.log('login window closed');
+                    });
+                }
             }
         });
 
