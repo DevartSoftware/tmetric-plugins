@@ -388,14 +388,18 @@ class ExtensionBase {
     }
 
     private durationToString(duration: number) {
-        duration = Math.floor(duration / 60000);
-        var s = '' + Math.floor(duration / 60) + ':';
-        var mins = duration % 60;
-        if (mins < 10) {
-            s += '0';
+
+        let sign = '';
+        if (duration < 0) {
+            duration = -duration;
+            sign = '-';
         }
-        s += mins;
-        return s;
+
+        let totalMinutes = Math.floor(duration / 60000);
+        let hours = Math.floor(totalMinutes / 60);
+        let minutes = totalMinutes % 60;
+
+        return sign + hours + (minutes < 10 ? ':0' : ':') + minutes;
     }
 
     private getErrorText(status: AjaxStatus) {

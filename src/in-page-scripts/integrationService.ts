@@ -157,15 +157,19 @@
             return text || null;
         }
 
-        private static formatIssueDuration(duration: number) {
+        private static durationToString(duration: number) {
 
-            const MINUTE = 1000 * 60;
-            const HOUR = MINUTE * 60;
+            let sign = '';
+            if (duration < 0) {
+                duration = -duration;
+                sign = '-';
+            }
 
-            var hours = Math.floor(duration / HOUR);
-            var minutes = Math.floor((duration - hours * HOUR) / MINUTE);
+            let totalMinutes = Math.floor(duration / 60000);
+            let hours = Math.floor(totalMinutes / 60);
+            let minutes = totalMinutes % 60;
 
-            return hours + ':' + (minutes < 10 ? '0' + minutes : minutes);
+            return sign + hours + (minutes < 10 ? ':0' : ':') + minutes;
         }
 
         static updateLink(element: HTMLElement, integration: WebToolIntegration, newIssue: WebToolIssue, issueDuration: WebToolIssueDuration) {
@@ -205,11 +209,8 @@
             var duration = issueDuration && issueDuration.duration || 0;
             if (isNewIssueStarted && newIssue.issueId) {
 
-                var timerDuration = Date.now() - Date.parse(this._timer.startTime);
-
-                console.log("Start time   = " + this._timer.startTime);
-                console.log("Now          = " + new Date().toISOString());
-                console.log("Timer hours  = " + timerDuration / HOUR);
+                // Show zero duration if client clock is late (TMET-947)
+                let timerDuration = Math.max(0, Date.now() - Date.parse(this._timer.startTime));
 
                 if (timerDuration <= 10 * HOUR) { // add current timer duration if timer is not long running
                     duration += timerDuration;
@@ -236,7 +237,7 @@
             var span = document.createElement('span');
             span.textContent = newIssueTimer.isStarted ? 'Start timer' : 'Stop timer';
             if (duration) {
-                span.textContent += ' (' + this.formatIssueDuration(duration) + ')';
+                span.textContent += ' (' + this.durationToString(duration) + ')';
             }
             newLink.appendChild(span);
 
