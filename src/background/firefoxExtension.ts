@@ -300,8 +300,8 @@ class FirefoxExtension extends ExtensionBase {
 
         var parameters = 'location=' + 0 +
             ', menubar=' + 0 +
-            ', width=' + width +
-            ', height=' + height +
+            ', outerWidth=' + width +
+            ', outerHeight=' + height +
             ', toolbar=' + 0 +
             ', scrollbars=' + 0 +
             ', status=' + 0 +
