@@ -28,22 +28,18 @@
                 return;
             }
 
+            var serviceType = 'Uservoice';
+            var serviceUrl = source.protocol + source.host;
+
             // Issue id in url not refreshed after creating new ticket.
             // Take it from ticket field.
             var issueUrlElement = $$.try<HTMLAnchorElement>('.ticket-metadata a[href*="/tickets/"]', issueElement);
-            if (!issueUrlElement) {
-                return;
-            }
-
             var match = /^(.+\/tickets\/)(\d+).*$/.exec(issueUrlElement.href);
-            if (!match) {
-                return;
+            if (match) {
+                var issueId = '#' + match[2];
+                var issueUrl = $$.getRelativeUrl(serviceUrl, issueUrlElement.href);
             }
  
-            var issueId = '#' + match[2];
-            var serviceType = 'Uservoice';
-            var serviceUrl = source.protocol + source.host;
-            var issueUrl = $$.getRelativeUrl(serviceUrl, issueUrlElement.href);
             var projectName = ''; // uservoice have no predefined field for project
 
             return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
