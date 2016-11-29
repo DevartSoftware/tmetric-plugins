@@ -12,7 +12,7 @@ class ChromeExtension extends ExtensionBase {
         super(backgroundPort);
 
         // Inject content scripts in all already opened pages
-        var contentScripts = (<ChromeExtensionManifest>chrome.runtime.getManifest()).content_scripts[0];
+        var contentScripts = chrome.runtime.getManifest().content_scripts[0];
         var jsFiles = contentScripts.js;
         var cssFiles = contentScripts.css;
         var runAt = contentScripts.run_at;
