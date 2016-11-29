@@ -286,7 +286,7 @@ class FirefoxExtension extends ExtensionBase {
 
         var window = utils.getMostRecentBrowserWindow();
 
-        var width = 440;
+        var width = 430;
         var height = 600;
         var left = 400;
         var top = 300;
@@ -300,8 +300,8 @@ class FirefoxExtension extends ExtensionBase {
 
         var parameters = 'location=' + 0 +
             ', menubar=' + 0 +
-            ', outerWidth=' + width +
-            ', outerHeight=' + height +
+            ', width=' + width +
+            ', height=' + height +
             ', toolbar=' + 0 +
             ', scrollbars=' + 0 +
             ', status=' + 0 +

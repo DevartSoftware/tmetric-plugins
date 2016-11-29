@@ -121,39 +121,53 @@ class ChromeExtension extends ExtensionBase {
             return;
         }
 
-        chrome.windows.getLastFocused(window => {
+        chrome.windows.getLastFocused(pageWindow => {
             if (this.loginWindowPending) {
                 return;
             }
             this.loginWindowPending = true;
             try {
 
-                var width = 440;
+                var width = 430;
                 var height = 600;
                 var left = 400;
                 var top = 300;
 
-                if (window.left != null && window.width != null) {
-                    left = Math.round(window.left + (window.width - width) / 2);
+                if (pageWindow.left != null && pageWindow.width != null) {
+                    left = Math.round(pageWindow.left + (pageWindow.width - width) / 2);
                 }
-                if (window.top != null && window.height != null) {
-                    top = Math.round(window.top + (window.height - height) / 2);
+                if (pageWindow.top != null && pageWindow.height != null) {
+                    top = Math.round(pageWindow.top + (pageWindow.height - height) / 2);
                 }
 
-                chrome.windows.create(
-                    <chrome.windows.CreateData>{
-                        left,
-                        top,
-                        width,
-                        height,
-                        focused: true,
-                        url: this.getLoginUrl(),
-                        type: 'popup'
-                    }, window => {
-                        this.loginWinId = window.id;
-                        this.loginTabId = window.tabs[0].id;
-                        this.loginWindowPending = false;
+                chrome.windows.create(<chrome.windows.CreateData>{
+                    left,
+                    top,
+                    width,
+                    height,
+                    focused: true,
+                    url: this.getLoginUrl(),
+                    type: 'popup'
+                }, popupWindow => {
+
+                    var popupTab = popupWindow.tabs[0];
+
+                    this.loginWinId = popupWindow.id;
+                    this.loginTabId = popupTab.id;
+                    this.loginWindowPending = false;
+
+                    var deltaWidth = popupWindow.width - popupTab['width'];
+                    var deltaHeight = popupWindow.height - popupTab['height'];
+
+                    chrome.windows.update(popupWindow.id, <chrome.windows.UpdateInfo>{
+                        left: Math.max(left - Math.round(deltaWidth / 2), 0),
+                        top: Math.max(top - Math.round(deltaHeight / 2), 0),
+                        width: width + deltaWidth,
+                        height: height + deltaHeight
                     });
+                    
+                });
+
             }
             catch (e) {
                 this.loginWindowPending = false;
