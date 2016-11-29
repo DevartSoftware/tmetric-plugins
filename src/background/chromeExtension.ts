@@ -128,10 +128,7 @@ class ChromeExtension extends ExtensionBase {
             this.loginWindowPending = true;
             try {
 
-                var width = 430;
-                var height = 600;
-                var left = 400;
-                var top = 300;
+                let {width, height, left, top} = this.getDefaultLoginPosition();
 
                 if (pageWindow.left != null && pageWindow.width != null) {
                     left = Math.round(pageWindow.left + (pageWindow.width - width) / 2);
@@ -156,18 +153,16 @@ class ChromeExtension extends ExtensionBase {
                     this.loginTabId = popupTab.id;
                     this.loginWindowPending = false;
 
-                    var deltaWidth = popupWindow.width - popupTab['width'];
-                    var deltaHeight = popupWindow.height - popupTab['height'];
+                    var deltaWidth = width - popupTab.width;
+                    var deltaHeight = height - popupTab.height;
 
                     chrome.windows.update(popupWindow.id, <chrome.windows.UpdateInfo>{
-                        left: Math.max(left - Math.round(deltaWidth / 2), 0),
-                        top: Math.max(top - Math.round(deltaHeight / 2), 0),
+                        left: left - Math.round(deltaWidth / 2),
+                        top: top - Math.round(deltaHeight / 2),
                         width: width + deltaWidth,
                         height: height + deltaHeight
                     });
-                    
                 });
-
             }
             catch (e) {
                 this.loginWindowPending = false;

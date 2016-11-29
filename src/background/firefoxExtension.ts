@@ -286,10 +286,7 @@ class FirefoxExtension extends ExtensionBase {
 
         var window = utils.getMostRecentBrowserWindow();
 
-        var width = 430;
-        var height = 600;
-        var left = 400;
-        var top = 300;
+        let {width, height, left, top} = this.getDefaultLoginPosition();
 
         if (window.screenX != null && window.outerWidth != null) {
             left = window.screenX + (window.outerWidth - width) / 2;

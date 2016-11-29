@@ -4,6 +4,15 @@ class ExtensionBase {
 
     showLoginDialog() { }
 
+    getDefaultLoginPosition() {
+        return {
+            width: 420,
+            height: 535,
+            left: 400,
+            top: 300
+        }
+    }
+
     showError(message: string) { }
 
     showNotification(message: string, title?: string) { }
