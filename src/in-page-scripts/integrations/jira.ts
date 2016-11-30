@@ -50,6 +50,11 @@
         /* This code is suitable for both Jira and Jira Service Desk */
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
+            // Detect Agile Desk
+            if ($$('#ghx-rabid #ghx-detail-issue')) {
+                return;
+            }
+
             // https://devart.atlassian.net/browse/TT-1
             // PROTOCOL = http://
             // HOST = devart.atlassian.net

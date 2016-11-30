@@ -25,6 +25,8 @@ var $$ = <Utils>function (selector: string, element?: NodeSelector, condition?: 
             return nodeList[i];
         }
     }
+
+    return null;
 }
 
 $$.try = function (selector: string, element?: NodeSelector, condition?: (el: Element) => boolean) {

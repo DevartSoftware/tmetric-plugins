@@ -452,6 +452,9 @@ class ExtensionBase {
         let durations = <Integrations.WebToolIssueDuration[]>[];
         let fetchIdentifiers = <Integrations.WebToolIssueIdentifier[]>[];
 
+        // Do not show durations of tasks without url
+        identifiers = identifiers.filter(_ => !!_.serviceUrl && !!_.issueUrl);
+
         identifiers.forEach(identifier => {
             let duration = this.getIssueDurationFromCache(identifier);
             if (duration) {
