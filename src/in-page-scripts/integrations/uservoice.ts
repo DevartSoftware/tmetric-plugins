@@ -28,7 +28,7 @@
                 return;
             }
 
-            var serviceType = 'Uservoice';
+            var serviceType = 'UserVoice';
             var serviceUrl = source.protocol + source.host;
 
             // Issue id in url not refreshed after creating new ticket.
@@ -39,7 +39,7 @@
                 var issueId = '#' + match[2];
                 var issueUrl = $$.getRelativeUrl(serviceUrl, issueUrlElement.href);
             }
- 
+
             var projectName = ''; // uservoice have no predefined field for project
 
             return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
