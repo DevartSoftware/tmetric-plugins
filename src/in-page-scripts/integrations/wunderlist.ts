@@ -8,10 +8,7 @@
         // https://www.wunderlist.com/#/lists/LIST_ID
         // Task in list with description
         // https://www.wunderlist.com/#/tasks/TASK_ID
-        matchUrl = [
-            '*://www.wunderlist.com/#/*',
-            '*://www.wunderlist.com/webapp#/*'
-        ];
+        matchUrl = '*://www.wunderlist.com/*#/*';
 
         issueElementSelector = '.taskItem';
 
