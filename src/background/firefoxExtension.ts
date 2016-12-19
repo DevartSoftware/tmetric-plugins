@@ -109,6 +109,7 @@ class FirefoxExtension extends ExtensionBase {
             './in-page-scripts/integrations/uservoice.js',
             './in-page-scripts/integrations/waffle.js',
             './in-page-scripts/integrations/wrike.js',
+            './in-page-scripts/integrations/wunderlist.js',
             './in-page-scripts/integrations/youTrack.js',
             './in-page-scripts/integrations/zendesk.js',
             './in-page-scripts/page.js'
