@@ -1,6 +1,6 @@
 ﻿module Integrations {
 
-    class UservoiceTicket implements WebToolIntegration {
+    class UserVoiceTicket implements WebToolIntegration {
 
         observeMutations = true;
 
@@ -46,7 +46,7 @@
         }
     }
 
-    class UservoiceSuggestion implements WebToolIntegration {
+    class UserVoiceSuggestion implements WebToolIntegration {
 
         observeMutations = true;
 
@@ -79,7 +79,7 @@
             }
 
             var issueId = '#' + match[2];
-            var serviceType = 'Uservoice';
+            var serviceType = 'UserVoice';
             var serviceUrl = source.protocol + source.host;
             var issueUrl = match[1] + match[2];
             var projectName = ''; // uservoice have no predefined field for project
@@ -88,6 +88,6 @@
         }
     }
 
-    IntegrationService.register(new UservoiceTicket());
-    IntegrationService.register(new UservoiceSuggestion());
+    IntegrationService.register(new UserVoiceTicket());
+    IntegrationService.register(new UserVoiceSuggestion());
 }
