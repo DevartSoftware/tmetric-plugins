@@ -1,98 +1,97 @@
 {
-  "manifest_version": 2,
+    "manifest_version": 2,
 
-  "name": "TMetric - Time Tracker Extension",
-  "short_name": "TMetric",
-  "description": "Integrates TMetric with popular task and project management tools.",
-  "author": "Devart",
-  "version": "1.3.1",
+    "name": "TMetric - Time Tracker Extension",
+    "short_name": "TMetric",
+    "description": "Integrates TMetric with popular task and project management tools.",
+    "author": "Devart",
+    "version": "1.3.2",
 
-  "icons": {
-    "16": "images/chrome/icon16.png",
-    "48": "images/icon.png",
-    "128": "images/chrome/icon128.png"
-  },
-
-  "browser_action": {
-    "default_icon": {
-      "19": "images/chrome/inactive19.png",
-      "38": "images/chrome/inactive38.png"
+    "icons": {
+        "16": "images/chrome/icon16.png",
+        "48": "images/icon.png",
+        "128": "images/chrome/icon128.png"
     },
-    "default_popup": "popup/popup.html"
-  },
-  "permissions": [
-    "activeTab",
-    "tabs",
-    "notifications",
-    "storage",
-    "http://*/*",
-    "https://*/*"
-  ],
-  "background": {
-    "scripts": [
-      "lib/jquery.min.js",
-      "lib/jquery.signalr.min.js",
-      "background/shamPort.js",
-      "background/signalRConnection.js",
-      "background/extensionBase.js",
-      "background/chromeExtension.js"
+
+    "browser_action": {
+        "default_icon": {
+            "19": "images/chrome/inactive19.png",
+            "38": "images/chrome/inactive38.png"
+        },
+        "default_popup": "popup/popup.html"
+    },
+    "permissions": [
+        "activeTab",
+        "tabs",
+        "notifications",
+        "http://*/*",
+        "https://*/*"
+    ],
+    "background": {
+        "scripts": [
+            "lib/jquery.min.js",
+            "lib/jquery.signalr.min.js",
+            "background/shamPort.js",
+            "background/signalRConnection.js",
+            "background/extensionBase.js",
+            "background/chromeExtension.js"
+        ]
+    },
+    "externally_connectable": {
+        "matches": [ "*://localhost/*", "*://alm-build/*", "*://app.tmetric.com/*" ]
+    },
+    "content_scripts": [
+        {
+            "matches": [ "http://*/*", "https://*/*" ],
+            "exclude_matches": [ "http://*/*lib/execute/execSetResults.php*", "https://*/*lib/execute/execSetResults.php*" ],
+            "js": [
+                "in-page-scripts/utils.js",
+                "in-page-scripts/integrationService.js",
+                "in-page-scripts/integrations/asana.js",
+                "in-page-scripts/integrations/assembla.js",
+                "in-page-scripts/integrations/axosoft.js",
+                "in-page-scripts/integrations/basecamp.js",
+                "in-page-scripts/integrations/bitbucket.js",
+                "in-page-scripts/integrations/bugzilla.js",
+                "in-page-scripts/integrations/gitHub.js",
+                "in-page-scripts/integrations/gitLab.js",
+                "in-page-scripts/integrations/jira.js",
+                "in-page-scripts/integrations/pivotalTracker.js",
+                "in-page-scripts/integrations/producteev.js",
+                "in-page-scripts/integrations/redmine.js",
+                "in-page-scripts/integrations/sprintly.js",
+                "in-page-scripts/integrations/teamweek.js",
+                "in-page-scripts/integrations/teamwork.js",
+                "in-page-scripts/integrations/tfs.js",
+                "in-page-scripts/integrations/todoist.js",
+                "in-page-scripts/integrations/trac.js",
+                "in-page-scripts/integrations/trello.js",
+                "in-page-scripts/integrations/uservoice.js",
+                "in-page-scripts/integrations/waffle.js",
+                "in-page-scripts/integrations/wrike.js",
+                "in-page-scripts/integrations/wunderlist.js",
+                "in-page-scripts/integrations/youTrack.js",
+                "in-page-scripts/integrations/zendesk.js",
+                "in-page-scripts/page.js"
+            ],
+            "css": [
+                "css/timer-link.css"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [ "http://*/*lib/execute/execSetResults.php*", "https://*/*lib/execute/execSetResults.php*" ],
+            "all_frames": true,
+            "js": [
+                "in-page-scripts/utils.js",
+                "in-page-scripts/integrationService.js",
+                "in-page-scripts/integrations/testLink.js",
+                "in-page-scripts/page.js"
+            ],
+            "css": [
+                "css/timer-link.css"
+            ],
+            "run_at": "document_end"
+        }
     ]
-  },
-  "externally_connectable": {
-    "matches": [ "*://localhost/*", "*://alm-build/*", "*://app.tmetric.com/*" ]
-  },
-  "content_scripts": [
-    {
-      "matches": [ "http://*/*", "https://*/*" ],
-      "exclude_matches": [ "http://*/*lib/execute/execSetResults.php*", "https://*/*lib/execute/execSetResults.php*" ],
-      "js": [
-        "in-page-scripts/utils.js",
-        "in-page-scripts/integrationService.js",
-        "in-page-scripts/integrations/asana.js",
-        "in-page-scripts/integrations/assembla.js",
-        "in-page-scripts/integrations/axosoft.js",
-        "in-page-scripts/integrations/basecamp.js",
-        "in-page-scripts/integrations/bitbucket.js",
-        "in-page-scripts/integrations/bugzilla.js",
-        "in-page-scripts/integrations/gitHub.js",
-        "in-page-scripts/integrations/gitLab.js",
-        "in-page-scripts/integrations/jira.js",
-        "in-page-scripts/integrations/pivotalTracker.js",
-        "in-page-scripts/integrations/producteev.js",
-        "in-page-scripts/integrations/redmine.js",
-        "in-page-scripts/integrations/sprintly.js",
-        "in-page-scripts/integrations/teamweek.js",
-        "in-page-scripts/integrations/teamwork.js",
-        "in-page-scripts/integrations/tfs.js",
-        "in-page-scripts/integrations/todoist.js",
-        "in-page-scripts/integrations/trac.js",
-        "in-page-scripts/integrations/trello.js",
-        "in-page-scripts/integrations/uservoice.js",
-        "in-page-scripts/integrations/waffle.js",
-        "in-page-scripts/integrations/wrike.js",
-        "in-page-scripts/integrations/wunderlist.js",
-        "in-page-scripts/integrations/youTrack.js",
-        "in-page-scripts/integrations/zendesk.js",
-        "in-page-scripts/page.js"
-      ],
-      "css": [
-        "css/timer-link.css"
-      ],
-      "run_at": "document_end"
-    },
-    {
-      "matches": [ "http://*/*lib/execute/execSetResults.php*", "https://*/*lib/execute/execSetResults.php*" ],
-      "all_frames": true,
-      "js": [
-        "in-page-scripts/utils.js",
-        "in-page-scripts/integrationService.js",
-        "in-page-scripts/integrations/testLink.js",
-        "in-page-scripts/page.js"
-      ],
-      "css": [
-        "css/timer-link.css"
-      ],
-      "run_at": "document_end"
-    }
-  ]
 }
