@@ -13,7 +13,10 @@
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
             var host = $$('[data-hook="row-actions"]', issueElement);
             if (host) {
-                linkElement.classList.add('devart-timer-link-teamweek', 'button', 'button--large', 'button--icon');
+                linkElement.classList.add(
+                    'devart-timer-link-teamweek',
+                    'devart-timer-link-minimal',
+                    'button', 'button--large', 'button--icon');
                 host.appendChild(linkElement);
             }
         }

@@ -2,6 +2,14 @@
     text-decoration: none;
 }
 
+.devart-timer-link-minimal {
+    width: auto !important;
+
+    .devart-timer-link-icon ~ span {
+        display: none;
+    }
+}
+
 .devart-timer-link-icon {
     padding-right: 3px;
     display: inline-block;
@@ -13,6 +21,14 @@
 
     .devart-timer-link-stop > &:before {
         content: data-uri('images/stop16.png');
+    }
+
+    .devart-timer-link-minimal.devart-timer-link-start > &:before {
+        content: data-uri('images/TMetric_start_19.png');
+    }
+
+    .devart-timer-link-minimal.devart-timer-link-stop > &:before {
+        content: data-uri('images/TMetric_stop_19.png');
     }
 }
 
@@ -76,13 +92,7 @@
 }
 
 .devart-timer-link-teamweek {
-    width: auto !important;
     margin: 0 0 0 8px;
-    text-align: center;
-
-    > span:last-child {
-        display: none;
-    }
 }
 
 .devart-timer-link-axosoft {
@@ -119,15 +129,6 @@
     }
     .task_item:hover &.devart-timer-link-start {
         display: initial !important;
-    }
-}
-
-.devart-timer-link-wunderlist-list {
-    width: auto !important;
-    text-align: center;
-
-    > span:last-child {
-        display: none;
     }
 }
 
