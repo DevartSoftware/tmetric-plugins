@@ -1,6 +1,6 @@
 ﻿module Integrations {
 
-    class WunderlistTask implements WebToolIntegration {
+    class Wunderlist implements WebToolIntegration {
 
         observeMutations = true;
 
@@ -10,27 +10,44 @@
         // https://www.wunderlist.com/#/tasks/TASK_ID
         matchUrl = '*://www.wunderlist.com/*#/*';
 
-        issueElementSelector = '.taskItem';
+        issueElementSelector = () => $$.all('.taskItem') // list item
+            .concat($$.all('#detail')); // detail view
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
-            var task = $$('.taskItem-titleWrapper', issueElement);
-            if (task) {
-                linkElement.classList.add('devart-timer-link-wunderlist');
-                task.insertBefore(linkElement, task.firstElementChild);
+            var listTaskAnchor = $$('.taskItem-star', issueElement);
+            var detailTaskHost = $$('.body', issueElement);
+
+            if (listTaskAnchor) {
+                linkElement.classList.add('devart-timer-link-wunderlist-list');
+                listTaskAnchor.parentElement.insertBefore(linkElement, listTaskAnchor);
+            } else if (detailTaskHost) {
+                linkElement.classList.add('section', 'section-item', 'devart-timer-link-wunderlist-detail');
+                detailTaskHost.insertBefore(linkElement, detailTaskHost.firstElementChild);
             }
         }
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-            var issueName = $$.try('.taskItem-titleWrapper-title', issueElement).textContent;
+            var isDetail = issueElement.id == 'detail';
+
+            var issueName =
+                $$.try('.taskItem-titleWrapper-title', issueElement).textContent || // list item
+                $$.try('.title-container .display-view', issueElement).textContent; // detail view
             if (!issueName) {
                 return;
             }
 
-            var issueNumber = issueElement.getAttribute('rel');
-            if (issueNumber) {
-                var issueId = '#' + issueNumber;
-                var issueUrl = '/#/tasks/' + issueNumber;
+            let match = /^(\d+)$/.exec(issueElement.getAttribute('rel')) || // list item
+                isDetail && /^.*\/tasks\/(\d+)(\/.*)?$/.exec(source.fullUrl); // detail view
+            if (match) {
+                var issueId = '#' + match[1];
+                var issueUrl = '/#/tasks/' + match[1];
+            }
+
+            // for new items in list the task id can not be parsed
+            // should exit
+            if (!isDetail && !match) {
+                return;
             }
 
             // project name for lists
@@ -53,5 +70,5 @@
         }
     }
 
-    IntegrationService.register(new WunderlistTask());
+    IntegrationService.register(new Wunderlist());
 }
