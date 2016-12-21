@@ -33,7 +33,17 @@
                 var issueUrl = '/#/tasks/' + issueNumber;
             }
 
+            // project name for lists
             var projectName = $$.try('#list-toolbar .title').textContent;
+            
+            // project name for smart lists
+            if (/.*\/(assigned|starred|today|all|completed)$/.test(source.fullUrl)) {
+                let tasks = $$.closest('.tasks', issueElement);
+                let heading = tasks && $$.before('.heading', tasks);
+                projectName = heading && heading.textContent;
+            } else if (/.*\/week$/.test(source.fullUrl)) {
+                projectName = $$.try('.taskItem-duedate', issueElement).textContent;
+            }
 
             var serviceType = 'Wunderlist';
 
