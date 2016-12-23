@@ -50,10 +50,10 @@
                 return;
             }
 
-            // project name for lists
+            // project name for list item and detail view
             var projectName = $$.try('#list-toolbar .title').textContent;
             
-            // project name for smart lists
+            // project name for smart list item
             if (/.*\/(assigned|starred|today|all|completed)$/.test(source.fullUrl)) {
                 let tasks = $$.closest('.tasks', issueElement);
                 let heading = tasks && $$.prev('.heading', tasks);
