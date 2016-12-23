@@ -56,7 +56,7 @@
             // project name for smart lists
             if (/.*\/(assigned|starred|today|all|completed)$/.test(source.fullUrl)) {
                 let tasks = $$.closest('.tasks', issueElement);
-                let heading = tasks && $$.before('.heading', tasks);
+                let heading = tasks && $$.prev('.heading', tasks);
                 projectName = heading && heading.textContent;
             } else if (/.*\/week$/.test(source.fullUrl)) {
                 projectName = $$.try('.taskItem-duedate', issueElement).textContent;
