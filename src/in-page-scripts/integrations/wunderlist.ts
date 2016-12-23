@@ -26,40 +26,38 @@
             }
         }
 
-        getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+        private getIssueList(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-            var isDetail = issueElement.id == 'detail';
-
-            var issueName =
-                $$.try('.taskItem-titleWrapper-title', issueElement).textContent || // list item
-                $$.try('.title-container .display-view', issueElement).textContent; // detail view
+            let issueName = $$.try('.taskItem-titleWrapper-title', issueElement).textContent;
             if (!issueName) {
                 return;
             }
 
-            let match = /^(\d+)$/.exec(issueElement.getAttribute('rel')) || // list item
-                isDetail && /^.*\/tasks\/(\d+)(\/.*)?$/.exec(source.fullUrl); // detail view
-            if (match) {
-                var issueId = '#' + match[1];
-                var issueUrl = '/#/tasks/' + match[1];
-            }
-
+            let match = /^(\d+)$/.exec(issueElement.getAttribute('rel'));
             // for new items in list the task id can not be parsed
-            // should exit
-            if (!isDetail && !match) {
+            if (!match) {
                 return;
             }
 
-            // project name for list item and detail view
-            var projectName = $$.try('#list-toolbar .title').textContent;
-            
-            // project name for smart list item
-            if (/.*\/(assigned|starred|today|all|completed)$/.test(source.fullUrl)) {
+            var issueId = '#' + match[1];
+            var issueUrl = '/#/tasks/' + match[1];
+
+            if ($$('.sidebarItem.active[rel=week]')) {
+                
+                // project name for week smart list item
+                var projectName = $$.try('.taskItem-duedate', issueElement).textContent;
+
+            } else {
+                
+                // project name for other smart list item
                 let tasks = $$.closest('.tasks', issueElement);
                 let heading = tasks && $$.prev('.heading', tasks);
-                projectName = heading && heading.textContent;
-            } else if (/.*\/week$/.test(source.fullUrl)) {
-                projectName = $$.try('.taskItem-duedate', issueElement).textContent;
+                var projectName = heading && heading.textContent;
+
+                if (!projectName) {
+                    // project name for list item
+                    projectName = $$.try('#list-toolbar .title').textContent;
+                }
             }
 
             var serviceType = 'Wunderlist';
@@ -68,6 +66,33 @@
 
             return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
         }
+
+        private getIssueDetail(issueElement: HTMLElement, source: Source): WebToolIssue {
+
+            var issueName = $$.try('.title-container .display-view', issueElement).textContent;
+            if (!issueName) {
+                return;
+            }
+
+            let match = /^.*\/tasks\/(\d+)(\/.*)?$/.exec(source.fullUrl);
+            if (match) {
+                var issueId = '#' + match[1];
+                var issueUrl = '/#/tasks/' + match[1];
+            }
+
+            var projectName = $$.try('#list-toolbar .title').textContent;
+            
+            var serviceType = 'Wunderlist';
+
+            var serviceUrl = source.protocol + source.host;
+
+            return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+        }
+
+        getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+            return (issueElement.id == 'detail' ? this.getIssueDetail : this.getIssueList)(issueElement, source);
+        }
+
     }
 
     IntegrationService.register(new Wunderlist());
