@@ -10,7 +10,7 @@
         // https://www.wunderlist.com/#/tasks/TASK_ID
         matchUrl = '*://www.wunderlist.com/*#/*';
 
-        issueElementSelector = () => $$.all('.taskItem') // list item
+        issueElementSelector = () => $$.all('.taskItem:not(.done)') // list item
             .concat($$.all('#detail')); // detail view
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
