@@ -60,6 +60,8 @@
                 }
             }
 
+            projectName = projectName && projectName.replace('\u200b', ''); // remove special char artifact
+
             var serviceType = 'Wunderlist';
 
             var serviceUrl = source.protocol + source.host;
@@ -81,7 +83,7 @@
             }
 
             var projectName = $$.try('#list-toolbar .title').textContent;
-            
+
             var serviceType = 'Wunderlist';
 
             var serviceUrl = source.protocol + source.host;
