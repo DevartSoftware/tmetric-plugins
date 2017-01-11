@@ -151,7 +151,7 @@
                 let issueIdText = timer.workTask.externalIssueId;
                 let domainMatch = this.domainRegExp.exec(url);
                 if (domainMatch && this.iconIssueIdDomains[domainMatch[1]]) {
-                    issueIdText = '#';
+                    issueIdText = '\u29C9';
                 }
                 $(this._forms.view + ' .task .id .link').attr('href', url).text(issueIdText);
             } else {
