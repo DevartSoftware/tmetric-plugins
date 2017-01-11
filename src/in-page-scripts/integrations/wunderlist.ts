@@ -14,8 +14,8 @@
             .concat($$.all('#detail')); // detail view
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
-            var listTaskAnchor = $$('.taskItem-star', issueElement);
-            var detailTaskHost = $$('.body', issueElement);
+            let listTaskAnchor = $$('.taskItem-star', issueElement);
+            let detailTaskHost = $$('.body', issueElement);
 
             if (listTaskAnchor) {
                 linkElement.classList.add('devart-timer-link-minimal', 'devart-timer-link-wunderlist-list');
@@ -39,20 +39,20 @@
                 return;
             }
 
-            var issueId = '#' + match[1];
-            var issueUrl = '/#/tasks/' + match[1];
+            let issueId = '#' + match[1];
+            let issueUrl = '/#/tasks/' + match[1];
+            let projectName: string;
 
             if ($$('.sidebarItem.active[rel=week]')) {
-                
-                // project name for week smart list item
-                var projectName = $$.try('.taskItem-duedate', issueElement).textContent;
 
+                // project name for week smart list item
+                projectName = $$.try('.taskItem-duedate', issueElement).textContent;
             } else {
-                
+
                 // project name for other smart list item
                 let tasks = $$.closest('.tasks', issueElement);
                 let heading = tasks && $$.prev('.heading', tasks);
-                var projectName = heading && heading.textContent;
+                projectName = heading && heading.textContent;
 
                 if (!projectName) {
                     // project name for list item
@@ -60,18 +60,16 @@
                 }
             }
 
-            projectName = projectName && projectName.replace('\u200b', ''); // remove special char artifact
+            let serviceType = 'Wunderlist';
 
-            var serviceType = 'Wunderlist';
-
-            var serviceUrl = source.protocol + source.host;
+            let serviceUrl = source.protocol + source.host;
 
             return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
         }
 
         private getIssueDetail(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-            var issueName = $$.try('.title-container .display-view', issueElement).textContent;
+            let issueName = $$.try('.title-container .display-view', issueElement).textContent;
             if (!issueName) {
                 return;
             }
@@ -94,7 +92,6 @@
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
             return (issueElement.id == 'detail' ? this.getIssueDetail : this.getIssueList)(issueElement, source);
         }
-
     }
 
     IntegrationService.register(new Wunderlist());
