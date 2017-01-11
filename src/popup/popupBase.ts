@@ -114,6 +114,19 @@
         viewing: 'viewing'
     };
 
+    private iconIssueIdDomains = {
+        'asana.com': true,
+        'basecamp.com': true,
+        'producteev.com': true,
+        'teamweek.com': true,
+        'todoist.com': true,
+        'uservoice.com': true,
+        'wrike.com': true,
+        'wunderlist.com': true
+    };
+
+    private domainRegExp = /([^\.\/]+\.[^\.\/]+)\//;
+
     switchState(name: string) {
         $('content').attr('class', name);
         if (name == this._states.creating) {
@@ -135,7 +148,12 @@
 
             var url = this.getTaskUrl(timer.workTask);
             if (url && timer.workTask.externalIssueId) {
-                $(this._forms.view + ' .task .id .link').attr('href', url).text(timer.workTask.externalIssueId);
+                let issueIdText = timer.workTask.externalIssueId;
+                let domainMatch = this.domainRegExp.exec(url);
+                if (domainMatch && this.iconIssueIdDomains[domainMatch[1]]) {
+                    issueIdText = '#';
+                }
+                $(this._forms.view + ' .task .id .link').attr('href', url).text(issueIdText);
             } else {
                 $(this._forms.view + ' .task .id').hide();
             }
