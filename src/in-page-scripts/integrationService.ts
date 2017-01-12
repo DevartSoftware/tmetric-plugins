@@ -150,7 +150,7 @@
         private static trimText(text: string, maxLength: number) {
             if (text) {
                 // Remove zero-width spaces and trim
-                text.replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
+                text = text.replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
                 if (text.length > maxLength) {
                     text = text.substring(0, maxLength - 2) + '..';
                 }
