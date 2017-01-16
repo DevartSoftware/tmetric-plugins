@@ -152,8 +152,9 @@ class ExtensionBase {
 
                     // show extra time on link for test purposes
                     if (this.extraHours && this._timer && this._timer.isStarted) {
-                        let activeTask = this._timer.workTask;
-                        if (activeTask) {
+                        let activeDetails = this._timer.details;
+                        if (activeDetails && activeDetails.projectTask) {
+                            let activeTask = activeDetails.projectTask;
                             for (let i = 0; i < durations.length; i++) {
                                 let duration = durations[i];
                                 if (duration.issueUrl == activeTask.relativeIssueUrl && duration.serviceUrl == activeTask.integrationUrl) {
@@ -283,7 +284,7 @@ class ExtensionBase {
                 else {
                     state = ButtonState.stop;
                     text = 'Started\n'
-                        + (this._timer.workTask.description || '(No task description)');
+                        + (this._timer.details.description || '(No task description)');
                 }
             }
             else {

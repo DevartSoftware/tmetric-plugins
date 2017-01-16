@@ -94,7 +94,7 @@ declare module Models {
         serviceRole: ServiceRole;
     }
 
-    interface WorkTask {
+    interface WorkTaskLegacy {
         description: string;
         projectId: number;
         externalIssueId: string;
@@ -103,9 +103,33 @@ declare module Models {
         integrationUrl: string;
     }
 
+    export class ProjectTask {
+        assigneeId: number;
+        budgetSize: number;
+        created: string;
+        creatorId: number;
+        description: string;
+        externalIssueId: string;
+        integrationId: number;
+        integrationUrl: string;
+        isBillable: boolean;
+        isCompleted: boolean;
+        projectTaskId: number;
+        projectId: number;
+        relativeIssueUrl: string;
+        tagsIdentifiers: number[];
+    }
+
+    interface TimeEntryDetail {
+        description: string;
+        projectId: number;
+        projectTask: ProjectTask;
+    }
+
     interface Timer {
         isStarted: boolean;
-        workTask: WorkTask;
+        details: TimeEntryDetail;
+        workTask: WorkTaskLegacy;
         startTime: string;
         tagsIdentifiers: number[];
         isBillable: boolean;
@@ -113,8 +137,8 @@ declare module Models {
 
     interface TimeEntry {
         timeEntryId: number;
-        workTask: WorkTask;
-        workTaskId: number;
+        details: TimeEntryDetail;
+        workTask: WorkTaskLegacy;
         startTime: string;
         endTime?: string;
         projectName: string;

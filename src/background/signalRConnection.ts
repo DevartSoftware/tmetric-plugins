@@ -24,6 +24,8 @@
 
     disconnecting = false;
 
+    serverApiVersion: number;
+
     constructor() {
         this.listenPortAction<string>('init', this.init);
         this.listenPortAction<void>('disconnect', this.disconnect);
@@ -198,27 +200,34 @@
 
         console.log('connect');
         return new Promise<Models.UserProfile>((callback, reject) => {
+
             if (this.hubConnected) {
                 console.log('connect: hubConnected');
                 callback(this.userProfile);
                 return;
             }
 
-            this.getProfile().then((profile) => {
-                Promise.all<any>([this.getProjects(), this.getTags()]).then(([projects, tags]) => {
-                    this.hub.start().then(() => {
-                        //this.hub['disconnectTimeout'] = 1000; // for dev
-                        this.hubConnected = true;
-                        this.setRetryPending(false);
-                        this.hubProxy.invoke('register', profile.userProfileId)
-                            .then(() => callback(profile))
-                            .fail(reject);
-                    }).fail(reject);
-                }).catch(reject);
-            }).catch(e => {
-                console.log('connect: getProfile failed');
-                reject(e);
-            });
+            Promise.all([this.getVersion(), this.getProfile()])
+                .then(([version, profile]) => {
+                    Promise.all([this.getProjects(), this.getTags()])
+                        .then(() => {
+                            this.hub.start()
+                                .then(() => {
+                                    //this.hub['disconnectTimeout'] = 1000; // for dev
+                                    this.hubConnected = true;
+                                    this.setRetryPending(false);
+                                    this.hubProxy.invoke('register', profile.userProfileId)
+                                        .then(() => callback(profile))
+                                        .fail(reject);
+                                })
+                                .fail(reject);
+                        })
+                        .catch(reject);
+                })
+                .catch(e => {
+                    console.log('connect: getProfile failed');
+                    reject(e);
+                });
         });
     }
 
@@ -244,6 +253,21 @@
         return this.connect().then(profile => {
             var accountId = this.accountToPost || profile.activeAccountId;
             this.expectedTimerUpdate = true;
+
+            // Legacy API
+            if (this.serverApiVersion < 2 && timer.details) {
+                let projectTask = timer.details.projectTask;
+                let workTask = <Models.WorkTaskLegacy>{
+                    description: timer.details.description,
+                    projectId: timer.details.projectId
+                };
+                if (projectTask) {
+                    workTask.externalIssueId = projectTask.externalIssueId;
+                    workTask.integrationId = projectTask.integrationId;
+                    workTask.relativeIssueUrl = projectTask.relativeIssueUrl;
+                }
+                timer.workTask = workTask;
+            }
 
             var promise = this.put('api/timer/' + accountId, timer)
                 .then(() => this.checkProfileChange());
@@ -325,10 +349,14 @@
     }
 
     getVersion() {
-        return this.get('api/version');
+        return this.get<number>('api/version').then(version => {
+            this.serverApiVersion = version;
+            return version;
+        });
     }
 
     getTimer() {
+
         return this.checkProfile().then(profile => {
 
             var accountId = profile.activeAccountId;
@@ -336,6 +364,11 @@
 
             var url = 'api/timer/' + accountId;
             var timer = this.get<Models.Timer>(url).then(timer => {
+
+                if (this.serverApiVersion < 2) {
+                    timer.details = getLegacyDetails(timer.workTask);
+                }
+
                 self.port.emit('updateTimer', timer);
                 return timer;
             });
@@ -343,16 +376,47 @@
             var now = new Date();
             var startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toJSON();
             var endTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toJSON();
-            url = '/api/timeentries/' + accountId + '/' + userProfileId + '?startTime=' + startTime + '&endTime=' + endTime;
+            url = 'api/timeentries/' + accountId + '/' + userProfileId + '?startTime=' + startTime + '&endTime=' + endTime;
             var tracker = this.get<Models.TimeEntry[]>(url).then(tracker => {
+
+                if (this.serverApiVersion < 2) {
+                    tracker.forEach(timeEntry => {
+                        timeEntry.details = getLegacyDetails(timeEntry.workTask);
+                    });
+                }
+
                 self.port.emit('updateTracker', tracker);
                 return tracker;
             });
 
-            var all = Promise.all<any>([timer, tracker]).then(() => <void>undefined);
+            var all = Promise.all([timer, tracker]).then(() => <void>undefined);
             all.catch(() => this.disconnect());
             return all;
         });
+
+        function getLegacyDetails(workTask: Models.WorkTaskLegacy) {
+
+            if (!workTask) {
+                return;
+            }
+
+            let details = <Models.TimeEntryDetail>{
+                description: workTask.description,
+                projectId: workTask.projectId
+            };
+
+            if (workTask.integrationId && workTask.relativeIssueUrl) {
+                details.projectTask = <Models.ProjectTask>{
+                    description: workTask.description,
+                    integrationId: workTask.integrationId,
+                    relativeIssueUrl: workTask.relativeIssueUrl,
+                    integrationUrl: workTask.integrationUrl,
+                    externalIssueId: workTask.externalIssueId
+                };
+            }
+
+            return details;
+        }
     }
 
     getProjects() {

@@ -81,18 +81,18 @@
                         issue.serviceType = this.trimText(issue.serviceType, Models.Limits.maxIntegrationType);
                         issue.projectName = this.trimText(issue.projectName, Models.Limits.maxProjectName);
 
-                        // take issueId and issueUrl from started timer if workTask description matches issue name
+                        // take issueId and issueUrl from started timer if description matches issue name
                         if (!issue.issueUrl
                             && this._timer
                             && this._timer.isStarted) {
 
-                            let workTask = this._timer.workTask;
-                            if (workTask
-                                && workTask.relativeIssueUrl
-                                && workTask.description == issue.issueName) {
+                            let projectTask = this._timer.details && this._timer.details.projectTask;
+                            if (projectTask
+                                && projectTask.relativeIssueUrl
+                                && projectTask.description == issue.issueName) {
 
-                                issue.issueUrl = workTask.relativeIssueUrl;
-                                issue.issueId = workTask.externalIssueId;
+                                issue.issueUrl = projectTask.relativeIssueUrl;
+                                issue.issueId = projectTask.externalIssueId;
                             }
                         }
 
@@ -328,14 +328,15 @@
             }
         }
 
-        private static isIssueStarted(issue: WebToolIssue): boolean {
+        private static isIssueStarted(issue: WebToolIssue) {
+
             var timer = this._timer;
-            if (!timer) {
+            if (!timer || !timer.isStarted || !timer.details) {
                 return false;
             }
 
-            var task = timer.workTask;
-            if (!task && !timer.isStarted) {
+            let task = timer.details.projectTask;
+            if (!task) {
                 return false;
             }
 
