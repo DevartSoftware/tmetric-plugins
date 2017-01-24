@@ -12,10 +12,11 @@
                 return;
             }
 
-            var host = $$('.ticket_properties', workspace);
+            var host = $$('.property_box_container', workspace);
             if (host) {
-                var linkContainer = $$.create('div', 'devart-timer-link-zendesk');
                 linkElement.classList.add('btn');
+                var linkContainer = $$.create('div', 'devart-timer-link-zendesk');
+                linkContainer.classList.add('property_box');
                 linkContainer.appendChild(linkElement);
                 host.appendChild(linkContainer);
             }
