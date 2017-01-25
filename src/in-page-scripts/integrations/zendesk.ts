@@ -10,8 +10,7 @@
             var host = $$.visible('.ticket-sidebar .property_box_container');
             if (host) {
                 linkElement.classList.add('btn');
-                var linkContainer = $$.create('div', 'devart-timer-link-zendesk');
-                linkContainer.classList.add('property_box');
+                var linkContainer = $$.create('div', 'property_box');
                 linkContainer.appendChild(linkElement);
                 host.appendChild(linkContainer);
             }
