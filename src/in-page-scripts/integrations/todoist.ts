@@ -19,12 +19,12 @@
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
             // <li class="task_item" id= "item_123456789">
-            var issueNumber = issueElement.id.split('_')[1];
+            let issueNumber = issueElement.id.split('_')[1];
             if (!issueNumber) {
                 return;
             }
 
-            var issueId = '#' + issueNumber;
+            let issueId = '#' + issueNumber;
 
             // <span class="text sel_item_content"> Task Name <a class="ex_link">LinkText</a> <b>Bold</b> ... </span>
             let issueName = $$
@@ -40,7 +40,14 @@
                     if (['B', 'I', 'STRONG', 'EM'].indexOf(tag.tagName) >= 0) {
                         return true;
                     }
-                    if (tag.tagName == 'A' && (tag.classList.contains('ex_link') || !tag.getAttribute("href").indexOf("mailto:"))) {
+                    if (tag.tagName != 'A') {
+                        return false;
+                    }
+                    if (tag.classList.contains('ex_link')) {
+                        return true;
+                    }
+                    let href = tag.getAttribute('href');
+                    if (href && !href.indexOf("mailto:")) {
                         return true;
                     }
                 })
@@ -58,11 +65,11 @@
 
             // Project tab: <a href="#" class="project_link"><span>Личные </span></a>
             // Other tabs: <span class="pname" > Project Name </span>
-            var projectName = $$.try('.pname', issueElement).textContent || $$.try('.project_link').textContent;
+            let projectName = $$.try('.pname', issueElement).textContent || $$.try('.project_link').textContent;
 
-            var serviceType = 'Todoist';
-            var serviceUrl = source.protocol + source.host;
-            var issueUrl = 'showTask?id=' + issueNumber;
+            let serviceType = 'Todoist';
+            let serviceUrl = source.protocol + source.host;
+            let issueUrl = 'showTask?id=' + issueNumber;
 
             return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
         }
