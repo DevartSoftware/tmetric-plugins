@@ -26,9 +26,32 @@
 
             var issueId = '#' + issueNumber;
 
-            // <span class="text sel_item_content"> Task Name <...> </span>
-            let textNode = $$.findNode('.content > .text', Node.TEXT_NODE, issueElement);
-            var issueName = textNode && textNode.nodeValue.trim();
+            // <span class="text sel_item_content"> Task Name <a class="ex_link">LinkText</a> <b>Bold</b> ... </span>
+            let issueName = $$
+                .findAllNodes('.content > .text', null, issueElement)
+                .filter(node => {
+                    if (node.nodeType == Node.TEXT_NODE) {
+                        return true;
+                    }
+                    if (node.nodeType != Node.ELEMENT_NODE) {
+                        return false;
+                    }
+                    let tag = <Element>node;
+                    if (['B', 'I', 'STRONG', 'EM'].indexOf(tag.tagName) >= 0) {
+                        return true;
+                    }
+                    if (tag.tagName == 'A' && (tag.classList.contains('ex_link') || !tag.getAttribute("href").indexOf("mailto:"))) {
+                        return true;
+                    }
+                })
+                .reduce((sumText, node) => {
+                    let text = node.textContent;
+                    if (text[0] == ' ' && sumText[sumText.length - 1] == ' ') {
+                        text = text.substring(1);
+                    }
+                    return sumText + text;
+                }, "");
+
             if (!issueName) {
                 return;
             }

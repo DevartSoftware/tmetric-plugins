@@ -128,7 +128,7 @@ $$.findAllNodes = (selector: string, nodeType: number, element?: NodeSelector) =
     if (childNodes) {
         for (let i = 0; i < childNodes.length; i++) {
             let node = childNodes[i];
-            if (node.nodeType == nodeType) {
+            if (nodeType == null || node.nodeType === nodeType) {
                 result.push(node);
             }
         }
