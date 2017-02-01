@@ -83,7 +83,7 @@
                 }
             }
 
-            var projectName = $$.try('.header-item.project-selector-nav-menu > li > span').textContent;
+            var projectName = $$.try('.project-selector-nav-menu > li > span').textContent;
 
             // https://devart.visualstudio.com/
             var serviceUrl = source.protocol + source.host;
