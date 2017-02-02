@@ -58,7 +58,7 @@
                 let selector = integration.issueElementSelector;
                 if (selector) {
                     if ((<() => HTMLElement[]>selector).apply) {
-                        elements = (<() => HTMLElement[]>selector)();
+                        elements = (<() => HTMLElement[]>selector)().filter(_ => !!_);
                     }
                     else {
                         elements = $$.all(<string>selector);
