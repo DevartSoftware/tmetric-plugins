@@ -6,89 +6,58 @@
 
         matchUrl = '*://*.visualstudio.com/*';
 
+        issueElementSelector = () => [$$.visible('.work-item-form')];
+
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
-            var form = $$.visible('.work-item-form');
-            if (!form) {
+
+            let host = $$('.work-item-form-headerContent', issueElement);
+            if (!host) {
                 return;
             }
 
-            var isNewView = !!$$('.new-work-item-view', form);
-            var anchor: HTMLElement;
-
-            if (isNewView) {
-                anchor = $$.visible('.work-item-form .work-item-form-id', form);
-            } else {
-                anchor = $$.visible('.workitem-tool-bar .menu-bar', form);
-            }
-
-            if (!anchor) {
-                return;
-            }
-
-            if (isNewView) {
-                var linkContainer = $$.create('div', 'devart-timer-link-tfs');
-                linkContainer.classList.add('workitemcontrol');
-                linkContainer.classList.add('work-item-control');
-                linkContainer.appendChild(linkElement);
-                anchor.parentElement.insertBefore(linkContainer, anchor.parentElement.firstElementChild);
-            } else {
-                var linkContainer = $$.create('li');
-                linkContainer.classList.add('menu-item');
-                linkContainer.appendChild(linkElement);
-                anchor.appendChild(linkContainer);
-            }
+            let linkContainer = $$.create('div', 'devart-timer-link-tfs');
+            linkContainer.appendChild(linkElement);
+            host.insertBefore(linkContainer, host.firstElementChild);
         }
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-            if (!$$('.workitem-info-bar a.caption')) {
-                return;
-            }
 
-            var form = $$.visible('.work-item-form');
-            if (!form) {
-                return;
-            }
-
-            var isNewView = !!$$('.new-work-item-view', form);
-            var issueName: string;
-            var issueUrl: string;
-
-            if (isNewView) {
-                // route for the new TFS interface
-                var issueInput = $$.visible<HTMLInputElement>('.work-item-form-title input', form);
-                if (issueInput) {
-                    issueName = issueInput.value;
-                }
-                issueUrl = $$.getAttribute('.info-text-wrapper a', 'href');
-            }
-            else {
-                issueName = $$.try('.workitem-info-bar').title;
-                issueUrl = $$.getAttribute('.workitem-info-bar a', 'href');
-            }
-
+            let issueName = (<HTMLInputElement>$$.try('.work-item-form-title input', issueElement)).value;
             if (!issueName) {
                 // nothing to do without issue name
                 return;
             }
 
+            let issueId: string;
+            let issueUrl: string;
+
+            // find the nearest info-text-wrapper anchor
+            let parent = issueElement;
+            while (parent) {
+                let issueUrlElement = $$('.info-text-wrapper a', parent);
+                if (issueUrlElement) {
+                    issueUrl = issueUrlElement.getAttribute('href');
+                    break;
+                }
+                parent = parent.parentElement;
+            }
+
             if (issueUrl) {
-                // _workitems/edit/1
-                // _workitems/edit/1?fullScreen=false
-                var issueIdRegExp = /\/edit\/(\d*)(\?.*)?$/.exec(issueUrl);
+                // /ProjectName/_workitems/edit/1
+                // /ProjectName/_workitems/edit/1?fullScreen=false
+                let issueIdRegExp = /\/edit\/(\d*)(\?.*)?$/.exec(issueUrl);
                 if (issueIdRegExp) {
-                    var issueId = '#' + issueIdRegExp[1];
+                    issueId = '#' + issueIdRegExp[1];
                 }
                 else {
                     issueUrl = null;
                 }
             }
 
-            var projectName = $$.try('.header-item.project-selector-nav-menu > li > span').textContent;
-
             // https://devart.visualstudio.com/
-            var serviceUrl = source.protocol + source.host;
-
-            var serviceType = 'TFS';
+            let serviceUrl = source.protocol + source.host;
+            let serviceType = 'TFS';
+            let projectName = (<HTMLInputElement>$$.try('.work-item-form-areaIteration input', issueElement)).value;
 
             return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
         }
