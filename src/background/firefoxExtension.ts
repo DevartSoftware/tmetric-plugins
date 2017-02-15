@@ -91,6 +91,7 @@ class FirefoxExtension extends ExtensionBase {
             './in-page-scripts/integrations/axosoft.js',
             './in-page-scripts/integrations/basecamp.js',
             './in-page-scripts/integrations/bitbucket.js',
+            "./in-page-scripts/integrations/freshdesk.js",
             './in-page-scripts/integrations/bugzilla.js',
             './in-page-scripts/integrations/gitHub.js',
             './in-page-scripts/integrations/gitLab.js',
