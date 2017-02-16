@@ -32,7 +32,7 @@
             var issueId = match[2];
             var serviceUrl = source.protocol + source.host;
             var issueUrl = source.path;
-            var projectName = $$.try('.navbar-brand').textContent.trim();
+            var projectName = $$.try('.navbar-brand').textContent;
 
             return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Userecho' };
         }
