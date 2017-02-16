@@ -22,7 +22,7 @@
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
             //https://company.freshdesk.com/helpdesk/tickets/1
-            var issueName = $$.try('.subject').textContent.trim();
+            var issueName = $$.try('.subject').textContent;
             if (!issueName) {
                 return;
             }
