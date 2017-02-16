@@ -107,6 +107,7 @@ class FirefoxExtension extends ExtensionBase {
             './in-page-scripts/integrations/todoist.js',
             './in-page-scripts/integrations/trac.js',
             './in-page-scripts/integrations/trello.js',
+            './in-page-scripts/integrations/userecho.js',
             './in-page-scripts/integrations/uservoice.js',
             './in-page-scripts/integrations/waffle.js',
             './in-page-scripts/integrations/wrike.js',
