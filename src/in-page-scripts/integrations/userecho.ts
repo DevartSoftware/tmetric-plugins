@@ -6,7 +6,7 @@
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
-            var host = $$('.module-body .topic-actions-panel');
+            var host = $$('.topic-actions-panel');
 
             if (host) {
                 var container = $$.create('li');
@@ -17,21 +17,25 @@
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-            let issueName = $$.try('.module-body .topic-header a').textContent;
+            let issueName = $$.try('.topic-header a').textContent;
             if (!issueName) {
                 return;
             }
 
-            let issueHref = $$.try('.module-body .topic-header a').getAttribute('href');
+            let issueHref = $$.try('.topic-header a').getAttribute('href');
 
-            var match = /\/([\w-]+)\/([\w-]+)\//.exec(issueHref);
+            //https://company.userecho.com/topics/1-test/
+            //https://company.userecho.com/topics/2-test-1-2/
+            
+            var match = /\/[\w-]+\/([\d])\-.*\//.exec(issueHref);
             if (!match) {
                 return;
             }
 
-            var issueId = match[2];
+            var issueId = match[1];
             var serviceUrl = source.protocol + source.host;
-            var issueUrl = source.path;
+            // Work URL https://company.userecho.com/topics/2
+            var issueUrl = '/topics/' + issueId;
             var projectName = $$.try('.navbar-brand').textContent;
 
             return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Userecho' };

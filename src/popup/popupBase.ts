@@ -122,7 +122,8 @@
         'todoist.com': true,
         'uservoice.com': true,
         'wrike.com': true,
-        'wunderlist.com': true
+        'wunderlist.com': true,
+        'userecho.com': true
     };
 
     private domainRegExp = /([^\.\/]+\.[^\.\/]+)\//;
