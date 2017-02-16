@@ -21,26 +21,17 @@
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-            if (!$$('.ticket-actions')) {
-                return;
-            }
-
             //https://company.freshdesk.com/helpdesk/tickets/1
             var issueName = $$.try('.subject').textContent.trim();
             if (!issueName) {
                 return;
             }
 
-            var issueId = $$('#ticket-display-id').textContent;
+            var issueId = $$.try('#ticket-display-id').textContent;
             var serviceUrl = source.protocol + source.host;
             var issueUrl = source.path;
 
-            var product = $$('.default_product .select2-chosen');
-            if (product == null) {
-                return;
-            }
-
-            var projectName = product.textContent;
+            var projectName = $$.try('.default_product .select2-chosen').textContent;
             
             if (projectName === '...') {
                 projectName = "";
