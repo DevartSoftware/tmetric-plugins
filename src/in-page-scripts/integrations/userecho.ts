@@ -9,9 +9,9 @@
             var host = $$('.module-body .topic-actions-panel');
 
             if (host) {
-                var containerLi = $$.create('li');
-                containerLi.appendChild(linkElement);
-                host.insertBefore(containerLi, host.firstChild);
+                var container = $$.create('li');
+                container.appendChild(linkElement);
+                host.insertBefore(container, host.firstChild);
             }
         }
 
