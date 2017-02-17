@@ -19,10 +19,6 @@
 
             var issue = $$.try('.topic-header a');
             
-            if (!issue) {
-                return;
-            }
-
             let issueName = issue.textContent;
             let issueHref = issue.getAttribute('href');
 
