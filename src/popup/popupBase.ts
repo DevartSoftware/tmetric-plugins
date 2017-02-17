@@ -120,10 +120,10 @@
         'producteev.com': true,
         'teamweek.com': true,
         'todoist.com': true,
+        'userecho.com': true,
         'uservoice.com': true,
         'wrike.com': true,
-        'wunderlist.com': true,
-        'userecho.com': true
+        'wunderlist.com': true
     };
 
     private domainRegExp = /([^\.\/]+\.[^\.\/]+)\//;

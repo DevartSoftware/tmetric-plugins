@@ -17,17 +17,19 @@
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-            let issueName = $$.try('.topic-header a').textContent;
-            if (!issueName) {
+            var issue = $$.try('.topic-header a');
+            
+            if (!issue) {
                 return;
             }
 
-            let issueHref = $$.try('.topic-header a').getAttribute('href');
+            let issueName = issue.textContent;
+            let issueHref = issue.getAttribute('href');
 
             //https://company.userecho.com/topics/1-test/
             //https://company.userecho.com/topics/2-test-1-2/
             
-            var match = /\/[\w-]+\/([\d])\-.*\//.exec(issueHref);
+            var match = /\/topics\/([\d])\-.*\//.exec(issueHref);
             if (!match) {
                 return;
             }
