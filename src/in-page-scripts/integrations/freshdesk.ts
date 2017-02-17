@@ -13,9 +13,9 @@
 
                 linkElement.classList.add('btn');
 
-                var containerLi = $$.create('li', 'ticket-btns');
-                containerLi.appendChild(linkElement);
-                host.appendChild(containerLi);
+                var container = $$.create('li', 'ticket-btns');
+                container.appendChild(linkElement);
+                host.appendChild(container);
             }
         }
 
@@ -23,10 +23,7 @@
 
             //https://company.freshdesk.com/helpdesk/tickets/1
             var issueName = $$.try('.subject').textContent;
-            if (!issueName) {
-                return;
-            }
-
+            
             var issueId = $$.try('#ticket-display-id').textContent;
             var serviceUrl = source.protocol + source.host;
             var issueUrl = source.path;
