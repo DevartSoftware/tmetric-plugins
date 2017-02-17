@@ -29,7 +29,7 @@
             //https://company.userecho.com/topics/1-test/
             //https://company.userecho.com/topics/2-test-1-2/
             
-            var match = /\/topics\/([\d])\-.*\//.exec(issueHref);
+            var match = /\/topics\/([\d]*)\-.*\//.exec(issueHref);
             if (!match) {
                 return;
             }
