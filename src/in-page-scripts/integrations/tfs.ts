@@ -10,7 +10,7 @@
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
-            let host = $$.visible(".work-item-form-headerContent", issueElement);
+            let host = $$.visible('.work-item-form-headerContent', issueElement);
             if (!host) {
                 return;
             }
@@ -22,20 +22,20 @@
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-            var issue = (<HTMLInputElement>$$.visible(".work-item-form-title input", issueElement));
+            let issue = (<HTMLInputElement>$$.visible('.work-item-form-title input', issueElement));
             if (!issue) {
                 // nothing to do without issue name
                 return;
             }
 
-            var issueName = issue.value;
+            let issueName = issue.value;
             let issueId: string;
             let issueUrl: string;
 
             // find the nearest info-text-wrapper anchor
             let parent = issueElement;
             while (parent) {
-                let issueUrlElement = $$(".info-text-wrapper a", parent);
+                let issueUrlElement = $$('.info-text-wrapper a', parent);
                 if (issueUrlElement) {
                     issueUrl = issueUrlElement.getAttribute('href');
                     break;
