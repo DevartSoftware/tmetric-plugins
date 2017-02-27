@@ -213,7 +213,7 @@
                 // Show zero duration if client clock is late (TMET-947)
                 let timerDuration = Math.max(0, Date.now() - Date.parse(this._timer.startTime));
 
-                if (timerDuration <= 10 * HOUR) { // add current timer duration if timer is not long running
+                if (timerDuration <= Models.Consts.maxTimerHours * HOUR) { // add current timer duration if timer is not long running
                     duration += timerDuration;
                 }
             }

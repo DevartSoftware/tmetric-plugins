@@ -16,6 +16,10 @@ declare module Models {
         maxTask = 400
     }
 
+    export const enum Consts {
+        maxTimerHours = 12
+    }
+
     interface TimeZoneInfo {
         id: string;
         displayName: string;

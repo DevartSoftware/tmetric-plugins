@@ -235,7 +235,7 @@
     isLongRunning(startTime: string) {
 
         var HOUR = 1000 * 60 * 60;
-        var LONG_RUNNING_DURATION = 10 * HOUR;
+        var LONG_RUNNING_DURATION = Models.Consts.maxTimerHours * HOUR;
 
         var duration = this.getDuration(startTime);
 

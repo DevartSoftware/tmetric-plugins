@@ -276,7 +276,7 @@ class ExtensionBase {
         var text = 'Not Connected';
         if (this._timer) {
             if (this._timer.isStarted) {
-                if (this.getDuration(this._timer) > 10 * 60 * 60000) {
+                if (this.getDuration(this._timer) > Models.Consts.maxTimerHours * 60 * 60000) {
                     state = ButtonState.fixtimer;
                     text = 'Started (Need User Action)\n'
                         + 'It looks like you forgot to stop the timer';
