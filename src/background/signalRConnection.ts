@@ -251,7 +251,8 @@
 
     putTimer(timer: Models.Timer) {
         return this.connect().then(profile => {
-            var accountId = this.accountToPost || profile.activeAccountId;
+
+            let accountId = this.accountToPost || profile.activeAccountId;
             this.expectedTimerUpdate = true;
 
             // Legacy API
@@ -269,7 +270,8 @@
                 timer.workTask = workTask;
             }
 
-            var promise = this.put('api/timer/' + accountId, timer)
+            let promise = this
+                .put(this.getTimerUrl(accountId), timer)
                 .then(() => this.checkProfileChange());
 
             promise.catch(() => {
@@ -289,7 +291,7 @@
         return this.connect().then(profile => {
             let accountId = this.accountToPost || profile.activeAccountId;
             this.expectedTimerUpdate = true;
-            var promise = this.post('api/timer/external/' + accountId, timer).then(() => {
+            var promise = this.post(this.getExternalTimerUrl(accountId), timer).then(() => {
                 this.checkProfileChange();
             });
             promise.catch(() => {
@@ -302,13 +304,13 @@
     getIntegration(identifier: Models.IntegratedProjectIdentifier) {
         return this.checkProfile().then(profile =>
             this.get<Models.IntegratedProjectStatus>(
-                'api/account/' + profile.activeAccountId + '/integrations/project?' + $.param(identifier, true)));
+                this.getIntegrationProjectUrl(profile.activeAccountId) + '?' + $.param(identifier, true)));
     }
 
     postIntegration(identifier: Models.IntegratedProjectIdentifier) {
         return this.checkProfile().then(profile =>
             this.post<Models.IntegratedProjectIdentifier>(
-                'api/account/' + (this.accountToPost || profile.activeAccountId) + '/integrations/project',
+                this.getIntegrationProjectUrl(this.accountToPost || profile.activeAccountId),
                 identifier));
     }
 
@@ -323,7 +325,8 @@
         console.log('fetchIssuesDurations', identifiers);
         return this.checkProfile().then(profile =>
             this.postWithPesponse<Integrations.WebToolIssueIdentifier[], Integrations.WebToolIssueDuration[]>(
-                'api/timeentries/' + profile.activeAccountId + '/external/summary', identifiers));
+                this.getTimeEntriesSummaryUrl(profile.activeAccountId),
+                identifiers));
     }
 
     checkProfile() {
@@ -362,7 +365,7 @@
             var accountId = profile.activeAccountId;
             var userProfileId = profile.userProfileId;
 
-            var url = 'api/timer/' + accountId;
+            var url = this.getTimerUrl(accountId);
             var timer = this.get<Models.Timer>(url).then(timer => {
 
                 if (this.serverApiVersion < 2) {
@@ -376,7 +379,7 @@
             var now = new Date();
             var startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toJSON();
             var endTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toJSON();
-            url = 'api/timeentries/' + accountId + '/' + userProfileId + '?startTime=' + startTime + '&endTime=' + endTime;
+            url = this.getTimeEntriesUrl(accountId, userProfileId) + `?startTime=${startTime}&endTime=${endTime}`;
             var tracker = this.get<Models.TimeEntry[]>(url).then(tracker => {
 
                 if (this.serverApiVersion < 2) {
@@ -504,6 +507,38 @@
                 reject(<AjaxStatus>{ statusCode, statusText });
             }
         });
+    }
+
+    private getIntegrationProjectUrl(accountId: number) {
+        return `api/account${this.serverApiVersion < 2 ? '' : 's'}/${accountId}/integrations/project`;
+    }
+
+    private getTimerUrl(accountId: number) {
+        if (this.serverApiVersion < 2) {
+            return `api/timer/${accountId}`;
+        }
+        return `api/accounts/${accountId}/timer`;
+    }
+
+    private getExternalTimerUrl(accountId: number) {
+        if (this.serverApiVersion < 2) {
+            return `api/timer/external/${accountId}`;
+        }
+        return `api/accounts/${accountId}/timer/external`;
+    }
+
+    private getTimeEntriesUrl(accountId: number, userProfileId: number) {
+        if (this.serverApiVersion < 2) {
+            return `api/timeentries/${accountId}/${userProfileId}`;
+        }
+        return `api/accounts/${accountId}/timeentries/${userProfileId}`;
+    }
+
+    private getTimeEntriesSummaryUrl(accountId: number) {
+        if (this.serverApiVersion < 2) {
+            return `api/timeentries/${accountId}/external/summary`;
+        }
+        return `api/accounts/${accountId}/timeentries/external/summary`;
     }
 
     static statusDescriptions = <{ [code: number]: string }>{
