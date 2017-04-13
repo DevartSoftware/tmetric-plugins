@@ -335,7 +335,7 @@ class ExtensionBase {
 
             var promise = this.setAccountToPost(status.accountId);
 
-            if (!timer.serviceUrl != !status.integrationName ||
+            if (!timer.serviceUrl != !status.integrationType ||
                 !timer.projectName != !status.projectStatus) {
 
                 // Integration or project does not exist

@@ -92,7 +92,7 @@ declare module Models {
 
     interface IntegratedProjectStatus {
         accountId: number;
-        integrationName: string;
+        integrationType: string;
         projectStatus: ProjectStatus;
         projectRole: ProjectRole;
         serviceRole: ServiceRole;
