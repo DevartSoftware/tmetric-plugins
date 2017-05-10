@@ -2,7 +2,7 @@
     'message',
     event => {
         if (event.data == "version") {
-            window.postMessage({ version: "1.3.4" }, event.origin);
+            window.postMessage({ version: "2.0.0" }, event.origin);
         }
     },
     false);
