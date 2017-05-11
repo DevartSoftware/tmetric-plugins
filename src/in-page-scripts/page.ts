@@ -21,6 +21,8 @@
             }
         } else if (message.action == 'setIssuesDurations') {
             Integrations.IntegrationService.setIssuesDurations(message.data);
+        } else if (message.action == 'setConstants') {
+            Integrations.IntegrationService.setConstants(message.data);
         }
 
         if (parseAfterPings) {
@@ -164,5 +166,6 @@
     var parseAfterPings = true;
 
     Integrations.IntegrationService.clearPage();
+    sendBackgroundMessage({ action: 'getConstants' });
     sendBackgroundMessage({ action: 'getTimer' });
 }

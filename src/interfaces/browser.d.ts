@@ -42,4 +42,5 @@ interface IPopupInitData {
     timeFormat: string;
     projects: Models.Project[];
     tags: Models.Tag[];
+    constants: Models.Constants
 }

@@ -25,6 +25,10 @@
             });
         }
 
+        static setConstants(constants: Models.Constants) {
+            this._constants = constants;
+        }
+
         static setTimer(timer: Models.Timer) {
             this._timer = timer;
         }
@@ -213,7 +217,7 @@
                 // Show zero duration if client clock is late (TMET-947)
                 let timerDuration = Math.max(0, Date.now() - Date.parse(this._timer.startTime));
 
-                if (timerDuration <= Models.Consts.maxTimerHours * HOUR) { // add current timer duration if timer is not long running
+                if (timerDuration <= this._constants.maxTimerHours * HOUR) { // add current timer duration if timer is not long running
                     duration += timerDuration;
                 }
             }
@@ -276,6 +280,8 @@
         private static _allIntegrations = <WebToolIntegration[]>[];
 
         private static _possibleIntegrations: WebToolIntegration[];
+
+        private static _constants: Models.Constants;
 
         private static _timer: Models.Timer;
 

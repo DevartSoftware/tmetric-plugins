@@ -35,6 +35,7 @@
     private _timeFormat: string;
     private _projects: Models.Project[];
     private _tags: Models.Tag[];
+    private _constants: Models.Constants;
 
     callBackground(message: IPopupRequest): Promise<IPopupResponse> { return; };
 
@@ -46,6 +47,7 @@
             this._timeFormat = data.timeFormat;
             this._projects = data.projects;
             this._tags = data.tags;
+            this._constants = data.constants;
         } else {
             this.close();
         }
@@ -235,7 +237,7 @@
     isLongRunning(startTime: string) {
 
         var HOUR = 1000 * 60 * 60;
-        var LONG_RUNNING_DURATION = Models.Consts.maxTimerHours * HOUR;
+        var LONG_RUNNING_DURATION = this._constants.maxTimerHours * HOUR;
 
         var duration = this.getDuration(startTime);
 

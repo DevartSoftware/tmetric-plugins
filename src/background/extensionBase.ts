@@ -4,6 +4,13 @@ class ExtensionBase {
 
     showLoginDialog() { }
 
+    getDefaultConstants() {
+        let constants: Models.Constants = {
+            maxTimerHours: 12
+        };
+        return constants;
+    }
+
     getDefaultLoginPosition() {
         return {
             width: 420,
@@ -37,6 +44,8 @@ class ExtensionBase {
 
     protected extraHours: number;
 
+    private _constants: Models.Constants;
+
     private _actionOnConnect: () => void;
 
     private _timer: Models.Timer;
@@ -49,15 +58,17 @@ class ExtensionBase {
 
     private _tags: Models.Tag[];
 
-    private currentApiVersion = 1.0;
-
     private defaultApplicationUrl = 'https://app.tmetric.com/';
 
     constructor(public port: Firefox.Port) {
+
+        this._constants = this.getDefaultConstants();
+
         this.serviceUrl = this.getTestValue('tmetric.url') || this.defaultApplicationUrl;
         if (this.serviceUrl[this.serviceUrl.length - 1] != '/') {
             this.serviceUrl += '/';
         }
+
         this.extraHours = this.getTestValue('tmetric.extraHours');
         if (this.extraHours) {
             this.extraHours = parseFloat(<any>this.extraHours);
@@ -113,13 +124,16 @@ class ExtensionBase {
         });
 
         this.init(this.serviceUrl).then(() => {
-            if (this.serviceUrl != this.defaultApplicationUrl) {
-                this.getVersion().then(version => {
-                    if (this.currentApiVersion > version) {
-                        this.showNotification("You are connected to the outdated TMetric server. Extension may not function correctly. Please contact your system administrator.");
-                    }
-                });
-            }
+            this.getVersion().then(version => {
+                if (version < 1.0 && this.serviceUrl != this.defaultApplicationUrl) {
+                    this.showNotification("You are connected to the outdated TMetric server. Extension may not function correctly. Please contact your system administrator.");
+                }
+
+                if (version < 2) {
+                    this._constants.maxTimerHours = 10;
+                    this.updateState();
+                }
+            });
         });
 
         this.listenPopupAction<void, IPopupInitData>('initialize', this.initializePopupAction);
@@ -138,6 +152,10 @@ class ExtensionBase {
         this.sendToTabs({ action: message.action + '_callback' }, tabId);
 
         switch (message.action) {
+
+            case 'getConstants':
+                this.sendToTabs({ action: 'setConstants', data: this._constants }, tabId);
+                break;
 
             case 'getTimer':
                 this.sendToTabs({ action: 'setTimer', data: this._timer }, tabId);
@@ -276,7 +294,7 @@ class ExtensionBase {
         var text = 'Not Connected';
         if (this._timer) {
             if (this._timer.isStarted) {
-                if (this.getDuration(this._timer) > Models.Consts.maxTimerHours * 60 * 60000) {
+                if (this.getDuration(this._timer) > this._constants.maxTimerHours * 60 * 60000) {
                     state = ButtonState.fixtimer;
                     text = 'Started (Need User Action)\n'
                         + 'It looks like you forgot to stop the timer';
@@ -539,7 +557,7 @@ class ExtensionBase {
     // popup actions
 
     private getPopupData(): Promise<IPopupInitData> {
-        return new Promise((resolve, reject) => {
+        return new Promise<IPopupInitData>((resolve, reject) => {
             this.getActiveTabTitle().then((title) => {
                 resolve({
                     title: title,
@@ -548,7 +566,8 @@ class ExtensionBase {
                     projects: this._projects
                         .filter(project => project.projectStatus == Models.ProjectStatus.Open)
                         .sort((a, b) => a.projectName.localeCompare(b.projectName, [], { sensitivity: 'base' })),
-                    tags: this._tags
+                    tags: this._tags,
+                    constants: this._constants
                 });
             });
         });
