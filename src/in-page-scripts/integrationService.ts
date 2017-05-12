@@ -241,7 +241,7 @@
             newLink.appendChild(spanWithIcon);
             var span = document.createElement('span');
             span.textContent = newIssueTimer.isStarted ? 'Start timer' : 'Stop timer';
-            if (duration) {
+            if (duration || !newIssueTimer.isStarted) {
                 span.textContent += ' (' + this.durationToString(duration) + ')';
             }
             newLink.appendChild(span);
