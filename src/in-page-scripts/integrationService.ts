@@ -343,7 +343,8 @@
 
             let task = timer.details.projectTask;
             if (!task) {
-                return false;
+                // check description for issues parsed without id
+                return timer.details.description == issue.issueName;
             }
 
             var startedIssue = <WebToolIssue>{
