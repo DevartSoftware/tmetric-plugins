@@ -341,18 +341,21 @@
                 return false;
             }
 
-            let task = timer.details.projectTask;
-            if (!task) {
-                // check description for issues parsed without id
-                return timer.details.description == issue.issueName;
-            }
+            let startedIssue: WebToolIssue;
 
-            var startedIssue = <WebToolIssue>{
-                issueId: task.externalIssueId,
-                issueName: task.description,
-                issueUrl: task.relativeIssueUrl,
-                serviceUrl: task.integrationUrl
-            };
+            let task = timer.details.projectTask;
+            if (task) {
+                startedIssue = {
+                    issueId: task.externalIssueId,
+                    issueName: task.description,
+                    issueUrl: task.relativeIssueUrl,
+                    serviceUrl: task.integrationUrl
+                };
+            } else {
+                startedIssue = {
+                    issueName: timer.details.description
+                }
+            }
 
             return this.isSameIssue(startedIssue, issue);
         }
