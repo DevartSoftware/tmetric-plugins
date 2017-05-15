@@ -212,7 +212,7 @@
             }
 
             var duration = issueDuration && issueDuration.duration || 0;
-            if (isNewIssueStarted && newIssue.issueId) {
+            if (isNewIssueStarted && newIssue.issueUrl) {
 
                 // Show zero duration if client clock is late (TMET-947)
                 let timerDuration = Math.max(0, Date.now() - Date.parse(this._timer.startTime));
@@ -241,7 +241,7 @@
             newLink.appendChild(spanWithIcon);
             var span = document.createElement('span');
             span.textContent = newIssueTimer.isStarted ? 'Start timer' : 'Stop timer';
-            if (duration || !newIssueTimer.isStarted) {
+            if (newIssue.issueUrl && (duration || !newIssueTimer.isStarted)) {
                 span.textContent += ' (' + this.durationToString(duration) + ')';
             }
             newLink.appendChild(span);
