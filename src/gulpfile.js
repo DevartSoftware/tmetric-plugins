@@ -152,7 +152,7 @@ gulp.task('clean', ['clean:sources', 'clean:dist']);
 gulp.task('lib', ['clean:sources'], function () {
     var lib = src + 'lib/';
     var jquery = gulp.src('node_modules/jquery/dist/jquery.min.js').pipe(gulp.dest(lib));
-    var signalr = gulp.src('node_modules/ms-signalr-client/jquery.signalr-2.2.0.min.js').pipe(rename('jquery.signalr.min.js')).pipe(gulp.dest(lib));
+    var signalr = gulp.src('node_modules/ms-signalr-client/jquery.signalr-2.2.1.min.js').pipe(rename('jquery.signalr.min.js')).pipe(gulp.dest(lib));
     var select2 = gulp.src([
             'node_modules/select2/dist/js/select2.full.min.js',
             'node_modules/select2/dist/css/select2.min.css'

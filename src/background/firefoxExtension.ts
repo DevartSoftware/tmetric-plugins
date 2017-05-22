@@ -41,9 +41,15 @@ class FirefoxExtension extends ExtensionBase {
                 ],
             }).port);
 
-        pageMod.PageMod({
+        // Add message listeners to service pages
+        let defaultDomain = 'tmetric.com';
+        let messageListenerPatterns = ['*.' + defaultDomain];
+        if (this.serviceUrl.indexOf(defaultDomain) < 0) {
             // https://developer.mozilla.org/en-US/Add-ons/SDK/Low-Level_APIs/util_match-pattern
-            include: ["*.alm-build", "*.localhost", "*.app.tmetric.com"],
+            messageListenerPatterns.push(this.serviceUrl + '*');
+        }
+        pageMod.PageMod({
+            include: messageListenerPatterns,
             contentScriptWhen: "start",
             attachTo: ["existing", "top"],
             contentScriptFile: "./in-page-scripts/firefoxMessageListener.js"

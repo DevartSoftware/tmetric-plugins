@@ -1,4 +1,5 @@
 ﻿declare module Firefox {
+
     interface ButtonDescriptor {
         id: string;
         label: string;
