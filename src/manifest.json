@@ -38,7 +38,7 @@
         ]
     },
     "externally_connectable": {
-        "matches": [ "*://localhost/*", "*://alm-build/*", "*://app.tmetric.com/*" ]
+        "matches": [ "*://localhost/*", "*://alm-build/*", "*://*.tmetric.com/*" ]
     },
     "content_scripts": [
         {
