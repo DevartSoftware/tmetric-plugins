@@ -2,6 +2,8 @@
 
     class Teamweek implements WebToolIntegration {
 
+        showIssueId = false;
+
         observeMutations = true;
 
         // Workspace task url:

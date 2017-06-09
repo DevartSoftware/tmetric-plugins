@@ -2,6 +2,8 @@
 
     class YouTrack implements WebToolIntegration {
 
+        showIssueId = true;
+
         observeMutations = true;
 
         matchUrl = '*://*/issue/*';
@@ -44,6 +46,8 @@
     }
 
     class YouTrackBoard implements WebToolIntegration {
+
+        showIssueId = true;
 
         observeMutations = true;
 
@@ -90,6 +94,8 @@
     }
 
     class YouTrackBoardOld implements WebToolIntegration {
+
+        showIssueId = true;
 
         observeMutations = true;
 

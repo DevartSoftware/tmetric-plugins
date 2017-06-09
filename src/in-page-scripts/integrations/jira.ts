@@ -2,6 +2,8 @@
 
     class JiraBase {
 
+        showIssueId = true;
+
         observeMutations = true;
 
         match(source: Source): boolean {

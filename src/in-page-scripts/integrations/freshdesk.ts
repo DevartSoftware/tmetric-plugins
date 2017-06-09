@@ -2,9 +2,11 @@
 
     class Freshdesk implements WebToolIntegration {
 
-        matchUrl = '*.freshdesk.com/helpdesk/tickets/*';
+        showIssueId = true;
 
         observeMutations = true;
+
+        matchUrl = '*.freshdesk.com/helpdesk/tickets/*';
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
 

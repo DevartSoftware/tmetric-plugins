@@ -2,6 +2,8 @@
 
     class Asana implements WebToolIntegration {
 
+        showIssueId = false;
+
         observeMutations = true;
 
         matchUrl = [

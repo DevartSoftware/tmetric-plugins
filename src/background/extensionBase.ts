@@ -326,7 +326,8 @@ class ExtensionBase {
         return this.getIntegration(<Models.IntegratedProjectIdentifier>{
             serviceUrl: timer.serviceUrl,
             serviceType: timer.serviceType,
-            projectName: timer.projectName
+            projectName: timer.projectName,
+            showIssueId: timer.showIssueId
         }).then(status => {
 
             var notification: string;
@@ -360,7 +361,8 @@ class ExtensionBase {
                 promise = promise.then(() => this.postIntegration(<Models.IntegratedProjectIdentifier>{
                     serviceUrl: timer.serviceUrl,
                     serviceType: timer.serviceType,
-                    projectName: timer.projectName
+                    projectName: timer.projectName,
+                    showIssueId: timer.showIssueId
                 }));
             }
 

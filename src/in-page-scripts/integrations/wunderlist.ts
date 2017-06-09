@@ -2,6 +2,8 @@
 
     class Wunderlist implements WebToolIntegration {
 
+        showIssueId = false;
+
         observeMutations = true;
 
         // Task in list

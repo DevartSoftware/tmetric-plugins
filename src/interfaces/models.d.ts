@@ -70,6 +70,7 @@ declare module Models {
         serviceUrl: string;
         serviceType: string;
         projectName: string;
+        showIssueId: boolean;
     }
 
     const enum ProjectRole {
@@ -114,6 +115,7 @@ declare module Models {
         creatorId: number;
         description: string;
         externalIssueId: string;
+        showIssueId: boolean;
         integrationId: number;
         integrationUrl: string;
         isBillable: boolean;

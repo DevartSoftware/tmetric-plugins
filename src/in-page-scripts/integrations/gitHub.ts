@@ -2,6 +2,8 @@
 
     class GitHub implements WebToolIntegration {
 
+        showIssueId = true;
+
         observeMutations = true;
 
         matchUrl = [

@@ -5,6 +5,8 @@
 
     class Teamwork implements WebToolIntegration {
 
+        showIssueId = true;
+
         observeMutations = true;
 
         matchUrl = new RegExp('.*:\/\/.*\.' + hosts + '\/.*');
@@ -78,6 +80,8 @@
     }
 
     class TeamworkDesk implements WebToolIntegration {
+
+        showIssueId = true;
 
         observeMutations = true;
 

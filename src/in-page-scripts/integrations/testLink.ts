@@ -2,6 +2,8 @@
 
     class TestLink implements WebToolIntegration {
 
+        showIssueId = true;
+
         matchUrl = '*/lib/execute/*.php*';
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {

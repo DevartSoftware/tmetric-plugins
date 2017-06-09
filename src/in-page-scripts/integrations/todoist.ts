@@ -2,6 +2,8 @@
 
     class Todoist implements WebToolIntegration {
 
+        showIssueId = false;
+
         observeMutations = true;
 
         matchUrl = '*://*todoist.com/app?*';

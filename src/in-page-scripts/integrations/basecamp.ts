@@ -2,6 +2,8 @@
 
     class BasecampBase {
 
+        showIssueId = false;
+
         observeMutations = true;
 
         getIssueUrl(issueElement: HTMLElement, source: Source): string {

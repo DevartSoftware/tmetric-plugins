@@ -2,6 +2,8 @@
 
     class Axosoft implements WebToolIntegration {
 
+        showIssueId = true;
+        
         observeMutations = true;
 
         // Workspace task url:

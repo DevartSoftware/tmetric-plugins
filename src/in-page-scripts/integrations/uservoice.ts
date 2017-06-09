@@ -2,6 +2,8 @@
 
     class UserVoiceTicket implements WebToolIntegration {
 
+        showIssueId = false;
+
         observeMutations = true;
 
         matchUrl = '*://*.uservoice.com/*/tickets/*';
@@ -47,6 +49,8 @@
     }
 
     class UserVoiceSuggestion implements WebToolIntegration {
+
+        showIssueId = true;
 
         observeMutations = true;
 

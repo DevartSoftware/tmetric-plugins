@@ -2,6 +2,8 @@
 
     class Assembla implements WebToolIntegration {
 
+        showIssueId = true;
+
         observeMutations = true;
 
         // Urls:

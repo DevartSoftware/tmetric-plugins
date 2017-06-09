@@ -2,6 +2,8 @@
 
     class Waffle implements WebToolIntegration {
 
+        showIssueId = true;
+
         observeMutations = true
 
         // Project card url:

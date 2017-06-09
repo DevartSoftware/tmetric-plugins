@@ -2,6 +2,8 @@
 
     class TfsIntegration implements WebToolIntegration {
 
+        showIssueId = true;
+
         observeMutations = true;
 
         matchUrl = '*://*.visualstudio.com/*';

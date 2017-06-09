@@ -2,6 +2,8 @@
 
     class Userecho implements WebToolIntegration {
 
+        showIssueId = false;
+
         matchUrl = ['*://*.userecho.com/topics/*'];
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {

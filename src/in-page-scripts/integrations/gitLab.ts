@@ -2,6 +2,8 @@
 
     class GitLab implements WebToolIntegration {
 
+        showIssueId = true;
+
         matchUrl = [
             '*://*/issues/*',
             '*://*/merge_requests/*'

@@ -2,6 +2,8 @@
 
     class Trac implements WebToolIntegration {
 
+        showIssueId = true;
+
         observeMutations = true;
 
         // Project ticket url:

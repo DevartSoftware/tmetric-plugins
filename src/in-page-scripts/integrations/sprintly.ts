@@ -2,6 +2,8 @@
 
     class Sprintly implements WebToolIntegration {
 
+        showIssueId = true;
+
         observeMutations = true;
 
         matchUrl = '*://sprint.ly/*';

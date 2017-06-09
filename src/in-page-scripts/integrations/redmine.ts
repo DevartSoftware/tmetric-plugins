@@ -2,6 +2,8 @@
 
     class Redmine implements WebToolIntegration {
 
+        showIssueId = true;
+
         matchUrl = '*://*/issues/*';
 
         issueElementSelector = 'body.controller-issues.action-show';

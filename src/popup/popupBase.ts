@@ -116,20 +116,6 @@
         viewing: 'viewing'
     };
 
-    private iconIssueIdDomains = {
-        'asana.com': true,
-        'basecamp.com': true,
-        'producteev.com': true,
-        'teamweek.com': true,
-        'todoist.com': true,
-        'userecho.com': true,
-        'uservoice.com': true,
-        'wrike.com': true,
-        'wunderlist.com': true
-    };
-
-    private domainRegExp = /([^\.\/]+\.[^\.\/]+)\//;
-
     switchState(name: string) {
         $('content').attr('class', name);
         if (name == this._states.creating) {
@@ -153,12 +139,11 @@
 
         $(this._forms.view + ' .time').text(this.toDurationString(timer.startTime));
 
-        var url = this.getTaskUrl(timer.details);
+        var url = this.getTaskUrl(details);
         if (url && details.projectTask && details.projectTask.externalIssueId) {
-            let issueIdText = details.projectTask.externalIssueId;
-            let domainMatch = this.domainRegExp.exec(url);
-            if (domainMatch && this.iconIssueIdDomains[domainMatch[1]]) {
-                issueIdText = '\u29C9'; // "Two joined squares" symbol
+            let issueIdText = '\u29C9'; // "Two joined squares" symbol
+            if (details.projectTask.showIssueId) {
+                issueIdText = details.projectTask.externalIssueId;
             }
             $(this._forms.view + ' .task .id .link').attr('href', url).text(issueIdText);
         } else {

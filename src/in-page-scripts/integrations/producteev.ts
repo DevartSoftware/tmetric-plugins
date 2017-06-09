@@ -2,6 +2,8 @@
 
     class Producteev implements WebToolIntegration {
 
+        showIssueId = false;
+
         observeMutations = true;
 
         matchUrl = '*://www.producteev.com/workspace/t/*';

@@ -7,6 +7,7 @@ declare module Integrations {
         observeMutations?: boolean;
         render(issueElement: HTMLElement, linkElement: HTMLElement);
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue;
+        showIssueId: boolean;
     }
 
     interface Source {
@@ -38,6 +39,7 @@ declare module Integrations {
         issueId?: string;
         serviceType?: string;
         projectName?: string;
+        showIssueId?: boolean;
     }
 
     interface WebToolIssueTimer extends WebToolIssue {

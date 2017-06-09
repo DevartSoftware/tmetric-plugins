@@ -190,9 +190,10 @@
 
             var isNewIssueStarted = this.isIssueStarted(newIssue);
 
-            var newIssueTimer = <WebToolIssueTimer>{
-                isStarted: !isNewIssueStarted
-            };
+            var newIssueTimer = <WebToolIssueTimer>{};
+            newIssueTimer.isStarted = !isNewIssueStarted;
+            newIssueTimer.showIssueId = integration.showIssueId;
+
             for (var i in newIssue) {
                 newIssueTimer[i] = newIssue[i];
             }

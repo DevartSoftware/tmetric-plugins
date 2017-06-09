@@ -2,6 +2,8 @@
 
     class Trello implements WebToolIntegration {
 
+        showIssueId = true;
+
         matchUrl = '*://trello.com/c/*';
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
