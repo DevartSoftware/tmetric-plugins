@@ -6,7 +6,17 @@
 
         observeMutations = true;
 
-        matchUrl = '*://*.visualstudio.com/*';
+        matchUrl = [
+            // Visual Studio Team Services
+            '*://*.visualstudio.com/*',
+            // Visual Studio Team Foundation Server
+            '*://*/_backlogs/*',
+            '*://*/_backlogs?*',
+            '*://*/_workitems/*',
+            '*://*/_workitems?*',
+            '*://*/_dashboards/*',
+            '*://*/_dashboards?*'
+        ];
 
         issueElementSelector = () => [$$.visible('.work-item-form')];
 
