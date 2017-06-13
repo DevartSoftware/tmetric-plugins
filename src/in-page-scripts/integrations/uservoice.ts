@@ -50,7 +50,7 @@
 
     class UserVoiceSuggestion implements WebToolIntegration {
 
-        showIssueId = true;
+        showIssueId = false;
 
         observeMutations = true;
 
