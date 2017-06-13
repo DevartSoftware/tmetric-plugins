@@ -20,7 +20,7 @@
             '*://*/_workitems?*'
         ];
 
-        issueElementSelector = () => [$$.visible('.work-item-form')];
+        issueElementSelector = () => $$.all('.work-item-form');
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
