@@ -10,14 +10,10 @@
             // Visual Studio Team Services
             '*://*.visualstudio.com/*',
             // Visual Studio Team Foundation Server
-            '*://*/_home/*',
-            '*://*/_home?*',
-            '*://*/_dashboards/*',
-            '*://*/_dashboards?*',
-            '*://*/_backlogs/*',
-            '*://*/_backlogs?*',
-            '*://*/_workitems/*',
-            '*://*/_workitems?*'
+            '*://*/_home*',
+            '*://*/_dashboards*',
+            '*://*/_backlogs*',
+            '*://*/_workitems*'
         ];
 
         issueElementSelector = () => $$.all('.work-item-form');
