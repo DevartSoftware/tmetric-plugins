@@ -255,21 +255,6 @@
             let accountId = this.accountToPost || profile.activeAccountId;
             this.expectedTimerUpdate = true;
 
-            // Legacy API
-            if (this.serverApiVersion < 2 && timer.details) {
-                let projectTask = timer.details.projectTask;
-                let workTask = <Models.WorkTaskLegacy>{
-                    description: timer.details.description,
-                    projectId: timer.details.projectId
-                };
-                if (projectTask) {
-                    workTask.externalIssueId = projectTask.externalIssueId;
-                    workTask.integrationId = projectTask.integrationId;
-                    workTask.relativeIssueUrl = projectTask.relativeIssueUrl;
-                }
-                timer.workTask = workTask;
-            }
-
             let promise = this
                 .put(this.getTimerUrl(accountId), timer)
                 .then(() => this.checkProfileChange());
@@ -367,11 +352,6 @@
 
             var url = this.getTimerUrl(accountId);
             var timer = this.get<Models.Timer>(url).then(timer => {
-
-                if (this.serverApiVersion < 2) {
-                    timer.details = getLegacyDetails(timer.workTask);
-                }
-
                 self.port.emit('updateTimer', timer);
                 return timer;
             });
@@ -381,13 +361,6 @@
             var endTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toJSON();
             url = this.getTimeEntriesUrl(accountId, userProfileId) + `?startTime=${startTime}&endTime=${endTime}`;
             var tracker = this.get<Models.TimeEntry[]>(url).then(tracker => {
-
-                if (this.serverApiVersion < 2) {
-                    tracker.forEach(timeEntry => {
-                        timeEntry.details = getLegacyDetails(timeEntry.workTask);
-                    });
-                }
-
                 self.port.emit('updateTracker', tracker);
                 return tracker;
             });
@@ -396,30 +369,6 @@
             all.catch(() => this.disconnect());
             return all;
         });
-
-        function getLegacyDetails(workTask: Models.WorkTaskLegacy) {
-
-            if (!workTask) {
-                return;
-            }
-
-            let details = <Models.TimeEntryDetail>{
-                description: workTask.description,
-                projectId: workTask.projectId
-            };
-
-            if (workTask.integrationId && workTask.relativeIssueUrl) {
-                details.projectTask = <Models.ProjectTask>{
-                    description: workTask.description,
-                    integrationId: workTask.integrationId,
-                    relativeIssueUrl: workTask.relativeIssueUrl,
-                    integrationUrl: workTask.integrationUrl,
-                    externalIssueId: workTask.externalIssueId
-                };
-            }
-
-            return details;
-        }
     }
 
     getProjects() {
@@ -510,34 +459,22 @@
     }
 
     private getIntegrationProjectUrl(accountId: number) {
-        return `api/account${this.serverApiVersion < 2 ? '' : 's'}/${accountId}/integrations/project`;
+        return `api/accounts/${accountId}/integrations/project`;
     }
 
     private getTimerUrl(accountId: number) {
-        if (this.serverApiVersion < 2) {
-            return `api/timer/${accountId}`;
-        }
         return `api/accounts/${accountId}/timer`;
     }
 
     private getExternalTimerUrl(accountId: number) {
-        if (this.serverApiVersion < 2) {
-            return `api/timer/external/${accountId}`;
-        }
         return `api/accounts/${accountId}/timer/external`;
     }
 
     private getTimeEntriesUrl(accountId: number, userProfileId: number) {
-        if (this.serverApiVersion < 2) {
-            return `api/timeentries/${accountId}/${userProfileId}`;
-        }
         return `api/accounts/${accountId}/timeentries/${userProfileId}`;
     }
 
     private getTimeEntriesSummaryUrl(accountId: number) {
-        if (this.serverApiVersion < 2) {
-            return `api/timeentries/${accountId}/external/summary`;
-        }
         return `api/accounts/${accountId}/timeentries/external/summary`;
     }
 
