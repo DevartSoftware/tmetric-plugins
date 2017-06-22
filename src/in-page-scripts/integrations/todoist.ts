@@ -6,7 +6,7 @@
 
         observeMutations = true;
 
-        matchUrl = '*://*todoist.com/app?*';
+        matchUrl = '*://*todoist.com/app*';
 
         issueElementSelector = '.task_item';
 
