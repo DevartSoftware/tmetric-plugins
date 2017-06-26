@@ -5,7 +5,7 @@
     "short_name": "TMetric",
     "description": "Simple and user-friendly time tracking extension which helps you be more productive, complete projects in time and bill your clients correctly. Integrates with Trello, JIRA, Asana, Todoist and many other project management apps.",
     "author": "Devart",
-    "version": "2.0.0",
+    "version": "2.1.0",
 
     "icons": {
         "16": "images/chrome/icon16.png",
