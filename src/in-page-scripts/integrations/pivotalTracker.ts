@@ -26,7 +26,7 @@
                 return;
             }
 
-            var issueName = $$.try('.editor', issueElement).textContent;
+            var issueName = $$.try('.name textarea', issueElement).textContent;
             if (!issueName) {
                 return;
             }
