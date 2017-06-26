@@ -33,12 +33,13 @@
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
             let issue = (<HTMLInputElement>$$.visible('.work-item-form-title input', issueElement));
-            if (!issue) {
+            let issueName = issue && issue.value;
+
+            if (!issueName) {
                 // nothing to do without issue name
                 return;
             }
 
-            let issueName = issue.value;
             let issueId: string;
             let issueUrl: string;
 

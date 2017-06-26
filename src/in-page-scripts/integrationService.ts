@@ -71,7 +71,10 @@
 
                 elements.forEach(element => {
                     var issue = integration.getIssue(element, source);
-                    if (issue) {
+                    if (!issue) {
+                        // Remove link when issue can not be parsed after DOM changes
+                        this.updateLink(element, null, null, null);
+                    } else {
 
                         // normalize urls
                         issue.serviceUrl = issue.serviceUrl ? issue.serviceUrl.replace(/\/+$/, '') : issue.serviceUrl;
