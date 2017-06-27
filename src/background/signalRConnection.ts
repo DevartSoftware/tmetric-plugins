@@ -357,13 +357,13 @@
     };
 
     // TODO: remove after releasing 17.2
-    private domainRegExp = /([^\.\/]+\.[^\.\/]+)\//;
+    private domainRegExp = /([^\.\/]+\.[^\.\/]+)$/;
 
     // TODO: remove after releasing 17.2
     private updateLegacyDetails(details: Models.TimeEntryDetail) {
         if (details && details.projectTask && details.projectTask.showIssueId == null) {
             details.projectTask.showIssueId = true;
-            let domainMatch = this.domainRegExp.exec(details.projectTask.integrationUrl + details.projectTask.relativeIssueUrl);
+            let domainMatch = this.domainRegExp.exec(details.projectTask.integrationUrl);
             if (domainMatch && this.iconIssueIdDomains[domainMatch[1]]) {
                 details.projectTask.showIssueId = false;
             }
