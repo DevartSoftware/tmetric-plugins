@@ -360,8 +360,7 @@
     private domainRegExp = /([^\.\/]+\.[^\.\/]+)\//;
 
     // TODO: remove after releasing 17.2
-    private getNewDetails(details: Models.TimeEntryDetail) {
-
+    private updateLegacyDetails(details: Models.TimeEntryDetail) {
         if (details && details.projectTask && details.projectTask.showIssueId == null) {
             details.projectTask.showIssueId = true;
             let domainMatch = this.domainRegExp.exec(details.projectTask.integrationUrl + details.projectTask.relativeIssueUrl);
@@ -369,8 +368,6 @@
                 details.projectTask.showIssueId = false;
             }
         }
-
-        return details;
     }
 
     getTimer() {
@@ -383,7 +380,8 @@
             var url = this.getTimerUrl(accountId);
             var timer = this.get<Models.Timer>(url).then(timer => {
                 // TODO: remove after releasing 17.2
-                timer.details = this.getNewDetails(timer.details);
+                this.updateLegacyDetails(timer.details);
+
                 self.port.emit('updateTimer', timer);
                 return timer;
             });
@@ -394,9 +392,7 @@
             url = this.getTimeEntriesUrl(accountId, userProfileId) + `?startTime=${startTime}&endTime=${endTime}`;
             var tracker = this.get<Models.TimeEntry[]>(url).then(tracker => {
                 // TODO: remove after releasing 17.2
-                tracker.forEach(timeEntry => {
-                    timeEntry.details = this.getNewDetails(timeEntry.details);
-                });
+                tracker.forEach(timeEntry => this.updateLegacyDetails(timeEntry.details));
                 self.port.emit('updateTracker', tracker);
                 return tracker;
             });
