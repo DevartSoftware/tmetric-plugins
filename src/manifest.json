@@ -3,7 +3,7 @@
 
     "name": "TMetric – Time Tracker & Productivity App",
     "short_name": "TMetric",
-    "description": "Simple and user-friendly time tracking extension which helps you be more productive, complete projects in time and bill your clients correctly. Integrates with Trello, JIRA, Asana, Todoist and many other project management apps.",
+    "description": "Simple time tracking extension which helps you be more productive, complete projects in time and bill your clients correctly.",
     "author": "Devart",
     "version": "2.1.0",
 
