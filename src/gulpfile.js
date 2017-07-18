@@ -68,6 +68,14 @@ var files = {
         'popup/chromePopup.js',
         'manifest.json'
     ],
+    edge: [
+        'background/extensionBase.js',
+        'background/edgeExtension.js',
+        'background/shamPort.js',
+        'images/chrome/*',
+        'popup/chromePopup.js',
+        'manifest.json'
+    ],
     firefox: {
         root: [
             'firefox/package.json',
@@ -220,7 +228,8 @@ gulp.task('package:chrome', ['prepackage:chrome'], () => {
 // =============================================================================
 
 function copyFilesEdge(destFolder) {
-    return copyFilesChrome(destFolder);
+    return gulp.src(files.common.concat(files.edge), { base: src })
+        .pipe(gulp.dest(destFolder));
 }
 
 function modifyManifestForEdge() {
