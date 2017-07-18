@@ -11,22 +11,6 @@ class ChromeExtension extends ExtensionBase {
     constructor() {
         super(backgroundPort);
 
-        // Inject content scripts in all already opened pages
-        var contentScripts = chrome.runtime.getManifest().content_scripts[0];
-        var jsFiles = contentScripts.js;
-        var cssFiles = contentScripts.css;
-        var runAt = contentScripts.run_at;
-        chrome.tabs.query({}, tabs =>
-            tabs.forEach(tab => {
-                if (tab.url.indexOf('http') == 0
-                    && tab.url.indexOf('https://chrome.google.com/webstore/') != 0 // https://github.com/GoogleChrome/lighthouse/issues/1023
-                    && tab.url.indexOf('https://addons.opera.com/') != 0
-                ) {
-                    jsFiles.forEach(file => chrome.tabs.executeScript(tab.id, { file, runAt }));
-                    cssFiles.forEach(file => chrome.tabs.insertCSS(tab.id, { file }));
-                }
-            }));
-
         this.sendToTabs = (message, tabId?) => {
             if (tabId != null) {
                 chrome.tabs.sendMessage(tabId, message);
@@ -38,15 +22,19 @@ class ChromeExtension extends ExtensionBase {
             }
         }
         chrome.runtime.onMessage.addListener((message: ITabMessage | IPopupRequest, sender: chrome.runtime.MessageSender, senderResponse: (IPopupResponse) => void) => {
+
+            let isPopupRequest = !!(sender.url && sender.url.match(/^moz-extension:\/\/.+popup.html/)) // FireFox
+                || !!(sender.url && sender.url.match(/^chrome.+popup.html$/)) // Chrome
+                || !!(sender.id) // Edge;
+
             if (sender.tab) {
                 if (sender.tab.id == this.loginTabId) { // Ignore login dialog
                     return;
                 }
                 var tabId = sender.tab.id;
                 this.onTabMessage(message, tabId);
-            } else if (sender.url && sender.url.match(/^chrome.+popup.html$/)) {
+            } else if (isPopupRequest) {
                 this.onPopupRequest(message, senderResponse);
-                // http://stackoverflow.com/questions/33614911/sending-message-between-content-js-and-background-js-fails
                 return !!senderResponse;
             }
         });
@@ -156,8 +144,8 @@ class ChromeExtension extends ExtensionBase {
                     this.loginTabId = popupTab.id;
                     this.loginWindowPending = false;
 
-                    var deltaWidth = width - popupTab.width;
-                    var deltaHeight = height - popupTab.height;
+                    var deltaWidth = (width - popupTab.width) || 0; // Edge has't property popupTab.width
+                    var deltaHeight = (height - popupTab.height) || 0; // Edge has't property popupTab.height
 
                     chrome.windows.update(popupWindow.id, <chrome.windows.UpdateInfo>{
                         left: left - Math.round(deltaWidth / 2),

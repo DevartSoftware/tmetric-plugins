@@ -31,6 +31,7 @@
         "merge-stream": "1.0.0",
         "mocha": "2.3.3",
         "typescript": "1.8",
-        "yargs": "4.3.2"
+        "yargs": "4.3.2",
+        "through2": "2.0.3"
     }
 }

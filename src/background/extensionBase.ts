@@ -58,7 +58,7 @@ class ExtensionBase {
 
     private _tags: Models.Tag[];
 
-    private defaultApplicationUrl = 'https://app.tmetric.com/';
+    private defaultApplicationUrl = 'https://beta.tmetric.com/';
 
     constructor(public port: Firefox.Port) {
 

@@ -37,17 +37,7 @@
      */
     var sendBackgroundMessage = (() => {
 
-        var sendBackgroundMessage: (message: ITabMessage) => void = self.chrome && self.chrome.runtime && self.chrome.runtime.sendMessage;
-
-        if (sendBackgroundMessage) {
-            // chrome
-            chrome.runtime.onMessage.addListener(onBackgroundMessage);
-        }
-        else {
-            // firefox
-            sendBackgroundMessage = self.postMessage;
-            self.on('message', onBackgroundMessage);
-        }
+        chrome.runtime.onMessage.addListener(onBackgroundMessage);
 
         return (message: ITabMessage) => {
 
@@ -60,9 +50,10 @@
             pingTimeouts[callbackAction] = setTimeout(() => finalize(), 30000);
 
             try {
-                sendBackgroundMessage(message);
+                chrome.runtime.sendMessage(message);
             }
             catch (e) {
+                console.error('error with sednding message to the server', e);
                 finalize();
             }
         };
