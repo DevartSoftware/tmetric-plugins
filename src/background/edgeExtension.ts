@@ -1,10 +1,4 @@
-﻿declare var Notification;
-
-class EdgeExtension extends ExtensionBase {
-
-    loginWindowPending: boolean;
-
-    lastNotificationId: string;
+﻿class EdgeExtension extends ExtensionBase {
 
     constructor() {
         super(backgroundPort);

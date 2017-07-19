@@ -1,7 +1,5 @@
 class ChromeExtension extends ExtensionBase {
 
-    lastNotificationId: string;
-
     constructor() {
         super(backgroundPort);
 
@@ -36,24 +34,6 @@ class ChromeExtension extends ExtensionBase {
         // This needed to prevent alert cleaning via build.
         var a = alert;
         a(message);
-    }
-
-    /**
-     * @override
-     * @param message
-     * @param title
-     */
-    showNotification(message: string, title?: string) {
-        if (this.lastNotificationId) {
-            chrome.notifications.clear(this.lastNotificationId, () => { });
-        }
-        title = title || 'TMetric';
-        var type = 'basic';
-        var iconUrl = 'images/icon80.png';
-        chrome.notifications.create(
-            null,
-            { title, message, type, iconUrl },
-            id => this.lastNotificationId = id);
     }
 
     /**

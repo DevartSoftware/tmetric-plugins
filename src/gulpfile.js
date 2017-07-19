@@ -76,21 +76,29 @@ var files = {
         'popup/chromePopup.js',
         'manifest.json'
     ],
-    firefox: {
-        root: [
-            'firefox/package.json',
-            'images/icon.png'
-        ],
-        index: [
-            'background/extensionBase.js',
-            'background/firefoxExtension.js'
-        ],
-        data: [
-            'images/firefox/*',
-            'in-page-scripts/firefoxMessageListener.js',
-            'popup/firefoxPopup.js'
-        ]
-    }
+    firefox: [
+        'background/extensionBase.js',
+        'background/firefoxExtension.js',
+        'background/shamPort.js',
+        'images/chrome/*',
+        'popup/chromePopup.js',
+        'manifest.json'
+    ]
+    //firefox: {
+    //    root: [
+    //        'firefox/package.json',
+    //        'images/icon.png'
+    //    ],
+    //    index: [
+    //        'background/extensionBase.js',
+    //        'background/firefoxExtension.js'
+    //    ],
+    //    data: [
+    //        'images/firefox/*',
+    //        'in-page-scripts/firefoxMessageListener.js',
+    //        'popup/firefoxPopup.js'
+    //    ]
+    //}
 };
 
 // common operations
@@ -303,69 +311,96 @@ gulp.task('package:edge', ['prepackage:edge']);
 // Tasks for building Firefox addon
 // =============================================================================
 
-function copyFilesFirefox(destFolder) {
-    var root = gulp.src(files.firefox.root).pipe(gulp.dest(destFolder));
-    var data = gulp.src(files.common.concat(files.firefox.data), { base: src }).pipe(gulp.dest(destFolder + 'data/'));
-    return mergeStream(root, data);
-}
-
-function makeIndexFirefox(files, destFolder) {
-    return gulp.src(files)
-        .pipe(concat('index.js'))
+function copyFilesFireFox(destFolder) {
+    return gulp.src(files.common.concat(files.firefox), { base: src })
         .pipe(gulp.dest(destFolder));
-}
-
-function stripHtmlFirefox(destFolder) {
-    // Strip scripts from html for firefox
-    // They are placed in FirefoxExtension.ts as content scripts to allow cross site requests
-    var srcHtml = src + 'popup/popup.html';
-    var destHtml = destFolder + 'data/popup/popup.html';
-    fs.writeFileSync(destHtml, fs.readFileSync(srcHtml));
-    replaceInFile(destHtml, /\s*<script[^>]+>.*<\/script>/g, '');
-}
-
-function packageFirefox(unpackedFolder, destFolder) {
-    // packaging for firefox should be run synchronously
-    process.chdir(unpackedFolder);
-    var jpmXpi = require('jpm/lib/xpi'); // Packaging utility for Mozilla Jetpack Addons
-    var addonManifest = require(unpackedFolder + 'package.json');
-    var promise = jpmXpi(addonManifest, { xpiPath: destFolder });
-    promise.then(function () {
-        process.chdir(src);
-    });
-    return promise;
 }
 
 gulp.task('prepackage:firefox', [
     'prepackage:firefox:copy',
-    'prepackage:firefox:index',
-    'prepackage:firefox:strip'
+    'prepackage:firefox:strip',
+    'prepackage:firefox:modifyManifest'
 ]);
 
-gulp.task('prepackage:firefox:copy', ['clean:dist', 'compile', 'lib'], () => {
-    return copyFilesFirefox(firefoxUnpackedDir);
+gulp.task('prepackage:firefox:copy', ['clean:dist', 'compile', 'lib'], function () {
+    return copyFilesFireFox(firefoxUnpackedDir);
 });
 
-gulp.task('prepackage:firefox:index', ['prepackage:firefox:copy'], () => {
-    return makeIndexFirefox(files.firefox.index, firefoxUnpackedDir);
-});
-
-gulp.task('prepackage:firefox:strip', [
-    'prepackage:firefox:strip:js',
-    'prepackage:firefox:strip:html'
-]);
-
-gulp.task('prepackage:firefox:strip:js', ['prepackage:firefox:index'], () => {
+gulp.task('prepackage:firefox:strip', ['prepackage:firefox:copy'], function () {
     return stripDebugCommon(firefoxUnpackedDir);
 });
 
-gulp.task('prepackage:firefox:strip:html', ['prepackage:firefox:copy'], (callback) => {
-    stripHtmlFirefox(firefoxUnpackedDir);
-    callback();
+gulp.task('prepackage:firefox:modifyManifest', ['prepackage:firefox:copy'], callback => {
+    replaceInFile(firefoxUnpackedDir + '/manifest.json', 'background/chromeExtension.js', 'background/firefoxExtension.js');
+
+    callback()
 });
 
-gulp.task('package:firefox', ['prepackage:firefox'], (callback) => {
-    packageFirefox(firefoxUnpackedDir, firefoxDir).then(() => {
-        callback();
-    });
-});
+gulp.task('package:firefox', ['prepackage:firefox']);
+
+//function copyFilesFirefox(destFolder) {
+//    var root = gulp.src(files.firefox.root).pipe(gulp.dest(destFolder));
+//    var data = gulp.src(files.common.concat(files.firefox.data), { base: src }).pipe(gulp.dest(destFolder + 'data/'));
+//    return mergeStream(root, data);
+//}
+
+//function makeIndexFirefox(files, destFolder) {
+//    return gulp.src(files)
+//        .pipe(concat('index.js'))
+//        .pipe(gulp.dest(destFolder));
+//}
+
+//function stripHtmlFirefox(destFolder) {
+//    // Strip scripts from html for firefox
+//    // They are placed in FirefoxExtension.ts as content scripts to allow cross site requests
+//    var srcHtml = src + 'popup/popup.html';
+//    var destHtml = destFolder + 'data/popup/popup.html';
+//    fs.writeFileSync(destHtml, fs.readFileSync(srcHtml));
+//    replaceInFile(destHtml, /\s*<script[^>]+>.*<\/script>/g, '');
+//}
+
+//function packageFirefox(unpackedFolder, destFolder) {
+//    // packaging for firefox should be run synchronously
+//    process.chdir(unpackedFolder);
+//    var jpmXpi = require('jpm/lib/xpi'); // Packaging utility for Mozilla Jetpack Addons
+//    var addonManifest = require(unpackedFolder + 'package.json');
+//    var promise = jpmXpi(addonManifest, { xpiPath: destFolder });
+//    promise.then(function () {
+//        process.chdir(src);
+//    });
+//    return promise;
+//}
+
+//gulp.task('prepackage:firefox', [
+//    'prepackage:firefox:copy',
+//    'prepackage:firefox:index',
+//    'prepackage:firefox:strip'
+//]);
+
+//gulp.task('prepackage:firefox:copy', ['clean:dist', 'compile', 'lib'], () => {
+//    return copyFilesFirefox(firefoxUnpackedDir);
+//});
+
+//gulp.task('prepackage:firefox:index', ['prepackage:firefox:copy'], () => {
+//    return makeIndexFirefox(files.firefox.index, firefoxUnpackedDir);
+//});
+
+//gulp.task('prepackage:firefox:strip', [
+//    'prepackage:firefox:strip:js',
+//    'prepackage:firefox:strip:html'
+//]);
+
+//gulp.task('prepackage:firefox:strip:js', ['prepackage:firefox:index'], () => {
+//    return stripDebugCommon(firefoxUnpackedDir);
+//});
+
+//gulp.task('prepackage:firefox:strip:html', ['prepackage:firefox:copy'], (callback) => {
+//    stripHtmlFirefox(firefoxUnpackedDir);
+//    callback();
+//});
+
+//gulp.task('package:firefox', ['prepackage:firefox'], (callback) => {
+//    packageFirefox(firefoxUnpackedDir, firefoxDir).then(() => {
+//        callback();
+//    });
+//});

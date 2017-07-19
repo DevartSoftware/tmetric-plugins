@@ -44,11 +44,22 @@ class ExtensionBase {
     }
 
     /**
-     * @abstract
+     * Show push notification
      * @param message
      * @param title
      */
-    showNotification(message: string, title?: string) { }
+    showNotification(message: string, title?: string) {
+        if (this.lastNotificationId) {
+            chrome.notifications.clear(this.lastNotificationId, () => { });
+        }
+        title = title || 'TMetric';
+        var type = 'basic';
+        var iconUrl = 'images/icon80.png';
+        chrome.notifications.create(
+            null,
+            { title, message, type, iconUrl },
+            id => this.lastNotificationId = id);
+    }
 
     /**
      * @abstract
@@ -65,6 +76,8 @@ class ExtensionBase {
     loginWinId: number;
 
     loginWindowPending: boolean;
+
+    lastNotificationId: string;
 
     protected serviceUrl: string;
 
