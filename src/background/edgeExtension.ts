@@ -28,7 +28,22 @@
      * @param message
      * @param title
      */
-    showNotification(message: string, title?: string) { }
+    showNotification(message: string, title?: string) {
+
+        this.getActiveTabId().then(id => {
+            title = title || 'TMetric';
+            let iconUrl = 'images/icon80.png';
+
+            this.sendToTabs({
+                action: 'notify',
+                data: {
+                    message: message,
+                    title: title,
+                    icon: iconUrl
+                }
+            }, id);
+        });
+    }
 
     /**
      * @override

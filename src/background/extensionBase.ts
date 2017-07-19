@@ -251,8 +251,8 @@ class ExtensionBase {
     }
 
     fixTimer() {
-        this.openTrackerPage();
         this.showNotification('You should fix the timer.');
+        this.openTrackerPage();
     }
 
     putTabTimer(url: string, title: string)
@@ -759,6 +759,17 @@ class ExtensionBase {
                     var activeTab = tabs[0];
                     var title = activeTab && activeTab.title;
                     resolve(title);
+                });
+        });
+    }
+
+    getActiveTabId() {
+        return new Promise<number>((resolve, reject) => {
+            chrome.tabs.query({ currentWindow: true, active: true },
+                function (tabs) {
+                    var activeTab = tabs[0];
+                    var id = activeTab && activeTab.id;
+                    resolve(id);
                 });
         });
     }

@@ -1,4 +1,6 @@
-﻿if (typeof document !== 'undefined') {
+﻿declare var Notification;
+
+if (typeof document !== 'undefined') {
 
     /**
      * Retrieves messages from background script.
@@ -12,6 +14,20 @@
         if (pingTimeouts[message.action]) {
             clearTimeout(pingTimeouts[message.action]);
             pingTimeouts[message.action] = null;
+        }
+
+        // Only for Edge
+        if (message.action == 'notify') {
+            if ("Notification" in window) {
+                Notification.requestPermission(permission => {
+                    if (permission === "granted") {
+                        new Notification(message.data.title, {
+                            body: message.data.message,
+                            icon: message.data.icon
+                        });
+                    }
+                });
+            }
         }
 
         if (message.action == 'setTimer') {
