@@ -1,4 +1,6 @@
-﻿class EdgeExtension extends ExtensionBase {
+﻿declare var Notification;
+
+class EdgeExtension extends ExtensionBase {
 
     loginWindowPending: boolean;
 
@@ -27,22 +29,12 @@
     }
 
     /**
+     * Show push notification (Does not support through web extension by Edge right now)
      * @override
      * @param message
      * @param title
      */
-    showNotification(message: string, title?: string) {
-        if (this.lastNotificationId) {
-            chrome.notifications.clear(this.lastNotificationId, () => { });
-        }
-        title = title || 'TMetric';
-        var type = 'basic';
-        var iconUrl = 'images/icon80.png';
-        chrome.notifications.create(
-            null,
-            { title, message, type, iconUrl },
-            id => this.lastNotificationId = id);
-    }
+    showNotification(message: string, title?: string) { }
 
     /**
      * @override
