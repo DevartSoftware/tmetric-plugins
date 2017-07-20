@@ -10,6 +10,7 @@ var path = require('path');                     // Node.js Path System module
 var rename = require('gulp-rename');            // Simple file renaming methods.
 var stripDebug = require('gulp-strip-debug');   // Strip console and debugger statements from JavaScript code.
 var through = require('through2');
+var zip = require('gulp-zip');
 
 // =============================================================================
 // Global variables
@@ -321,4 +322,8 @@ gulp.task('prepackage:firefox:modifyManifest', ['prepackage:firefox:copy'], call
     callback()
 });
 
-gulp.task('package:firefox', ['prepackage:firefox']);
+gulp.task('package:firefox', ['prepackage:firefox'], () => {
+    gulp.src(firefoxUnpackedDir + '**/*')
+        .pipe(zip('firefoxExtension.xpi'))
+        .pipe(gulp.dest(firefoxDir));
+});

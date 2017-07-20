@@ -61,14 +61,6 @@ class ExtensionBase {
             id => this.lastNotificationId = id);
     }
 
-    /**
-     * @abstract
-     * @param message
-     */
-    showConfirmation(message: string) {
-        return false;
-    }
-
     buttonState = ButtonState.start;
 
     loginTabId: number;

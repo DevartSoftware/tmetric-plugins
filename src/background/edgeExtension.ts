@@ -36,14 +36,6 @@
     }
 
     /**
-     * @override
-     * @param message
-     */
-    showConfirmation(message: string) {
-        return confirm(message);
-    }
-
-    /**
      * Create popup window
      * @override
      * @param width

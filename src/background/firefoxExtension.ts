@@ -1,7 +1,33 @@
+//import ch = require('chrome');
+
+//var promptService = ch.Cc['@mozilla.org/embedcomp/prompt-service;1'].getService(ch.Ci.nsIPromptService);
+
 class FirefoxExtension extends ExtensionBase {
 
     constructor() {
         super(backgroundPort);
+
+        // Inject content scripts in all already opened pages
+        var contentScripts = chrome.runtime.getManifest().content_scripts[0];
+        var jsFiles = contentScripts.js;
+        var cssFiles = contentScripts.css;
+        var runAt = contentScripts.run_at;
+        chrome.tabs.query({}, tabs =>
+            tabs.forEach(tab => {
+                if (tab.url.indexOf('http') == 0
+                    && tab.url.indexOf('https://chrome.google.com/webstore/') != 0 // https://github.com/GoogleChrome/lighthouse/issues/1023
+                    && tab.url.indexOf('https://addons.opera.com/') != 0
+                ) {
+                    jsFiles.forEach(file => chrome.tabs.executeScript(tab.id, { file, runAt }));
+                    cssFiles.forEach(file => chrome.tabs.insertCSS(tab.id, { file }));
+                }
+            }));
+
+        chrome.runtime.onMessageExternal.addListener((request: any, sender: any, sendResponse: Function) => {
+            if (request.message == "version") {
+                sendResponse({ version: "2.1.0" });
+            }
+        });
     }
 
     /**
@@ -9,17 +35,13 @@ class FirefoxExtension extends ExtensionBase {
      * @param message
      */
     showError(message: string) {
-        // This needed to prevent alert cleaning via build.
-        var a = alert;
-        a(message);
-    }
+        this.getActiveTabId().then(id => {
 
-    /**
-     * @override
-     * @param message
-     */
-    showConfirmation(message: string) {
-        return confirm(message);
+            this.sendToTabs({
+                action: 'error',
+                data: { message: message }
+            }, id);
+        });
     }
 
     /**

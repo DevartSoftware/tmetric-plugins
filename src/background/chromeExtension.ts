@@ -28,14 +28,6 @@ class ChromeExtension extends ExtensionBase {
 
     /**
      * @override
-     * @param message
-     */
-    showConfirmation(message: string) {
-        return confirm(message);
-    }
-
-    /**
-     * @override
      * @param sender
      */
     isPopupRequest(sender: chrome.runtime.MessageSender) {

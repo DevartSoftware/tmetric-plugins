@@ -14,6 +14,11 @@
             pingTimeouts[message.action] = null;
         }
 
+        // Only for FireFox
+        if (message.action == 'error') {
+            alert(message.data.message);
+        }
+
         // Only for Edge
         if (message.action == 'notify') {
             if ("Notification" in window) {
