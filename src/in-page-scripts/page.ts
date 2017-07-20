@@ -1,6 +1,4 @@
-﻿declare var Notification;
-
-if (typeof document !== 'undefined') {
+﻿if (typeof document !== 'undefined') {
 
     /**
      * Retrieves messages from background script.
@@ -23,7 +21,7 @@ if (typeof document !== 'undefined') {
                     if (permission === "granted") {
                         new Notification(message.data.title, {
                             body: message.data.message,
-                            icon: message.data.icon
+                            icon: message.data.icon,
                         });
                     }
                 });

@@ -10,6 +10,7 @@
         "interfaces/models.d.ts",
         "interfaces/integrations.d.ts",
         "interfaces/browser.d.ts",
+        "interfaces/notification.d.ts",
         "typings/tsd.d.ts",
         "background/chromeExtension.ts",
         "background/edgeExtension.ts",

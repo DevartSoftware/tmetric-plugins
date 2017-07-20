@@ -5,16 +5,6 @@
     }
 
     /**
-    * @override
-    * @param message
-    */
-    showError(message: string) {
-        // This needed to prevent alert cleaning via build.
-        var a = alert;
-        a(message);
-    }
-
-    /**
      * @override
      * @param sender
      */

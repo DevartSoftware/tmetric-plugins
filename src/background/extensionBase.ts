@@ -28,11 +28,11 @@ class ExtensionBase {
      */
     createPopupWindow(width: number, height: number, left: number, top: number) { }
 
-    /**
-     * @abstract
-     * @param message
-     */
-    showError(message: string) { }
+    showError(message: string) {
+        // This needed to prevent alert cleaning via build.
+        var a = alert;
+        a(message);
+    }
 
     /**
      * Check popup request
