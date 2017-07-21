@@ -1,7 +1,3 @@
-//import ch = require('chrome');
-
-//var promptService = ch.Cc['@mozilla.org/embedcomp/prompt-service;1'].getService(ch.Ci.nsIPromptService);
-
 class FirefoxExtension extends ExtensionBase {
 
     constructor() {
