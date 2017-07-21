@@ -13,6 +13,11 @@
         "128": "images/chrome/icon128.png"
     },
 
+    "-ms-preload": {
+      "backgroundScript": "backgroundScriptsAPIBridge.js",
+      "contentScript": "contentScriptsAPIBridge.js"
+    },
+
     "browser_action": {
         "default_icon": {
             "19": "images/chrome/inactive19.png",

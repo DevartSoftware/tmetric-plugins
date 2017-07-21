@@ -132,7 +132,6 @@ declare module Models {
     }
 
     interface TimeEntry {
-        timeEntryId: number;
         details: TimeEntryDetail;
         startTime: string;
         endTime?: string;

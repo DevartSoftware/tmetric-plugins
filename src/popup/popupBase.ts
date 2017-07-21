@@ -46,7 +46,7 @@
             this._activeTimer = data.timer;
             this._timeFormat = data.timeFormat;
             this._projects = data.projects;
-            this._tags = data.tags;
+            this._tags = data.tags.filter(tag => !!tag).sort((a, b) => this.compare(a.tagName, b.tagName));
             this._constants = data.constants;
         } else {
             this.close();
@@ -60,6 +60,14 @@
 
     private clone(obj: any) {
         return JSON.parse(JSON.stringify(obj));
+    }
+
+    private compare(a: string, b: string) {
+        let aLower = a.toLowerCase();
+        let bLower = b.toLowerCase();
+        if (aLower < bLower) return -1;
+        if (aLower > bLower) return 1;
+        return 0;
     }
 
     // actions
@@ -330,7 +338,10 @@
         return timerTags.map((id) => {
             var tag = this.getTag(id);
             return tag ? tag.tagName : '';
-        }).join(', ');
+        })
+        .filter(tag => !!tag)
+        .sort(this.compare)
+        .join(', ');
     }
 
     private _noProjectOption: IdTextPair = { id: 0, text: 'No Project' };
