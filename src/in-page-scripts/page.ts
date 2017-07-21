@@ -71,7 +71,6 @@
                 chrome.runtime.sendMessage(message);
             }
             catch (e) {
-                console.error('error with sednding message to the server', e);
                 finalize();
             }
         };

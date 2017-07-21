@@ -4,6 +4,8 @@
         super(backgroundPort);
     }
 
+    registerVersionListener() { }
+
     /**
      * @override
      * @param sender

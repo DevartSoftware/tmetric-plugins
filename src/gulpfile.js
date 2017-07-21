@@ -59,31 +59,21 @@ var files = {
         'lib/**',
         'images/*.png',
         'popup/popup.html',
-        'popup/popupBase.js'
+        'popup/popupBase.js',
+        'background/extensionBase.js',
+        'background/shamPort.js',
+        'images/chrome/*',
+        'popup/chromePopup.js',
+        'manifest.json'
     ],
     chrome: [
         'background/chromeExtension.js',
-        'background/extensionBase.js',
-        'background/shamPort.js',
-        'images/chrome/*',
-        'popup/chromePopup.js',
-        'manifest.json'
     ],
     edge: [
-        'background/extensionBase.js',
-        'background/edgeExtension.js',
-        'background/shamPort.js',
-        'images/chrome/*',
-        'popup/chromePopup.js',
-        'manifest.json'
+        'background/edgeExtension.js'
     ],
     firefox: [
-        'background/extensionBase.js',
-        'background/firefoxExtension.js',
-        'background/shamPort.js',
-        'images/chrome/*',
-        'popup/chromePopup.js',
-        'manifest.json'
+        'background/firefoxExtension.js'
     ]
 };
 
@@ -278,17 +268,23 @@ gulp.task('prepackage:edge:strip', ['prepackage:edge:copy'], function () {
 });
 
 gulp.task('prepackage:edge:modifyManifest', ['prepackage:edge:copy'], function () {
+
     return gulp.src(edgeUnpackedDir + '/manifest.json')
         .pipe(modifyManifest(obj => {
+
+            // Add -ms-preload property
             obj["-ms-preload"] = {
                 ["backgroundScript"]: "backgroundScriptsAPIBridge.js",
                 ["contentScript"]: "contentScriptsAPIBridge.js"
             };
 
-            obj['background'] = {
-                ['page']: 'background.html',
-                ['persistent']: true
-            };
+            // Add persistent property to background
+            obj['background']['persistent'] = true;
+
+            // Replace chromeExtension.js to edgeExtension.js
+            var scripts = obj['background']['scripts'];
+            var index = scripts.indexOf('background/chromeExtension.js');
+            scripts.splice(index, 1, 'background/edgeExtension.js');
 
             return obj;
         }))
@@ -321,15 +317,17 @@ gulp.task('prepackage:firefox:strip', ['prepackage:firefox:copy'], function () {
 });
 
 gulp.task('prepackage:firefox:modifyManifest', ['prepackage:firefox:copy'], callback => {
-    replaceInFile(firefoxUnpackedDir + '/manifest.json', 'background/chromeExtension.js', 'background/firefoxExtension.js');
 
     return gulp.src(firefoxUnpackedDir + '/manifest.json')
         .pipe(modifyManifest(_ => {
-            var arr = _['externally_connectable']['matches'].slice();
 
+            // Remove externally_connectable property
             _['externally_connectable'] = undefined;
 
-            _['permissions'] = _['permissions'].concat(arr);
+            // Replace chromeExtension.js to firefoxExtension.js
+            var scripts = _['background']['scripts'];
+            var index = scripts.indexOf('background/chromeExtension.js');
+            scripts.splice(index, 1, 'background/firefoxExtension.js');
 
             return _;
         }))
