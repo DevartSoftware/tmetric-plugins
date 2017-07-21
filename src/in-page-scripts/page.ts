@@ -25,8 +25,7 @@
                 Notification.requestPermission(permission => {
                     if (permission === "granted") {
                         new Notification(message.data.title, {
-                            body: message.data.message,
-                            icon: message.data.icon,
+                            body: message.data.message
                         });
                     }
                 });

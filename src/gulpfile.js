@@ -105,6 +105,33 @@ function stripDebugCommon(folder) {
     }
 }
 
+function modifyManifest(callbackFn) {
+
+    return through.obj(function (vinylFile, encoding, callback) {
+
+        var file = vinylFile.clone();
+
+        if (file.isBuffer()) {
+
+            var fileContent = file.contents.toString(encoding);
+
+            var obj;
+            try {
+                obj = JSON.parse(fileContent);
+            }
+            catch (e) {
+                return reject(new Error('Invalid JSON: ' + e.message));
+            }
+
+            var newManifest = callbackFn(obj);
+
+            file.contents = new Buffer(JSON.stringify(newManifest, null, 4));
+
+            callback(null, file);
+        }
+    });
+}
+
 // =============================================================================
 // Common tasks (used for both extensions)
 // =============================================================================
@@ -226,41 +253,6 @@ function copyFilesEdge(destFolder) {
         .pipe(gulp.dest(destFolder));
 }
 
-function modifyManifestForEdge() {
-
-    return through.obj(function (vinylFile, encoding, callback) {
-
-        var file = vinylFile.clone();
-
-        if (file.isBuffer()) {
-
-            var fileContent = file.contents.toString(encoding);
-
-            var obj;
-            try {
-                obj = JSON.parse(fileContent);
-            }
-            catch (e) {
-                return reject(new Error('Invalid JSON: ' + e.message));
-            } 
-
-            obj["-ms-preload"] = {
-                ["backgroundScript"]: "backgroundScriptsAPIBridge.js",
-                ["contentScript"]: "contentScriptsAPIBridge.js"
-            };
-
-            obj['background'] = {
-                ['page']: 'background.html',
-                ['persistent']: true
-            };
-
-            file.contents = new Buffer(JSON.stringify(obj, null, 4));
-
-            callback(null, file);
-        }
-    });
-}
-
 function copyFilesEdgeBridges(destFolder) {
     return gulp.src([
         'edge-api-bridges/background.html',
@@ -287,7 +279,19 @@ gulp.task('prepackage:edge:strip', ['prepackage:edge:copy'], function () {
 
 gulp.task('prepackage:edge:modifyManifest', ['prepackage:edge:copy'], function () {
     return gulp.src(edgeUnpackedDir + '/manifest.json')
-        .pipe(modifyManifestForEdge())
+        .pipe(modifyManifest(obj => {
+            obj["-ms-preload"] = {
+                ["backgroundScript"]: "backgroundScriptsAPIBridge.js",
+                ["contentScript"]: "contentScriptsAPIBridge.js"
+            };
+
+            obj['background'] = {
+                ['page']: 'background.html',
+                ['persistent']: true
+            };
+
+            return obj;
+        }))
         .pipe(gulp.dest(edgeUnpackedDir));
 });
 
@@ -319,7 +323,17 @@ gulp.task('prepackage:firefox:strip', ['prepackage:firefox:copy'], function () {
 gulp.task('prepackage:firefox:modifyManifest', ['prepackage:firefox:copy'], callback => {
     replaceInFile(firefoxUnpackedDir + '/manifest.json', 'background/chromeExtension.js', 'background/firefoxExtension.js');
 
-    callback()
+    return gulp.src(firefoxUnpackedDir + '/manifest.json')
+        .pipe(modifyManifest(_ => {
+            var arr = _['externally_connectable']['matches'].slice();
+
+            _['externally_connectable'] = undefined;
+
+            _['permissions'] = _['permissions'].concat(arr);
+
+            return _;
+        }))
+        .pipe(gulp.dest(firefoxUnpackedDir));
 });
 
 gulp.task('package:firefox', ['prepackage:firefox'], () => {
