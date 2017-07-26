@@ -244,7 +244,11 @@
             spanWithIcon.classList.add(this.affix + '-icon');
             newLink.appendChild(spanWithIcon);
             var span = document.createElement('span');
-            span.textContent = newIssueTimer.isStarted ? 'Start timer' : 'Stop timer';
+            if (newIssue.serviceType == 'Trello') {
+                span.textContent = newIssueTimer.isStarted ? 'Start' : 'Stop';
+            } else {
+                span.textContent = newIssueTimer.isStarted ? 'Start timer' : 'Stop timer';
+            }
             if (newIssue.issueUrl && (duration || !newIssueTimer.isStarted)) {
                 span.textContent += ' (' + this.durationToString(duration) + ')';
             }
