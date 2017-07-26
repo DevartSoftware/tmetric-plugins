@@ -9,6 +9,7 @@
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
             var host = $$('.js-plugin-buttons ~ .window-module > div');
             if (host) {
+                linkElement.lastElementChild.innerHTML = linkElement.lastElementChild.innerHTML.replace(/(^|\s+)timer/g, '');
                 linkElement.classList.add('trello');
                 linkElement.classList.add('button-link');
                 host.insertBefore(linkElement, host.firstElementChild);
