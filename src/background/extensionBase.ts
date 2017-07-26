@@ -189,7 +189,13 @@ class ExtensionBase {
 
         setUpdateTimeout();
 
-        // Inject content scripts in all already opened pages
+        this.injectContentScripts();
+    }
+
+    /**
+     * Manualy inject content scripts on all tabs
+     */
+    injectContentScripts() {
         var contentScripts = chrome.runtime.getManifest().content_scripts[0];
         var jsFiles = contentScripts.js;
         var cssFiles = contentScripts.css;
