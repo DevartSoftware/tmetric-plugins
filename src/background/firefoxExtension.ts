@@ -2,9 +2,7 @@ class FirefoxExtension extends ExtensionBase {
 
     constructor() {
         super(backgroundPort);
-    }
 
-    injectContentScripts() {
         this.sendToTabs({ action: 'initPage' });
     }
 

@@ -188,28 +188,6 @@ class ExtensionBase {
         }, (60 - new Date().getSeconds()) * 1000);
 
         setUpdateTimeout();
-
-        this.injectContentScripts();
-    }
-
-    /**
-     * Manualy inject content scripts on all tabs
-     */
-    injectContentScripts() {
-        var contentScripts = chrome.runtime.getManifest().content_scripts[0];
-        var jsFiles = contentScripts.js;
-        var cssFiles = contentScripts.css;
-        var runAt = contentScripts.run_at;
-        chrome.tabs.query({}, tabs =>
-            tabs.forEach(tab => {
-                if (tab.url.indexOf('http') == 0
-                    && tab.url.indexOf('https://chrome.google.com/webstore/') != 0 // https://github.com/GoogleChrome/lighthouse/issues/1023
-                    && tab.url.indexOf('https://addons.opera.com/') != 0
-                ) {
-                    jsFiles.forEach(file => chrome.tabs.executeScript(tab.id, { file, runAt }));
-                    cssFiles.forEach(file => chrome.tabs.insertCSS(tab.id, { file }));
-                }
-            }));
     }
 
     /** Handles messages from in-page scripts */
