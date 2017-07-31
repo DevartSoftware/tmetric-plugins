@@ -11,7 +11,7 @@
             if (host) {
                 let text = linkElement.lastElementChild.innerHTML;
                 if (/[0-9]/.test(text)) {
-                    linkElement.lastElementChild.innerHTML = text.replace(/(^|\s+)timer/g, '');
+                    linkElement.lastElementChild.innerHTML = text.replace(' timer', '');
                 }
                 linkElement.classList.add('trello');
                 linkElement.classList.add('button-link');
