@@ -4,6 +4,10 @@ class FirefoxExtension extends ExtensionBase {
         super(backgroundPort);
     }
 
+    injectContentScripts() {
+        this.sendToTabs({ action: 'initPage' });
+    }
+
     /**
      * @override
      * @param message

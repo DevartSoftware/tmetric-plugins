@@ -9,6 +9,14 @@
             return;
         }
 
+        // Only for FireFox to inject scripts in right order
+        if (message.action == 'initPage') {
+            console.log('initPage: ' + new Date());
+            sendBackgroundMessage({ action: 'getConstants' });
+            sendBackgroundMessage({ action: 'getTimer' });
+            return;
+        }
+
         if (pingTimeouts[message.action]) {
             clearTimeout(pingTimeouts[message.action]);
             pingTimeouts[message.action] = null;

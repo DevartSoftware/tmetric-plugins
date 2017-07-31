@@ -268,23 +268,23 @@ gulp.task('prepackage:edge:strip', ['prepackage:edge:copy'], function () {
 gulp.task('prepackage:edge:modifyManifest', ['prepackage:edge:copy'], function () {
 
     return gulp.src(edgeUnpackedDir + '/manifest.json')
-        .pipe(modifyManifest(obj => {
+        .pipe(modifyManifest(manifest => {
 
             // Add -ms-preload property
-            obj["-ms-preload"] = {
+            manifest["-ms-preload"] = {
                 ["backgroundScript"]: "backgroundScriptsAPIBridge.js",
                 ["contentScript"]: "contentScriptsAPIBridge.js"
             };
 
             // Add persistent property to background
-            obj['background']['persistent'] = true;
+            manifest['background']['persistent'] = true;
 
             // Replace chromeExtension.js to edgeExtension.js
-            var scripts = obj['background']['scripts'];
+            var scripts = manifest['background']['scripts'];
             var index = scripts.indexOf('background/chromeExtension.js');
             scripts.splice(index, 1, 'background/edgeExtension.js');
 
-            return obj;
+            return manifest;
         }))
         .pipe(gulp.dest(edgeUnpackedDir));
 });
@@ -317,17 +317,17 @@ gulp.task('prepackage:firefox:strip', ['prepackage:firefox:copy'], function () {
 gulp.task('prepackage:firefox:modifyManifest', ['prepackage:firefox:copy'], callback => {
 
     return gulp.src(firefoxUnpackedDir + '/manifest.json')
-        .pipe(modifyManifest(_ => {
+        .pipe(modifyManifest(manifest => {
 
             // Remove externally_connectable property
-            _['externally_connectable'] = undefined;
+            delete manifest['externally_connectable'];
 
             // Replace chromeExtension.js to firefoxExtension.js
-            var scripts = _['background']['scripts'];
+            var scripts = manifest['background']['scripts'];
             var index = scripts.indexOf('background/chromeExtension.js');
             scripts.splice(index, 1, 'background/firefoxExtension.js');
 
-            return _;
+            return manifest;
         }))
         .pipe(gulp.dest(firefoxUnpackedDir));
 });
