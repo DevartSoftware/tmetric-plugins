@@ -9,8 +9,6 @@
             return;
         }
 
-        console.log('Message action', message.action);
-
         if (pingTimeouts[message.action]) {
             clearTimeout(pingTimeouts[message.action]);
             pingTimeouts[message.action] = null;
