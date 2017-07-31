@@ -1,5 +1,4 @@
 ﻿if (typeof document !== 'undefined') {
-
     /**
      * Retrieves messages from background script.
      */
@@ -11,7 +10,6 @@
 
         // Only for FireFox to inject scripts in right order
         if (message.action == 'initPage') {
-            console.log('initPage: ' + new Date());
             sendBackgroundMessage({ action: 'getConstants' });
             sendBackgroundMessage({ action: 'getTimer' });
             return;
