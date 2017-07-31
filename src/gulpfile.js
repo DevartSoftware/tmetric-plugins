@@ -134,9 +134,7 @@ gulp.task('version', (callback) => {
         [
             src + 'manifest.json',
             src + 'package.json',
-            src + 'firefox/package.json',
-            src + 'background/chromeExtension.ts',
-            src + 'in-page-scripts/firefoxMessageListener.ts'
+            src + 'background/extensionBase.ts',
         ].forEach(
             file => replaceInFile(
                 file,
