@@ -9,6 +9,8 @@
             return;
         }
 
+        console.log('Message action', message.action);
+
         if (pingTimeouts[message.action]) {
             clearTimeout(pingTimeouts[message.action]);
             pingTimeouts[message.action] = null;
@@ -16,7 +18,8 @@
 
         // Only for FireFox
         if (message.action == 'error') {
-            alert(message.data.message);
+            let a = alert;
+            a(message.data.message);
         }
 
         // Only for Edge
