@@ -332,6 +332,6 @@ gulp.task('prepackage:firefox:modifyManifest', ['prepackage:firefox:copy'], call
 
 gulp.task('package:firefox', ['prepackage:firefox'], () => {
     gulp.src(firefoxUnpackedDir + '**/*')
-        .pipe(zip('firefoxExtension.zip'))
+        .pipe(zip('firefoxExtension.xpi'))
         .pipe(gulp.dest(firefoxDir));
 });
