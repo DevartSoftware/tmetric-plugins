@@ -1,7 +1,7 @@
 ﻿class EdgeExtension extends ExtensionBase {
 
     constructor() {
-        super(backgroundPort);
+        super();
     }
 
     /**

@@ -1,13 +1,10 @@
-﻿// Emulates Firefox port:
-// https://developer.mozilla.org/en-US/Add-ons/SDK/Guides/Content_Scripts/using_port
-
-class ShamPort implements Firefox.Port {
+﻿class EventEmitter {
 
     private _handlers = <{ [methodName: string]: [Function, boolean][] }>{};
 
-    private _link: ShamPort;
+    private _link: EventEmitter;
 
-    constructor(link?: ShamPort) {
+    constructor(link?: EventEmitter) {
         if (link) {
             this._link = link;
             this._link._link = this;
@@ -59,7 +56,3 @@ class ShamPort implements Firefox.Port {
         }
     }
 }
-
-var backgroundPort = new ShamPort(); // Port used in ChromeExtension
-var connectionPort = new ShamPort(backgroundPort); // Port used in content (page) scripts
-self.port = connectionPort;

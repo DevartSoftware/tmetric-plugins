@@ -71,6 +71,8 @@ class ExtensionBase {
 
     lastNotificationId: string;
 
+    eventEmitter = new EventEmitter(signalRConnection.eventEmitter);
+
     protected serviceUrl: string;
 
     protected extraHours: number;
@@ -91,7 +93,7 @@ class ExtensionBase {
 
     private defaultApplicationUrl = 'https://beta.tmetric.com/';
 
-    constructor(public port: Firefox.Port) {
+    constructor() {
 
         this._constants = this.getDefaultConstants();
 
@@ -108,7 +110,7 @@ class ExtensionBase {
             this.extraHours = 0;
         }
 
-        this.port.on('updateTimer', timer => {
+        this.eventEmitter.on('updateTimer', timer => {
 
             // looks like disconnect
             if (timer == null) {
@@ -129,28 +131,28 @@ class ExtensionBase {
             }
         });
 
-        this.port.on('updateTracker', timeEntries => {
+        this.eventEmitter.on('updateTracker', timeEntries => {
             this._timeEntries = timeEntries;
             this.updateState();
         });
 
-        this.port.on('updateProfile', profile => {
+        this.eventEmitter.on('updateProfile', profile => {
             this._userProfile = profile;
         });
 
-        this.port.on('updateProjects', projects => {
+        this.eventEmitter.on('updateProjects', projects => {
             this._projects = projects;
         });
 
-        this.port.on('updateTags', tags => {
+        this.eventEmitter.on('updateTags', tags => {
             this._tags = tags;
         });
 
-        this.port.on('updateActiveAccount', acountId => {
+        this.eventEmitter.on('updateActiveAccount', acountId => {
             this.clearIssuesDurationsCache();
         });
 
-        this.port.on('removeExternalIssuesDurations', identifiers => {
+        this.eventEmitter.on('removeExternalIssuesDurations', identifiers => {
             this.removeIssuesDurationsFromCache(identifiers);
         });
 
@@ -546,13 +548,13 @@ class ExtensionBase {
         });
     }
 
-    // port actions
+    // emitter actions
 
-    private wrapPortAction<TParam, TResult>(actionName: string) {
+    private wrapEmitterAction<TParam, TResult>(actionName: string) {
         var actionId = 0;
         return (param?: TParam) => new Promise<TResult>((callback, reject) => {
             var callbackName = actionName + '_' + ++actionId + '_callback';
-            this.port.once(callbackName, (isFulfilled: boolean, result: any) => {
+            this.eventEmitter.once(callbackName, (isFulfilled: boolean, result: any) => {
                 if (isFulfilled) {
                     callback(result);
                 }
@@ -560,23 +562,23 @@ class ExtensionBase {
                     reject(result);
                 }
             });
-            this.port.emit(actionName, actionId, param);
+            this.eventEmitter.emit(actionName, actionId, param);
         });
     }
 
-    protected reconnect = this.wrapPortAction<void, void>('reconnect');
-    private init = this.wrapPortAction<string, void>('init');
-    private disconnect = this.wrapPortAction<void, void>('disconnect');
-    private retryConnection = this.wrapPortAction<void, void>('retryConnection');
-    private isConnectionRetryEnabled = this.wrapPortAction<void, boolean>('isConnectionRetryEnabled');
-    private getTimer = this.wrapPortAction<void, void>('getTimer');
-    private getVersion = this.wrapPortAction<void, number>('getVersion');
-    private putTimer = this.wrapPortAction<Models.Timer, void>('putTimer');
-    private putTimerWithExistingIntegration = this.wrapPortAction<Integrations.WebToolIssueTimer, void>('putExternalTimer');
-    private postIntegration = this.wrapPortAction<Models.IntegratedProjectIdentifier, void>('postIntegration');
-    private getIntegration = this.wrapPortAction<Models.IntegratedProjectIdentifier, Models.IntegratedProjectStatus>('getIntegration');
-    private setAccountToPost = this.wrapPortAction<number, void>('setAccountToPost');
-    private fetchIssuesDurations = this.wrapPortAction<Integrations.WebToolIssueIdentifier[], Integrations.WebToolIssueDuration[]>('fetchIssuesDurations');
+    protected reconnect = this.wrapEmitterAction<void, void>('reconnect');
+    private init = this.wrapEmitterAction<string, void>('init');
+    private disconnect = this.wrapEmitterAction<void, void>('disconnect');
+    private retryConnection = this.wrapEmitterAction<void, void>('retryConnection');
+    private isConnectionRetryEnabled = this.wrapEmitterAction<void, boolean>('isConnectionRetryEnabled');
+    private getTimer = this.wrapEmitterAction<void, void>('getTimer');
+    private getVersion = this.wrapEmitterAction<void, number>('getVersion');
+    private putTimer = this.wrapEmitterAction<Models.Timer, void>('putTimer');
+    private putTimerWithExistingIntegration = this.wrapEmitterAction<Integrations.WebToolIssueTimer, void>('putExternalTimer');
+    private postIntegration = this.wrapEmitterAction<Models.IntegratedProjectIdentifier, void>('postIntegration');
+    private getIntegration = this.wrapEmitterAction<Models.IntegratedProjectIdentifier, Models.IntegratedProjectStatus>('getIntegration');
+    private setAccountToPost = this.wrapEmitterAction<number, void>('setAccountToPost');
+    private fetchIssuesDurations = this.wrapEmitterAction<Integrations.WebToolIssueIdentifier[], Integrations.WebToolIssueDuration[]>('fetchIssuesDurations');
 
     // popup action listeners
 
@@ -686,7 +688,7 @@ class ExtensionBase {
             this.loginWindowPending = true;
             try {
 
-                let {width, height, left, top} = this.getDefaultLoginPosition();
+                let { width, height, left, top } = this.getDefaultLoginPosition();
 
                 if (pageWindow.left != null && pageWindow.width != null) {
                     left = Math.round(pageWindow.left + (pageWindow.width - width) / 2);
@@ -723,8 +725,8 @@ class ExtensionBase {
     setButtonIcon(icon: string, tooltip: string) {
         chrome.browserAction.setIcon({
             path: {
-                '19': 'images/chrome/' + icon + '19.png',
-                '38': 'images/chrome/' + icon + '38.png'
+                '19': 'images/' + icon + '19.png',
+                '38': 'images/' + icon + '38.png'
             }
         });
         chrome.browserAction.setTitle({ title: tooltip });

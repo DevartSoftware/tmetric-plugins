@@ -1,7 +1,7 @@
 class ChromeExtension extends ExtensionBase {
 
     constructor() {
-        super(backgroundPort);
+        super();
 
         // Manualy inject content scripts on all tabs.
         var contentScripts = chrome.runtime.getManifest().content_scripts[0];

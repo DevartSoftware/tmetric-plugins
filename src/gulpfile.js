@@ -59,11 +59,9 @@ var files = {
         'lib/**',
         'images/*.png',
         'popup/popup.html',
-        'popup/popupBase.js',
+        'popup/popupController.js',
         'background/extensionBase.js',
-        'background/shamPort.js',
-        'images/chrome/*',
-        'popup/chromePopup.js',
+        'background/eventEmitter.js',
         'manifest.json'
     ],
     chrome: [
@@ -334,6 +332,6 @@ gulp.task('prepackage:firefox:modifyManifest', ['prepackage:firefox:copy'], call
 
 gulp.task('package:firefox', ['prepackage:firefox'], () => {
     gulp.src(firefoxUnpackedDir + '**/*')
-        .pipe(zip('firefoxExtension.xpi'))
+        .pipe(zip('firefoxExtension.zip'))
         .pipe(gulp.dest(firefoxDir));
 });
