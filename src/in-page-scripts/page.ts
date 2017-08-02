@@ -160,15 +160,6 @@
 
         var { issues, observeMutations } = Integrations.IntegrationService.updateLinks(checkAllIntegrations);
 
-        // Insert phantom HTML element.
-        // This way main app understands that extension is installed.
-        if (/beta\.tmetric\.com/.test(document.URL) || /app\.tmetric\.com/.test(document.URL)) {
-            let span = document.createElement('span');
-            span.style.position = 'absolute';
-            span.id = 'tmetric-extension-installed';
-            document.querySelector('body').appendChild(span);
-        }
-
         if (mutationObserver) {
             // clear queue to prevent observer reentering
             mutationObserver.takeRecords();

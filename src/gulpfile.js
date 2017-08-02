@@ -55,6 +55,7 @@ var files = {
         'in-page-scripts/integrations/*.js',
         'in-page-scripts/integrationService.js',
         'in-page-scripts/page.js',
+        'in-page-scripts/version.js',
         'in-page-scripts/utils.js',
         'lib/**',
         'images/*.png',
