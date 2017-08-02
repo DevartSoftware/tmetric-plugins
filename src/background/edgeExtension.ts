@@ -6,11 +6,6 @@
 
     /**
      * @override
-     */
-    registerVersionListener() { }
-
-    /**
-     * @override
      * @param sender
      */
     isPopupRequest(sender: chrome.runtime.MessageSender) {

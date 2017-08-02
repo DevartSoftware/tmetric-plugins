@@ -136,7 +136,7 @@
     }
 
     /**
-     * Parses issues, adds timer links on a page, insert phantom version HTML element.
+     * Parses issues, adds timer links on a page
      */
     function parsePage() {
 

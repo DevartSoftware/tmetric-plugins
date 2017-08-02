@@ -181,7 +181,6 @@ class ExtensionBase {
         this.registerTabsUpdateListener();
         this.registerTabsRemoveListener();
         this.registerMessageListener();
-        this.registerVersionListener();
 
         // Update hint once per minute
         var setUpdateTimeout = () => setTimeout(() => {
@@ -842,14 +841,6 @@ class ExtensionBase {
             else if (this.isPopupRequest(sender)) {
                 this.onPopupRequest(message, senderResponse);
                 return !!senderResponse;
-            }
-        });
-    }
-
-    registerVersionListener() {
-        chrome.runtime.onMessageExternal.addListener((request: any, sender: any, sendResponse: Function) => {
-            if (request.message == "version") {
-                sendResponse({ version: "2.1.0" });
             }
         });
     }

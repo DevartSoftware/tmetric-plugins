@@ -133,7 +133,7 @@ gulp.task('version', (callback) => {
         [
             src + 'manifest.json',
             src + 'package.json',
-            src + 'background/extensionBase.ts',
+            src + 'in-page-scripts/version.ts'
         ].forEach(
             file => replaceInFile(
                 file,

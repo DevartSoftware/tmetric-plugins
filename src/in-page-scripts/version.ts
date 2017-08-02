@@ -1,9 +1,22 @@
-﻿if (typeof document != undefined) {
+﻿(function () {
 
-    (function () {
-        let meta = document.createElement('meta');
-        meta.name = 'tmetric-extension-version';
-        meta.content = { version: '2.3.4' }.version; // { } is used to replace number of version when extension build.
-        document.querySelector('head').appendChild(meta);
-    })();
-}
+    if (typeof document == undefined) {
+        return;
+    }
+
+    let extensionInfo = { // object is updated from gulp build
+        version: '2.1.0'
+    };
+
+    let metaName = 'tmetric-extension-version';
+    let head = document.querySelector('head');
+    let oldMeta = head.querySelector(`meta[name="${metaName}"]`);
+    if (oldMeta) {
+        head.removeChild(oldMeta);
+    }
+
+    let meta = document.createElement('meta');
+    meta.name = metaName;
+    meta.content = extensionInfo.version;
+    head.appendChild(meta);
+})();
