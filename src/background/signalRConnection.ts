@@ -343,33 +343,6 @@
         });
     }
 
-    // TODO: remove after releasing 17.2
-    private iconIssueIdDomains = {
-        'asana.com': true,
-        'basecamp.com': true,
-        'producteev.com': true,
-        'teamweek.com': true,
-        'todoist.com': true,
-        'userecho.com': true,
-        'uservoice.com': true,
-        'wrike.com': true,
-        'wunderlist.com': true
-    };
-
-    // TODO: remove after releasing 17.2
-    private domainRegExp = /([^\.\/]+\.[^\.\/]+)$/;
-
-    // TODO: remove after releasing 17.2
-    private updateLegacyDetails(details: Models.TimeEntryDetail) {
-        if (details && details.projectTask && details.projectTask.showIssueId == null) {
-            details.projectTask.showIssueId = true;
-            let domainMatch = this.domainRegExp.exec(details.projectTask.integrationUrl);
-            if (domainMatch && this.iconIssueIdDomains[domainMatch[1]]) {
-                details.projectTask.showIssueId = false;
-            }
-        }
-    }
-
     getTimer() {
 
         return this.checkProfile().then(profile => {
@@ -379,9 +352,6 @@
 
             var url = this.getTimerUrl(accountId);
             var timer = this.get<Models.Timer>(url).then(timer => {
-                // TODO: remove after releasing 17.2
-                this.updateLegacyDetails(timer.details);
-
                 self.port.emit('updateTimer', timer);
                 return timer;
             });
@@ -391,8 +361,6 @@
             var endTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toJSON();
             url = this.getTimeEntriesUrl(accountId, userProfileId) + `?startTime=${startTime}&endTime=${endTime}`;
             var tracker = this.get<Models.TimeEntry[]>(url).then(tracker => {
-                // TODO: remove after releasing 17.2
-                tracker.forEach(timeEntry => this.updateLegacyDetails(timeEntry.details));
                 self.port.emit('updateTracker', tracker);
                 return tracker;
             });
