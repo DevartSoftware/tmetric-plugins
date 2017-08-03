@@ -9,6 +9,8 @@ var mergeStream = require('merge-stream');      // Create a stream that emits ev
 var path = require('path');                     // Node.js Path System module
 var rename = require('gulp-rename');            // Simple file renaming methods.
 var stripDebug = require('gulp-strip-debug');   // Strip console and debugger statements from JavaScript code.
+var through = require('through2');
+var zip = require('gulp-zip');
 
 // =============================================================================
 // Global variables
@@ -40,6 +42,8 @@ var chromeDir = distDir + 'chrome/';
 var chromeUnpackedDir = chromeDir + 'unpacked/';
 var firefoxDir = distDir + 'firefox/';
 var firefoxUnpackedDir = firefoxDir + 'unpacked/';
+var edgeDir = distDir + 'edge/';
+var edgeUnpackedDir = edgeDir + 'unpacked/';
 
 console.log('Start build');
 console.log(JSON.stringify(config, null, 2));
@@ -51,35 +55,25 @@ var files = {
         'in-page-scripts/integrations/*.js',
         'in-page-scripts/integrationService.js',
         'in-page-scripts/page.js',
+        'in-page-scripts/version.js',
         'in-page-scripts/utils.js',
         'lib/**',
         'images/*.png',
         'popup/popup.html',
-        'popup/popupBase.js'
+        'popup/popupController.js',
+        'background/extensionBase.js',
+        'background/eventEmitter.js',
+        'manifest.json'
     ],
     chrome: [
         'background/chromeExtension.js',
-        'background/extensionBase.js',
-        'background/shamPort.js',
-        'images/chrome/*',
-        'popup/chromePopup.js',
-        'manifest.json'
     ],
-    firefox: {
-        root: [
-            'firefox/package.json',
-            'images/icon.png'
-        ],
-        index: [
-            'background/extensionBase.js',
-            'background/firefoxExtension.js'
-        ],
-        data: [
-            'images/firefox/*',
-            'in-page-scripts/firefoxMessageListener.js',
-            'popup/firefoxPopup.js'
-        ]
-    }
+    edge: [
+        'background/edgeExtension.js'
+    ],
+    firefox: [
+        'background/firefoxExtension.js'
+    ]
 };
 
 // common operations
@@ -100,21 +94,46 @@ function stripDebugCommon(folder) {
     }
 }
 
+function modifyManifest(callbackFn) {
+
+    return through.obj(function (vinylFile, encoding, callback) {
+
+        var file = vinylFile.clone();
+
+        if (file.isBuffer()) {
+
+            var fileContent = file.contents.toString(encoding);
+
+            var obj;
+            try {
+                obj = JSON.parse(fileContent);
+            }
+            catch (e) {
+                return reject(new Error('Invalid JSON: ' + e.message));
+            }
+
+            var newManifest = callbackFn(obj);
+
+            file.contents = new Buffer(JSON.stringify(newManifest, null, 4));
+
+            callback(null, file);
+        }
+    });
+}
+
 // =============================================================================
 // Common tasks (used for both extensions)
 // =============================================================================
 
 gulp.task('default', ['build']);
-gulp.task('build', ['version', 'package:chrome', 'package:firefox']);
+gulp.task('build', ['version', 'package:chrome', 'package:firefox', 'package:edge']);
 
 gulp.task('version', (callback) => {
     if (config.version) {
         [
             src + 'manifest.json',
             src + 'package.json',
-            src + 'firefox/package.json',
-            src + 'background/chromeExtension.ts',
-            src + 'in-page-scripts/firefoxMessageListener.ts'
+            src + 'in-page-scripts/version.ts'
         ].forEach(
             file => replaceInFile(
                 file,
@@ -213,72 +232,107 @@ gulp.task('package:chrome', ['prepackage:chrome'], () => {
 });
 
 // =============================================================================
-// Tasks for building Firefox addon
+// Tasks for building Edge addon
 // =============================================================================
 
-function copyFilesFirefox(destFolder) {
-    var root = gulp.src(files.firefox.root).pipe(gulp.dest(destFolder));
-    var data = gulp.src(files.common.concat(files.firefox.data), { base: src }).pipe(gulp.dest(destFolder + 'data/'));
-    return mergeStream(root, data);
-}
-
-function makeIndexFirefox(files, destFolder) {
-    return gulp.src(files)
-        .pipe(concat('index.js'))
+function copyFilesEdge(destFolder) {
+    return gulp.src(files.common.concat(files.edge), { base: src })
         .pipe(gulp.dest(destFolder));
 }
 
-function stripHtmlFirefox(destFolder) {
-    // Strip scripts from html for firefox
-    // They are placed in FirefoxExtension.ts as content scripts to allow cross site requests
-    var srcHtml = src + 'popup/popup.html';
-    var destHtml = destFolder + 'data/popup/popup.html';
-    fs.writeFileSync(destHtml, fs.readFileSync(srcHtml));
-    replaceInFile(destHtml, /\s*<script[^>]+>.*<\/script>/g, '');
+function copyFilesEdgeBridges(destFolder) {
+    return gulp.src([
+        'edge-api-bridges/background.html',
+        'edge-api-bridges/backgroundScriptsAPIBridge.js',
+        'edge-api-bridges/contentScriptsAPIBridge.js'
+    ], { base: src })
+        .pipe(rename({ dirname: '' }))
+        .pipe(gulp.dest(destFolder));
 }
 
-function packageFirefox(unpackedFolder, destFolder) {
-    // packaging for firefox should be run synchronously
-    process.chdir(unpackedFolder);
-    var jpmXpi = require('jpm/lib/xpi'); // Packaging utility for Mozilla Jetpack Addons
-    var addonManifest = require(unpackedFolder + 'package.json');
-    var promise = jpmXpi(addonManifest, { xpiPath: destFolder });
-    promise.then(function () {
-        process.chdir(src);
-    });
-    return promise;
+gulp.task('prepackage:edge', [
+    'prepackage:edge:copy',
+    'prepackage:edge:strip',
+    'prepackage:edge:modifyManifest'
+]);
+
+gulp.task('prepackage:edge:copy', ['clean:dist', 'compile', 'lib'], function () {
+    return mergeStream(copyFilesEdge(edgeUnpackedDir), copyFilesEdgeBridges(edgeUnpackedDir));
+});
+
+gulp.task('prepackage:edge:strip', ['prepackage:edge:copy'], function () {
+    return stripDebugCommon(edgeUnpackedDir);
+});
+
+gulp.task('prepackage:edge:modifyManifest', ['prepackage:edge:copy'], function () {
+
+    return gulp.src(edgeUnpackedDir + '/manifest.json')
+        .pipe(modifyManifest(manifest => {
+
+            // Add -ms-preload property
+            manifest["-ms-preload"] = {
+                ["backgroundScript"]: "backgroundScriptsAPIBridge.js",
+                ["contentScript"]: "contentScriptsAPIBridge.js"
+            };
+
+            // Add persistent property to background
+            manifest['background']['persistent'] = true;
+
+            // Replace chromeExtension.js to edgeExtension.js
+            var scripts = manifest['background']['scripts'];
+            var index = scripts.indexOf('background/chromeExtension.js');
+            scripts.splice(index, 1, 'background/edgeExtension.js');
+
+            return manifest;
+        }))
+        .pipe(gulp.dest(edgeUnpackedDir));
+});
+
+gulp.task('package:edge', ['prepackage:edge']);
+
+// =============================================================================
+// Tasks for building Firefox addon
+// =============================================================================
+
+function copyFilesFireFox(destFolder) {
+    return gulp.src(files.common.concat(files.firefox), { base: src })
+        .pipe(gulp.dest(destFolder));
 }
 
 gulp.task('prepackage:firefox', [
     'prepackage:firefox:copy',
-    'prepackage:firefox:index',
-    'prepackage:firefox:strip'
+    'prepackage:firefox:strip',
+    'prepackage:firefox:modifyManifest'
 ]);
 
-gulp.task('prepackage:firefox:copy', ['clean:dist', 'compile', 'lib'], () => {
-    return copyFilesFirefox(firefoxUnpackedDir);
+gulp.task('prepackage:firefox:copy', ['clean:dist', 'compile', 'lib'], function () {
+    return copyFilesFireFox(firefoxUnpackedDir);
 });
 
-gulp.task('prepackage:firefox:index', ['prepackage:firefox:copy'], () => {
-    return makeIndexFirefox(files.firefox.index, firefoxUnpackedDir);
-});
-
-gulp.task('prepackage:firefox:strip', [
-    'prepackage:firefox:strip:js',
-    'prepackage:firefox:strip:html'
-]);
-
-gulp.task('prepackage:firefox:strip:js', ['prepackage:firefox:index'], () => {
+gulp.task('prepackage:firefox:strip', ['prepackage:firefox:copy'], function () {
     return stripDebugCommon(firefoxUnpackedDir);
 });
 
-gulp.task('prepackage:firefox:strip:html', ['prepackage:firefox:copy'], (callback) => {
-    stripHtmlFirefox(firefoxUnpackedDir);
-    callback();
+gulp.task('prepackage:firefox:modifyManifest', ['prepackage:firefox:copy'], callback => {
+
+    return gulp.src(firefoxUnpackedDir + '/manifest.json')
+        .pipe(modifyManifest(manifest => {
+
+            // Remove externally_connectable property
+            delete manifest['externally_connectable'];
+
+            // Replace chromeExtension.js to firefoxExtension.js
+            var scripts = manifest['background']['scripts'];
+            var index = scripts.indexOf('background/chromeExtension.js');
+            scripts.splice(index, 1, 'background/firefoxExtension.js');
+
+            return manifest;
+        }))
+        .pipe(gulp.dest(firefoxUnpackedDir));
 });
 
-gulp.task('package:firefox', ['prepackage:firefox'], (callback) => {
-    packageFirefox(firefoxUnpackedDir, firefoxDir).then(() => {
-        callback();
-    });
+gulp.task('package:firefox', ['prepackage:firefox'], () => {
+    gulp.src(firefoxUnpackedDir + '**/*')
+        .pipe(zip('firefoxExtension.xpi'))
+        .pipe(gulp.dest(firefoxDir));
 });

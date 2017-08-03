@@ -1,7 +1,7 @@
 {
     "name": "TMetric",
     "description": "Browser extensions that integrate TMetric service with popular issue tracking systems.",
-    "version": "2.1.1",
+    "version": "2.2.0",
     "repository": {
         "type": "Git",
         "url": "https://github.com/DevartSoftware/tt-plugins.git"
@@ -26,11 +26,11 @@
         "gulp-strip-debug": "1.1.0",
         "gulp-tsc": "1.2.0",
         "gulp-zip": "3.0.2",
-        "jpm": "*",
         "jsonfile": "2.2.2",
         "merge-stream": "1.0.0",
         "mocha": "2.3.3",
         "typescript": "1.8",
-        "yargs": "4.3.2"
+        "yargs": "4.3.2",
+        "through2": "2.0.3"
     }
 }

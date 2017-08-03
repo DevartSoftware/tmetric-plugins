@@ -5,18 +5,18 @@
     "short_name": "TMetric",
     "description": "Simple time tracking extension which helps you be more productive, complete projects in time and bill your clients correctly.",
     "author": "Devart",
-    "version": "2.1.1",
+    "version": "2.2.0",
 
     "icons": {
-        "16": "images/chrome/icon16.png",
+        "16": "images/icon16.png",
         "48": "images/icon.png",
-        "128": "images/chrome/icon128.png"
+        "128": "images/icon128.png"
     },
 
     "browser_action": {
         "default_icon": {
-            "19": "images/chrome/inactive19.png",
-            "38": "images/chrome/inactive38.png"
+            "19": "images/inactive19.png",
+            "38": "images/inactive38.png"
         },
         "default_popup": "popup/popup.html"
     },
@@ -31,7 +31,7 @@
         "scripts": [
             "lib/jquery.min.js",
             "lib/jquery.signalr.min.js",
-            "background/shamPort.js",
+            "background/eventEmitter.js",
             "background/signalRConnection.js",
             "background/extensionBase.js",
             "background/chromeExtension.js"
@@ -93,6 +93,11 @@
             "css": [
                 "css/timer-link.css"
             ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [ "https://beta.tmetric.com/*", "https://app.tmetric.com/*" ],
+            "js": [ "in-page-scripts/version.js" ],
             "run_at": "document_end"
         }
     ]

@@ -2,8 +2,6 @@
 
 class ExtensionBase {
 
-    showLoginDialog() { }
-
     getDefaultConstants() {
         let constants: Models.Constants = {
             maxTimerHours: 12
@@ -20,25 +18,60 @@ class ExtensionBase {
         }
     }
 
-    showError(message: string) { }
+    /**
+     * Create popup window
+     * @abstract
+     * @param width
+     * @param height
+     * @param left
+     * @param top
+     */
+    createPopupWindow(width: number, height: number, left: number, top: number) { }
 
-    showNotification(message: string, title?: string) { }
+    showError(message: string) {
+        // This needed to prevent alert cleaning via build.
+        var a = alert;
+        a(message);
+    }
 
-    showConfirmation(message: string) {
+    /**
+     * Check popup request
+     * @abstract
+     * @param sender
+     */
+    isPopupRequest(sender: chrome.runtime.MessageSender): boolean {
         return false;
     }
 
-    setButtonIcon(icon: string, tooltip: string) { }
-
-    sendToTabs: (message: ITabMessage, tabId?: any) => void;
-
-    openPage(url: string) { }
-
-    getActiveTabTitle: () => Promise<string>;
-
-    getTestValue(name: string): any { }
+    /**
+     * Show push notification
+     * @param message
+     * @param title
+     */
+    showNotification(message: string, title?: string) {
+        if (this.lastNotificationId) {
+            chrome.notifications.clear(this.lastNotificationId, () => { });
+        }
+        title = title || 'TMetric';
+        var type = 'basic';
+        var iconUrl = 'images/icon80.png';
+        chrome.notifications.create(
+            null,
+            { title, message, type, iconUrl },
+            id => this.lastNotificationId = id);
+    }
 
     buttonState = ButtonState.start;
+
+    loginTabId: number;
+
+    loginWinId: number;
+
+    loginWindowPending: boolean;
+
+    lastNotificationId: string;
+
+    eventEmitter = new EventEmitter(signalRConnection.eventEmitter);
 
     protected serviceUrl: string;
 
@@ -60,7 +93,7 @@ class ExtensionBase {
 
     private defaultApplicationUrl = 'https://app.tmetric.com/';
 
-    constructor(public port: Firefox.Port) {
+    constructor() {
 
         this._constants = this.getDefaultConstants();
 
@@ -77,7 +110,7 @@ class ExtensionBase {
             this.extraHours = 0;
         }
 
-        this.port.on('updateTimer', timer => {
+        this.eventEmitter.on('updateTimer', timer => {
 
             // looks like disconnect
             if (timer == null) {
@@ -98,28 +131,28 @@ class ExtensionBase {
             }
         });
 
-        this.port.on('updateTracker', timeEntries => {
+        this.eventEmitter.on('updateTracker', timeEntries => {
             this._timeEntries = timeEntries;
             this.updateState();
         });
 
-        this.port.on('updateProfile', profile => {
+        this.eventEmitter.on('updateProfile', profile => {
             this._userProfile = profile;
         });
 
-        this.port.on('updateProjects', projects => {
+        this.eventEmitter.on('updateProjects', projects => {
             this._projects = projects;
         });
 
-        this.port.on('updateTags', tags => {
+        this.eventEmitter.on('updateTags', tags => {
             this._tags = tags;
         });
 
-        this.port.on('updateActiveAccount', acountId => {
+        this.eventEmitter.on('updateActiveAccount', acountId => {
             this.clearIssuesDurationsCache();
         });
 
-        this.port.on('removeExternalIssuesDurations', identifiers => {
+        this.eventEmitter.on('removeExternalIssuesDurations', identifiers => {
             this.removeIssuesDurationsFromCache(identifiers);
         });
 
@@ -144,6 +177,18 @@ class ExtensionBase {
         this.listenPopupAction<void, void>('login', this.loginPopupAction);
         this.listenPopupAction<void, void>('fixTimer', this.fixTimerPopupAction);
         this.listenPopupAction<Models.Timer, void>('putTimer', this.putTimerPopupAction);
+
+        this.registerTabsUpdateListener();
+        this.registerTabsRemoveListener();
+        this.registerMessageListener();
+
+        // Update hint once per minute
+        var setUpdateTimeout = () => setTimeout(() => {
+            this.updateState();
+            setUpdateTimeout();
+        }, (60 - new Date().getSeconds()) * 1000);
+
+        setUpdateTimeout();
     }
 
     /** Handles messages from in-page scripts */
@@ -200,8 +245,8 @@ class ExtensionBase {
     }
 
     fixTimer() {
-        this.openTrackerPage();
         this.showNotification('You should fix the timer.');
+        this.openTrackerPage();
     }
 
     putTabTimer(url: string, title: string)
@@ -502,13 +547,13 @@ class ExtensionBase {
         });
     }
 
-    // port actions
+    // emitter actions
 
-    private wrapPortAction<TParam, TResult>(actionName: string) {
+    private wrapEmitterAction<TParam, TResult>(actionName: string) {
         var actionId = 0;
         return (param?: TParam) => new Promise<TResult>((callback, reject) => {
             var callbackName = actionName + '_' + ++actionId + '_callback';
-            this.port.once(callbackName, (isFulfilled: boolean, result: any) => {
+            this.eventEmitter.once(callbackName, (isFulfilled: boolean, result: any) => {
                 if (isFulfilled) {
                     callback(result);
                 }
@@ -516,23 +561,23 @@ class ExtensionBase {
                     reject(result);
                 }
             });
-            this.port.emit(actionName, actionId, param);
+            this.eventEmitter.emit(actionName, actionId, param);
         });
     }
 
-    protected reconnect = this.wrapPortAction<void, void>('reconnect');
-    private init = this.wrapPortAction<string, void>('init');
-    private disconnect = this.wrapPortAction<void, void>('disconnect');
-    private retryConnection = this.wrapPortAction<void, void>('retryConnection');
-    private isConnectionRetryEnabled = this.wrapPortAction<void, boolean>('isConnectionRetryEnabled');
-    private getTimer = this.wrapPortAction<void, void>('getTimer');
-    private getVersion = this.wrapPortAction<void, number>('getVersion');
-    private putTimer = this.wrapPortAction<Models.Timer, void>('putTimer');
-    private putTimerWithExistingIntegration = this.wrapPortAction<Integrations.WebToolIssueTimer, void>('putExternalTimer');
-    private postIntegration = this.wrapPortAction<Models.IntegratedProjectIdentifier, void>('postIntegration');
-    private getIntegration = this.wrapPortAction<Models.IntegratedProjectIdentifier, Models.IntegratedProjectStatus>('getIntegration');
-    private setAccountToPost = this.wrapPortAction<number, void>('setAccountToPost');
-    private fetchIssuesDurations = this.wrapPortAction<Integrations.WebToolIssueIdentifier[], Integrations.WebToolIssueDuration[]>('fetchIssuesDurations');
+    protected reconnect = this.wrapEmitterAction<void, void>('reconnect');
+    private init = this.wrapEmitterAction<string, void>('init');
+    private disconnect = this.wrapEmitterAction<void, void>('disconnect');
+    private retryConnection = this.wrapEmitterAction<void, void>('retryConnection');
+    private isConnectionRetryEnabled = this.wrapEmitterAction<void, boolean>('isConnectionRetryEnabled');
+    private getTimer = this.wrapEmitterAction<void, void>('getTimer');
+    private getVersion = this.wrapEmitterAction<void, number>('getVersion');
+    private putTimer = this.wrapEmitterAction<Models.Timer, void>('putTimer');
+    private putTimerWithExistingIntegration = this.wrapEmitterAction<Integrations.WebToolIssueTimer, void>('putExternalTimer');
+    private postIntegration = this.wrapEmitterAction<Models.IntegratedProjectIdentifier, void>('postIntegration');
+    private getIntegration = this.wrapEmitterAction<Models.IntegratedProjectIdentifier, Models.IntegratedProjectStatus>('getIntegration');
+    private setAccountToPost = this.wrapEmitterAction<number, void>('setAccountToPost');
+    private fetchIssuesDurations = this.wrapEmitterAction<Integrations.WebToolIssueIdentifier[], Integrations.WebToolIssueDuration[]>('fetchIssuesDurations');
 
     // popup action listeners
 
@@ -629,6 +674,36 @@ class ExtensionBase {
         return this.retryConnection();
     }
 
+    showLoginDialog() {
+        if (this.loginWinId) {
+            chrome.windows.update(this.loginWinId, { focused: true });
+            return;
+        }
+
+        chrome.windows.getLastFocused(pageWindow => {
+            if (this.loginWindowPending) {
+                return;
+            }
+            this.loginWindowPending = true;
+            try {
+
+                let { width, height, left, top } = this.getDefaultLoginPosition();
+
+                if (pageWindow.left != null && pageWindow.width != null) {
+                    left = Math.round(pageWindow.left + (pageWindow.width - width) / 2);
+                }
+                if (pageWindow.top != null && pageWindow.height != null) {
+                    top = Math.round(pageWindow.top + (pageWindow.height - height) / 2);
+                }
+
+                this.createPopupWindow(width, height, left, top);
+            }
+            catch (e) {
+                this.loginWindowPending = false;
+            }
+        });
+    }
+
     loginPopupAction() {
         return Promise.resolve(null).then(() => {
             this.reconnect().catch(() => this.showLoginDialog());
@@ -644,5 +719,129 @@ class ExtensionBase {
     putTimerPopupAction(timer: Models.Timer) {
         return Promise.resolve(null).then(() =>
             this.putData(timer, timer => this.putTimer(timer)));
+    }
+
+    setButtonIcon(icon: string, tooltip: string) {
+        chrome.browserAction.setIcon({
+            path: {
+                '19': 'images/' + icon + '19.png',
+                '38': 'images/' + icon + '38.png'
+            }
+        });
+        chrome.browserAction.setTitle({ title: tooltip });
+    }
+
+    sendToTabs(message: ITabMessage, tabId?: any) {
+        if (tabId != null) {
+            chrome.tabs.sendMessage(tabId, message);
+        }
+        else {
+            chrome.tabs.query({}, tabs => tabs.forEach(tab => {
+                chrome.tabs.sendMessage(tab.id, message);
+            }));
+        }
+    }
+
+    getTestValue(name: string): any {
+        return localStorage.getItem(name);
+    }
+
+    getActiveTabTitle() {
+        return new Promise<string>((resolve, reject) => {
+            chrome.tabs.query({ currentWindow: true, active: true },
+                function (tabs) {
+                    var activeTab = tabs[0];
+                    var title = activeTab && activeTab.title;
+                    resolve(title);
+                });
+        });
+    }
+
+    getActiveTabId() {
+        return new Promise<number>((resolve, reject) => {
+            chrome.tabs.query({ currentWindow: true, active: true },
+                function (tabs) {
+                    var activeTab = tabs[0];
+                    var id = activeTab && activeTab.id;
+                    resolve(id);
+                });
+        });
+    }
+
+    openPage(url: string) {
+        chrome.tabs.query({ active: true, windowId: chrome.windows.WINDOW_ID_CURRENT }, tabs => {
+
+            var currentWindowId = tabs && tabs.length && tabs[0].windowId;
+
+            // chrome.tabs.query do not support tab search with hashed urls
+            // https://developer.chrome.com/extensions/match_patterns
+            chrome.tabs.query({ url: url.split('#')[0] }, tabs => {
+                // filter tabs queried without hashes by actual url
+                var pageTabs = tabs.filter(tab => tab.url == url);
+                if (pageTabs.length) {
+
+                    var anyWindowTab: chrome.tabs.Tab, anyWindowActiveTab: chrome.tabs.Tab, currentWindowTab: chrome.tabs.Tab, currentWindowActiveTab: chrome.tabs.Tab;
+                    for (let index = 0, size = pageTabs.length; index < size; index += 1) {
+                        anyWindowTab = pageTabs[index];
+                        if (anyWindowTab.active) {
+                            anyWindowActiveTab = anyWindowTab;
+                        }
+                        if (anyWindowTab.windowId == currentWindowId) {
+                            currentWindowTab = anyWindowTab;
+                            if (currentWindowTab.active) {
+                                currentWindowActiveTab = currentWindowTab;
+                            }
+                        }
+                    }
+
+                    var tabToActivate = currentWindowActiveTab || currentWindowTab || anyWindowActiveTab || anyWindowTab;
+                    chrome.windows.update(tabToActivate.windowId, { focused: true });
+                    chrome.tabs.update(tabToActivate.id, { active: true });
+                } else {
+                    chrome.tabs.create({ active: true, windowId: currentWindowId, url });
+                }
+            });
+        });
+    }
+
+    registerTabsUpdateListener() {
+        chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+            if (tabId == this.loginTabId && changeInfo.url) {
+                let tabUrl = changeInfo.url.toLowerCase();
+                let serviceUrl = this.serviceUrl.toLowerCase();
+                if (tabUrl == serviceUrl || tabUrl.indexOf(serviceUrl + '#') == 0) {
+                    chrome.tabs.remove(tabId);
+                    return;
+                }
+            }
+        });
+    }
+
+    registerTabsRemoveListener() {
+        chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
+            if (tabId == this.loginTabId) {
+                this.loginTabId = null;
+                this.loginWinId = null;
+                this.reconnect();
+            }
+        });
+    }
+
+    registerMessageListener() {
+        chrome.runtime.onMessage.addListener((message: ITabMessage | IPopupRequest, sender: chrome.runtime.MessageSender, senderResponse: (IPopupResponse) => void) => {
+
+            if (sender.tab) {
+                if (sender.tab.id == this.loginTabId) { // Ignore login dialog
+                    return;
+                }
+
+                var tabId = sender.tab.id;
+                this.onTabMessage(message, tabId);
+            }
+            else if (this.isPopupRequest(sender)) {
+                this.onPopupRequest(message, senderResponse);
+                return !!senderResponse;
+            }
+        });
     }
 }

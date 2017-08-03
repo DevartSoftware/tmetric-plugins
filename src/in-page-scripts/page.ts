@@ -1,5 +1,4 @@
 ﻿if (typeof document !== 'undefined') {
-
     /**
      * Retrieves messages from background script.
      */
@@ -9,9 +8,35 @@
             return;
         }
 
+        // Only for FireFox to inject scripts in right order
+        if (message.action == 'initPage') {
+            sendBackgroundMessage({ action: 'getConstants' });
+            sendBackgroundMessage({ action: 'getTimer' });
+            return;
+        }
+
         if (pingTimeouts[message.action]) {
             clearTimeout(pingTimeouts[message.action]);
             pingTimeouts[message.action] = null;
+        }
+
+        // Only for FireFox
+        if (message.action == 'error') {
+            let a = alert;
+            a(message.data.message);
+        }
+
+        // Only for Edge
+        if (message.action == 'notify') {
+            if ("Notification" in window) {
+                Notification.requestPermission(permission => {
+                    if (permission === "granted") {
+                        new Notification(message.data.title, {
+                            body: message.data.message
+                        });
+                    }
+                });
+            }
         }
 
         if (message.action == 'setTimer') {
@@ -37,17 +62,7 @@
      */
     var sendBackgroundMessage = (() => {
 
-        var sendBackgroundMessage: (message: ITabMessage) => void = self.chrome && self.chrome.runtime && self.chrome.runtime.sendMessage;
-
-        if (sendBackgroundMessage) {
-            // chrome
-            chrome.runtime.onMessage.addListener(onBackgroundMessage);
-        }
-        else {
-            // firefox
-            sendBackgroundMessage = self.postMessage;
-            self.on('message', onBackgroundMessage);
-        }
+        chrome.runtime.onMessage.addListener(onBackgroundMessage);
 
         return (message: ITabMessage) => {
 
@@ -60,7 +75,7 @@
             pingTimeouts[callbackAction] = setTimeout(() => finalize(), 30000);
 
             try {
-                sendBackgroundMessage(message);
+                chrome.runtime.sendMessage(message);
             }
             catch (e) {
                 finalize();
@@ -121,7 +136,7 @@
     }
 
     /**
-     * Parses issues and adds timer links on a page.
+     * Parses issues, adds timer links on a page
      */
     function parsePage() {
 

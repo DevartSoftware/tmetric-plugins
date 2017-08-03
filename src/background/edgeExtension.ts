@@ -1,23 +1,7 @@
-class FirefoxExtension extends ExtensionBase {
+﻿class EdgeExtension extends ExtensionBase {
 
     constructor() {
         super();
-
-        this.sendToTabs({ action: 'initPage' });
-    }
-
-    /**
-     * @override
-     * @param message
-     */
-    showError(message: string) {
-        this.getActiveTabId().then(id => {
-
-            this.sendToTabs({
-                action: 'error',
-                data: { message: message }
-            }, id);
-        });
     }
 
     /**
@@ -25,7 +9,28 @@ class FirefoxExtension extends ExtensionBase {
      * @param sender
      */
     isPopupRequest(sender: chrome.runtime.MessageSender) {
-        return !!(sender.url && sender.url.match(/^moz-extension:\/\/.+popup.html/));
+        return !!sender.id;
+    }
+
+    /**
+     * Show push notification (Does not support through web extension by Edge right now)
+     * @override
+     * @param message
+     * @param title
+     */
+    showNotification(message: string, title?: string) {
+
+        this.getActiveTabId().then(id => {
+            title = title || 'TMetric';
+
+            this.sendToTabs({
+                action: 'notify',
+                data: {
+                    message: message,
+                    title: title
+                }
+            }, id);
+        });
     }
 
     /**
@@ -42,6 +47,7 @@ class FirefoxExtension extends ExtensionBase {
             top,
             width,
             height,
+            focused: true,
             url: this.getLoginUrl(),
             type: 'popup'
         }, popupWindow => {
@@ -51,18 +57,8 @@ class FirefoxExtension extends ExtensionBase {
             this.loginWinId = popupWindow.id;
             this.loginTabId = popupTab.id;
             this.loginWindowPending = false;
-
-            var deltaWidth = width - popupTab.width;
-            var deltaHeight = height - popupTab.height;
-
-            chrome.windows.update(popupWindow.id, <chrome.windows.UpdateInfo>{
-                left: left - Math.round(deltaWidth / 2),
-                top: top - Math.round(deltaHeight / 2),
-                width: width + deltaWidth,
-                height: height + deltaHeight
-            });
         });
     }
 }
 
-new FirefoxExtension();
+new EdgeExtension();

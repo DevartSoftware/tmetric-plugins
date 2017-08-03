@@ -1,4 +1,4 @@
-﻿class PopupBase {
+﻿class PopupController {
 
     constructor() {
         this.initControls();
@@ -37,9 +37,17 @@
     private _tags: Models.Tag[];
     private _constants: Models.Constants;
 
-    callBackground(message: IPopupRequest): Promise<IPopupResponse> { return; };
+    callBackground(request: IPopupRequest): Promise<IPopupResponse> {
+        return new Promise((resolve, reject) => {
+            chrome.runtime.sendMessage(request, (response: IPopupResponse) => {
+                resolve(response);
+            });
+        });
+    }
 
-    close(): void { }
+    close() {
+        window.close();
+    }
 
     setData(data: IPopupInitData) {
         if (data.timer) {
@@ -339,9 +347,9 @@
             var tag = this.getTag(id);
             return tag ? tag.tagName : '';
         })
-        .filter(tag => !!tag)
-        .sort(this.compare)
-        .join(', ');
+            .filter(tag => !!tag)
+            .sort(this.compare)
+            .join(', ');
     }
 
     private _noProjectOption: IdTextPair = { id: 0, text: 'No Project' };
@@ -436,3 +444,5 @@
         this.switchState(this._states.creating);
     }
 }
+
+new PopupController();

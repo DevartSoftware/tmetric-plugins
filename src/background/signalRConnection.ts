@@ -26,20 +26,22 @@
 
     serverApiVersion: number;
 
+    eventEmitter = new EventEmitter();
+
     constructor() {
-        this.listenPortAction<string>('init', this.init);
-        this.listenPortAction<void>('disconnect', this.disconnect);
-        this.listenPortAction<void>('reconnect', this.reconnect);
-        this.listenPortAction<void>('isConnectionRetryEnabled', this.isConnectionRetryEnabled);
-        this.listenPortAction<Integrations.WebToolIssueTimer>('getTimer', this.getTimer);
-        this.listenPortAction<number>('getVersion', this.getVersion);
-        this.listenPortAction<Models.Timer>('putTimer', this.putTimer);
-        this.listenPortAction<Integrations.WebToolIssueTimer>('putExternalTimer', this.putExternalTimer);
-        this.listenPortAction<Models.IntegratedProjectIdentifier>('postIntegration', this.postIntegration);
-        this.listenPortAction<Models.IntegratedProjectIdentifier>('getIntegration', this.getIntegration);
-        this.listenPortAction<number>('setAccountToPost', this.setAccountToPost);
-        this.listenPortAction<void>('retryConnection', this.retryConnection);
-        this.listenPortAction<Integrations.WebToolIssueIdentifier[]>('fetchIssuesDurations', this.fetchIssuesDurations);
+        this.listenEmitterAction<string>('init', this.init);
+        this.listenEmitterAction<void>('disconnect', this.disconnect);
+        this.listenEmitterAction<void>('reconnect', this.reconnect);
+        this.listenEmitterAction<void>('isConnectionRetryEnabled', this.isConnectionRetryEnabled);
+        this.listenEmitterAction<Integrations.WebToolIssueTimer>('getTimer', this.getTimer);
+        this.listenEmitterAction<number>('getVersion', this.getVersion);
+        this.listenEmitterAction<Models.Timer>('putTimer', this.putTimer);
+        this.listenEmitterAction<Integrations.WebToolIssueTimer>('putExternalTimer', this.putExternalTimer);
+        this.listenEmitterAction<Models.IntegratedProjectIdentifier>('postIntegration', this.postIntegration);
+        this.listenEmitterAction<Models.IntegratedProjectIdentifier>('getIntegration', this.getIntegration);
+        this.listenEmitterAction<number>('setAccountToPost', this.setAccountToPost);
+        this.listenEmitterAction<void>('retryConnection', this.retryConnection);
+        this.listenEmitterAction<Integrations.WebToolIssueIdentifier[]>('fetchIssuesDurations', this.fetchIssuesDurations);
     }
 
     init(url: string): Promise<void> {
@@ -84,7 +86,7 @@
         });
 
         this.hubProxy.on('updateActiveAccount', (accountId: number) => {
-            self.port.emit('updateActiveAccount', accountId);
+            this.eventEmitter.emit('updateActiveAccount', accountId);
             if (!this.userProfile || accountId != this.userProfile.activeAccountId) {
                 this.reconnect();
             }
@@ -104,7 +106,7 @@
 
         this.hubProxy.on('updateExternalIssuesDurations', (accountId: number, identifiers: Integrations.WebToolIssueIdentifier[]) => {
             if (this.userProfile && this.userProfile.activeAccountId == accountId) {
-                self.port.emit('removeExternalIssuesDurations', identifiers);
+                this.eventEmitter.emit('removeExternalIssuesDurations', identifiers);
             }
         });
 
@@ -124,16 +126,16 @@
         });
     }
 
-    listenPortAction<TParam>(actionName: string, action: (param: TParam) => Promise<any>) {
+    listenEmitterAction<TParam>(actionName: string, action: (param: TParam) => Promise<any>) {
         action = action.bind(this);
-        self.port.on(actionName, (actionId, param) => {
+        this.eventEmitter.on(actionName, (actionId, param) => {
             var callbackName = actionName + '_' + actionId + '_callback';
             action(param)
                 .then(result => {
-                    self.port.emit(callbackName, true, result);
+                    this.eventEmitter.emit(callbackName, true, result);
                 })
                 .catch(error => {
-                    self.port.emit(callbackName, false, error);
+                    this.eventEmitter.emit(callbackName, false, error);
                 });
         });
     }
@@ -236,7 +238,7 @@
         var promise = new Promise<void>((callback, reject) => {
             if (this.hubConnected) {
                 this.hubConnected = false;
-                self.port.emit('updateTimer', null);
+                this.eventEmitter.emit('updateTimer', null);
                 console.log('disconnect: stop hub');
                 this.hub.stop(false);
             }
@@ -329,7 +331,7 @@
     getProfile() {
         var profile = this.get<Models.UserProfile>('api/userprofile').then(profile => {
             this.userProfile = profile;
-            self.port.emit('updateProfile', profile);
+            this.eventEmitter.emit('updateProfile', profile);
             return profile;
         });
         profile.catch(() => this.disconnect());
@@ -352,7 +354,7 @@
 
             var url = this.getTimerUrl(accountId);
             var timer = this.get<Models.Timer>(url).then(timer => {
-                self.port.emit('updateTimer', timer);
+                this.eventEmitter.emit('updateTimer', timer);
                 return timer;
             });
 
@@ -361,7 +363,7 @@
             var endTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toJSON();
             url = this.getTimeEntriesUrl(accountId, userProfileId) + `?startTime=${startTime}&endTime=${endTime}`;
             var tracker = this.get<Models.TimeEntry[]>(url).then(tracker => {
-                self.port.emit('updateTracker', tracker);
+                this.eventEmitter.emit('updateTracker', tracker);
                 return tracker;
             });
 
@@ -375,7 +377,7 @@
         return this.checkProfile().then(profile => {
             var url = 'api/accounts/' + profile.activeAccountId + '/projects';
             return this.get<Models.Project[]>(url).then(projects => {
-                self.port.emit('updateProjects', projects);
+                this.eventEmitter.emit('updateProjects', projects);
                 return projects;
             });
         });
@@ -385,7 +387,7 @@
         return this.checkProfile().then(profile => {
             var url = 'api/accounts/' + profile.activeAccountId + '/tags';
             return this.get<Models.Tag[]>(url).then(tags => {
-                self.port.emit('updateTags', tags);
+                this.eventEmitter.emit('updateTags', tags);
                 return tags;
             });
         });
@@ -528,4 +530,5 @@
         507: "Insufficient Storage"
     }
 }
-new SignalRConnection();
+
+let signalRConnection = new SignalRConnection();
