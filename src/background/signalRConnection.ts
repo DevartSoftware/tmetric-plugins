@@ -26,23 +26,19 @@
 
     serverApiVersion: number;
 
-    eventEmitter = new EventEmitter();
+    onUpdateActiveAccount = SimpleEvent.create<number>();
 
-    constructor() {
-        this.listenEmitterAction<string>('init', this.init);
-        this.listenEmitterAction<void>('disconnect', this.disconnect);
-        this.listenEmitterAction<void>('reconnect', this.reconnect);
-        this.listenEmitterAction<void>('isConnectionRetryEnabled', this.isConnectionRetryEnabled);
-        this.listenEmitterAction<Integrations.WebToolIssueTimer>('getTimer', this.getTimer);
-        this.listenEmitterAction<number>('getVersion', this.getVersion);
-        this.listenEmitterAction<Models.Timer>('putTimer', this.putTimer);
-        this.listenEmitterAction<Integrations.WebToolIssueTimer>('putExternalTimer', this.putExternalTimer);
-        this.listenEmitterAction<Models.IntegratedProjectIdentifier>('postIntegration', this.postIntegration);
-        this.listenEmitterAction<Models.IntegratedProjectIdentifier>('getIntegration', this.getIntegration);
-        this.listenEmitterAction<number>('setAccountToPost', this.setAccountToPost);
-        this.listenEmitterAction<void>('retryConnection', this.retryConnection);
-        this.listenEmitterAction<Integrations.WebToolIssueIdentifier[]>('fetchIssuesDurations', this.fetchIssuesDurations);
-    }
+    onRemoveExternalIssuesDurations = SimpleEvent.create<Integrations.WebToolIssueIdentifier[]>();
+
+    onUpdateTimer = SimpleEvent.create<Models.Timer>();
+
+    onUpdateTracker = SimpleEvent.create<Models.TimeEntry[]>();
+
+    onUpdateProfile = SimpleEvent.create<Models.UserProfile>();
+
+    onUpdateProjects = SimpleEvent.create<Models.Project[]>();
+
+    onUpdateTags = SimpleEvent.create<Models.Tag[]>();
 
     init(url: string): Promise<void> {
 
@@ -86,7 +82,7 @@
         });
 
         this.hubProxy.on('updateActiveAccount', (accountId: number) => {
-            this.eventEmitter.emit('updateActiveAccount', accountId);
+            this.onUpdateActiveAccount.emit(accountId);
             if (!this.userProfile || accountId != this.userProfile.activeAccountId) {
                 this.reconnect();
             }
@@ -106,7 +102,7 @@
 
         this.hubProxy.on('updateExternalIssuesDurations', (accountId: number, identifiers: Integrations.WebToolIssueIdentifier[]) => {
             if (this.userProfile && this.userProfile.activeAccountId == accountId) {
-                this.eventEmitter.emit('removeExternalIssuesDurations', identifiers);
+                this.onRemoveExternalIssuesDurations.emit(identifiers);
             }
         });
 
@@ -123,20 +119,6 @@
             if (isProfileChanged) {
                 this.reconnect();
             }
-        });
-    }
-
-    listenEmitterAction<TParam>(actionName: string, action: (param: TParam) => Promise<any>) {
-        action = action.bind(this);
-        this.eventEmitter.on(actionName, (actionId, param) => {
-            var callbackName = actionName + '_' + actionId + '_callback';
-            action(param)
-                .then(result => {
-                    this.eventEmitter.emit(callbackName, true, result);
-                })
-                .catch(error => {
-                    this.eventEmitter.emit(callbackName, false, error);
-                });
         });
     }
 
@@ -190,7 +172,7 @@
                 })
                 .then(() => this.retryInProgress = false);
         }
-        return Promise.resolve();
+        return Promise.resolve<void>();
     }
 
     isConnectionRetryEnabled() {
@@ -238,7 +220,7 @@
         var promise = new Promise<void>((callback, reject) => {
             if (this.hubConnected) {
                 this.hubConnected = false;
-                this.eventEmitter.emit('updateTimer', null);
+                this.onUpdateTimer.emit(null);
                 console.log('disconnect: stop hub');
                 this.hub.stop(false);
             }
@@ -331,7 +313,7 @@
     getProfile() {
         var profile = this.get<Models.UserProfile>('api/userprofile').then(profile => {
             this.userProfile = profile;
-            this.eventEmitter.emit('updateProfile', profile);
+            this.onUpdateProfile.emit(profile);
             return profile;
         });
         profile.catch(() => this.disconnect());
@@ -354,7 +336,7 @@
 
             var url = this.getTimerUrl(accountId);
             var timer = this.get<Models.Timer>(url).then(timer => {
-                this.eventEmitter.emit('updateTimer', timer);
+                this.onUpdateTimer.emit(timer);
                 return timer;
             });
 
@@ -363,7 +345,7 @@
             var endTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toJSON();
             url = this.getTimeEntriesUrl(accountId, userProfileId) + `?startTime=${startTime}&endTime=${endTime}`;
             var tracker = this.get<Models.TimeEntry[]>(url).then(tracker => {
-                this.eventEmitter.emit('updateTracker', tracker);
+                this.onUpdateTracker.emit(tracker);
                 return tracker;
             });
 
@@ -377,7 +359,7 @@
         return this.checkProfile().then(profile => {
             var url = 'api/accounts/' + profile.activeAccountId + '/projects';
             return this.get<Models.Project[]>(url).then(projects => {
-                this.eventEmitter.emit('updateProjects', projects);
+                this.onUpdateProjects.emit(projects);
                 return projects;
             });
         });
@@ -387,7 +369,7 @@
         return this.checkProfile().then(profile => {
             var url = 'api/accounts/' + profile.activeAccountId + '/tags';
             return this.get<Models.Tag[]>(url).then(tags => {
-                this.eventEmitter.emit('updateTags', tags);
+                this.onUpdateTags.emit(tags);
                 return tags;
             });
         });
@@ -530,5 +512,3 @@
         507: "Insufficient Storage"
     }
 }
-
-let signalRConnection = new SignalRConnection();

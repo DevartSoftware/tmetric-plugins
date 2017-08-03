@@ -71,7 +71,7 @@ class ExtensionBase {
 
     lastNotificationId: string;
 
-    eventEmitter = new EventEmitter(signalRConnection.eventEmitter);
+    connection = new SignalRConnection();
 
     protected serviceUrl: string;
 
@@ -110,7 +110,7 @@ class ExtensionBase {
             this.extraHours = 0;
         }
 
-        this.eventEmitter.on('updateTimer', timer => {
+        this.connection.onUpdateTimer(timer => {
 
             // looks like disconnect
             if (timer == null) {
@@ -131,33 +131,33 @@ class ExtensionBase {
             }
         });
 
-        this.eventEmitter.on('updateTracker', timeEntries => {
+        this.connection.onUpdateTracker(timeEntries => {
             this._timeEntries = timeEntries;
             this.updateState();
         });
 
-        this.eventEmitter.on('updateProfile', profile => {
+        this.connection.onUpdateProfile(profile => {
             this._userProfile = profile;
         });
 
-        this.eventEmitter.on('updateProjects', projects => {
+        this.connection.onUpdateProjects(projects => {
             this._projects = projects;
         });
 
-        this.eventEmitter.on('updateTags', tags => {
+        this.connection.onUpdateTags(tags => {
             this._tags = tags;
         });
 
-        this.eventEmitter.on('updateActiveAccount', acountId => {
+        this.connection.onUpdateActiveAccount(acountId => {
             this.clearIssuesDurationsCache();
         });
 
-        this.eventEmitter.on('removeExternalIssuesDurations', identifiers => {
+        this.connection.onRemoveExternalIssuesDurations(identifiers => {
             this.removeIssuesDurationsFromCache(identifiers);
         });
 
-        this.init(this.serviceUrl).then(() => {
-            this.getVersion().then(version => {
+        this.connection.init(this.serviceUrl).then(() => {
+            this.connection.getVersion().then(version => {
                 if (version < 1.0 && this.serviceUrl != this.defaultApplicationUrl) {
                     this.showNotification("You are connected to the outdated TMetric server. Extension may not function correctly. Please contact your system administrator.");
                 }
@@ -268,7 +268,7 @@ class ExtensionBase {
         }
 
         this.putData(timer,
-            timer => this.putTimerWithExistingIntegration(timer),
+            timer => this.connection.putExternalTimer(timer),
             timer => {
                 // Show error and exit when timer has no integration
                 if (timer.serviceUrl || timer.projectName) {
@@ -286,7 +286,7 @@ class ExtensionBase {
             // Zero status when server is unavailable or certificate fails (#59755). Show dialog in that case too.
             if (!status || status.statusCode == HttpStatusCode.Unauthorized || status.statusCode == 0) {
 
-                var disconnectPromise = this.disconnect();
+                var disconnectPromise = this.connection.disconnect();
 
                 if (showDialog) {
                     disconnectPromise.then(() => {
@@ -317,7 +317,7 @@ class ExtensionBase {
 
                 // ensure connection before page open to prevent login duplication (#67759)
                 this._actionOnConnect = () => this.fixTimer();
-                this.getTimer().catch(status => onFail(status, showDialog));
+                this.connection.getTimer().catch(status => onFail(status, showDialog));
                 return;
             }
 
@@ -327,7 +327,7 @@ class ExtensionBase {
         if (this._timer == null) {
             // connect before action to get actual state
             this._actionOnConnect = () => onConnect(true);
-            this.reconnect().catch(status => onFail(status, true));
+            this.connection.reconnect().catch(status => onFail(status, true));
         }
         else {
             onConnect(true);
@@ -368,7 +368,7 @@ class ExtensionBase {
 
     private putTimerWithNewIntegration(timer: Integrations.WebToolIssueTimer) {
 
-        return this.getIntegration(<Models.IntegratedProjectIdentifier>{
+        return this.connection.getIntegration(<Models.IntegratedProjectIdentifier>{
             serviceUrl: timer.serviceUrl,
             serviceType: timer.serviceType,
             projectName: timer.projectName,
@@ -397,13 +397,13 @@ class ExtensionBase {
                 }
             }
 
-            var promise = this.setAccountToPost(status.accountId);
+            var promise = this.connection.setAccountToPost(status.accountId);
 
             if (!timer.serviceUrl != !status.integrationType ||
                 !timer.projectName != !status.projectStatus) {
 
                 // Integration or project does not exist
-                promise = promise.then(() => this.postIntegration(<Models.IntegratedProjectIdentifier>{
+                promise = promise.then(() => this.connection.postIntegration(<Models.IntegratedProjectIdentifier>{
                     serviceUrl: timer.serviceUrl,
                     serviceType: timer.serviceType,
                     projectName: timer.projectName,
@@ -412,7 +412,7 @@ class ExtensionBase {
             }
 
             promise = promise
-                .then(() => this.putTimerWithExistingIntegration(timer))
+                .then(() => this.connection.putExternalTimer(timer))
                 .then(() => {
                     if (notification) {
                         this.showNotification(notification);
@@ -422,7 +422,7 @@ class ExtensionBase {
                     this.showError(this.getErrorText(status));
                 })
                 .then(() => {
-                    this.setAccountToPost(null);
+                    this.connection.setAccountToPost(null);
                 });
 
             return promise;
@@ -536,7 +536,7 @@ class ExtensionBase {
         }
 
         return new Promise<Integrations.WebToolIssueDuration[]>(resolve => {
-            this.fetchIssuesDurations(fetchIdentifiers)
+            this.connection.fetchIssuesDurations(fetchIdentifiers)
                 .then(fetchDurations => {
                     this.putIssuesDurationsToCache(fetchDurations);
                     resolve(durations.concat(fetchDurations));
@@ -546,38 +546,6 @@ class ExtensionBase {
                 });
         });
     }
-
-    // emitter actions
-
-    private wrapEmitterAction<TParam, TResult>(actionName: string) {
-        var actionId = 0;
-        return (param?: TParam) => new Promise<TResult>((callback, reject) => {
-            var callbackName = actionName + '_' + ++actionId + '_callback';
-            this.eventEmitter.once(callbackName, (isFulfilled: boolean, result: any) => {
-                if (isFulfilled) {
-                    callback(result);
-                }
-                else {
-                    reject(result);
-                }
-            });
-            this.eventEmitter.emit(actionName, actionId, param);
-        });
-    }
-
-    protected reconnect = this.wrapEmitterAction<void, void>('reconnect');
-    private init = this.wrapEmitterAction<string, void>('init');
-    private disconnect = this.wrapEmitterAction<void, void>('disconnect');
-    private retryConnection = this.wrapEmitterAction<void, void>('retryConnection');
-    private isConnectionRetryEnabled = this.wrapEmitterAction<void, boolean>('isConnectionRetryEnabled');
-    private getTimer = this.wrapEmitterAction<void, void>('getTimer');
-    private getVersion = this.wrapEmitterAction<void, number>('getVersion');
-    private putTimer = this.wrapEmitterAction<Models.Timer, void>('putTimer');
-    private putTimerWithExistingIntegration = this.wrapEmitterAction<Integrations.WebToolIssueTimer, void>('putExternalTimer');
-    private postIntegration = this.wrapEmitterAction<Models.IntegratedProjectIdentifier, void>('postIntegration');
-    private getIntegration = this.wrapEmitterAction<Models.IntegratedProjectIdentifier, Models.IntegratedProjectStatus>('getIntegration');
-    private setAccountToPost = this.wrapEmitterAction<number, void>('setAccountToPost');
-    private fetchIssuesDurations = this.wrapEmitterAction<Integrations.WebToolIssueIdentifier[], Integrations.WebToolIssueDuration[]>('fetchIssuesDurations');
 
     // popup action listeners
 
@@ -667,11 +635,11 @@ class ExtensionBase {
     }
 
     isConnectionRetryEnabledPopupAction(): Promise<boolean> {
-        return this.isConnectionRetryEnabled();
+        return this.connection.isConnectionRetryEnabled();
     }
 
     retryConnectionPopupAction() {
-        return this.retryConnection();
+        return this.connection.retryConnection();
     }
 
     showLoginDialog() {
@@ -706,7 +674,7 @@ class ExtensionBase {
 
     loginPopupAction() {
         return Promise.resolve(null).then(() => {
-            this.reconnect().catch(() => this.showLoginDialog());
+            this.connection.reconnect().catch(() => this.showLoginDialog());
         });
     }
 
@@ -718,7 +686,7 @@ class ExtensionBase {
 
     putTimerPopupAction(timer: Models.Timer) {
         return Promise.resolve(null).then(() =>
-            this.putData(timer, timer => this.putTimer(timer)));
+            this.putData(timer, timer => this.connection.putTimer(timer)));
     }
 
     setButtonIcon(icon: string, tooltip: string) {
@@ -822,7 +790,7 @@ class ExtensionBase {
             if (tabId == this.loginTabId) {
                 this.loginTabId = null;
                 this.loginWinId = null;
-                this.reconnect();
+                this.connection.reconnect();
             }
         });
     }
