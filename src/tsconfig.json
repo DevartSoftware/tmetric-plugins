@@ -17,7 +17,7 @@
         "background/extensionBase.ts",
         "background/firefoxExtension.ts",
         "background/httpStatusCode.d.ts",
-        "background/eventEmitter.ts",
+        "background/simpleEvent.ts",
         "background/signalRConnection.ts",
         "in-page-scripts/integrations/asana.ts",
         "in-page-scripts/integrations/assembla.ts",

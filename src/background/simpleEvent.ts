@@ -11,9 +11,7 @@ class SimpleEvent {
             handlers.push(handler);
         });
         result.emit = (arg: T) => {
-            Promise.resolve().then(() => {
-                handlers.forEach(handler => handler(arg));
-            });
+            handlers.forEach(handler => handler(arg));
         }
         return result;
     }

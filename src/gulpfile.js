@@ -62,7 +62,7 @@ var files = {
         'popup/popup.html',
         'popup/popupController.js',
         'background/extensionBase.js',
-        'background/eventEmitter.js',
+        'background/simpleEvent.js',
         'manifest.json'
     ],
     chrome: [

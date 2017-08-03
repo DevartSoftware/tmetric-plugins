@@ -31,7 +31,7 @@
         "scripts": [
             "lib/jquery.min.js",
             "lib/jquery.signalr.min.js",
-            "background/eventEmitter.js",
+            "background/simpleEvent.js",
             "background/signalRConnection.js",
             "background/extensionBase.js",
             "background/chromeExtension.js"
