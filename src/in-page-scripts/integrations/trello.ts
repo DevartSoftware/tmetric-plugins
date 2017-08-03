@@ -10,9 +10,9 @@
             var host = $$('.js-plugin-buttons ~ .window-module > div');
             if (host) {
                 // cut 'timer' so that time can be visible if we have time
-                let text = linkElement.lastElementChild.innerHTML;
+                let text = linkElement.lastElementChild.textContent;
                 if (/[0-9]/.test(text)) {
-                    linkElement.lastElementChild.innerHTML = text.replace(' timer', '');
+                    linkElement.lastElementChild.textContent = text.replace(' timer', '');
                 }
                 linkElement.classList.add('trello');
                 linkElement.classList.add('button-link');
