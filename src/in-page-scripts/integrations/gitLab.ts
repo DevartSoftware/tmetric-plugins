@@ -14,16 +14,29 @@
         }
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
+
+            linkElement.classList.add('btn');
             let header = $$('.detail-page-header');
-            if (header) {
-                let buttons = $$('.issue-btn-group', header);
-                if (buttons) {
-                    linkElement.classList.add('btn', 'btn-grouped');
-                    buttons.appendChild(linkElement);
-                } else {
-                    linkElement.classList.add('btn', 'devart-timer-link-margin-left');
-                    header.appendChild(linkElement);
-                }
+            if (!header) {
+                return;
+            }
+
+            // New design
+            let issueButton = $$.visible('.issuable-actions .btn-grouped', header);
+            if (issueButton) {
+                linkElement.classList.add('btn-grouped');
+                issueButton.parentElement.insertBefore(linkElement, issueButton);
+                return;
+            }
+
+            // Old design
+            let buttons = $$('.issue-btn-group', header);
+            if (buttons) {
+                linkElement.classList.add('btn-grouped');
+                buttons.appendChild(linkElement);
+            } else {
+                linkElement.classList.add('devart-timer-link-margin-left');
+                header.appendChild(linkElement);
             }
         }
 
@@ -55,8 +68,8 @@
             let projectNameNode = $$.findNode('.title .project-item-select-holder', Node.TEXT_NODE);
 
             let projectName = projectNameNode ?
-                projectNameNode.textContent : // current design (both new and old navigation)
-                $$.try('.title > span > a:nth-last-child(2)').textContent; // old design
+                projectNameNode.textContent : // New design (both new and old navigation)
+                $$.try('.title > span > a:nth-last-child(2)').textContent; // Old design
 
             let serviceType = 'GitLab';
 
