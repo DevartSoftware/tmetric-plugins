@@ -4,12 +4,22 @@
         return;
     }
 
+    let head = document.querySelector('head');
+    if (!head) {
+        return;
+    }
+
+    let appMeta = <HTMLMetaElement>head.querySelector('meta[name="application"]');
+    if (!appMeta || appMeta.content != 'TMetric') {
+        return;
+    }
+
     let extensionInfo = { // object is updated from gulp build
         version: '2.2.0'
     };
 
     let metaName = 'tmetric-extension-version';
-    let head = document.querySelector('head');
+
     let oldMeta = head.querySelector(`meta[name="${metaName}"]`);
     if (oldMeta) {
         head.removeChild(oldMeta);

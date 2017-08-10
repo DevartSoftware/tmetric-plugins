@@ -37,9 +37,6 @@
             "background/chromeExtension.js"
         ]
     },
-    "externally_connectable": {
-        "matches": [ "*://localhost/*", "*://alm-build/*", "*://*.tmetric.com/*" ]
-    },
     "content_scripts": [
         {
             "matches": [ "http://*/*", "https://*/*" ],
@@ -96,7 +93,7 @@
             "run_at": "document_end"
         },
         {
-            "matches": [ "https://beta.tmetric.com/*", "https://app.tmetric.com/*" ],
+            "matches": [ "https://beta.tmetric.com/*", "https://app.tmetric.com/*", "*://localhost/*" ],
             "js": [ "in-page-scripts/version.js" ],
             "run_at": "document_end"
         }
