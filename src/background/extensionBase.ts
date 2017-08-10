@@ -380,19 +380,17 @@ class ExtensionBase {
             if (timer.projectName) {
                 const contactAdmin = 'Please contact the account administrator to fix the problem.';
 
-                if (!status.projectStatus) {
-                    // No rights to create project or service is not specified
-                    if (status.serviceRole < Models.ServiceRole.ProjectCreator) {
-                        timer.projectName = undefined;
-                    }
-                }
-                else if (status.projectStatus != Models.ProjectStatus.Open) {
+                if (status.projectStatus != null && status.projectStatus != Models.ProjectStatus.Open) {
                     var statusText = status.projectStatus == Models.ProjectStatus.Archived ? 'archived' : 'readonly';
                     notification = `Cannot assign the task to the ${statusText} project '${timer.projectName}'.\n\n${contactAdmin}`;
                     timer.projectName = undefined;
                 }
-                else if (status.projectRole == null) {
+                else if (status.projectStatus != null && status.projectRole == null) {
                     notification = `You are not a member of the project '${timer.projectName}.\n\n${contactAdmin}`
+                    timer.projectName = undefined;
+                }
+                else if (status.serviceRole < Models.ServiceRole.Admin && !status.canAddProject) {
+                    // No rights to create project
                     timer.projectName = undefined;
                 }
             }
@@ -412,7 +410,9 @@ class ExtensionBase {
             }
 
             promise = promise
-                .then(() => this.connection.putExternalTimer(timer))
+                .then(() => {
+                    return this.connection.putExternalTimer(timer);
+                })
                 .then(() => {
                     if (notification) {
                         this.showNotification(notification);

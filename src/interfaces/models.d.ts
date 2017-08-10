@@ -85,10 +85,9 @@ declare module Models {
     }
 
     const enum ServiceRole {
-        Member,
-        ProjectCreator,
-        Admin,
-        Owner
+        Member = 0,
+        Admin = 2,
+        Owner = 3
     }
 
     interface IntegratedProjectStatus {
@@ -97,6 +96,7 @@ declare module Models {
         projectStatus: ProjectStatus;
         projectRole: ProjectRole;
         serviceRole: ServiceRole;
+        canAddProject: boolean;
     }
 
     export class ProjectTask {
