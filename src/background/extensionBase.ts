@@ -380,16 +380,20 @@ class ExtensionBase {
             if (timer.projectName) {
                 const contactAdmin = 'Please contact the account administrator to fix the problem.';
 
-                if (status.projectStatus == null && status.serviceRole < Models.ServiceRole.Admin && !status.canAddProject) {
-                    // No rights to create project
-                    timer.projectName = undefined;
+                if (status.projectStatus == null) {
+                    if (status.serviceRole != Models.ServiceRole.Admin &&
+                        status.serviceRole != Models.ServiceRole.Owner &&
+                        !status.canAddProject) {
+                        // No rights to create project
+                        timer.projectName = undefined;
+                    }
                 }
-                else if (status.projectStatus != null && status.projectStatus != Models.ProjectStatus.Open) {
+                else if (status.projectStatus != Models.ProjectStatus.Open) {
                     var statusText = status.projectStatus == Models.ProjectStatus.Archived ? 'archived' : 'readonly';
                     notification = `Cannot assign the task to the ${statusText} project '${timer.projectName}'.\n\n${contactAdmin}`;
                     timer.projectName = undefined;
                 }
-                else if (status.projectStatus != null && status.projectRole == null) {
+                else if (status.projectRole == null) {
                     notification = `You are not a member of the project '${timer.projectName}.\n\n${contactAdmin}`
                     timer.projectName = undefined;
                 }
