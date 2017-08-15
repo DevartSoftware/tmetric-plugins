@@ -47,6 +47,7 @@
         "in-page-scripts/integrations/wunderlist.ts",
         "in-page-scripts/integrations/youTrack.ts",
         "in-page-scripts/integrations/zendesk.ts",
+        "in-page-scripts/integrations/zoho.ts",
         "in-page-scripts/integrationService.ts",
         "in-page-scripts/page.ts",
         "in-page-scripts/version.ts",

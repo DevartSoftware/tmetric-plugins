@@ -71,6 +71,7 @@
                 "in-page-scripts/integrations/wunderlist.js",
                 "in-page-scripts/integrations/youTrack.js",
                 "in-page-scripts/integrations/zendesk.js",
+                "in-page-scripts/integrations/zoho.js",
                 "in-page-scripts/page.js"
             ],
             "css": [
