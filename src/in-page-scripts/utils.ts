@@ -11,6 +11,7 @@
     getRelativeUrl(baseUrl: string, fullUrl: string): string;
     findNode(selector: string, nodeType: number, element?: NodeSelector): Node;
     findAllNodes(selector: string, nodeType: number, element?: NodeSelector): Node[];
+    searchParams(paramString: string): { [name: string]: string };
 }
 
 var $$ = <Utils>function (selector: string, element?: NodeSelector, condition?: (el: Element) => boolean) {
@@ -156,4 +157,23 @@ $$.findAllNodes = (selector: string, nodeType: number, element?: NodeSelector) =
         }
     }
     return result;
+}
+
+$$.searchParams = query => {
+
+    let params: { [name: string]: string } = {};
+
+    if (!query) {
+        return params;
+    }
+
+    if (/^[?#]/.test(query)) {
+        query = query.slice(1);
+    }
+
+    query.split('&').forEach(param => {
+        let [key, value] = param.split('=');
+        params[key] = decodeURIComponent((value || '').replace(/\+/g, ' '));
+    });
+    return params;
 }
