@@ -5,7 +5,7 @@
     "icon": {
         "48": "icon.png"
     },
-    "version": "2.1.2",
+    "version": "2.1.3",
     "description": "Simple and user-friendly time tracking extension which helps you be more productive, complete projects in time and bill your clients correctly. Integrates with Trello, JIRA, Asana, Todoist and many other project management apps.",
     "main": "index.js",
     "author": "Devart",
