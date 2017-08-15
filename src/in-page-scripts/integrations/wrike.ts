@@ -11,7 +11,7 @@
         issueElementSelector = '.wspace-task-view';
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
-            var host = $$('.wrike-panel-header-toolbar', issueElement);
+            let host = $$('.wrike-panel-header-toolbar', issueElement);
             if (host) {
                 host.insertBefore(linkElement, host.firstElementChild);
             }
@@ -19,33 +19,28 @@
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-            // Permalink schema: https://www.wrike.com/open.htm?id=TASK_ID
-            var permalink = $$.getAttribute('.wspace-button-permalink', 'href', issueElement);
-            if (!permalink) {
-                return;
-            }
-
-            var issueId = permalink.split('?id=')[1];
-            if (!issueId) {
-                return;
-            }
-            issueId = '#' + issueId;
-
-            var issueName = $$.try<HTMLTextAreaElement>('.wspace-task-widgets-title-view textarea', issueElement).value;
+            let issueName = $$.try<HTMLTextAreaElement>('.wspace-task-widgets-title-view textarea', issueElement).value;
             if (!issueName) {
                 return;
             }
 
-            var issueTags = $$.all('.wspace-task-widgets-tags-dataview > div', issueElement);
-            if (issueTags.length == 1) {
-                var projectName = issueTags[0].textContent;
+            let params = $$.searchParams(document.location.hash);
+            let issueId = params['t'] || params['ot'];
+            let issueUrl: string;
+            if (issueId) {
+                issueUrl = '/open.htm?id=' + issueId;
+                issueId = '#' + issueId;
             }
 
-            var serviceType = 'Wrike';
+            let issueTags = $$.all('.wspace-task-widgets-tags-dataview > div', issueElement);
+            let projectName: string;
+            if (issueTags.length == 1) {
+                projectName = issueTags[0].textContent;
+            }
 
-            var serviceUrl = source.protocol + source.host;
+            let serviceType = 'Wrike';
 
-            var issueUrl = $$.getRelativeUrl(serviceUrl, permalink);
+            let serviceUrl = source.protocol + source.host;
 
             return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
         }
