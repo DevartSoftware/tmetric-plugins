@@ -7,21 +7,30 @@
         static affix = 'devart-timer-link';
 
         static register(...integrations: WebToolIntegration[]) {
+            this._allIntegrations.push(...integrations);
+        }
 
-            var convertPatternToRegExp = (matchPattern: string) => new RegExp(matchPattern
-                .replace(/[\-\/\\\^\$\+\?\.\(\)\|\[\]\{\}]/g, '\\$&')
-                .replace(/\*/g, '.*'));
-
-            integrations.forEach(integration => {
-
-                this._allIntegrations.push(integration);
-
-                // convert all match patterns to array of regexps
-                var matchUrl = integration.matchUrl;
-                if (matchUrl) {
-                    integration.matchUrl = (matchUrl instanceof Array ? <any[]>matchUrl : [<any>matchUrl])
-                        .map(pattern => typeof pattern === 'string' ? convertPatternToRegExp(pattern) : pattern);
+        static isUrlMatched(integration: WebToolIntegration, url: string) {
+            function convertPatternToRegExp(matchPattern: string) {
+                let regexp = IntegrationService._matchPatternCache[matchPattern];
+                if (!regexp) {
+                    regexp = new RegExp(matchPattern
+                        .replace(/[\-\/\\\^\$\+\?\.\(\)\|\[\]\{\}]/g, '\\$&')
+                        .replace(/\*/g, '.*'));
+                    IntegrationService._matchPatternCache[matchPattern] = regexp;
                 }
+                return regexp;
+            }
+
+            let matchUrl = integration.matchUrl;
+            if (!matchUrl) {
+                return true;
+            }
+
+            let patterns = (matchUrl instanceof Array ? <any[]>matchUrl : [<any>matchUrl]);
+            return patterns.some(pattern => {
+                let regexp = typeof pattern === 'string' ? convertPatternToRegExp(pattern) : <RegExp>pattern;
+                return regexp.test(url);
             });
         }
 
@@ -50,7 +59,7 @@
             }
 
             this._possibleIntegrations = this._possibleIntegrations.filter(integration =>
-                (!integration.matchUrl || (<RegExp[]>integration.matchUrl).some(pattern => pattern.test(source.fullUrl))) &&
+                this.isUrlMatched(integration, source.fullUrl) &&
                 (!integration.match || integration.match(source)));
 
             var issues = <WebToolIssue[]>[];
@@ -288,6 +297,8 @@
         private static _constants: Models.Constants;
 
         private static _timer: Models.Timer;
+
+        private static _matchPatternCache: { [pattern: string]: RegExp } = {};
 
         private static getSourceInfo(fullUrl: string): Source {
 

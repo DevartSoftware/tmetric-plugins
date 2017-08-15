@@ -58,6 +58,7 @@
                 "in-page-scripts/integrations/producteev.js",
                 "in-page-scripts/integrations/redmine.js",
                 "in-page-scripts/integrations/sprintly.js",
+                "in-page-scripts/integrations/taiga.js",
                 "in-page-scripts/integrations/teamweek.js",
                 "in-page-scripts/integrations/teamwork.js",
                 "in-page-scripts/integrations/tfs.js",
