@@ -332,7 +332,8 @@ gulp.task('prepackage:firefox:modifyManifest', ['prepackage:firefox:copy'], call
 });
 
 gulp.task('package:firefox', ['prepackage:firefox'], () => {
+    var manifest = jsonfile.readFileSync(firefoxUnpackedDir + 'manifest.json');
     gulp.src(firefoxUnpackedDir + '**/*')
-        .pipe(zip('firefoxExtension.xpi'))
+        .pipe(zip('tmetric' + '-' + manifest.version + '.xpi'))
         .pipe(gulp.dest(firefoxDir));
 });
