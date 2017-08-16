@@ -1,6 +1,6 @@
 ﻿module Integrations {
 
-    class Zoho implements WebToolIntegration {
+    class ZohoCRM implements WebToolIntegration {
 
         showIssueId = false;
 
@@ -9,31 +9,37 @@
         matchUrl = '*/EntityInfo.do*';
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
-            linkElement.classList.add('newwhitebtn', 'dIB');
 
             let table = $$('.historycontainer table.floatR');
-
-            if (table) {
-                let button = table.querySelector('.newbutton');
-
-                if (button) {
-                    button.parentElement.insertBefore(linkElement, button)
-                } else {
-                    let tr = $$.create('tr');
-                    let td = $$.create('td');
-                    td.appendChild(linkElement);
-                    tr.appendChild(td);
-                    table.appendChild(tr);
-                }
+            if (!table) {
+                return;
             }
+
+            linkElement.classList.add('newwhitebtn', 'dIB');
+            let button = $$('.newbutton', table);
+
+            if (button) {
+                button.parentElement.insertBefore(linkElement, button);
+                return;
+            }
+
+            let tr = $$.create('tr');
+            let td = $$.create('td');
+            td.appendChild(linkElement);
+            tr.appendChild(td);
+            table.appendChild(tr);
         }
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-            let contactName = $$.try('#subvalue_CONTACTID').textContent;
-            let issueName = $$.try('#subvalue_SUBJECT, #entityNameInBCView').textContent;
 
+            let issueName = $$.try('#subvalue_SUBJECT, #entityNameInBCView').textContent;
+            if (!issueName) {
+                return;
+            }
+
+            let contactName = $$.try('#subvalue_CONTACTID').textContent;
             if (contactName) {
-                issueName = `${issueName} - ${contactName}`;
+                issueName += ` - ${contactName}`;
             }
 
             let projectName: string;
@@ -60,5 +66,5 @@
         }
     }
 
-    IntegrationService.register(new Zoho());
+    IntegrationService.register(new ZohoCRM());
 }
