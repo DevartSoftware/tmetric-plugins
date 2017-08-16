@@ -8,44 +8,55 @@
 
         matchUrl = '*/EntityInfo.do*';
 
-        issueElementSelector = '#flw_div table.floatR';
-
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
-            let container = $$.create('a');
-            container.className = 'newgreybtn newbutton dIB';
-            container.appendChild(linkElement);
+            linkElement.classList.add('newwhitebtn', 'dIB');
 
-            let tdForInsert: Element;
+            let table = $$('.historycontainer table.floatR');
 
-            if (issueElement.querySelectorAll('tr').length == 1) {
-                tdForInsert = issueElement.querySelector('tr td');
-            } else if (issueElement.querySelectorAll('tr').length >= 2) {
-                tdForInsert = issueElement.querySelector('tr:nth-child(2) td');
+            if (table) {
+                let button = table.querySelector('.newbutton');
+
+                if (button) {
+                    button.parentElement.insertBefore(linkElement, button)
+                } else {
+                    let tr = $$.create('tr');
+                    let td = $$.create('td');
+                    td.appendChild(linkElement);
+                    tr.appendChild(td);
+                    table.appendChild(tr);
+                }
             }
-
-            if (tdForInsert.firstElementChild && !tdForInsert.firstElementChild.textContent.length) {
-                tdForInsert.firstElementChild.remove()
-            }
-
-            tdForInsert.insertBefore(container, tdForInsert.firstElementChild);
         }
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-            let contactName = $$.try('#value_CONTACTID');
-            let issueName = $$.try('#headervalue_SUBJECT, #entityNameInBCView').textContent;
+            let contactName = $$.try('#subvalue_CONTACTID').textContent;
+            let issueName = $$.try('#subvalue_SUBJECT, #entityNameInBCView').textContent;
 
-            if (Object.keys(contactName).length && contactName.textContent) {
-                let text = contactName.textContent;
-                issueName = `${$$.try('#headervalue_SUBJECT').textContent} ${text.trim().length ? `- ${text}` : ''}`;
+            if (contactName) {
+                issueName = `${issueName} - ${contactName}`;
             }
 
-            let issueId = source.fullUrl.match(/(?:id=(\d+))/)[1];
-            let matches = source.fullUrl.match(/^(.*)(EntityInfo.*)$/);
+            let projectName: string;
+            let serviceUrl: string;
+            let issueUrl: string;
+            let issueId: string;
+            let serviceType: string;
 
-            let [serviceUrl, issueUrl] = [matches[1], matches[2]]
-            let projectName = null;
+            let matches = source.fullUrl.match(/^(.*)\/EntityInfo.*\?(.+)/);
+            if (matches) {
+                let params = $$.searchParams(matches[2]);
+                let module = params['module'];
+                if (module) {
+                    issueId = params['id'];
+                }
+                if (issueId) {
+                    serviceType = 'ZohoCRM';
+                    serviceUrl = matches[1];
+                    issueUrl = `/EntityInfo.do?module=${module}&id=${issueId}`;
+                }
+            }
 
-            return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Zoho' };
+            return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType };
         }
     }
 
