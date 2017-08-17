@@ -28,11 +28,11 @@
         <Application Id="App">
             <uap:VisualElements
                 AppListEntry="none"
-                DisplayName="My Extension"
+                DisplayName="TMetric – Time Tracker And Productivity App"
                 Square150x150Logo="Extension/images/icon150.png"
                 Square44x44Logo="Extension/images/icon44.png"
-                Description="This extension will allow you track your time."
-                BackgroundColor="white">
+                Description="Simple time tracking extension which helps you be more productive, complete projects in time and bill your clients correctly."
+                BackgroundColor="transparent">
             </uap:VisualElements>
             <Extensions>
                 <uap3:Extension Category="windows.appExtension">
