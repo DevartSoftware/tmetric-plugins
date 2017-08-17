@@ -212,9 +212,11 @@
                 newIssueTimer[i] = newIssue[i];
             }
 
+            let oldIssueTimer: WebToolIssueTimer
+            let oldSession: number;
             if (oldLink) {
-                let oldIssueTimer = <WebToolIssueTimer>JSON.parse(oldLink.getAttribute('data-' + this.affix));
-                let oldSession = parseInt(oldLink.getAttribute('data-session'));
+                oldIssueTimer = <WebToolIssueTimer>JSON.parse(oldLink.getAttribute('data-' + this.affix));
+                oldSession = parseInt(oldLink.getAttribute('data-session'));
             }
 
             if (this.isSameIssue(oldIssueTimer, newIssueTimer) &&
