@@ -43,7 +43,7 @@ var chromeUnpackedDir = chromeDir + 'unpacked/';
 var firefoxDir = distDir + 'firefox/';
 var firefoxUnpackedDir = firefoxDir + 'unpacked/';
 var edgeDir = distDir + 'edge/';
-var edgeUnpackedDir = edgeDir + 'unpacked/';
+var edgeUnpackedDir = edgeDir + 'Extension/';
 
 console.log('Start build');
 console.log(JSON.stringify(config, null, 2));
