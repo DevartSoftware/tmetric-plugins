@@ -137,7 +137,7 @@ gulp.task('version', (callback) => {
         ].forEach(
             file => replaceInFile(
                 file,
-                /(["']?version["']?: ["'])([\d\.]+)(["'])/,
+                /(["']?version["']?: ["']|Version=")([\d\.]+)(["'])/,
                 (match, left, oldVersion, right) => (left + config.version + right)));
     }
     callback();
