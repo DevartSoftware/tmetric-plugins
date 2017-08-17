@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Package
+	xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+	xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+	xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
+	IgnorableNamespaces="uap3">
+    <Identity
+		Name="20634172.TMetric"
+		Publisher="CN=0398C730-9245-478B-AD11-7EB33D65F500"
+		Version="0.2.1.0" />
+
+    <Properties>
+        <DisplayName>TMetric</DisplayName>
+        <PublisherDisplayName>Devart s.r.o.</PublisherDisplayName>
+        <Logo>Extension/images/icon150.png</Logo>
+    </Properties>
+
+    <Dependencies>
+        <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.15063.0" MaxVersionTested="10.0.15063.540" />
+    </Dependencies>
+
+    <Resources>
+        <Resource Language="en-us" />
+        <Resource uap:Scale="200" />
+    </Resources>
+
+    <Applications>
+        <Application Id="App">
+            <uap:VisualElements
+                AppListEntry="none"
+                DisplayName="TMetric – Time Tracker And Productivity App"
+                Square150x150Logo="Extension/images/icon150.png"
+                Square44x44Logo="Extension/images/icon44.png"
+                Description="Simple time tracking extension which helps you be more productive, complete projects in time and bill your clients correctly."
+                BackgroundColor="transparent">
+            </uap:VisualElements>
+            <Extensions>
+                <uap3:Extension Category="windows.appExtension">
+                    <uap3:AppExtension
+						Name="com.microsoft.edge.extension"
+						Id="EdgeExtension"
+						PublicFolder="Extension"
+						DisplayName="TMetric – Time Tracker And Productivity App">
+                        <uap3:Properties>
+                            <Capabilities>
+                                <Capability Name="websiteInfo" />
+                                <Capability Name="websiteContent" />
+                            </Capabilities>
+                        </uap3:Properties>
+                    </uap3:AppExtension>
+                </uap3:Extension>
+            </Extensions>
+        </Application>
+    </Applications>
+</Package>

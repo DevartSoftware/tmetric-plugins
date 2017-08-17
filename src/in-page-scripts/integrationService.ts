@@ -46,13 +46,13 @@
             // Find 'Stop' link or 'Start' link associated with current timer.
             // If it is found we should refresh links on a page.
             return $$.all('a.' + this.affix).some(link => {
-                var linkTimer = <WebToolIssueTimer>JSON.parse(link.getAttribute('data-' + this.affix));
+                let linkTimer = <WebToolIssueTimer>JSON.parse(link.getAttribute('data-' + this.affix));
                 return !linkTimer.isStarted || this.isIssueStarted(linkTimer);
             });
         }
 
         static updateLinks(checkAllIntegrations: boolean) {
-            var source = this.getSourceInfo(document.URL);
+            let source = this.getSourceInfo(document.URL);
 
             if (!this._possibleIntegrations || checkAllIntegrations) {
                 this._possibleIntegrations = this._allIntegrations;
@@ -62,8 +62,8 @@
                 this.isUrlMatched(integration, source.fullUrl) &&
                 (!integration.match || integration.match(source)));
 
-            var issues = <WebToolIssue[]>[];
-            var parsedIssues = <WebToolParsedIssue[]>[];
+            let issues = <WebToolIssue[]>[];
+            let parsedIssues = <WebToolParsedIssue[]>[];
 
             this._possibleIntegrations.some(integration => {
 
@@ -79,8 +79,8 @@
                 }
 
                 elements.forEach(element => {
-                    var issue = integration.getIssue(element, source);
-                    if (!issue) {
+                    let issue = integration.getIssue(element, source);
+                    if (!issue || !issue.issueName) {
                         // Remove link when issue can not be parsed after DOM changes
                         this.updateLink(element, null, null, null);
                     } else {
@@ -112,9 +112,11 @@
                             }
                         }
 
-                        if (!issue.issueUrl) {
-                            issue.serviceUrl = undefined;
-                            issue.serviceType = undefined;
+                        if (!issue.issueUrl || !issue.serviceUrl || !issue.serviceType) {
+                            issue.issueUrl = null;
+                            issue.issueId = null;
+                            issue.serviceUrl = null;
+                            issue.serviceType = null;
                         }
 
                         issues.push(issue);
@@ -127,7 +129,7 @@
 
                     this.getIssuesDurations(issues).then(durations => {
                         parsedIssues.forEach(({ element, issue }) => {
-                            var duration = this.getIssueDuration(durations, issue);
+                            let duration = this.getIssueDuration(durations, issue);
                             this.updateLink(element, integration, issue, duration);
                         });
                     });
@@ -156,7 +158,7 @@
         }
 
         static getIssueDuration(durations: WebToolIssueDuration[], issue: WebToolIssueIdentifier) {
-            for (var duration of durations) {
+            for (let duration of durations) {
                 if (duration.issueUrl == issue.issueUrl && duration.serviceUrl == issue.serviceUrl) {
                     return duration;
                 }
@@ -193,26 +195,28 @@
 
             const HOUR = 1000 * 60 * 60;
 
-            var oldLink = $$('a.' + this.affix, element);
+            let oldLink = $$('a.' + this.affix, element);
 
             if (!newIssue) {
                 this.removeLink(oldLink);
                 return;
             }
 
-            var isNewIssueStarted = this.isIssueStarted(newIssue);
+            let isNewIssueStarted = this.isIssueStarted(newIssue);
 
-            var newIssueTimer = <WebToolIssueTimer>{};
+            let newIssueTimer = <WebToolIssueTimer>{};
             newIssueTimer.isStarted = !isNewIssueStarted;
             newIssueTimer.showIssueId = integration.showIssueId;
 
-            for (var i in newIssue) {
+            for (let i in newIssue) {
                 newIssueTimer[i] = newIssue[i];
             }
 
+            let oldIssueTimer: WebToolIssueTimer
+            let oldSession: number;
             if (oldLink) {
-                var oldIssueTimer = <WebToolIssueTimer>JSON.parse(oldLink.getAttribute('data-' + this.affix));
-                var oldSession = parseInt(oldLink.getAttribute('data-session'));
+                oldIssueTimer = <WebToolIssueTimer>JSON.parse(oldLink.getAttribute('data-' + this.affix));
+                oldSession = parseInt(oldLink.getAttribute('data-session'));
             }
 
             if (this.isSameIssue(oldIssueTimer, newIssueTimer) &&
@@ -224,7 +228,7 @@
                 return;
             }
 
-            var duration = issueDuration && issueDuration.duration || 0;
+            let duration = issueDuration && issueDuration.duration || 0;
             if (isNewIssueStarted && newIssue.issueUrl) {
 
                 // Show zero duration if client clock is late (TMET-947)
@@ -238,7 +242,7 @@
             this.removeLink(oldLink);
 
             // Create new timer link
-            var newLink = document.createElement('a');
+            let newLink = document.createElement('a');
             newLink.classList.add(this.affix);
             newLink.classList.add(this.affix + (newIssueTimer.isStarted ? '-start' : '-stop'));
             newLink.setAttribute('data-' + this.affix, JSON.stringify(newIssueTimer));
@@ -249,10 +253,10 @@
                 sendBackgroundMessage({ action: 'putTimer', data: newIssueTimer });
                 return false;
             };
-            var spanWithIcon = document.createElement('span');
+            let spanWithIcon = document.createElement('span');
             spanWithIcon.classList.add(this.affix + '-icon');
             newLink.appendChild(spanWithIcon);
-            var span = document.createElement('span');
+            let span = document.createElement('span');
             span.textContent = newIssueTimer.isStarted ? 'Start timer' : 'Stop timer';
             if (newIssue.issueUrl && (duration || !newIssueTimer.isStarted)) {
                 span.textContent += ' (' + this.durationToString(duration) + ')';
@@ -269,7 +273,7 @@
         static isSameIssue(oldIssue: Integrations.WebToolIssue, newIssue: Integrations.WebToolIssue) {
 
             function normalizeServiceUrl(issue: WebToolIssue) {
-                var url = (issue.serviceUrl || '').trim();
+                let url = (issue.serviceUrl || '').trim();
                 if (url.length && url[url.length - 1] == '/') {
                     return url.substring(0, url.length - 1);
                 }
@@ -302,12 +306,12 @@
 
         private static getSourceInfo(fullUrl: string): Source {
 
-            var host = fullUrl || '';
+            let host = fullUrl || '';
 
-            var protocol = '';
-            var path = '';
+            let protocol = '';
+            let path = '';
 
-            var i = host.search(/[#\?]/);
+            let i = host.search(/[#\?]/);
             if (i >= 0) {
                 host = host.substring(0, i);
             }
@@ -335,8 +339,8 @@
             if (!link) {
                 return;
             }
-            var content = link;
-            var container = link.parentElement;
+            let content = link;
+            let container = link.parentElement;
 
             while (container && container.classList
                 && container.classList.contains(this.affix + '-' + container.tagName.toLowerCase())) {
@@ -351,7 +355,7 @@
 
         private static isIssueStarted(issue: WebToolIssue) {
 
-            var timer = this._timer;
+            let timer = this._timer;
             if (!timer || !timer.isStarted || !timer.details) {
                 return false;
             }
