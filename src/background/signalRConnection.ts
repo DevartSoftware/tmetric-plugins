@@ -172,7 +172,7 @@
                 })
                 .then(() => this.retryInProgress = false);
         }
-        return Promise.resolve<void>();
+        return Promise.resolve();
     }
 
     isConnectionRetryEnabled() {

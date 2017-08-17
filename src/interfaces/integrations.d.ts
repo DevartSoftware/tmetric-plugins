@@ -39,12 +39,12 @@ declare module Integrations {
         issueId?: string;
         serviceType?: string;
         projectName?: string;
-        showIssueId?: boolean;
     }
 
     interface WebToolIssueTimer extends WebToolIssue {
         isStarted: boolean;
         tagsIdentifiers: number[];
+        showIssueId?: boolean;
     }
 
     interface WebToolParsedIssue {

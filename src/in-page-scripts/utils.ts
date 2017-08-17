@@ -14,7 +14,7 @@
     searchParams(paramString: string): { [name: string]: string };
 }
 
-var $$ = <Utils>function (selector: string, element?: NodeSelector, condition?: (el: Element) => boolean) {
+let $$ = <Utils>function (selector: string, element?: NodeSelector, condition?: (el: Element) => boolean) {
 
     element = element || document;
 
@@ -22,38 +22,38 @@ var $$ = <Utils>function (selector: string, element?: NodeSelector, condition?: 
         return <HTMLElement>element.querySelector(selector);
     }
 
-    var nodeList = element.querySelectorAll(selector);
-    for (var i = 0; i < nodeList.length; i++) {
+    let nodeList = element.querySelectorAll(selector);
+    for (let i = 0; i < nodeList.length; i++) {
         if (condition(nodeList[i])) {
             return nodeList[i];
         }
     }
 
     return null;
-}
+};
 
 $$.try = function (selector: string, element?: NodeSelector, condition?: (el: Element) => boolean) {
     return $$(selector, element, condition) || <HTMLElement>{};
-}
+};
 
 $$.create = function (tagName, className) {
-    var element = document.createElement(tagName);
+    let element = document.createElement(tagName);
     element.classList.add(Integrations.IntegrationService.affix + '-' + tagName.toLowerCase());
     if (className) {
         element.classList.add(className);
     }
     return element;
-}
+};
 
 $$.all = function (selector: string, element?: NodeSelector) {
     element = element || document;
-    var nodeList = element.querySelectorAll(selector);
-    var result = <Element[]>[];
-    for (var i = nodeList.length - 1; i >= 0; i--) {
+    let nodeList = element.querySelectorAll(selector);
+    let result = <Element[]>[];
+    for (let i = nodeList.length - 1; i >= 0; i--) {
         result[i] = nodeList[i];
     }
     return result;
-}
+};
 
 $$.visible = function (selector: string, element?: NodeSelector) {
     return $$(selector, element, el => {
@@ -68,50 +68,50 @@ $$.visible = function (selector: string, element?: NodeSelector) {
         }
         return false;
     });
-}
+};
 
 $$.closest = function (selector: string, element: HTMLElement) {
-    var results = $$.all(selector);
+    let results = $$.all(selector);
     while (element) {
         if (results.indexOf(element) >= 0) {
             return element;
         }
         element = element.parentElement;
     }
-}
+};
 
 $$.prev = function (selector: string, element: HTMLElement) {
-    var results = $$.all(selector);
+    let results = $$.all(selector);
     while (element) {
         if (results.indexOf(element) >= 0) {
             return element;
         }
         element = <HTMLElement>element.previousElementSibling;
     }
-}
+};
 
 $$.next = function (selector: string, element: HTMLElement) {
-    var results = $$.all(selector);
+    let results = $$.all(selector);
     while (element) {
         if (results.indexOf(element) >= 0) {
             return element;
         }
         element = <HTMLElement>element.nextElementSibling;
     }
-}
+};
 
 $$.getAttribute = function (selector: string, attributeName: string, element?: NodeSelector): string {
-    var result: string;
-    var child = $$(selector, element);
+    let result: string;
+    let child = $$(selector, element);
     if (child) {
         result = child.getAttribute(attributeName);
     }
     return result || '';
-}
+};
 
 $$.getRelativeUrl = function (baseUrl: string, url: string) {
 
-    var c = console; // save console to prevent strip in release;
+    let c = console; // save console to prevent strip in release;
 
     if (!url) {
         c.error('Url is not specified.');
@@ -131,7 +131,7 @@ $$.getRelativeUrl = function (baseUrl: string, url: string) {
         }
     }
     return url;
-}
+};
 
 $$.findNode = (selector: string, nodeType: number, element?: NodeSelector) => {
     let childNodes = $$.try(selector, element).childNodes;
@@ -143,7 +143,7 @@ $$.findNode = (selector: string, nodeType: number, element?: NodeSelector) => {
             }
         }
     }
-}
+};
 
 $$.findAllNodes = (selector: string, nodeType: number, element?: NodeSelector) => {
     let result = <Node[]>[];
@@ -157,7 +157,7 @@ $$.findAllNodes = (selector: string, nodeType: number, element?: NodeSelector) =
         }
     }
     return result;
-}
+};
 
 $$.searchParams = query => {
 
@@ -176,4 +176,4 @@ $$.searchParams = query => {
         params[key] = decodeURIComponent((value || '').replace(/\+/g, ' '));
     });
     return params;
-}
+};
