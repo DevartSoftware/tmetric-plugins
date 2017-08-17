@@ -30,6 +30,7 @@
         "in-page-scripts/integrations/gitLab.ts",
         "in-page-scripts/integrations/jira.ts",
         "in-page-scripts/integrations/pivotalTracker.ts",
+        "in-page-scripts/integrations/podio.ts",
         "in-page-scripts/integrations/producteev.ts",
         "in-page-scripts/integrations/redmine.ts",
         "in-page-scripts/integrations/sprintly.ts",
