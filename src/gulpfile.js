@@ -334,6 +334,6 @@ gulp.task('prepackage:firefox:modifyManifest', ['prepackage:firefox:copy'], call
 gulp.task('package:firefox', ['prepackage:firefox'], () => {
     var manifest = jsonfile.readFileSync(firefoxUnpackedDir + 'manifest.json');
     gulp.src(firefoxUnpackedDir + '**/*')
-        .pipe(zip('tmetric' + '-' + manifest.version + '.xpi'))
+        .pipe(zip(manifest.short_name.toLowerCase() + '-' + manifest.version + '.xpi'))
         .pipe(gulp.dest(firefoxDir));
 });
