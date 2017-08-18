@@ -43,7 +43,7 @@ var chromeUnpackedDir = chromeDir + 'unpacked/';
 var firefoxDir = distDir + 'firefox/';
 var firefoxUnpackedDir = firefoxDir + 'unpacked/';
 var edgeDir = distDir + 'edge/';
-var edgeUnpackedDir = edgeDir + 'unpacked/';
+var edgeUnpackedDir = edgeDir + 'Extension/';
 
 console.log('Start build');
 console.log(JSON.stringify(config, null, 2));
@@ -129,16 +129,24 @@ gulp.task('default', ['build']);
 gulp.task('build', ['version', 'package:chrome', 'package:firefox', 'package:edge']);
 
 gulp.task('version', (callback) => {
-    if (config.version) {
+    var version = config.version;
+    if (version) {
         [
             src + 'manifest.json',
             src + 'package.json',
             src + 'in-page-scripts/version.ts'
-        ].forEach(
-            file => replaceInFile(
-                file,
-                /(["']?version["']?: ["']|Version=")([\d\.]+)(["'])/,
-                (match, left, oldVersion, right) => (left + config.version + right)));
+        ].forEach(file => replaceInFile(
+            file,
+            /(["']?version["']?: ["'])([\d\.]+)(["'])/,
+            (match, left, oldVersion, right) => (left + version + right)));
+
+        if (version.split('.').length < 4) {
+            version += '.0';
+        }
+        replaceInFile(
+            src + 'AppxManifest.xml',
+            /(Version=")([\d\.]+)(")/,
+            (match, left, oldVersion, right) => (left + version + right));
     }
     callback();
 });
@@ -240,6 +248,10 @@ function copyFilesEdge(destFolder) {
         .pipe(gulp.dest(destFolder));
 }
 
+function copyAppxManifest(rootDistFolder) {
+    return gulp.src('AppxManifest.xml', { base: src }).pipe(gulp.dest(rootDistFolder));
+}
+
 function copyFilesEdgeBridges(destFolder) {
     return gulp.src([
         'edge-api-bridges/background.html',
@@ -257,7 +269,7 @@ gulp.task('prepackage:edge', [
 ]);
 
 gulp.task('prepackage:edge:copy', ['clean:dist', 'compile', 'lib'], function () {
-    return mergeStream(copyFilesEdge(edgeUnpackedDir), copyFilesEdgeBridges(edgeUnpackedDir));
+    return mergeStream(copyFilesEdge(edgeUnpackedDir), copyFilesEdgeBridges(edgeUnpackedDir), copyAppxManifest(edgeDir));
 });
 
 gulp.task('prepackage:edge:strip', ['prepackage:edge:copy'], function () {
