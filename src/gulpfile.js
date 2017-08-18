@@ -240,6 +240,10 @@ function copyFilesEdge(destFolder) {
         .pipe(gulp.dest(destFolder));
 }
 
+function copyAppxManifest(rootDistFolder) {
+    return gulp.src('AppxManifest.xml', { base: src }).pipe(gulp.dest(rootDistFolder));
+}
+
 function copyFilesEdgeBridges(destFolder) {
     return gulp.src([
         'edge-api-bridges/background.html',
@@ -257,7 +261,7 @@ gulp.task('prepackage:edge', [
 ]);
 
 gulp.task('prepackage:edge:copy', ['clean:dist', 'compile', 'lib'], function () {
-    return mergeStream(copyFilesEdge(edgeUnpackedDir), copyFilesEdgeBridges(edgeUnpackedDir));
+    return mergeStream(copyFilesEdge(edgeUnpackedDir), copyFilesEdgeBridges(edgeUnpackedDir), copyAppxManifest(edgeDir));
 });
 
 gulp.task('prepackage:edge:strip', ['prepackage:edge:copy'], function () {
