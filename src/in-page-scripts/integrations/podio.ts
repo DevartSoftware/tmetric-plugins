@@ -60,7 +60,17 @@
 
             let issueName = $$('.edit-task-title', issueElement.parentElement).textContent;
             let serviceUrl = source.protocol + source.host;
-            let issueUrl = $$('.task-link', issueElement.parentElement).getAttribute('href');
+            let issueUrl: string;
+
+            let _url = $$('.task-link', issueElement.parentElement).getAttribute('href');
+
+            if (_url) {
+                let matches = _url.match(/\/tasks\/\d+/);
+                if (matches) {
+                    issueUrl = matches[0];
+                }
+            }
+
             let issueId: string;
 
             let matches = issueUrl.match(/\d+/);
