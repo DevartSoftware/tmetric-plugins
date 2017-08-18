@@ -12,26 +12,31 @@
 
             let taskHeader = $$('.task-header .action-bar ul');
             if (taskHeader) {
-                let container = $$.create('li');
-                container.classList.add('float-left', 'devart-timer-link-podio');
+                let container = $$.create('li', 'float-left', 'devart-timer-link-podio');
                 container.appendChild(linkElement);
+                taskHeader.appendChild(container);
             }
         }
+
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
+            let issueName = $$.try('.task-title > .header-title').textContent;
+            if (!issueName) {
+                return;
+            }
+
+            let issueUrl: string;
             let issueId: string;
-            let matches = source.path.match(/(\/tasks\/\d+)/);
+
+            let matches = source.path.match(/^\/tasks\/(\d+)/);
             if (matches) {
+                issueUrl = matches[0];
                 issueId = matches[1];
             }
 
-            let issueName = $$.try('.task-title > .header-title').textContent;
-
             var serviceUrl = source.protocol + source.host;
-            var issueUrl = source.fullUrl.match(/\/tasks\/\d+/)[0];
-            var projectName = null;
 
-            return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'PodioTask' };
+            return { issueId, issueName, issueUrl, serviceUrl, serviceType: 'Podio' };
         }
     }
 
@@ -43,14 +48,13 @@
 
         observeMutations = true;
 
-        issueElementSelector = '.task-detail';
+        issueElementSelector = '.task-wrapper';
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
-            let rightColumn = $$('.task-detail .task-right-column');
+            let rightColumn = $$('.task-right-column', issueElement);
             if (rightColumn) {
-                let container = $$.create('div');
-                container.classList.add('task-via');
+                let container = $$.create('div', 'task-via');
                 container.appendChild(linkElement);
                 rightColumn.insertBefore(container, rightColumn.lastElementChild);
             }
@@ -58,29 +62,24 @@
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-            let issueName = $$('.edit-task-title', issueElement.parentElement).textContent;
-            let serviceUrl = source.protocol + source.host;
-            let issueUrl: string;
-
-            let _url = $$('.task-link', issueElement.parentElement).getAttribute('href');
-
-            if (_url) {
-                let matches = _url.match(/\/tasks\/\d+/);
-                if (matches) {
-                    issueUrl = matches[0];
-                }
+            let issueName = $$.try('.edit-task-title', issueElement).textContent;
+            if (!issueName) {
+                return;
             }
 
+            let issueUrl: string;
             let issueId: string;
 
-            let matches = issueUrl.match(/\d+/);
+            let href = (<HTMLAnchorElement>$$.try('.task-link', issueElement)).href || '';
+            let matches = href.match(/\/tasks\/(\d+)/);
             if (matches) {
-                issueId = matches[0];
+                issueUrl = matches[0];
+                issueId = matches[1];
             }
 
-            let projectName = null;
+            let serviceUrl = source.protocol + source.host;
 
-            return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'PodioTaskList' };
+            return { issueId, issueName, issueUrl, serviceUrl, serviceType: 'Podio' };
         }
     }
 
@@ -96,8 +95,7 @@
 
             let actionBar = $$('.action-bar ul');
             if (actionBar) {
-                let container = $$.create('li');
-                container.classList.add('float-left', 'devart-timer-link-podio');
+                let container = $$.create('li', 'float-left', 'devart-timer-link-podio');
                 container.appendChild(linkElement);
                 actionBar.insertBefore(container, actionBar.firstElementChild);
             }
@@ -105,17 +103,10 @@
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-            let issueId = null;
-            let issueUrl = null;
             let issueName = $$.try('.breadcrumb .item-title').textContent;
-            let serviceUrl = source.protocol + source.host;
-            let projectName = null;
-
-            return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'PodioAppItem' };
+            return { issueName };
         }
     }
 
-    IntegrationService.register(new PodioTask());
-    IntegrationService.register(new PodioTaskList());
-    IntegrationService.register(new PodioAppItem());
+    IntegrationService.register(new PodioTask(), new PodioTaskList(), new PodioAppItem());
 }

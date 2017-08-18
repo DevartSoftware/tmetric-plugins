@@ -27,8 +27,7 @@
             }
 
             if (actionContainer) {
-                var linkContainer = $$.create('div', 'devart-timer-link-bitbucket')
-                linkContainer.classList.add('aui-buttons');
+                var linkContainer = $$.create('div', 'devart-timer-link-bitbucket', 'aui-buttons')
                 linkElement.classList.add('aui-button');
                 linkContainer.appendChild(linkElement);
                 actionContainer.insertBefore(linkContainer, actionContainer.firstElementChild);

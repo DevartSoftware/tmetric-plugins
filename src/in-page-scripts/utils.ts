@@ -7,7 +7,7 @@
     prev<TElement extends HTMLElement>(selector: string, element: HTMLElement): TElement;
     next<TElement extends HTMLElement>(selector: string, element: HTMLElement): TElement;
     getAttribute(selector: string, attributeName: string, element?: NodeSelector): string;
-    create<TElement extends HTMLElement>(tagName: string, className?: string): TElement;
+    create<TElement extends HTMLElement>(tagName: string, ...classNames: string[]): TElement;
     getRelativeUrl(baseUrl: string, fullUrl: string): string;
     findNode(selector: string, nodeType: number, element?: NodeSelector): Node;
     findAllNodes(selector: string, nodeType: number, element?: NodeSelector): Node[];
@@ -36,12 +36,10 @@ $$.try = function (selector: string, element?: NodeSelector, condition?: (el: El
     return $$(selector, element, condition) || <HTMLElement>{};
 };
 
-$$.create = function (tagName, className) {
-    let element = document.createElement(tagName);
-    element.classList.add(Integrations.IntegrationService.affix + '-' + tagName.toLowerCase());
-    if (className) {
-        element.classList.add(className);
-    }
+$$.create = function (tagName, ...classNames: string[]) {
+    let element = <HTMLElement>document.createElement(tagName);
+    classNames.push(Integrations.IntegrationService.affix + '-' + tagName.toLowerCase());
+    element.classList.add(...classNames);
     return element;
 };
 
@@ -71,9 +69,8 @@ $$.visible = function (selector: string, element?: NodeSelector) {
 };
 
 $$.closest = function (selector: string, element: HTMLElement) {
-    let results = $$.all(selector);
     while (element) {
-        if (results.indexOf(element) >= 0) {
+        if (element.matches(selector)) {
             return element;
         }
         element = element.parentElement;
@@ -81,9 +78,8 @@ $$.closest = function (selector: string, element: HTMLElement) {
 };
 
 $$.prev = function (selector: string, element: HTMLElement) {
-    let results = $$.all(selector);
     while (element) {
-        if (results.indexOf(element) >= 0) {
+        if (element.matches(selector)) {
             return element;
         }
         element = <HTMLElement>element.previousElementSibling;
@@ -91,9 +87,8 @@ $$.prev = function (selector: string, element: HTMLElement) {
 };
 
 $$.next = function (selector: string, element: HTMLElement) {
-    let results = $$.all(selector);
     while (element) {
-        if (results.indexOf(element) >= 0) {
+        if (element.matches(selector)) {
             return element;
         }
         element = <HTMLElement>element.nextElementSibling;
