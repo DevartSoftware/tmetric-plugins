@@ -133,12 +133,19 @@ gulp.task('version', (callback) => {
         [
             src + 'manifest.json',
             src + 'package.json',
-            src + 'in-page-scripts/version.ts'
-        ].forEach(
-            file => replaceInFile(
+            src + 'in-page-scripts/version.ts',
+            src + 'AppxManifest.xml'
+        ].forEach(file => {
+            var version = config.version;
+            if (file.indexOf('AppxManifest.xml') > -1) {
+                version += '.0';
+            }
+
+            replaceInFile(
                 file,
                 /(["']?version["']?: ["']|Version=")([\d\.]+)(["'])/,
-                (match, left, oldVersion, right) => (left + config.version + right)));
+                (match, left, oldVersion, right) => (left + version + right))
+        });
     }
     callback();
 });
