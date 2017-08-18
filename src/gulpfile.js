@@ -129,23 +129,24 @@ gulp.task('default', ['build']);
 gulp.task('build', ['version', 'package:chrome', 'package:firefox', 'package:edge']);
 
 gulp.task('version', (callback) => {
-    if (config.version) {
+    var version = config.version;
+    if (version) {
         [
             src + 'manifest.json',
             src + 'package.json',
-            src + 'in-page-scripts/version.ts',
-            src + 'AppxManifest.xml'
-        ].forEach(file => {
-            var version = config.version;
-            if (file.indexOf('AppxManifest.xml') > -1) {
-                version += '.0';
-            }
+            src + 'in-page-scripts/version.ts'
+        ].forEach(file => replaceInFile(
+            file,
+            /(["']?version["']?: ["'])([\d\.]+)(["'])/,
+            (match, left, oldVersion, right) => (left + version + right)));
 
-            replaceInFile(
-                file,
-                /(["']?version["']?: ["']|Version=")([\d\.]+)(["'])/,
-                (match, left, oldVersion, right) => (left + version + right))
-        });
+        if (version.split('.').length < 4) {
+            version += '.0';
+        }
+        replaceInFile(
+            src + 'AppxManifest.xml',
+            /(Version=")([\d\.]+)(")/,
+            (match, left, oldVersion, right) => (left + version + right));
     }
     callback();
 });
