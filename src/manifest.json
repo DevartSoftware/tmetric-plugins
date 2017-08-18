@@ -40,7 +40,11 @@
     "content_scripts": [
         {
             "matches": [ "http://*/*", "https://*/*" ],
-            "exclude_matches": [ "http://*/*lib/execute/execSetResults.php*", "https://*/*lib/execute/execSetResults.php*" ],
+            "exclude_matches": [
+                "http://*/*lib/execute/execSetResults.php*",
+                "https://*/*lib/execute/execSetResults.php*"
+                //"http://*zoho.*/ShowTab.do*"
+            ],
             "js": [
                 "in-page-scripts/utils.js",
                 "in-page-scripts/integrationService.js",
@@ -55,7 +59,9 @@
                 "in-page-scripts/integrations/gitLab.js",
                 "in-page-scripts/integrations/jira.js",
                 "in-page-scripts/integrations/pivotalTracker.js",
-                "in-page-scripts/integrations/podio.js",
+                "in-page-scripts/integrations/podioAppItem.js",
+                "in-page-scripts/integrations/podioTask.js",
+                "in-page-scripts/integrations/podioTaskList.js",
                 "in-page-scripts/integrations/producteev.js",
                 "in-page-scripts/integrations/redmine.js",
                 "in-page-scripts/integrations/sprintly.js",
@@ -73,7 +79,7 @@
                 "in-page-scripts/integrations/wunderlist.js",
                 "in-page-scripts/integrations/youTrack.js",
                 "in-page-scripts/integrations/zendesk.js",
-                "in-page-scripts/integrations/zoho.js",
+                "in-page-scripts/integrations/zohoActivity.js",
                 "in-page-scripts/page.js"
             ],
             "css": [
@@ -82,12 +88,17 @@
             "run_at": "document_end"
         },
         {
-            "matches": [ "http://*/*lib/execute/execSetResults.php*", "https://*/*lib/execute/execSetResults.php*" ],
+            "matches": [
+                "http://*/*lib/execute/execSetResults.php*",
+                "https://*/*lib/execute/execSetResults.php*"
+                //"https?://*zoho.*/ShowTab.do*"
+            ],
             "all_frames": true,
             "js": [
                 "in-page-scripts/utils.js",
                 "in-page-scripts/integrationService.js",
                 "in-page-scripts/integrations/testLink.js",
+                "in-page-scripts/integrations/zohoProject.js",
                 "in-page-scripts/page.js"
             ],
             "css": [
