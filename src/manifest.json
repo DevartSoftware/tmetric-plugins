@@ -88,7 +88,9 @@
         {
             "matches": [
                 "http://*/*lib/execute/execSetResults.php*",
-                "https://*/*lib/execute/execSetResults.php*"
+                "https://*/*lib/execute/execSetResults.php*",
+                "https://*/portal/*/bizwoheader.do*",
+                "https://*/*/EntityInfo.do*"
             ],
             "all_frames": true,
             "js": [

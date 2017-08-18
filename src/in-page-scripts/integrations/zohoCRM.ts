@@ -1,6 +1,6 @@
 ﻿module Integrations {
 
-    class ZohoCRM implements WebToolIntegration {
+    class ZohoActivity implements WebToolIntegration {
 
         showIssueId = false;
 
@@ -33,6 +33,7 @@
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
             let issueName = $$.try('#subvalue_SUBJECT, #entityNameInBCView').textContent;
+
             if (!issueName) {
                 return;
             }
@@ -66,5 +67,54 @@
         }
     }
 
-    IntegrationService.register(new ZohoCRM());
+    class ZohoProject implements WebToolIntegration {
+
+        showIssueId = false;
+
+        observeMutations = true;
+
+        //'*://*/portal/*/bizwoheader.do*'
+        matchUrl = '*://*/portal/*/bizwoheader.do*';
+
+        render(issueElement: HTMLElement, linkElement: HTMLElement) {
+
+            let projectTaskDetails = document.querySelector('#tdetails_task');
+
+            if (projectTaskDetails) {
+                let table = projectTaskDetails.querySelector('table.txtSmall table');
+                if (table) {
+                    // adding classes from zoho
+                    // fr = float:rigft, pt10 = padding-top: 10, mR10 = margin-right: 10
+                    linkElement.classList.add('fr', 'pt10', 'mR10');
+                    table.querySelector('tr td').appendChild(linkElement);
+                }
+            }
+        }
+
+        getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+
+            let issueName = $$.try('.taskDescRow .taskViewSels').textContent;
+
+            if (!issueName) {
+                return;
+            }
+
+            let contactName = $$.try('#subvalue_CONTACTID').textContent;
+            if (contactName) {
+                issueName += ` - ${contactName}`;
+            }
+
+            let projectName: string;
+            let issueUrl: string;
+            let issueId: string;
+            let serviceType = 'ZohoCRM';
+
+            let serviceUrl = source.protocol + source.host;
+
+            return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType };
+        }
+    }
+
+    IntegrationService.register(new ZohoActivity());
+    IntegrationService.register(new ZohoProject());
 }
