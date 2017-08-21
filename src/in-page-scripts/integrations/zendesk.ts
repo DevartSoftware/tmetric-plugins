@@ -9,12 +9,10 @@
         matchUrl = '*://*.zendesk.com/agent/tickets/*';
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
-            var host = $$.visible('.ticket-sidebar .property_box_container');
+            let host = $$.visible('header .pane.right');
             if (host) {
-                linkElement.classList.add('btn');
-                var linkContainer = $$.create('div', 'property_box');
-                linkContainer.appendChild(linkElement);
-                host.appendChild(linkContainer);
+                linkElement.classList.add('btn', 'devart-timer-link-zendesk');
+                host.appendChild(linkElement);
             }
         }
 

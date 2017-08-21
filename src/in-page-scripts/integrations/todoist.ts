@@ -13,7 +13,7 @@
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
             var host = $$('.content > .text', issueElement);
             if (host) {
-                linkElement.classList.add('devart-timer-link-start-todoist');
+                linkElement.classList.add('devart-timer-link-todoist');
                 host.insertBefore(linkElement, host.lastChild);
             }
         }

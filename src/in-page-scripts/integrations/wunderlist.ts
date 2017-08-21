@@ -20,7 +20,7 @@
             let detailTaskHost = $$('.body', issueElement);
 
             if (listTaskAnchor) {
-                linkElement.classList.add('devart-timer-link-minimal', 'devart-timer-link-wunderlist-list');
+                linkElement.classList.add('devart-timer-link-minimal');
                 listTaskAnchor.parentElement.insertBefore(linkElement, listTaskAnchor);
             } else if (detailTaskHost) {
                 linkElement.classList.add('section', 'section-item', 'devart-timer-link-wunderlist-detail');

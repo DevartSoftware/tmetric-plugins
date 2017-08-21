@@ -33,22 +33,21 @@
     }
 }
 
-.devart-timer-link-tfs {
-    float: left;
-    line-height: 32px;
-    padding-right: 10px;
+.devart-timer-link-asana {
+    margin: 1em 30px 0 30px;
+}
+
+.devart-timer-link-assembla {
+    margin-top: 1em !important;
+}
+
+.devart-timer-link-axosoft {
+    float: right;
+    margin-top: 10px;
 }
 
 .devart-timer-link-bitbucket {
     margin-right: 10px;
-}
-
-.devart-timer-link-pivotaltracker {
-    margin-top: 1em;
-}
-
-.devart-timer-link-asana {
-    margin: 1em 30px 0 30px;
 }
 
 .devart-timer-link-bugzilla {
@@ -57,10 +56,32 @@
     font-size: smaller;
 }
 
-.devart-timer-link-trac {
-    margin-left: 0.5em;
-    margin-right: 0.5em;
-    float: right;
+.devart-timer-link-pivotaltracker {
+    margin-top: 1em;
+}
+
+.devart-timer-link-podio {
+    width: auto !important;
+    margin-top: 1px !important;
+}
+
+.devart-timer-link-producteev {
+    margin: 0 1em;
+}
+
+.devart-timer-link-sprintly {
+    > a {
+        display: block;
+        padding: 7px;
+    }
+
+    &:hover > a {
+        color: #fff !important;
+    }
+}
+
+.devart-timer-link-teamweek {
+    margin: 0 0 0 8px;
 }
 
 .devart-timer-link-teamwork {
@@ -79,10 +100,6 @@
     }
 }
 
-.devart-timer-link-teamwork-desk-ticket {
-    margin-top: 1em;
-}
-
 .devart-timer-link-teamwork-desk-task {
     .task-row &.devart-timer-link-start {
         display: none !important;
@@ -93,39 +110,17 @@
     }
 }
 
-.devart-timer-link-teamweek {
-    margin: 0 0 0 8px;
+.devart-timer-link-teamwork-desk-ticket {
+    margin-top: 1em;
 }
 
-.devart-timer-link-axosoft {
-    float: right;
-    margin-top: 10px;
+.devart-timer-link-tfs {
+    float: left;
+    line-height: 32px;
+    padding-right: 10px;
 }
 
-.devart-timer-link-producteev {
-    margin: 0 1em;
-}
-
-.devart-timer-link-sprintly {
-    > a {
-        display: block;
-        padding: 7px;
-    }
-
-    &:hover > a {
-        color: #fff !important;
-    }
-}
-
-.devart-timer-link-assembla {
-    margin-top: 1em !important;
-}
-
-.devart-timer-link-margin-left {
-    margin-left: 1em !important;
-}
-
-.devart-timer-link-start-todoist {
+.devart-timer-link-todoist {
 
     .task_item &.devart-timer-link-start {
         display: none !important;
@@ -136,14 +131,19 @@
     }
 }
 
+.devart-timer-link-trac {
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+    float: right;
+}
+
 .devart-timer-link-wunderlist-detail {
     .devart-timer-link-icon {
         border: 8px solid transparent;
     }
 }
 
-// podio
-.devart-timer-link-podio {
-    width: auto !important;
-    margin-top: 1px !important;
+.devart-timer-link-zendesk {
+    margin-top: 5px;
+    float: right;
 }

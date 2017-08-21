@@ -35,7 +35,7 @@
                 linkElement.classList.add('btn-grouped');
                 buttons.appendChild(linkElement);
             } else {
-                linkElement.classList.add('devart-timer-link-margin-left');
+                linkElement.style.marginLeft = '1em';
                 header.appendChild(linkElement);
             }
         }
