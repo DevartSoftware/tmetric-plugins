@@ -1,12 +1,23 @@
 ﻿module Integrations {
 
+    const addTableRow = (table: HTMLElement, cellContent: HTMLElement) => {
+        let tr = $$.create('tr');
+        let td = $$.create('td');
+        td.appendChild(cellContent);
+        tr.appendChild(td);
+        table.appendChild(tr);
+    }
+
     class ZohoActivity implements WebToolIntegration {
 
         showIssueId = false;
 
         observeMutations = true;
 
-        matchUrl = '*/EntityInfo.do*';
+        matchUrl = [
+            '*/EntityInfo.do*',
+            '*/ShowTab.do*'
+        ];
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
@@ -16,24 +27,18 @@
             }
 
             linkElement.classList.add('newwhitebtn', 'dIB');
-            let button = $$('.newbutton', table);
+            let button = $$.visible('.newbutton', table);
 
             if (button) {
                 button.parentElement.insertBefore(linkElement, button);
-                return;
+            } else {
+                addTableRow(table, linkElement);
             }
-
-            let tr = $$.create('tr');
-            let td = $$.create('td');
-            td.appendChild(linkElement);
-            tr.appendChild(td);
-            table.appendChild(tr);
         }
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
             let issueName = $$.try('#subvalue_SUBJECT, #entityNameInBCView').textContent;
-
             if (!issueName) {
                 return;
             }
@@ -49,17 +54,26 @@
             let issueId: string;
             let serviceType: string;
 
-            let matches = source.fullUrl.match(/^(.*)\/EntityInfo.*\?(.+)/);
+            let urlRegexp = /^(.*)\/EntityInfo\.do\?(.+)/;
+            let matches = source.fullUrl.match(urlRegexp); // Single activity page
+            if (!matches) {
+                let activityLinks = $$.all('li.ligraybackground #Subject');
+                if (activityLinks.length == 1) {
+                    let anchor = <HTMLAnchorElement>activityLinks[0].parentElement;
+                    matches = (anchor.href || '').match(urlRegexp); // Activity list page
+                }
+            }
+
             if (matches) {
                 let params = $$.searchParams(matches[2]);
-                let module = params['module'];
-                if (module) {
+                let issueType = params['module'];
+                if (issueType) {
                     issueId = params['id'];
                 }
                 if (issueId) {
                     serviceType = 'ZohoCRM';
                     serviceUrl = matches[1];
-                    issueUrl = `/EntityInfo.do?module=${module}&id=${issueId}`;
+                    issueUrl = `/EntityInfo.do?module=${issueType}&id=${issueId}`;
                 }
             }
 
@@ -73,48 +87,24 @@
 
         observeMutations = true;
 
-        //'*://*/portal/*/bizwoheader.do*'
         matchUrl = '*://*/portal/*/bizwoheader.do*';
 
+        textAreaSelector = 'textarea.taskedit, #tdetails_task textarea'; // tasks and issues
+
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
-
-            let projectTaskDetails = document.querySelector('#tdetails_task');
-
-            if (projectTaskDetails) {
-                let table = projectTaskDetails.querySelector('table.txtSmall table');
-                if (table) {
-                    // adding classes from zoho
-                    // fr = float:rigft, pt10 = padding-top: 10, mR10 = margin-right: 10
-                    linkElement.classList.add('fr', 'pt10', 'mR10');
-                    table.querySelector('tr td').appendChild(linkElement);
-                }
+            let table = $$.closest('table', $$(this.textAreaSelector));
+            if (table) {
+                linkElement.classList.add('addbtn', 'devart-timer-link-zoho-project');
+                addTableRow(table, linkElement);
             }
         }
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-
-            let issueName = $$.try('.taskDescRow .taskViewSels').textContent;
-
-            if (!issueName) {
-                return;
-            }
-
-            let contactName = $$.try('#subvalue_CONTACTID').textContent;
-            if (contactName) {
-                issueName += ` - ${contactName}`;
-            }
-
-            let projectName: string;
-            let issueUrl: string;
-            let issueId: string;
-            let serviceType = 'ZohoCRM';
-
-            let serviceUrl = source.protocol + source.host;
-
-            return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType };
+            let issueName = (<HTMLTextAreaElement>$$.try(this.textAreaSelector)).value;
+            let projectName = $$.try('#taskprojname, #projectname').textContent;
+            return { issueName, projectName };
         }
     }
 
-    IntegrationService.register(new ZohoActivity());
-    IntegrationService.register(new ZohoProject());
+    IntegrationService.register(new ZohoActivity(), new ZohoProject());
 }

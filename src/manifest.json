@@ -44,7 +44,10 @@
                 "https://chrome.google.com/webstore/*",
                 "https://addons.opera.com/*",
                 "http://*/*lib/execute/execSetResults.php*",
-                "https://*/*lib/execute/execSetResults.php*"
+                "https://*/*lib/execute/execSetResults.php*",
+                "https://*/portal/*/bizwoheader.do*",
+                "https://*/*/EntityInfo.do*",
+                "https://*/*//ShowTab.do*"
             ],
             "js": [
                 "in-page-scripts/utils.js",
@@ -90,7 +93,8 @@
                 "http://*/*lib/execute/execSetResults.php*",
                 "https://*/*lib/execute/execSetResults.php*",
                 "https://*/portal/*/bizwoheader.do*",
-                "https://*/*/EntityInfo.do*"
+                "https://*/*/EntityInfo.do*",
+                "https://*/*/ShowTab.do*"
             ],
             "all_frames": true,
             "js": [

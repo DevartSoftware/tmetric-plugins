@@ -14,7 +14,8 @@
     searchParams(paramString: string): { [name: string]: string };
 }
 
-let $$ = <Utils>function (selector: string, element?: NodeSelector, condition?: (el: Element) => boolean) {
+// Do not use 'let' here to allow variable reassigning
+var $$ = <Utils>function (selector: string, element?: NodeSelector, condition?: (el: Element) => boolean) {
 
     element = element || document;
 
