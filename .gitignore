@@ -20,3 +20,7 @@ src/test/webdriverio/reports/*
 src/test/webdriverio/profiles/*/*
 !src/test/webdriverio/profiles/*/README
 Thumbs.db
+/src/bin
+/src/obj
+/src/project.csproj.user
+/src/Properties
