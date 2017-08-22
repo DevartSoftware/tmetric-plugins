@@ -357,7 +357,7 @@
 
     getProjects() {
         return this.checkProfile().then(profile => {
-            var url = 'api/accounts/' + profile.activeAccountId + '/projects';
+            var url = 'api/accounts/' + profile.activeAccountId + '/projects?onlyTracked=true';
             return this.get<Models.Project[]>(url).then(projects => {
                 this.onUpdateProjects.emit(projects);
                 return projects;

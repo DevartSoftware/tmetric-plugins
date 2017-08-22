@@ -168,8 +168,10 @@
 
         $(this._forms.view + ' .task .name').text(this.toDescription(details.description));
 
-        if (details.projectId) {
-            $(this._forms.view + ' .project .name').text(this.toProjectName(details.projectId)).show();
+        let projectName = this.toProjectName(details.projectId);
+
+        if (projectName) {
+            $(this._forms.view + ' .project .name').text(projectName).show();
         } else {
             $(this._forms.view + ' .project').hide();
         }
@@ -291,29 +293,13 @@
     }
 
     toProjectName(projectId: number): string {
-        var name = '';
-        if (this._projects) {
-            var projects = this._projects.filter((project) => {
-                return project.projectId === projectId;
-            });
+        if (projectId && this._projects) {
+            let projects = this._projects.filter(_ => _.projectId === projectId);
             if (projects.length) {
-                name = projects[0].projectName;
+                return projects[0].projectName;
             }
         }
-        return name;
-    }
-
-    toProjectId(projectName: string): number {
-        var id = null;
-        if (this._projects) {
-            var projects = this._projects.filter((project) => {
-                return project.projectName === projectName;
-            });
-            if (projects.length) {
-                id = projects[0].projectId;
-            }
-        }
-        return id;
+        return '';
     }
 
     getProject(id: number): Models.Project {

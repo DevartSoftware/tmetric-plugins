@@ -592,28 +592,6 @@ class ExtensionBase {
         });
     }
 
-    private toProjectId(projectName: string) {
-        var id = null;
-        if (this._projects) {
-            var projects = this._projects.filter(project => project.projectName === projectName);
-            if (projects.length) {
-                id = projects[0].projectId;
-            }
-        }
-        return id;
-    };
-
-    private toProjectName(projectId: number) {
-        var name = '';
-        if (this._projects) {
-            var projects = this._projects.filter(project => project.projectId === projectId);
-            if (projects.length) {
-                name = projects[0].projectName;
-            }
-        }
-        return name;
-    };
-
     initializePopupAction(): Promise<IPopupInitData> {
         return new Promise((resolve, reject) => {
             // Forget about old action when user open popup again
