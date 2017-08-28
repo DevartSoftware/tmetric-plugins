@@ -156,18 +156,9 @@ class ExtensionBase {
             this.removeIssuesDurationsFromCache(identifiers);
         });
 
-        this.connection.init(this.serviceUrl).then(() => {
-            this.connection.getVersion().then(version => {
-                if (version < 1.0 && this.serviceUrl != this.defaultApplicationUrl) {
-                    this.showNotification("You are connected to the outdated TMetric server. Extension may not function correctly. Please contact your system administrator.");
-                }
-
-                if (version < 2) {
-                    this._constants.maxTimerHours = 10;
-                    this.updateState();
-                }
-            });
-        });
+        this.connection
+            .init(this.serviceUrl)
+            .then(() => this.connection.getVersion());
 
         this.listenPopupAction<void, IPopupInitData>('initialize', this.initializePopupAction);
         this.listenPopupAction<void, void>('openTracker', this.openTrackerPagePopupAction);
@@ -335,28 +326,27 @@ class ExtensionBase {
     }
 
     updateState() {
-        var state = ButtonState.connect;
-        var text = 'Not Connected';
+        let state = ButtonState.connect;
+        let text = 'Not Connected';
         if (this._timer) {
+            let todayTotal = 'Today Total - '
+                + this.durationToString(this.getDuration(this._timeEntries))
+                + ' hours';
             if (this._timer.isStarted) {
                 if (this.getDuration(this._timer) > this._constants.maxTimerHours * 60 * 60000) {
                     state = ButtonState.fixtimer;
-                    text = 'Started (Need User Action)\n'
-                        + 'It looks like you forgot to stop the timer';
+                    text = 'Started\nYou need to fix long-running timer';
                 }
                 else {
                     state = ButtonState.stop;
-                    text = 'Started\n'
-                        + (this._timer.details.description || '(No task description)');
+                    let description = this._timer.details.description || '(No task description)';
+                    text = `Started (${todayTotal})\n${description}`;
                 }
             }
             else {
                 state = ButtonState.start;
-                text = 'Paused';
+                text = 'Paused\n' + todayTotal;
             }
-            text += '\nToday Total - '
-                + this.durationToString(this.getDuration(this._timeEntries))
-                + ' hours';
         }
         this.buttonState = state;
         this.setButtonIcon(state == ButtonState.stop || state == ButtonState.fixtimer ? 'active' : 'inactive', text);
