@@ -293,7 +293,7 @@ gulp.task('prepackage:edge:modifyManifest', ['prepackage:edge:copy'], function (
             // Replace chromeExtension.js to edgeExtension.js
             var scripts = manifest['background']['scripts'];
             var index = scripts.indexOf('background/chromeExtension.js');
-            scripts.splice(index, 1, 'background/edgeExtension.js');
+            scripts[index] = 'background/edgeExtension.js';
 
             return manifest;
         }))
@@ -336,7 +336,7 @@ gulp.task('prepackage:firefox:modifyManifest', ['prepackage:firefox:copy'], call
             // Replace chromeExtension.js to firefoxExtension.js
             var scripts = manifest['background']['scripts'];
             var index = scripts.indexOf('background/chromeExtension.js');
-            scripts.splice(index, 1, 'background/firefoxExtension.js');
+            scripts[index] = 'background/firefoxExtension.js';
 
             return manifest;
         }))
