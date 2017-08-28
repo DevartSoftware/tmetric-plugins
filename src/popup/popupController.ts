@@ -3,7 +3,7 @@
     constructor() {
         this.initControls();
         this.switchState(this._states.loading);
-        this.initializeAction().then((data) => {
+        this.initializeAction().then(data => {
 
             this.setData(data);
 
@@ -20,8 +20,8 @@
                 this.fillCreateForm(data.title);
                 this.switchState(this._states.creating);
             }
-        }).catch((error) => {
-            this.isConnectionRetryEnabledAction().then((retrying) => {
+        }).catch(error => {
+            this.isConnectionRetryEnabledAction().then(retrying => {
                 if (retrying) {
                     this.switchState(this._states.retrying);
                 } else {
@@ -86,13 +86,13 @@
                 this.callBackground({
                     action: action,
                     data: data
-                }).then((response) => {
+                }).then(response => {
                     if (response.error) {
                         reject(response.error);
                     } else {
                         resolve(response.data);
                     }
-                }).catch((error) => {
+                }).catch(error => {
                     reject(<string>error);
                 });
             })
@@ -155,7 +155,7 @@
 
         $(this._forms.view + ' .time').text(this.toDurationString(timer.startTime));
 
-        var url = this.getTaskUrl(details);
+        let url = this.getTaskUrl(details);
         if (url && details.projectTask && details.projectTask.externalIssueId) {
             let issueIdText = '\u29C9'; // "Two joined squares" symbol
             if (details.projectTask.showIssueId) {
@@ -198,7 +198,7 @@
         timer.details.description = $(selector + ' .task .input').val();
         timer.details.projectId = parseInt(this.getSelectValue(selector + ' .project .input')) || null;
         timer.tagsIdentifiers = (this.getSelectValue(selector + ' .tags .input') || []).map(tag => parseInt(tag));
-        var project = this.getProject(timer.details.projectId);
+        let project = this.getProject(timer.details.projectId);
         timer.isBillable = project ? project.isBillable : false;
     }
 
@@ -214,21 +214,21 @@
     private _monthsShort = 'Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec'.split('_');
 
     getDuration(startTime: Date | string) {
-        var startDate = startTime instanceof Date ? startTime : new Date(<string>startTime);
-        var result = new Date().getTime() - startDate.getTime();
+        let startDate = startTime instanceof Date ? startTime : new Date(<string>startTime);
+        let result = new Date().getTime() - startDate.getTime();
         return result > 0 ? result : 0;
     }
 
     toDurationString(startTime: string) {
 
-        var MINUTE = 1000 * 60;
-        var HOUR = MINUTE * 60;
+        const MINUTE = 1000 * 60;
+        const HOUR = MINUTE * 60;
 
-        var duration = this.getDuration(startTime);
-        var hours = Math.floor(duration / HOUR);
-        var minutes = Math.floor((duration - hours * HOUR) / MINUTE);
+        let duration = this.getDuration(startTime);
+        let hours = Math.floor(duration / HOUR);
+        let minutes = Math.floor((duration - hours * HOUR) / MINUTE);
 
-        var result = [];
+        let result = [];
         if (hours) {
             result.push(hours + ' h');
         }
@@ -239,28 +239,28 @@
 
     isLongRunning(startTime: string) {
 
-        var HOUR = 1000 * 60 * 60;
-        var LONG_RUNNING_DURATION = this._constants.maxTimerHours * HOUR;
+        const HOUR = 1000 * 60 * 60;
+        const LONG_RUNNING_DURATION = this._constants.maxTimerHours * HOUR;
 
-        var duration = this.getDuration(startTime);
+        let duration = this.getDuration(startTime);
 
         return duration >= LONG_RUNNING_DURATION;
     }
 
     toLongRunningDurationString(startTime: string) {
 
-        var duration = this.getDuration(startTime);
+        let duration = this.getDuration(startTime);
 
-        var now = new Date();
+        let now = new Date();
 
-        var durationToday = this.getDuration(new Date(now.getFullYear(), now.getMonth(), now.getDate()));
-        var durationYesterday = this.getDuration(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1));
+        let durationToday = this.getDuration(new Date(now.getFullYear(), now.getMonth(), now.getDate()));
+        let durationYesterday = this.getDuration(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1));
 
-        var startDate = new Date(startTime);
+        let startDate = new Date(startTime);
 
         // Output:
         // Started Wed, 03 Feb at 15:31
-        var result = '';
+        let result = '';
         if (duration <= durationToday) {
             result = 'Started today';
         } else if (duration <= durationYesterday) {
@@ -269,13 +269,13 @@
             result = 'Started ' + this._weekdaysShort[startDate.getDay()] + ', ' + startDate.getDate() + ' ' + this._monthsShort[startDate.getMonth()];
         }
 
-        var hours = startDate.getHours();
-        var minutes = startDate.getMinutes();
+        let hours = startDate.getHours();
+        let minutes = startDate.getMinutes();
 
         if (this._timeFormat == 'H:mm') {
             result += ' at ' + hours + ':' + (minutes < 10 ? '0' + minutes : minutes);
         } else {
-            var period: string;
+            let period: string;
             if (hours >= 12) {
                 period = 'pm';
                 hours -= 12;
@@ -303,11 +303,9 @@
     }
 
     getProject(id: number): Models.Project {
-        var project = null;
+        let project = null;
         if (this._projects) {
-            var projects = this._projects.filter((project) => {
-                return project.projectId === id;
-            });
+            let projects = this._projects.filter(project => project.projectId === id);
             if (projects.length) {
                 project = projects[0];
             }
@@ -316,21 +314,18 @@
     }
 
     getTag(id: number): Models.Tag {
-        var tag = null;
         if (this._tags) {
-            var tags = this._tags.filter((tag) => {
-                return tag.tagId === id;
-            });
+            let tags = this._tags.filter(tag => tag.tagId === id);
             if (tags.length) {
-                tag = tags[0];
+                return tags[0];
             }
         }
-        return tag;
+        return null;
     }
 
     makeTimerTagsText(timerTags: number[]) {
-        return timerTags.map((id) => {
-            var tag = this.getTag(id);
+        return timerTags.map(id => {
+            let tag = this.getTag(id);
             return tag ? tag.tagName : '';
         })
             .filter(tag => !!tag)
@@ -341,13 +336,13 @@
     private _noProjectOption: IdTextPair = { id: 0, text: 'No Project' };
 
     makeProjectSelectData() {
-        return [this._noProjectOption].concat(this._projects.map((project) => {
+        return [this._noProjectOption].concat(this._projects.map(project => {
             return { id: project.projectId, text: project.projectName };
         }));
     }
 
     makeTagSelectData() {
-        return this._tags.map((tag) => {
+        return this._tags.map(tag => {
             return { id: tag.tagId, text: tag.tagName };
         });
     }
@@ -357,7 +352,7 @@
     }
 
     setSelectValue(selector: string, options: Select2Options, value: string | string[]) {
-        $(selector).select2(options).val(value).trigger("change");
+        $(selector).select2(options).val(value).trigger('change');
     }
 
     // ui event handlers
@@ -374,7 +369,7 @@
         $('#create-link').click(() => this.onCreateClick());
 
         // close popup when escape key pressed and no selectors are opened
-        window.addEventListener('keydown', (event) => {
+        window.addEventListener('keydown', event => {
             if (event.keyCode == 27) {
                 if (!$('body > .select2-container').length) {
                     this.close();
@@ -389,7 +384,7 @@
     }
 
     private onTaskLinkClick() {
-        var url = this.getTaskUrl(this._activeTimer.details);
+        let url = this.getTaskUrl(this._activeTimer.details);
         if (url) {
             this.openPageAction(url);
             this.close();
@@ -412,8 +407,8 @@
     }
 
     private onStartClick() {
-        var timer = <Models.Timer>{};
-        var now = new Date();
+        let timer = <Models.Timer>{};
+        let now = new Date();
         timer.isStarted = true;
         timer.startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toJSON();
         this.fillTaskTimer(this._forms.create, timer);
@@ -421,7 +416,7 @@
     }
 
     private onStopClick() {
-        var timer = this.clone(this._activeTimer);
+        let timer = this.clone(this._activeTimer);
         timer.isStarted = false;
         this.putTimer(timer);
     }

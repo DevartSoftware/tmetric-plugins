@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "target": "es2015",
-        "module": "commonjs",
+        "module": "none",
         "sourceMap": true,
         "noEmitOnError": true,
         "removeComments": true
@@ -54,16 +54,6 @@
         "in-page-scripts/page.ts",
         "in-page-scripts/version.ts",
         "in-page-scripts/utils.ts",
-        "popup/popupController.ts",
-        "test/webdriverio/services.d.ts",
-        "test/webdriverio/customCommands.ts",
-        "test/webdriverio/specs/common.spec.ts",
-        "test/webdriverio/specs/integrations.spec.ts",
-        "test/webdriverio/specs/github.ts",
-        "test/webdriverio/specs/gitlab.ts",
-        "test/webdriverio/specs/jira.ts",
-        "test/webdriverio/specs/redmine.ts",
-        "test/webdriverio/specs/tfs.ts",
-        "test/webdriverio/specs/trello.ts"
+        "popup/popupController.ts"
     ]
 }
