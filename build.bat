@@ -2,7 +2,7 @@
 
 pushd "%~dp0"
 
-cd /d %~dp0\src
+cd /d %~dp0
 
 call npm install
 

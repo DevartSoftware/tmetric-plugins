@@ -17,8 +17,8 @@ var zip = require('gulp-zip');
 // =============================================================================
 
 // Output folders for *.crx and *.xpi files
-var src = process.cwd() + '/';
-var dist = path.normalize(src + '/../dist/');
+var src = path.normalize(process.cwd() + '/src/');
+var dist = path.normalize(process.cwd() + '/dist/');
 
 var config = {
     distDir: dist,
@@ -50,29 +50,29 @@ console.log(JSON.stringify(config, null, 2));
 
 var files = {
     common: [
-        'background/signalRConnection.js',
-        'css/*.css',
-        'in-page-scripts/integrations/*.js',
-        'in-page-scripts/integrationService.js',
-        'in-page-scripts/page.js',
-        'in-page-scripts/version.js',
-        'in-page-scripts/utils.js',
-        'lib/**',
-        'images/*.png',
-        'popup/popup.html',
-        'popup/popupController.js',
-        'background/extensionBase.js',
-        'background/simpleEvent.js',
-        'manifest.json'
+        'src/background/signalRConnection.js',
+        'src/css/*.css',
+        'src/in-page-scripts/integrations/*.js',
+        'src/in-page-scripts/integrationService.js',
+        'src/in-page-scripts/page.js',
+        'src/in-page-scripts/version.js',
+        'src/in-page-scripts/utils.js',
+        'src/lib/**',
+        'src/images/*.png',
+        'src/popup/popup.html',
+        'src/popup/popupController.js',
+        'src/background/extensionBase.js',
+        'src/background/simpleEvent.js',
+        'src/manifest.json'
     ],
     chrome: [
-        'background/chromeExtension.js',
+        'src/background/chromeExtension.js',
     ],
     edge: [
-        'background/edgeExtension.js'
+        'src/background/edgeExtension.js'
     ],
     firefox: [
-        'background/firefoxExtension.js'
+        'src/background/firefoxExtension.js'
     ]
 };
 
@@ -197,7 +197,7 @@ gulp.task('compile', ['compile:ts', 'compile:less']);
 
 gulp.task('compile:ts', ['clean:sources'], function () {
     var tsc = require('gulp-tsc'); // TypeScript compiler for gulp.js
-    var project = require('./tsconfig.json');
+    var project = require('./src/tsconfig.json');
     project.compilerOptions.sourceMap = false;
     project.compilerOptions.tscPath = './node_modules/typescript/lib/tsc.js';
     return gulp.src(project.files)
@@ -253,7 +253,7 @@ function copyFilesEdge(destFolder) {
 }
 
 function copyAppxManifest(rootDistFolder) {
-    return gulp.src('AppxManifest.xml', { base: src }).pipe(gulp.dest(rootDistFolder));
+    return gulp.src('src/AppxManifest.xml', { base: src }).pipe(gulp.dest(rootDistFolder));
 }
 
 function copyFilesEdgeBridges(destFolder) {

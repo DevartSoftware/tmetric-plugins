@@ -24,3 +24,4 @@ Thumbs.db
 /src/obj
 /src/project.csproj.user
 /src/Properties
+/node_modules/
