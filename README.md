@@ -79,5 +79,8 @@ Built extensions can be found in `/dist/` folder.
 If you want to contribute, fork the project, make your changes and open a
 [Pull Request](https://help.github.com/articles/creating-a-pull-request/)
 
+Check out our wiki on
+[how to add a new integration](https://github.com/DevartSoftware/tmetric-plugins/wiki/How-To:-Add-New-Integration).
+
 Before opening a pull request please use `git squash` and merge all your commits
 into one. This helps keeping the Git log more compact and clear.
