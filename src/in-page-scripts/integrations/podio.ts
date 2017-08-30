@@ -44,7 +44,7 @@
 
         showIssueId = false;
 
-        matchUrl = '*://podio.com/tasks';
+        matchUrl = '*://podio.com*/tasks';
 
         observeMutations = true;
 
