@@ -1,4 +1,7 @@
 ﻿if (typeof document !== 'undefined') {
+
+    let constants: Models.Constants;
+
     /**
      * Retrieves messages from background script.
      */
@@ -22,8 +25,8 @@
 
         // Only for FireFox
         if (message.action == 'error') {
-            let a = alert;
-            a(message.data.message);
+            let a = alert; // prevent strip in release;
+            a(constants.extensionName + '\n\n' + message.data.message);
         }
 
         // Only for Edge
@@ -47,7 +50,8 @@
         } else if (message.action == 'setIssuesDurations') {
             Integrations.IntegrationService.setIssuesDurations(message.data);
         } else if (message.action == 'setConstants') {
-            Integrations.IntegrationService.setConstants(message.data);
+            constants = message.data;
+            Integrations.IntegrationService.setConstants(constants);
         }
 
         if (parseAfterPings) {
