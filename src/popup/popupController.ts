@@ -185,8 +185,8 @@
 
     fillCreateForm(description: string) {
         $(this._forms.create + ' .task .input').val(description).focus().select();
-        this.setSelectValue(this._forms.create + ' .project .input', { data: this.makeProjectSelectData() }, '');
-        this.setSelectValue(this._forms.create + ' .tags .input', { data: this.makeTagSelectData() }, '');
+        this.setSelectValue(this._forms.create + ' .project .input', this.makeProjectSelectData());
+        this.setSelectValue(this._forms.create + ' .tags .input', this.makeTagSelectData());
     }
 
     initCreatingForm() {
@@ -351,8 +351,8 @@
         return $(selector).select().val();
     }
 
-    setSelectValue(selector: string, options: Select2Options, value: string | string[]) {
-        $(selector).select2(options).val(value).trigger('change');
+    setSelectValue(selector: string, data: IdTextPair[]) {
+        $(selector).select2({ data }).val('').trigger('change');
     }
 
     // ui event handlers
