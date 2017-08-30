@@ -6,7 +6,7 @@
 
         showIssueId = true;
 
-        matchUrl = /.+\/project\/.+\/(task|us|issue)\/(\d+)$/;
+        matchUrl = /(.+)(\/project\/.+\/(task|us|issue)\/(\d+))/;
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
@@ -22,14 +22,6 @@
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-            // https://taiga.some.server/project/PROJECT_NAME/task/NUMBER
-            // https://taiga.some.server/project/PROJECT_NAME/us/NUMBER
-            // https://taiga.some.server/project/PROJECT_NAME/issue/NUMBER
-            let match = this.matchUrl.exec(source.fullUrl);
-
-            // match[2] is a 'NUMBER' from path
-            let issueId = '#' + match[2];
-
             let issueName = $$.try('.us-story-main-data .detail-subject').textContent;
             if (!issueName) {
                 return;
@@ -37,11 +29,14 @@
 
             let projectName = $$.try('.us-detail h1 > .project-name').textContent;
 
+            // https://taiga.some.server/project/PROJECT_NAME/task/NUMBER
+            // https://taiga.some.server/project/PROJECT_NAME/us/NUMBER
+            // https://taiga.some.server/project/PROJECT_NAME/issue/NUMBER
+            let match = this.matchUrl.exec(source.fullUrl);
             let serviceType = 'Taiga';
-
-            let serviceUrl = source.protocol + source.host;
-
-            let issueUrl = source.path;
+            let serviceUrl = match[1];
+            let issueUrl = match[2];
+            let issueId = '#' + match[4];
 
             return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
         }
