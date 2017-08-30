@@ -334,9 +334,6 @@ gulp.task('prepackage:firefox:modifyManifest', ['prepackage:firefox:copy'], call
     return gulp.src(firefoxUnpackedDir + '/manifest.json')
         .pipe(modifyJSON(manifest => {
 
-            // Remove externally_connectable property
-            delete manifest['externally_connectable'];
-
             // Replace chromeExtension.js to firefoxExtension.js
             var scripts = manifest['background']['scripts'];
             var index = scripts.indexOf('background/chromeExtension.js');
