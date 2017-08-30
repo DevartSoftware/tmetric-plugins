@@ -17,7 +17,8 @@ declare module Models {
     }
 
     interface Constants {
-        maxTimerHours: number
+        maxTimerHours: number,
+        extensionName: string
     }
 
     interface TimeZoneInfo {
