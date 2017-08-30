@@ -245,6 +245,7 @@
 
             promise.catch(() => {
                 this.expectedTimerUpdate = false;
+                this.checkProfileChange();
             });
 
             return promise;
@@ -265,6 +266,7 @@
             });
             promise.catch(() => {
                 this.expectedTimerUpdate = false;
+                this.checkProfileChange();
             });
             return promise;
         });

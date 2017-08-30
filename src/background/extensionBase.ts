@@ -241,24 +241,7 @@ class ExtensionBase {
         this.openTrackerPage();
     }
 
-    putTabTimer(url: string, title: string)
-    putTabTimer(timer: Integrations.WebToolIssueTimer)
-    putTabTimer(param1: any, param2?: any) {
-
-        var timer: Integrations.WebToolIssueTimer;
-        if (typeof param1 !== 'string') {
-            timer = <Integrations.WebToolIssueTimer>param1;
-        }
-        else {
-            var url = this.normalizeUrl(param1);
-            var issue = this.getTabIssue(url, param2);
-
-            timer = <Integrations.WebToolIssueTimer>{ isStarted: this.buttonState != ButtonState.stop };
-            for (var i in issue) {
-                timer[i] = issue[i];
-            }
-        }
-
+    putTabTimer(timer: Integrations.WebToolIssueTimer) {
         this.putData(timer,
             timer => this.connection.putExternalTimer(timer),
             timer => {

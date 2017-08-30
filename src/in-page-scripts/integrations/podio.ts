@@ -44,7 +44,7 @@
 
         showIssueId = false;
 
-        matchUrl = '*://podio.com/tasks';
+        matchUrl = '*://podio.com*/tasks';
 
         observeMutations = true;
 
@@ -91,9 +91,11 @@
 
         observeMutations = true;
 
+        issueElementSelector = '.item-topbar'
+
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
-            let actionBar = $$('.action-bar ul');
+            let actionBar = $$('.action-bar ul', issueElement);
             if (actionBar) {
                 let container = $$.create('li', 'float-left', 'devart-timer-link-podio');
                 container.appendChild(linkElement);
@@ -102,8 +104,7 @@
         }
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-
-            let issueName = $$.try('.breadcrumb .item-title').textContent;
+            let issueName = $$.try('.breadcrumb .item-title', issueElement).textContent;
             return { issueName };
         }
     }
