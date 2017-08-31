@@ -200,7 +200,7 @@ gulp.task('compile:ts', ['clean:sources'], function () {
     var project = require('./src/tsconfig.json');
     project.compilerOptions.sourceMap = false;
     project.compilerOptions.tscPath = './node_modules/typescript/lib/tsc.js';
-    return gulp.src(project.files)
+    return gulp.src(project.files.map(path => 'src/' + path))
       .pipe(tsc(project.compilerOptions))
       .pipe(gulp.dest(src));
 });
