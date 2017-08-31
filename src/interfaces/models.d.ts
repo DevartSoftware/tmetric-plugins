@@ -69,6 +69,7 @@ declare module Models {
         firstWeekDay: number;
         reportDetailedTimeEnabled: boolean;
         canMembersManagePublicProjects: boolean;
+        canMembersCreateTags: boolean;
     }
 
     interface AccountMember {
