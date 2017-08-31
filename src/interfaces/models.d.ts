@@ -16,6 +16,13 @@ declare module Models {
         maxTask = 400
     }
 
+    export const enum ReportTimeRoundingMode {
+        None,
+        Floor,
+        Round,
+        Ceil
+    }
+
     interface Constants {
         maxTimerHours: number,
         extensionName: string
@@ -54,8 +61,13 @@ declare module Models {
     interface Account {
         accountId: number;
         accountName: string;
-        accountOwnerName: string;
-        isPaid: boolean;
+        reportTimeFormat: string;
+        reportTimeRoundingMode: ReportTimeRoundingMode;
+        reportTimeRoundingMinutes: number;
+        editableDays: number;
+        firstWeekDay: number;
+        reportDetailedTimeEnabled: boolean;
+        canMembersManagePublicProjects: boolean;
     }
 
     interface AccountMember {
