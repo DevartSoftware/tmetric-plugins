@@ -5,7 +5,7 @@ class ExtensionBase {
     getDefaultConstants() {
         let constants: Models.Constants = {
             maxTimerHours: 12,
-            extensionName: chrome.runtime.getManifest().description
+            extensionName: chrome.runtime.getManifest().name
         };
         return constants;
     }

@@ -18,7 +18,8 @@
             "19": "images/inactive19.png",
             "38": "images/inactive38.png"
         },
-        "default_popup": "popup/popup.html"
+        "default_popup": "popup/popup.html",
+        "default_title": "Not Connected"
     },
     "permissions": [
         "activeTab",
