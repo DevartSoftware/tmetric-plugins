@@ -61,31 +61,28 @@
         initialize();
     }
 
+    chrome.runtime.onMessage.addListener(onBackgroundMessage);
+
     /**
      * Sends message to background script.
      */
-    var sendBackgroundMessage = (() => {
+    function sendBackgroundMessage(message: ITabMessage) {
 
-        chrome.runtime.onMessage.addListener(onBackgroundMessage);
+        // finalize script when extension removed/disabled/upgraded (#66666)
+        let callbackAction = message.action + '_callback';
+        if (pingTimeouts[callbackAction]) {
+            clearTimeout(pingTimeouts[callbackAction]);
+        }
 
-        return (message: ITabMessage) => {
+        pingTimeouts[callbackAction] = setTimeout(() => finalize(), 30000);
 
-            // finalize script when extension removed/disabled/upgraded (#66666)
-            var callbackAction = message.action + '_callback';
-            if (pingTimeouts[callbackAction]) {
-                clearTimeout(pingTimeouts[callbackAction]);
-            }
-
-            pingTimeouts[callbackAction] = setTimeout(() => finalize(), 30000);
-
-            try {
-                chrome.runtime.sendMessage(message);
-            }
-            catch (e) {
-                finalize();
-            }
-        };
-    })();
+        try {
+            chrome.runtime.sendMessage(message);
+        }
+        catch (e) {
+            finalize();
+        }
+    };
 
     /**
      * Starts periodic checking of url/title changes. Checking stops on focus loss.
@@ -122,7 +119,7 @@
      */
     function finalize() {
         isFinalized = true;
-        for (var ping in pingTimeouts) {
+        for (let ping in pingTimeouts) {
             if (pingTimeouts[ping]) {
                 clearTimeout(pingTimeouts[ping]);
                 pingTimeouts[ping] = null;
@@ -145,7 +142,7 @@
     function parsePage() {
 
         // do not parse page when extension is not responding (disabled/upgraded/uninstalled)
-        for (var ping in pingTimeouts) {
+        for (let ping in pingTimeouts) {
             if (pingTimeouts[ping]) {
                 parseAfterPings = true;
                 return;
@@ -154,15 +151,15 @@
 
         parseAfterPings = false;
 
-        var url = document.URL;
-        var title = document.title;
+        let url = document.URL;
+        let title = document.title;
 
-        var checkAllIntegrations = url != oldUrl;
+        let checkAllIntegrations = url != oldUrl;
 
         oldUrl = url;
         oldTitle = title;
 
-        var { issues, observeMutations } = Integrations.IntegrationService.updateLinks(checkAllIntegrations);
+        let { issues, observeMutations } = Integrations.IntegrationService.updateLinks(checkAllIntegrations);
 
         if (mutationObserver) {
             // clear queue to prevent observer reentering
@@ -175,14 +172,14 @@
         }
     }
 
-    var oldUrl = '';
-    var oldTitle = '';
-    var changeCheckerHandle: number;
-    var mutationObserver: MutationObserver;
-    var pingTimeouts = <{ [callbackAction: string]: number }>{};
-    var isInitialized = false;
-    var isFinalized = false;
-    var parseAfterPings = true;
+    let oldUrl = '';
+    let oldTitle = '';
+    let changeCheckerHandle: number;
+    let mutationObserver: MutationObserver;
+    let pingTimeouts = <{ [callbackAction: string]: number }>{};
+    let isInitialized = false;
+    let isFinalized = false;
+    let parseAfterPings = true;
 
     Integrations.IntegrationService.clearPage();
     sendBackgroundMessage({ action: 'getConstants' });
