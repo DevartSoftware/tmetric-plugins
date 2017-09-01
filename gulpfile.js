@@ -258,9 +258,8 @@ function copyAppxManifest(rootDistFolder) {
 
 function copyFilesEdgeBridges(destFolder) {
     return gulp.src([
-        'edge-api-bridges/background.html',
-        'edge-api-bridges/backgroundScriptsAPIBridge.js',
-        'edge-api-bridges/contentScriptsAPIBridge.js'
+        'src/edge-api-bridges/backgroundScriptsAPIBridge.js',
+        'src/edge-api-bridges/contentScriptsAPIBridge.js'
     ], { base: src })
         .pipe(rename({ dirname: '' }))
         .pipe(gulp.dest(destFolder));
