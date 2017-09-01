@@ -8,7 +8,6 @@
      * @override
      */
     getExtensionUUID() {
-        console.log('ms-browser-extension://' + chrome.runtime.id + '/popup/popup.html?tab=true');
         return chrome.runtime.id;
     }
 
@@ -17,8 +16,6 @@
      * @param sender
      */
     isPopupRequest(sender: chrome.runtime.MessageSender) {
-        console.log(sender);
-        console.log('isPopupReq', !sender.url || !!sender.url.match(/^ms-browser-extension:\/\/.+popup.html[?]tab=true$/g));
         return !sender.url || !!sender.url.match(/^ms-browser-extension:\/\/.+popup.html[?]tab=true$/g);
     }
 
