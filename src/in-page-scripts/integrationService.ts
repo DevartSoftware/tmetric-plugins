@@ -6,8 +6,52 @@
 
         static affix = 'devart-timer-link';
 
+        static popupId = 'tmetricPopup';
+
         static register(...integrations: WebToolIntegration[]) {
             this._allIntegrations.push(...integrations);
+        }
+
+        static showPopup() {
+            let iframe = document.createElement('iframe');
+
+            iframe.id = this.popupId;
+            iframe.src = this.getBrowserStoreSrc();
+
+            Object.assign(iframe.style, {
+                position: 'fixed',
+                zIndex: 9999,
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                display: 'block'
+            });
+
+            document.body.appendChild(iframe);
+        }
+
+        static hidePopup() {
+            $$('#' + this.popupId).remove();
+        }
+
+        static getBrowserStoreSrc(): string {
+            let userAgent = window.navigator.userAgent;
+            let src = '://' + this._constants.extensionUUID + '/popup/popup.html?tab=true';
+            let hostname = '';
+
+            // Chrome
+            if (userAgent.indexOf('Chrome') >= 0 && userAgent.indexOf('Edge') == -1) {
+                hostname = 'chrome-extension';
+            } // Edge
+            else if (userAgent.indexOf('Edge') >= 0) {
+                hostname = 'ms-browser-extension';
+            } // Firefox
+            else if (userAgent.indexOf('Firefox') >= 0) {
+                hostname = 'moz-extension';
+            }
+
+            return hostname + src;
         }
 
         static isUrlMatched(integration: WebToolIntegration, url: string) {

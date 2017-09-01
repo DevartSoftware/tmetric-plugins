@@ -8,6 +8,13 @@ class FirefoxExtension extends ExtensionBase {
 
     /**
      * @override
+     */
+    getExtensionUUID() {
+        return window.location.host;
+    }
+
+    /**
+     * @override
      * @param message
      */
     showError(message: string) {
@@ -25,7 +32,7 @@ class FirefoxExtension extends ExtensionBase {
      * @param sender
      */
     isPopupRequest(sender: chrome.runtime.MessageSender) {
-        return !!(sender.url && sender.url.match(/^moz-extension:\/\/.+popup.html/));
+        return !!(sender.url && sender.url.match(/^moz-extension:\/\/.+popup.(html$|html[?]tab=true$)/g));
     }
 
     /**

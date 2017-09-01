@@ -54,6 +54,8 @@
         "in-page-scripts/page.ts",
         "in-page-scripts/version.ts",
         "in-page-scripts/utils.ts",
-        "popup/popupController.ts"
+        "popup/popupController.ts",
+        "popup/pagePopupController.ts",
+        "popup/popupActivator.ts"
     ]
 }

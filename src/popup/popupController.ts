@@ -2,30 +2,16 @@
 
     constructor() {
         this.initControls();
-        this.switchState(this._states.loading);
+        this.switchState(this.states.loading);
         this.initializeAction().then(data => {
-
             this.setData(data);
-
-            if (data.timer && data.timer.isStarted) {
-                if (this.isLongRunning(data.timer.startTime)) {
-                    this.fillFixForm(data.timer);
-                    this.switchState(this._states.fixing);
-                } else {
-                    this.fillViewForm(data.timer);
-                    this.fillCreateForm(data.title);
-                    this.switchState(this._states.viewing);
-                }
-            } else {
-                this.fillCreateForm(data.title);
-                this.switchState(this._states.creating);
-            }
+            this.primarySwitchingState(data);
         }).catch(error => {
             this.isConnectionRetryEnabledAction().then(retrying => {
                 if (retrying) {
-                    this.switchState(this._states.retrying);
+                    this.switchState(this.states.retrying);
                 } else {
-                    this.switchState(this._states.authenticating);
+                    this.switchState(this.states.authenticating);
                 }
             });
         });
@@ -36,6 +22,22 @@
     private _projects: Models.Project[];
     private _tags: Models.Tag[];
     private _constants: Models.Constants;
+
+    protected primarySwitchingState(data: IPopupInitData) {
+        if (data.timer && data.timer.isStarted) {
+            if (this.isLongRunning(data.timer.startTime)) {
+                this.fillFixForm(data.timer);
+                this.switchState(this.states.fixing);
+            } else {
+                this.fillViewForm(data.timer);
+                this.fillCreateForm(data.title);
+                this.switchState(this.states.viewing);
+            }
+        } else {
+            this.fillCreateForm(data.title);
+            this.switchState(this.states.creating);
+        }
+    }
 
     callBackground(request: IPopupRequest): Promise<IPopupResponse> {
         return new Promise((resolve, reject) => {
@@ -80,14 +82,17 @@
 
     // actions
 
-    private wrapBackgroundAction<TData, TResult>(action: string) {
+    protected wrapBackgroundAction<TData, TResult>(action: string) {
         return (data?: TData) => {
             return new Promise<TResult>((resolve, reject) => {
                 this.callBackground({
                     action: action,
                     data: data
                 }).then(response => {
-                    if (response.error) {
+                    if (!response) {
+                        let c = console;
+                        c.log('response is null: ' + action);
+                    } else if (response.error) {
                         reject(response.error);
                     } else {
                         resolve(response.data);
@@ -123,7 +128,7 @@
         info: 'info'
     };
 
-    private _states = {
+    protected states = {
         loading: 'loading',
         retrying: 'retrying',
         authenticating: 'authenticating',
@@ -134,7 +139,7 @@
 
     switchState(name: string) {
         $('content').attr('class', name);
-        if (name == this._states.creating) {
+        if (name == this.states.creating) {
             this.initCreatingForm();
         }
     }
@@ -422,8 +427,6 @@
     }
 
     private onCreateClick() {
-        this.switchState(this._states.creating);
+        this.switchState(this.states.creating);
     }
 }
-
-new PopupController();

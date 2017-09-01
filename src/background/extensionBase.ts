@@ -5,7 +5,8 @@ class ExtensionBase {
     getDefaultConstants() {
         let constants: Models.Constants = {
             maxTimerHours: 12,
-            extensionName: chrome.runtime.getManifest().description
+            extensionName: chrome.runtime.getManifest().description,
+            extensionUUID: this.getExtensionUUID()
         };
         return constants;
     }
@@ -17,6 +18,13 @@ class ExtensionBase {
             left: 400,
             top: 300
         }
+    }
+
+    /**
+     * @abstract
+     */
+    protected getExtensionUUID(): string {
+        throw new Error('Not implemented');
     }
 
     /**
@@ -169,6 +177,10 @@ class ExtensionBase {
         this.listenPopupAction<void, void>('login', this.loginPopupAction);
         this.listenPopupAction<void, void>('fixTimer', this.fixTimerPopupAction);
         this.listenPopupAction<Models.Timer, void>('putTimer', this.putTimerPopupAction);
+        this.listenPopupAction<void, void>('hidePopup', () => {
+            this.sendToTabs({ action: 'hidePopup' });
+            return Promise.resolve(null);
+        });
 
         this.registerTabsUpdateListener();
         this.registerTabsRemoveListener();
@@ -199,7 +211,13 @@ class ExtensionBase {
                 break;
 
             case 'putTimer':
-                this.putTabTimer(message.data);
+                console.log(message.action, message.data);
+                let isProject = this._projects.filter(_ => _.projectName == message.data.projectName).length > 0;
+                if (!message.data.projectName || !isProject) {
+                    this.sendToTabs({ action: 'showPopup', data: message.data }, tabId);
+                } else {
+                    this.putTabTimer(message.data);
+                }
                 break;
 
             case 'getIssuesDurations':
@@ -753,18 +771,21 @@ class ExtensionBase {
 
     registerMessageListener() {
         chrome.runtime.onMessage.addListener((message: ITabMessage | IPopupRequest, sender: chrome.runtime.MessageSender, senderResponse: (IPopupResponse) => void) => {
+            //console.log('pnMessageListener');
+            //console.log('message:', message);
+            //console.log('sender:', sender);
+            //console.log('===========================');
 
-            if (sender.tab) {
+            if (this.isPopupRequest(sender)) {
+                this.onPopupRequest(message, senderResponse);
+                return !!senderResponse;
+            } else if (sender.tab) {
                 if (sender.tab.id == this.loginTabId) { // Ignore login dialog
                     return;
                 }
 
                 var tabId = sender.tab.id;
                 this.onTabMessage(message, tabId);
-            }
-            else if (this.isPopupRequest(sender)) {
-                this.onPopupRequest(message, senderResponse);
-                return !!senderResponse;
             }
         });
     }

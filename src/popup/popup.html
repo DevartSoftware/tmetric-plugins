@@ -8,76 +8,80 @@
     <link href="../lib/select2/select2.min.css" rel="stylesheet" type="text/css">
 </head>
 <body>
-    <header>
-        <a id="site-link" href="#">
-            <img src="../images/logo.png" />
-        </a>
-    </header>
-    <content>
-        <div id="loader"></div>
-        <div id="login-form">
-            <div class="row actions">
-                <input id="login" class="input" type="button" value="Login" />
+    <div class="container">
+        <header>
+            <a id="site-link" href="#">
+                <img src="../images/logo.png" />
+            </a>
+        </header>
+        <content>
+            <div id="loader"></div>
+            <div id="login-form">
+                <div class="row actions">
+                    <input id="login" class="input" type="button" value="Login" />
+                </div>
             </div>
-        </div>
-        <div id="retry-form">
-            <div class="message error">
-                <strong>Connection to the server is lost. We&apos;ll try to recover in a while.</strong>
+            <div id="retry-form">
+                <div class="message error">
+                    <strong>Connection to the server is lost. We&apos;ll try to recover in a while.</strong>
+                </div>
+                <div class="row actions">
+                    <input id="retry" class="input" type="button" value="Retry Now" />
+                </div>
             </div>
-            <div class="row actions">
-                <input id="retry" class="input" type="button" value="Retry Now" />
+            <div id="fix-form">
+                <div class="message warning">
+                    <strong>It looks like you forgot to stop the timer.</strong>
+                    <div class="description"></div>
+                    <strong class="startTime"></strong>
+                </div>
+                <div class="row actions">
+                    <input id="fix" class="input" type="button" value="Fix Timer" />
+                </div>
             </div>
-        </div>
-        <div id="fix-form">
-            <div class="message warning">
-                <strong>It looks like you forgot to stop the timer.</strong>
-                <div class="description"></div>
-                <strong class="startTime"></strong>
+            <div id="view-form">
+                <div class="row title">
+                    <span class="label">Active Task</span><span class="time"></span>
+                </div>
+                <div class="row task">
+                    <span class="id"><a id="task-link" class="link"></a></span><span class="name"></span>
+                </div>
+                <div class="row project">
+                    <span class="label">Project</span><span class="name"></span>
+                </div>
+                <div class="row tags">
+                    <span class="label">Tags</span><span class="items"></span>
+                </div>
+                <div class="row links">
+                    <a id="create-link" class="link" href="#">New Time Entry</a>
+                </div>
+                <div class="row actions">
+                    <input id="stop" class="input" type="button" value="Stop" />
+                </div>
             </div>
-            <div class="row actions">
-                <input id="fix" class="input" type="button" value="Fix Timer" />
+            <div id="create-form">
+                <div class="row title">
+                    <span class="label">New Time Entry</span>
+                </div>
+                <div class="row task">
+                    <input class="input" type="text" placeholder="Description" />
+                </div>
+                <div class="row project">
+                    <select class="input" placeholder="Project" data-placeholder="Project"></select>
+                </div>
+                <div class="row tags">
+                    <select class="input" placeholder="Tags" data-placeholder="Tags" multiple="multiple"></select>
+                </div>
+                <div class="row actions">
+                    <input id="start" class="input" type="button" value="Start" />
+                </div>
             </div>
-        </div>
-        <div id="view-form">
-            <div class="row title">
-                <span class="label">Active Task</span><span class="time"></span>
-            </div>
-            <div class="row task">
-                <span class="id"><a id="task-link" class="link"></a></span><span class="name"></span>
-            </div>
-            <div class="row project">
-                <span class="label">Project</span><span class="name"></span>
-            </div>
-            <div class="row tags">
-                <span class="label">Tags</span><span class="items"></span>
-            </div>
-            <div class="row links">
-                <a id="create-link" class="link" href="#">New Time Entry</a>
-            </div>
-            <div class="row actions">
-                <input id="stop" class="input" type="button" value="Stop" />
-            </div>
-        </div>
-        <div id="create-form">
-            <div class="row title">
-                <span class="label">New Time Entry</span>
-            </div>
-            <div class="row task">
-                <input class="input" type="text" placeholder="Description" />
-            </div>
-            <div class="row project">
-                <select class="input" placeholder="Project" data-placeholder="Project"></select>
-            </div>
-            <div class="row tags">
-                <select class="input" placeholder="Tags" data-placeholder="Tags" multiple="multiple"></select>
-            </div>
-            <div class="row actions">
-                <input id="start" class="input" type="button" value="Start" />
-            </div>
-        </div>
-    </content>
+        </content>
+    </div>
     <script src="../lib/jquery.min.js"></script>
     <script src="../lib/select2/select2.full.min.js"></script>
     <script src="popupController.js"></script>
+    <script src="pagePopupController.js"></script>
+    <script src="popupActivator.js"></script>
 </body>
 </html>

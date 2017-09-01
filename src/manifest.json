@@ -37,6 +37,14 @@
             "background/chromeExtension.js"
         ]
     },
+    "web_accessible_resources": [
+        "popup/popup.html",
+        "popup/popupController.js",
+        "popup/pagePopupController.js",
+        "popup/popupActivator.js",
+        "lib/jquery.min.js",
+        "lib/select2/select2.full.min.js"
+    ],
     "content_scripts": [
         {
             "matches": [ "http://*/*", "https://*/*" ],

@@ -28,10 +28,17 @@ class ChromeExtension extends ExtensionBase {
 
     /**
      * @override
+     */
+    getExtensionUUID() {
+        return chrome.runtime.id;
+    }
+
+    /**
+     * @override
      * @param sender
      */
     isPopupRequest(sender: chrome.runtime.MessageSender) {
-        return !!sender.url && !!sender.url.match(/^chrome.+popup.html$/);
+        return !!sender.url && !!sender.url.match(/^chrome.+popup.(html$|html[?]tab=true$)/g);
     }
 
     /**

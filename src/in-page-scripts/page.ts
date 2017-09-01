@@ -6,7 +6,7 @@
      * Retrieves messages from background script.
      */
     function onBackgroundMessage(message: ITabMessage) {
-
+        console.log('Front-end messageAction:', message.action);
         if (isFinalized) {
             return;
         }
@@ -52,6 +52,10 @@
         } else if (message.action == 'setConstants') {
             constants = message.data;
             Integrations.IntegrationService.setConstants(constants);
+        } else if (message.action == 'showPopup') {
+            Integrations.IntegrationService.showPopup();
+        } else if (message.action == 'hidePopup') {
+            Integrations.IntegrationService.hidePopup();
         }
 
         if (parseAfterPings) {
