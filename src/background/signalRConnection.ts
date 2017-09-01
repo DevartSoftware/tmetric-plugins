@@ -36,6 +36,8 @@
 
     onUpdateProfile = SimpleEvent.create<Models.UserProfile>();
 
+    onUpdateAccount = SimpleEvent.create<Models.Account>();
+
     onUpdateProjects = SimpleEvent.create<Models.Project[]>();
 
     onUpdateTags = SimpleEvent.create<Models.Tag[]>();
@@ -85,6 +87,12 @@
             this.onUpdateActiveAccount.emit(accountId);
             if (!this.userProfile || accountId != this.userProfile.activeAccountId) {
                 this.reconnect();
+            }
+        });
+
+        this.hubProxy.on('updateAccount', (accountId: number) => {
+            if (this.userProfile && this.userProfile.activeAccountId == accountId) {
+                this.getAccount();
             }
         });
 
@@ -193,7 +201,7 @@
 
             Promise.all([this.getVersion(), this.getProfile()])
                 .then(([version, profile]) => {
-                    Promise.all([this.getProjects(), this.getTags()])
+                    Promise.all([this.getAccount(), this.getProjects(), this.getTags()])
                         .then(() => {
                             this.hub.start()
                                 .then(() => {
@@ -354,6 +362,18 @@
             var all = Promise.all([timer, tracker]).then(() => <void>undefined);
             all.catch(() => this.disconnect());
             return all;
+        });
+    }
+
+    getAccount() {
+        return this.checkProfile().then(profile => {
+            let url = 'api/accounts/' + profile.activeAccountId;
+            // TODO:
+            //return this.get<Models.Account>(url).then(account => {
+            //    this.onUpdateAccount.emit(account);
+            //    return account;
+            //});
+            return <Models.Account>{};
         });
     }
 

@@ -10,10 +10,18 @@ declare module Models {
         maxUserName = 255,
         maxEmail = 128,
         maxProjectName = 255,
+        maxProjectCode = 16,
         maxAccountName = 128,
         maxTag = 50,
         maxTeamName = 255,
         maxTask = 400
+    }
+
+    export const enum ReportTimeRoundingMode {
+        None,
+        Floor,
+        Round,
+        Ceil
     }
 
     interface Constants {
@@ -55,8 +63,14 @@ declare module Models {
     interface Account {
         accountId: number;
         accountName: string;
-        accountOwnerName: string;
-        isPaid: boolean;
+        reportTimeFormat: string;
+        reportTimeRoundingMode: ReportTimeRoundingMode;
+        reportTimeRoundingMinutes: number;
+        editableDays: number;
+        firstWeekDay: number;
+        reportDetailedTimeEnabled: boolean;
+        canMembersManagePublicProjects: boolean;
+        canMembersCreateTags: boolean;
     }
 
     interface AccountMember {
@@ -144,9 +158,13 @@ declare module Models {
     interface Project {
         projectId: number;
         projectName: string;
+        projectCode: string;
         accountId: number;
+        avatar: string;
+        clientId: number;
         projectStatus: ProjectStatus;
         isBillable: boolean;
+        notes: string;
     }
 
     interface Tag {

@@ -5,7 +5,7 @@ class ExtensionBase {
     getDefaultConstants() {
         let constants: Models.Constants = {
             maxTimerHours: 12,
-            extensionName: chrome.runtime.getManifest().description,
+            extensionName: chrome.runtime.getManifest().name,
             extensionUUID: this.getExtensionUUID()
         };
         return constants;
@@ -96,6 +96,8 @@ class ExtensionBase {
 
     private _userProfile: Models.UserProfile;
 
+    private _account: Models.Account;
+
     private _projects: Models.Project[];
 
     private _tags: Models.Tag[];
@@ -147,6 +149,10 @@ class ExtensionBase {
 
         this.connection.onUpdateProfile(profile => {
             this._userProfile = profile;
+        });
+
+        this.connection.onUpdateAccount(account => {
+            this._account = account;
         });
 
         this.connection.onUpdateProjects(projects => {
