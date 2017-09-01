@@ -54,9 +54,8 @@
                 "https://addons.opera.com/*",
                 "http://*/*lib/execute/execSetResults.php*",
                 "https://*/*lib/execute/execSetResults.php*",
-                "https://*/portal/*/bizwoheader.do*",
-                "https://*/*/EntityInfo.do*",
-                "https://*/*//ShowTab.do*"
+                "https://*/*portal/*/*.do*",
+                "https://*/*crm/*.do*"
             ],
             "js": [
                 "in-page-scripts/utils.js",
@@ -101,9 +100,8 @@
             "matches": [
                 "http://*/*lib/execute/execSetResults.php*",
                 "https://*/*lib/execute/execSetResults.php*",
-                "https://*/portal/*/bizwoheader.do*",
-                "https://*/*/EntityInfo.do*",
-                "https://*/*/ShowTab.do*"
+                "https://*/*portal/*/*.do*",
+                "https://*/*crm/*.do*"
             ],
             "all_frames": true,
             "js": [

@@ -61,8 +61,8 @@ var files = {
         'src/images/*.png',
         'src/popup/popup.html',
         'src/popup/popupController.js',
-		'src/popup/pagePopupController.js',
-		'src/popup/popupActivator.js',
+        'src/popup/pagePopupController.js',
+        'src/popup/popupActivator.js',
         'src/background/extensionBase.js',
         'src/background/simpleEvent.js',
         'src/manifest.json'
@@ -260,7 +260,6 @@ function copyAppxManifest(rootDistFolder) {
 
 function copyFilesEdgeBridges(destFolder) {
     return gulp.src([
-        'src/edge-api-bridges/background.html',
         'src/edge-api-bridges/backgroundScriptsAPIBridge.js',
         'src/edge-api-bridges/contentScriptsAPIBridge.js'
     ], { base: src })
