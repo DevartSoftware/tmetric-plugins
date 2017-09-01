@@ -15,8 +15,8 @@
         observeMutations = true;
 
         matchUrl = [
-            '*/EntityInfo.do*',
-            '*/ShowTab.do*'
+            "https://*/*portal/*/*.do*",
+            "https://*/*crm/*.do*"
         ];
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
