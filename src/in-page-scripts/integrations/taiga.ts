@@ -6,7 +6,7 @@
 
         showIssueId = true;
 
-        matchUrl = /(.+)(\/project\/.+\/(task|us|issue)\/(\d+))/;
+        matchUrl = /(.+)(\/project\/[^\/]+\/[^\/]+\/(\d+))/;
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
@@ -29,14 +29,12 @@
 
             let projectName = $$.try('.us-detail h1 > .project-name').textContent;
 
-            // https://taiga.some.server/project/PROJECT_NAME/task/NUMBER
-            // https://taiga.some.server/project/PROJECT_NAME/us/NUMBER
-            // https://taiga.some.server/project/PROJECT_NAME/issue/NUMBER
+            // https://taiga.some.server/project/PROJECT_NAME/TASK_TYPE/NUMBER
             let match = this.matchUrl.exec(source.fullUrl);
             let serviceType = 'Taiga';
             let serviceUrl = match[1];
             let issueUrl = match[2];
-            let issueId = '#' + match[4];
+            let issueId = '#' + match[3];
 
             return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
         }
