@@ -1,10 +1,16 @@
 ﻿if (typeof document != undefined) {
 
-    let url = window.location.href;
-    let isPagePopup = url.indexOf('?tab=true') >= 0;
-    if (isPagePopup) {
-        new PagePopupController();
+    let params: { [name: string]: string } = {};
+    (window.location.href.split('?')[1] || '')
+        .split('&')
+        .forEach(param => {
+            let [key, value] = param.split('=');
+            params[key] = decodeURIComponent((value || '').replace(/\+/g, ' '));
+        });
+
+    if (params['tab'] == 'true') {
+        new PagePopupController(params);
     } else {
-        new PopupController();
+        new PopupController(params);
     }
 }

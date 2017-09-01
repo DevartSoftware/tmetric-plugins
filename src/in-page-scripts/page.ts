@@ -53,7 +53,7 @@
             constants = message.data;
             Integrations.IntegrationService.setConstants(constants);
         } else if (message.action == 'showPopup') {
-            Integrations.IntegrationService.showPopup();
+            Integrations.IntegrationService.showPopup(message.data);
         } else if (message.action == 'hidePopup') {
             Integrations.IntegrationService.hidePopup();
         }

@@ -27,6 +27,7 @@ declare module Models {
     interface Constants {
         maxTimerHours: number;
         extensionName: string;
+        browserSchema: string;
         extensionUUID: string;
     }
 

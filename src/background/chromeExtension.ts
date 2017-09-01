@@ -26,9 +26,12 @@ class ChromeExtension extends ExtensionBase {
         });
     }
 
-    /**
-     * @override
-     */
+    /** @override */
+    getBrowserSchema(): string {
+        return 'chrome-extension';
+    }
+
+    /** @override */
     getExtensionUUID() {
         return chrome.runtime.id;
     }

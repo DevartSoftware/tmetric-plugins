@@ -4,9 +4,12 @@
         super();
     }
 
-    /**
-     * @override
-     */
+    /** @override */
+    getBrowserSchema(): string {
+        return 'ms-browser-extension';
+    }
+
+    /** @override */
     getExtensionUUID() {
         return chrome.runtime.id;
     }

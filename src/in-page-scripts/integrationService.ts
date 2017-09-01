@@ -12,11 +12,11 @@
             this._allIntegrations.push(...integrations);
         }
 
-        static showPopup() {
+        static showPopup(issue: WebToolIssueTimer) {
             let iframe = document.createElement('iframe');
 
             iframe.id = this.popupId;
-            iframe.src = this.getBrowserStoreSrc();
+            iframe.src = `${this._constants.browserSchema}://${this._constants.extensionUUID}/popup/popup.html?tab=true`;
 
             Object.assign(iframe.style, {
                 position: 'fixed',
@@ -35,24 +35,6 @@
             $$('#' + this.popupId).remove();
         }
 
-        static getBrowserStoreSrc(): string {
-            let userAgent = window.navigator.userAgent;
-            let src = '://' + this._constants.extensionUUID + '/popup/popup.html?tab=true';
-            let hostname = '';
-
-            // Chrome
-            if (userAgent.indexOf('Chrome') >= 0 && userAgent.indexOf('Edge') == -1) {
-                hostname = 'chrome-extension';
-            } // Edge
-            else if (userAgent.indexOf('Edge') >= 0) {
-                hostname = 'ms-browser-extension';
-            } // Firefox
-            else if (userAgent.indexOf('Firefox') >= 0) {
-                hostname = 'moz-extension';
-            }
-
-            return hostname + src;
-        }
 
         static isUrlMatched(integration: WebToolIntegration, url: string) {
             function convertPatternToRegExp(matchPattern: string) {

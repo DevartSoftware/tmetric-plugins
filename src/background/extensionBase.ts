@@ -6,6 +6,7 @@ class ExtensionBase {
         let constants: Models.Constants = {
             maxTimerHours: 12,
             extensionName: chrome.runtime.getManifest().name,
+            browserSchema: this.getBrowserSchema(),
             extensionUUID: this.getExtensionUUID()
         };
         return constants;
@@ -18,6 +19,13 @@ class ExtensionBase {
             left: 400,
             top: 300
         }
+    }
+
+    /**
+     * @abstract
+     */
+    protected getBrowserSchema(): string {
+        throw new Error('Not implemented');
     }
 
     /**
@@ -217,10 +225,14 @@ class ExtensionBase {
                 break;
 
             case 'putTimer':
-                if (!message.data.projectName
-                    || this._projects.filter(_ => _.projectName == message.data.projectName).length == 0) {
 
-                    this.sendToTabs({ action: 'showPopup', data: message.data }, tabId);
+                let timer: Integrations.WebToolIssueTimer = message.data;
+
+                if (timer.isStarted &&
+                    !(timer.projectName && this._projects.filter(_ => _.projectName == timer.projectName).length)) {
+
+                    this.sendToTabs({ action: 'showPopup', data: timer }, tabId);
+
                 } else {
                     this.putTabTimer(message.data);
                 }

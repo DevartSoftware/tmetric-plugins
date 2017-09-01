@@ -6,9 +6,12 @@ class FirefoxExtension extends ExtensionBase {
         this.sendToTabs({ action: 'initPage' });
     }
 
-    /**
-     * @override
-     */
+    /** @override */
+    getBrowserSchema(): string {
+        return 'moz-extension';
+    }
+
+    /** @override */
     getExtensionUUID() {
         return window.location.host;
     }

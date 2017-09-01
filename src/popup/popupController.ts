@@ -1,11 +1,19 @@
 ﻿class PopupController {
 
-    constructor() {
+    constructor(params: { [key: string]: string }) {
+
+
+        let issue: Integrations.WebToolIssueTimer;
+        if (params['tab'] == 'true') {
+            // TODO: get issue from query params
+            issue = <Integrations.WebToolIssueTimer>{}
+        }
+
         this.initControls();
         this.switchState(this.states.loading);
         this.initializeAction().then(data => {
             this.setData(data);
-            this.primarySwitchingState(data);
+            this.primarySwitchingState(data, issue);
         }).catch(error => {
             this.isConnectionRetryEnabledAction().then(retrying => {
                 if (retrying) {
@@ -23,8 +31,8 @@
     private _tags: Models.Tag[];
     private _constants: Models.Constants;
 
-    protected primarySwitchingState(data: IPopupInitData) {
-        if (data.timer && data.timer.isStarted) {
+    protected primarySwitchingState(data: IPopupInitData, issue: Integrations.WebToolIssueTimer) {
+        if (issue == null && data.timer && data.timer.isStarted) {
             if (this.isLongRunning(data.timer.startTime)) {
                 this.fillFixForm(data.timer);
                 this.switchState(this.states.fixing);
@@ -34,7 +42,7 @@
                 this.switchState(this.states.viewing);
             }
         } else {
-            this.fillCreateForm(data.title);
+            this.fillCreateForm(issue.issueName || data.title);
             this.switchState(this.states.creating);
         }
     }
