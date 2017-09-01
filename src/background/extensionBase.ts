@@ -217,9 +217,9 @@ class ExtensionBase {
                 break;
 
             case 'putTimer':
-                console.log(message.action, message.data);
-                let isProject = this._projects.filter(_ => _.projectName == message.data.projectName).length > 0;
-                if (!message.data.projectName || !isProject) {
+                if (!message.data.projectName
+                    || this._projects.filter(_ => _.projectName == message.data.projectName).length == 0) {
+
                     this.sendToTabs({ action: 'showPopup', data: message.data }, tabId);
                 } else {
                     this.putTabTimer(message.data);
