@@ -3,11 +3,11 @@
     constructor(params: { [key: string]: string }) {
         super(params);
 
-        this.insertCSS();
+        this.insertFrame();
         this.registerListeners();
     }
 
-    hidePopupAction = this.wrapBackgroundAction<Models.Timer, void>('hidePopup');
+    hidePopupAction = this.wrapBackgroundAction<Models.Timer, void>('hideAllPopups');
 
     registerListeners() {
         $(document).mouseup(e => {
@@ -24,7 +24,7 @@
         this.hidePopupAction();
     }
 
-    private insertCSS() {
+    private insertFrame() {
         let style = document.createElement('style');
         let css = `
 body {

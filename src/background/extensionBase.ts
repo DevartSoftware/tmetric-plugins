@@ -191,8 +191,8 @@ class ExtensionBase {
         this.listenPopupAction<void, void>('login', this.loginPopupAction);
         this.listenPopupAction<void, void>('fixTimer', this.fixTimerPopupAction);
         this.listenPopupAction<Models.Timer, void>('putTimer', this.putTimerPopupAction);
-        this.listenPopupAction<void, void>('hidePopup', () => {
-            this.sendToTabs({ action: 'hidePopup' });
+        this.listenPopupAction<void, void>('hideAllPopups', () => {
+            this.sendToTabs({ action: 'hideAllPopups' });
             return Promise.resolve(null);
         });
 
@@ -232,7 +232,6 @@ class ExtensionBase {
                     !(timer.projectName && this._projects.filter(_ => _.projectName == timer.projectName).length)) {
 
                     this.sendToTabs({ action: 'showPopup', data: timer }, tabId);
-
                 } else {
                     this.putTabTimer(message.data);
                 }
@@ -789,15 +788,11 @@ class ExtensionBase {
 
     registerMessageListener() {
         chrome.runtime.onMessage.addListener((message: ITabMessage | IPopupRequest, sender: chrome.runtime.MessageSender, senderResponse: (IPopupResponse) => void) => {
-            //console.log('pnMessageListener');
-            //console.log('message:', message);
-            //console.log('sender:', sender);
-            //console.log('===========================');
-
             if (this.isPopupRequest(sender)) {
                 this.onPopupRequest(message, senderResponse);
                 return !!senderResponse;
-            } else if (sender.tab) {
+            }
+            if (sender.tab) {
                 if (sender.tab.id == this.loginTabId) { // Ignore login dialog
                     return;
                 }
