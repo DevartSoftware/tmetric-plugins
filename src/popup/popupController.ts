@@ -1,13 +1,13 @@
 ﻿class PopupController {
 
-    constructor(issue?: Integrations.WebToolIssueTimer) {
+    constructor(private _issue?: Integrations.WebToolIssueTimer) {
 
         this.initControls();
         this.switchState(this._states.loading);
         this.initializeAction().then(data => {
             this.setData(data);
 
-            if (issue == null && data.timer && data.timer.isStarted) {
+            if (_issue == null && data.timer && data.timer.isStarted) {
                 if (this.isLongRunning(data.timer.startTime)) {
                     this.fillFixForm(data.timer);
                     this.switchState(this._states.fixing);
@@ -17,7 +17,7 @@
                     this.switchState(this._states.viewing);
                 }
             } else {
-                this.fillCreateForm((issue && issue.issueName) || data.title);
+                this.fillCreateForm((_issue && _issue.issueName) || data.title);
                 this.switchState(this._states.creating);
             }
         }).catch(error => {
@@ -406,6 +406,15 @@
         timer.projectName = selectedProject && selectedProject[0] && selectedProject[0].text;
         timer.tagsIdentifiers = (this.getSelectValue(this._forms.create + ' .tags .input') || [])
             .map(tag => parseInt(tag));
+
+        if (this._issue && this._issue.issueName == timer.issueName) {
+            let issue = this._issue;
+            timer.issueId = issue.issueId;
+            timer.issueUrl = issue.issueUrl;
+            timer.serviceUrl = issue.serviceUrl;
+            timer.serviceType = issue.serviceType;
+            timer.showIssueId = issue.showIssueId;
+        }
 
         this.putTimer(timer);
     }
