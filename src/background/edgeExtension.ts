@@ -19,7 +19,7 @@
      * @param sender
      */
     isPopupRequest(sender: chrome.runtime.MessageSender) {
-        return !sender.url || !!sender.url.match(/^ms-browser-extension:\/\/.+popup.html[?]tab=true$/g);
+        return !sender.url || !!sender.url.match(/^ms-browser-extension.+popup.html[?]tab=true$/);
     }
 
     /**
