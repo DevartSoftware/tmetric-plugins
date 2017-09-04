@@ -191,6 +191,8 @@ class ExtensionBase {
         this.listenPopupAction<void, void>('login', this.loginPopupAction);
         this.listenPopupAction<void, void>('fixTimer', this.fixTimerPopupAction);
         this.listenPopupAction<Models.Timer, void>('putTimer', this.putTimerPopupAction);
+        this.listenPopupAction<Integrations.WebToolIssueTimer, void>('putExternalTimer', timer =>
+            Promise.resolve(timer).then(this.putExternalTimer));
         this.listenPopupAction<void, void>('hideAllPopups', () => {
             this.sendToTabs({ action: 'hidePopup' });
             return Promise.resolve(null);
@@ -233,7 +235,7 @@ class ExtensionBase {
 
                     this.sendToTabs({ action: 'showPopup', data: timer }, tabId);
                 } else {
-                    this.putTabTimer(message.data);
+                    this.putExternalTimer(message.data);
                 }
                 break;
 
@@ -276,7 +278,7 @@ class ExtensionBase {
         this.openTrackerPage();
     }
 
-    putTabTimer(timer: Integrations.WebToolIssueTimer) {
+    putExternalTimer(timer: Integrations.WebToolIssueTimer) {
         this.putData(timer,
             timer => this.connection.putExternalTimer(timer),
             timer => {

@@ -412,7 +412,7 @@
         this.close();
     }
 
-    private onStartClick() {
+    protected onStartClick() {
         let timer = <Models.Timer>{};
         let now = new Date();
         timer.isStarted = true;
