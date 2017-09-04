@@ -47,8 +47,9 @@
             "exclude_matches": [
                 "https://chrome.google.com/webstore/*",
                 "https://addons.opera.com/*",
-                "http://*/*lib/execute/execSetResults.php*",
-                "https://*/*lib/execute/execSetResults.php*",
+                "https://github.com/*/issues/*",
+                "https://github.com/*/pull/*",
+                "*://*/*lib/execute/execSetResults.php*",
                 "https://*/*portal/*/*.do*",
                 "https://*/*crm/*.do*"
             ],
@@ -62,7 +63,6 @@
                 "in-page-scripts/integrations/bitbucket.js",
                 "in-page-scripts/integrations/freshdesk.js",
                 "in-page-scripts/integrations/bugzilla.js",
-                "in-page-scripts/integrations/gitHub.js",
                 "in-page-scripts/integrations/gitLab.js",
                 "in-page-scripts/integrations/jira.js",
                 "in-page-scripts/integrations/pivotalTracker.js",
@@ -93,8 +93,9 @@
         },
         {
             "matches": [
-                "http://*/*lib/execute/execSetResults.php*",
-                "https://*/*lib/execute/execSetResults.php*",
+                "https://github.com/*/issues/*",
+                "https://github.com/*/pull/*",
+                "*://*/*lib/execute/execSetResults.php*",
                 "https://*/*portal/*/*.do*",
                 "https://*/*crm/*.do*"
             ],
@@ -102,6 +103,7 @@
             "js": [
                 "in-page-scripts/utils.js",
                 "in-page-scripts/integrationService.js",
+                "in-page-scripts/integrations/gitHub.js",
                 "in-page-scripts/integrations/testLink.js",
                 "in-page-scripts/integrations/zohoCRM.js",
                 "in-page-scripts/page.js"
