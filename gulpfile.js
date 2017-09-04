@@ -206,7 +206,7 @@ gulp.task('compile:ts', ['clean:sources'], function () {
 });
 
 gulp.task('compile:less', ['clean:sources'], function () {
-    return gulp.src('css/*.less').pipe(less()).pipe(gulp.dest(src + 'css/'));
+    return gulp.src('src/css/*.less').pipe(less()).pipe(gulp.dest(src + 'css/'));
 });
 
 // =============================================================================
