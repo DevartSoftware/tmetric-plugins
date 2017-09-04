@@ -54,7 +54,7 @@
             Integrations.IntegrationService.setConstants(constants);
         } else if (message.action == 'showPopup') {
             Integrations.IntegrationService.showPopup(message.data);
-        } else if (message.action == 'hideAllPopups') {
+        } else if (message.action == 'hidePopup') {
             Integrations.IntegrationService.hidePopup();
         }
 

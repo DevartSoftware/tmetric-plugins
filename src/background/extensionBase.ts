@@ -192,7 +192,7 @@ class ExtensionBase {
         this.listenPopupAction<void, void>('fixTimer', this.fixTimerPopupAction);
         this.listenPopupAction<Models.Timer, void>('putTimer', this.putTimerPopupAction);
         this.listenPopupAction<void, void>('hideAllPopups', () => {
-            this.sendToTabs({ action: 'hideAllPopups' });
+            this.sendToTabs({ action: 'hidePopup' });
             return Promise.resolve(null);
         });
 
