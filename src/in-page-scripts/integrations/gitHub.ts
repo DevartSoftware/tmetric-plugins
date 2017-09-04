@@ -6,12 +6,10 @@
 
         observeMutations = true;
 
-        matchUrl = [
-            '*://github.com/*'
-        ];
+        matchUrl = /https:\/\/github.com\/.+\/(issues|pull)\/(\d+)/
 
         render(issueElement: HTMLElement, linkElement: HTMLElement) {
-            var host = $$('.gh-header-actions');
+            let host = $$('.gh-header-actions');
             if (host) {
                 linkElement.classList.add('github');
                 linkElement.classList.add('btn');
@@ -22,35 +20,24 @@
 
         getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-            // https://github.com/NAMESPACE/PROJECT/issues/NUMBER
-            // https://github.com/NAMESPACE/PROJECT/pull/NUMBER
-            var match = /^(.+)\/(issues|pull)\/(\d+)$/.exec(source.path);
-
-            if (!match) {
-                return;
-            }
-
-            // match[3] is a 'NUMBER' from path
-            var issueId = match[3];
-            if (!issueId) {
-                return;
-            }
-
-            var issueType = match[2];
-            issueId = (issueType == 'pull' ? '!' : '#') + issueId
-
-            var issueName = $$.try('.js-issue-title').textContent;
+            let issueName = $$.try('.js-issue-title').textContent;
             if (!issueName) {
                 return;
             }
 
-            var projectName = $$.try('.repohead-details-container > h1 > strong > a').textContent;
+            // https://github.com/NAMESPACE/PROJECT/issues/NUMBER
+            // https://github.com/NAMESPACE/PROJECT/pull/NUMBER
+            let match = this.matchUrl.exec(source.fullUrl);
 
-            var serviceType = 'GitHub';
+            // match[2] is a 'NUMBER' from path
+            let issueType = match[1];
+            let issueId = match[2];
+            issueId = (issueType == 'pull' ? '!' : '#') + issueId
 
-            var serviceUrl = source.protocol + source.host;
-
-            var issueUrl = source.path;
+            let projectName = $$.try('.repohead-details-container > h1 > strong > a').textContent;
+            let serviceType = 'GitHub';
+            let serviceUrl = source.protocol + source.host;
+            let issueUrl = source.path;
 
             return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
         }
