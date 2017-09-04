@@ -397,7 +397,7 @@
         this.close();
     }
 
-    protected onStartClick() {
+    private onStartClick() {
 
         let timer = <Integrations.WebToolIssueTimer>{};
         timer.isStarted = true;
