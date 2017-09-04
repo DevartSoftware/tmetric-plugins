@@ -190,9 +190,10 @@ class ExtensionBase {
         this.listenPopupAction<void, void>('retry', this.retryConnectionPopupAction);
         this.listenPopupAction<void, void>('login', this.loginPopupAction);
         this.listenPopupAction<void, void>('fixTimer', this.fixTimerPopupAction);
-        this.listenPopupAction<Models.Timer, void>('putTimer', this.putTimerPopupAction);
-        this.listenPopupAction<Integrations.WebToolIssueTimer, void>('putExternalTimer', timer =>
-            Promise.resolve(timer).then(this.putExternalTimer));
+        this.listenPopupAction<Integrations.WebToolIssueTimer, void>('putTimer', data => {
+            this.putExtenralTimer(data);
+            return Promise.resolve();
+        });
         this.listenPopupAction<void, void>('hideAllPopups', () => {
             this.sendToTabs({ action: 'hidePopup' });
             return Promise.resolve(null);
@@ -227,16 +228,7 @@ class ExtensionBase {
                 break;
 
             case 'putTimer':
-
-                let timer: Integrations.WebToolIssueTimer = message.data;
-
-                if (timer.isStarted &&
-                    !(timer.projectName && this._projects.filter(_ => _.projectName == timer.projectName).length)) {
-
-                    this.sendToTabs({ action: 'showPopup', data: timer }, tabId);
-                } else {
-                    this.putExternalTimer(message.data);
-                }
+                this.putExtenralTimer(message.data, tabId);
                 break;
 
             case 'getIssuesDurations':
@@ -278,12 +270,29 @@ class ExtensionBase {
         this.openTrackerPage();
     }
 
-    putExternalTimer(timer: Integrations.WebToolIssueTimer) {
+    putExtenralTimer(timer: Integrations.WebToolIssueTimer, tabId?: any) {
+
+        let showPopup = false;
+
         this.putData(timer,
-            timer => this.connection.putExternalTimer(timer),
+            timer => {
+
+                if (!tabId ||
+                    !timer.isStarted ||
+                    (timer.projectName && this._projects.filter(_ => _.projectName == timer.projectName).length)) {
+
+                    return this.connection.putExternalTimer(timer);
+
+                }
+
+                showPopup = true;
+                return this.connection.connect().then(() => {
+                    this.sendToTabs({ action: 'showPopup', data: timer }, tabId);
+                });
+            },
             timer => {
                 // Show error and exit when timer has no integration
-                if (timer.serviceUrl || timer.projectName) {
+                if (!showPopup && (timer.serviceUrl || timer.projectName)) {
                     return this.putTimerWithNewIntegration(timer)
                 }
             });

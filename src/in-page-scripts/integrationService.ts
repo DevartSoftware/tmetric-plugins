@@ -6,17 +6,25 @@
 
         static affix = 'devart-timer-link';
 
-        static popupId = 'tmetricPopup';
+        static popupId = 'tmetric-popup';
 
         static register(...integrations: WebToolIntegration[]) {
             this._allIntegrations.push(...integrations);
         }
 
         static showPopup(issue: WebToolIssueTimer) {
-            let iframe = document.createElement('iframe');
 
+            let params = <string[]>[];
+            for (let key in issue) {
+                let value = issue[key];
+                if (value != null) {
+                    params.push(key + '=' + encodeURIComponent(value))
+                }
+            }
+
+            let iframe = document.createElement('iframe');
             iframe.id = this.popupId;
-            iframe.src = `${this._constants.browserSchema}://${this._constants.extensionUUID}/popup/popup.html?tab=true`;
+            iframe.src = `${this._constants.browserSchema}://${this._constants.extensionUUID}/popup/popup.html?${params.join('&')}`;
 
             Object.assign(iframe.style, {
                 position: 'fixed',

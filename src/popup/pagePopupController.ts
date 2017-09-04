@@ -1,16 +1,13 @@
 ﻿class PagePopupController extends PopupController {
 
-    private _issue: Integrations.WebToolIssueTimer;
-
-    constructor(params: { [key: string]: string }) {
-        super(params);
+    constructor(private issue: Integrations.WebToolIssueTimer) {
+        super(issue);
 
         this.insertFrame();
         this.registerListeners();
     }
 
     hidePopupAction = this.wrapBackgroundAction<Models.Timer, void>('hideAllPopups');
-    putExternalTimerAction = this.wrapBackgroundAction<Integrations.WebToolIssueTimer, void>('putExternalTimer');
 
     registerListeners() {
         $(document).mouseup(e => {
@@ -20,9 +17,7 @@
         });
     }
 
-    /**
-     * @override
-     */
+    /** @override */
     close() {
         this.hidePopupAction();
     }
@@ -41,11 +36,5 @@ width: 320px; padding: 15px; background-color: #ffffff;
 `;
         style.appendChild(document.createTextNode(css));
         document.head.appendChild(style);
-    }
-
-    /** @override */
-    onStartClick() {
-        this.putExternalTimerAction(this._issue);
-        this.close();
     }
 }

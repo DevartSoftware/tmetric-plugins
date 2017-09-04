@@ -1,12 +1,6 @@
 ﻿class PopupController {
 
-    constructor(params: { [key: string]: string }) {
-
-        let issue: Integrations.WebToolIssueTimer;
-        if (params['tab'] == 'true') {
-            // TODO: get issue from query params
-            issue = <Integrations.WebToolIssueTimer>{}
-        }
+    constructor(issue?: Integrations.WebToolIssueTimer) {
 
         this.initControls();
         this.switchState(this._states.loading);
@@ -67,7 +61,7 @@
         }
     }
 
-    putTimer(timer: Models.Timer) {
+    putTimer(timer: Integrations.WebToolIssueTimer) {
         this.putTimerAction(timer);
         this.close();
     }
@@ -112,7 +106,7 @@
     isConnectionRetryEnabledAction = this.wrapBackgroundAction<void, boolean>('isConnectionRetryEnabled');
     retryAction = this.wrapBackgroundAction<void, void>('retry');
     fixTimerAction = this.wrapBackgroundAction<void, void>('fixTimer');
-    putTimerAction = this.wrapBackgroundAction<Models.Timer, void>('putTimer');
+    putTimerAction = this.wrapBackgroundAction<Integrations.WebToolIssueTimer, void>('putTimer');
 
     // ui mutations
 
@@ -197,15 +191,6 @@
 
     initCreatingForm() {
         $(this._forms.create + ' .task .input').focus().select();
-    }
-
-    fillTaskTimer(selector: string, timer: Models.Timer) {
-        timer.details = timer.details || <Models.TimeEntryDetail>{};
-        timer.details.description = $(selector + ' .task .input').val();
-        timer.details.projectId = parseInt(this.getSelectValue(selector + ' .project .input')) || null;
-        timer.tagsIdentifiers = (this.getSelectValue(selector + ' .tags .input') || []).map(tag => parseInt(tag));
-        let project = this.getProject(timer.details.projectId);
-        timer.isBillable = project ? project.isBillable : false;
     }
 
     getTaskUrl(details: Models.TimeEntryDetail) {
@@ -413,11 +398,15 @@
     }
 
     protected onStartClick() {
-        let timer = <Models.Timer>{};
-        let now = new Date();
+
+        let timer = <Integrations.WebToolIssueTimer>{};
         timer.isStarted = true;
-        timer.startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toJSON();
-        this.fillTaskTimer(this._forms.create, timer);
+        timer.issueName = $(this._forms.create + ' .task .input').val();
+        let selectedProject = $(this._forms.create + ' .project .input').select2('data');
+        timer.projectName = selectedProject && selectedProject[0] && selectedProject[0].text;
+        timer.tagsIdentifiers = (this.getSelectValue(this._forms.create + ' .tags .input') || [])
+            .map(tag => parseInt(tag));
+
         this.putTimer(timer);
     }
 

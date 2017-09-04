@@ -369,11 +369,10 @@
         return this.checkProfile().then(profile => {
             let url = 'api/accounts/' + profile.activeAccountId;
             // TODO:
-            //return this.get<Models.Account>(url).then(account => {
-            //    this.onUpdateAccount.emit(account);
-            //    return account;
-            //});
-            return <Models.Account>{};
+            // return this.get<Models.Account>(url).then(account => ...
+            let account = <Models.Account>{};
+            this.onUpdateAccount.emit(account);
+            return account;
         });
     }
 
