@@ -41,7 +41,7 @@ class ChromeExtension extends ExtensionBase {
      * @param sender
      */
     isPopupRequest(sender: chrome.runtime.MessageSender) {
-        return !!sender.url && !!sender.url.match(/^chrome.+popup.(html$|html[?]tab=true$)/g);
+        return /^chrome-extension:.+popup.html/.test(sender.url);
     }
 
     /**

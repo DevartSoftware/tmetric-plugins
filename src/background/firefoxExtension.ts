@@ -35,7 +35,7 @@ class FirefoxExtension extends ExtensionBase {
      * @param sender
      */
     isPopupRequest(sender: chrome.runtime.MessageSender) {
-        return !!(sender.url && sender.url.match(/^moz-extension:\/\/.+popup.(html$|html[?]tab=true$)/g));
+        return /^moz-extension:.+popup.html/.test(sender.url);
     }
 
     /**
