@@ -367,12 +367,15 @@
 
     getAccount() {
         return this.checkProfile().then(profile => {
-            let url = 'api/accounts/' + profile.activeAccountId;
-            // TODO:
-            // return this.get<Models.Account>(url).then(account => ...
-            let account = <Models.Account>{};
-            this.onUpdateAccount.emit(account);
-            return account;
+
+            let promise = this.serverApiVersion < 2.3 ?
+                Promise.resolve(<Models.Account>{}) :
+                this.get<Models.Account>('api/accounts/' + profile.activeAccountId);
+
+            return promise.then(account => {
+                this.onUpdateAccount.emit(account);
+                return account;
+            });
         });
     }
 
