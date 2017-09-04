@@ -2,7 +2,6 @@
 
     constructor(params: { [key: string]: string }) {
 
-
         let issue: Integrations.WebToolIssueTimer;
         if (params['tab'] == 'true') {
             // TODO: get issue from query params
@@ -42,7 +41,7 @@
                 this.switchState(this.states.viewing);
             }
         } else {
-            this.fillCreateForm(issue.issueName || data.title);
+            this.fillCreateForm((issue && issue.issueName) || data.title);
             this.switchState(this.states.creating);
         }
     }
