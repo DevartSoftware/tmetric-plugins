@@ -6,7 +6,6 @@
      * Retrieves messages from background script.
      */
     function onBackgroundMessage(message: ITabMessage) {
-        console.log('Front-end messageAction:', message.action);
         if (isFinalized) {
             return;
         }

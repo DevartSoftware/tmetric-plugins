@@ -10,7 +10,7 @@
     hidePopupAction = this.wrapBackgroundAction<Models.Timer, void>('hideAllPopups');
 
     registerListeners() {
-        $(document).mouseup(e => {
+        $(document).mousedown(e => {
             if (e.target.tagName.toLowerCase() == 'body') {
                 this.close();
             }

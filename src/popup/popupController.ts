@@ -335,7 +335,7 @@
     makeProjectSelectData() {
         let isAdmins = (this._userRole == Models.ServiceRole.Admin || this._userRole == Models.ServiceRole.Owner);
         let selectableProjects = <IdTextPair[]>[];
-        if (this._canMembersManagePublicProjects || isAdmins) {
+        if (isAdmins || this._canMembersManagePublicProjects) {
             selectableProjects.push(this._createNewProjectOption);
         }
         selectableProjects.push(this._noProjectOption);
@@ -432,7 +432,7 @@
         timer.issueName = $(this._forms.create + ' .task .input').val();
         let selectedProject = $(this._forms.create + ' .project .input').select2('data');
         let isSelected = selectedProject && !!selectedProject[0];
-        timer.projectName = isSelected && selectedProject[0].text;
+        timer.projectName = isSelected ? selectedProject[0].text : '';
         if (isSelected && selectedProject[0].id == -1) {
             timer.projectName = $.trim($(this._forms.create + ' .new-project .input').val());
         }
