@@ -298,6 +298,13 @@ gulp.task('prepackage:edge:modifyManifest', ['prepackage:edge:copy'], function (
             var index = scripts.indexOf('background/chromeExtension.js');
             scripts[index] = 'background/edgeExtension.js';
 
+            // Show action button by default
+            manifest.browser_specific_settings = {
+                edge: {
+                    browser_action_next_to_addressbar: true
+                }
+            }
+
             return manifest;
         }))
         .pipe(gulp.dest(edgeUnpackedDir));
