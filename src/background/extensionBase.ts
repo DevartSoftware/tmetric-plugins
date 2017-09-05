@@ -795,7 +795,7 @@ class ExtensionBase {
             // Popup requests
             if (!sender.url || sender.url.startsWith(this._constants.browserSchema)) {
                 this.onPopupRequest(message, senderResponse);
-                return;
+                return !!senderResponse;
             }
 
             if (!sender.tab) {

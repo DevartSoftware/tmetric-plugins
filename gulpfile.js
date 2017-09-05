@@ -90,7 +90,13 @@ function replaceInFile(file, find, replace) {
 
 function stripDebugCommon(folder) {
     if (!config.keepDebug) {
-        return gulp.src([folder + '**/*.js', '!' + folder + 'lib/**/*.js'], { base: folder })
+        return gulp.src([
+                folder + '**/*.js',
+                '!' + folder + 'lib/**/*.js',
+                '!' + folder + '*APIBridge.js'
+            ], {
+                base: folder
+            })
             .pipe(stripDebug())
             .pipe(gulp.dest(folder));
     }
@@ -299,6 +305,13 @@ gulp.task('prepackage:edge:modifyManifest', ['prepackage:edge:copy'], function (
             var scripts = manifest['background']['scripts'];
             var index = scripts.indexOf('background/chromeExtension.js');
             scripts[index] = 'background/edgeExtension.js';
+
+            // Show action button by default
+            manifest.browser_specific_settings = {
+                edge: {
+                    browser_action_next_to_addressbar: true
+                }
+            }
 
             return manifest;
         }))
