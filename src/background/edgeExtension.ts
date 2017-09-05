@@ -15,14 +15,6 @@
     }
 
     /**
-     * @override
-     * @param sender
-     */
-    isPopupRequest(sender: chrome.runtime.MessageSender) {
-        return !sender.url || /^ms-browser-extension:.+popup.html/.test(sender.url);
-    }
-
-    /**
      * Show push notification (Does not support through web extension by Edge right now)
      * @override
      * @param message

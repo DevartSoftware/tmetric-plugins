@@ -37,14 +37,6 @@ class ChromeExtension extends ExtensionBase {
     }
 
     /**
-     * @override
-     * @param sender
-     */
-    isPopupRequest(sender: chrome.runtime.MessageSender) {
-        return /^chrome-extension:.+popup.html/.test(sender.url);
-    }
-
-    /**
      * Create popup window
      * @override
      * @param width
