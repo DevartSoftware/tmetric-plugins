@@ -367,10 +367,7 @@
 
     getAccount() {
         return this.checkProfile().then(profile => {
-            let url = 'api/accounts/' + profile.activeAccountId;
-            // TODO:
-            // return this.get<Models.Account>(url).then(account => ...
-            let account = <Models.Account>{};
+            let account = profile.accountMembership[0].account;
             this.onUpdateAccount.emit(account);
             return account;
         });

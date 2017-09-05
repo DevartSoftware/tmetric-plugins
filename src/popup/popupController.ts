@@ -36,6 +36,8 @@
     private _projects: Models.Project[];
     private _tags: Models.Tag[];
     private _constants: Models.Constants;
+    private _canMembersManagePublicProjects: boolean;
+    private _userRole: Models.ServiceRole;
 
     callBackground(request: IPopupRequest): Promise<IPopupResponse> {
         return new Promise((resolve, reject) => {
@@ -56,6 +58,8 @@
             this._projects = data.projects;
             this._tags = data.tags.filter(tag => !!tag).sort((a, b) => this.compare(a.tagName, b.tagName));
             this._constants = data.constants;
+            this._userRole = data.userRole;
+            this._canMembersManagePublicProjects = data.canMembersManagePublicProjects;
         } else {
             this.close();
         }
@@ -326,8 +330,16 @@
 
     private _noProjectOption: IdTextPair = { id: 0, text: 'No Project' };
 
+    private _createNewProjectOption: IdTextPair = { id: -1, text: 'Create New Project' };
+
     makeProjectSelectData() {
-        return [this._noProjectOption].concat(this._projects.map(project => {
+        let isAdmins = (this._userRole == Models.ServiceRole.Admin || this._userRole == Models.ServiceRole.Owner);
+        let selectableProjects = <IdTextPair[]>[];
+        if (this._canMembersManagePublicProjects || isAdmins) {
+            selectableProjects.push(this._createNewProjectOption);
+        }
+        selectableProjects.push(this._noProjectOption);
+        return selectableProjects.concat(this._projects.map(project => {
             return { id: project.projectId, text: project.projectName };
         }));
     }
@@ -358,6 +370,7 @@
         $('#start').click(() => this.onStartClick());
         $('#stop').click(() => this.onStopClick());
         $('#create-link').click(() => this.onCreateClick());
+        $(this._forms.create + ' .project .input').change(this.onSelectChange());
 
         // close popup when escape key pressed and no selectors are opened
         window.addEventListener('keydown', event => {
@@ -367,6 +380,21 @@
                 }
             }
         }, true);
+    }
+
+    private onSelectChange() {
+        const $divNewProject = $(this._forms.create + ' .new-project');
+        const $inputNewProject = $(this._forms.create + ' .new-project .input');
+        const issueProjectName = (this._issue && this._issue.projectName) || '';
+
+        return function () {
+            if ($(this).val() == -1) { // create new project option
+                $inputNewProject.val(issueProjectName);
+                $divNewProject.css('display', 'block');
+            } else {
+                $divNewProject.css('display', 'none');
+            }
+        }
     }
 
     private onSiteLinkClick() {
@@ -403,7 +431,11 @@
         timer.isStarted = true;
         timer.issueName = $(this._forms.create + ' .task .input').val();
         let selectedProject = $(this._forms.create + ' .project .input').select2('data');
-        timer.projectName = selectedProject && selectedProject[0] && selectedProject[0].text;
+        let isSelected = selectedProject && !!selectedProject[0];
+        timer.projectName = isSelected && selectedProject[0].text;
+        if (isSelected && selectedProject[0].id == -1) {
+            timer.projectName = $.trim($(this._forms.create + ' .new-project .input').val());
+        }
         timer.tagsIdentifiers = (this.getSelectValue(this._forms.create + ' .tags .input') || [])
             .map(tag => parseInt(tag));
 

@@ -282,7 +282,6 @@ class ExtensionBase {
                     (timer.projectName && this._projects.filter(_ => _.projectName == timer.projectName).length)) {
 
                     return this.connection.putExternalTimer(timer);
-
                 }
 
                 showPopup = true;
@@ -606,6 +605,8 @@ class ExtensionBase {
                         .filter(project => project.projectStatus == Models.ProjectStatus.Open)
                         .sort((a, b) => a.projectName.localeCompare(b.projectName, [], { sensitivity: 'base' })),
                     tags: this._tags,
+                    canMembersManagePublicProjects: this._account.canMembersManagePublicProjects,
+                    userRole: this._userProfile.accountMembership[0].role,
                     constants: this._constants
                 });
             });
