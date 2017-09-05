@@ -36,8 +36,7 @@
     private _projects: Models.Project[];
     private _tags: Models.Tag[];
     private _constants: Models.Constants;
-    private _canMembersManagePublicProjects: boolean;
-    private _userRole: Models.ServiceRole;
+    private _canCreateProjects: boolean;
 
     callBackground(request: IPopupRequest): Promise<IPopupResponse> {
         return new Promise((resolve, reject) => {
@@ -58,8 +57,7 @@
             this._projects = data.projects;
             this._tags = data.tags.filter(tag => !!tag).sort((a, b) => this.compare(a.tagName, b.tagName));
             this._constants = data.constants;
-            this._userRole = data.userRole;
-            this._canMembersManagePublicProjects = data.canMembersManagePublicProjects;
+            this._canCreateProjects = data.canCreateProjects;
         } else {
             this.close();
         }
@@ -188,7 +186,9 @@
     }
 
     fillCreateForm(description: string) {
-        $(this._forms.create + ' .task .input').val(description).focus().select();
+        if (description) {
+            $(this._forms.create + ' .task .input').val(description).focus().select();
+        }
         this.setSelectValue(this._forms.create + ' .project .input', this.makeProjectSelectData());
         this.setSelectValue(this._forms.create + ' .tags .input', this.makeTagSelectData());
     }
@@ -333,9 +333,8 @@
     private _createNewProjectOption: IdTextPair = { id: -1, text: 'Create New Project' };
 
     makeProjectSelectData() {
-        let isAdmins = (this._userRole == Models.ServiceRole.Admin || this._userRole == Models.ServiceRole.Owner);
         let selectableProjects = <IdTextPair[]>[];
-        if (isAdmins || this._canMembersManagePublicProjects) {
+        if (this._canCreateProjects) {
             selectableProjects.push(this._createNewProjectOption);
         }
         selectableProjects.push(this._noProjectOption);
@@ -370,7 +369,7 @@
         $('#start').click(() => this.onStartClick());
         $('#stop').click(() => this.onStopClick());
         $('#create-link').click(() => this.onCreateClick());
-        $(this._forms.create + ' .project .input').change(this.onSelectChange());
+        $(this._forms.create + ' .project .input').change(this.onProjectSelectChange());
 
         // close popup when escape key pressed and no selectors are opened
         window.addEventListener('keydown', event => {
@@ -382,7 +381,7 @@
         }, true);
     }
 
-    private onSelectChange() {
+    private onProjectSelectChange() {
         const $divNewProject = $(this._forms.create + ' .new-project');
         const $inputNewProject = $(this._forms.create + ' .new-project .input');
         const issueProjectName = (this._issue && this._issue.projectName) || '';

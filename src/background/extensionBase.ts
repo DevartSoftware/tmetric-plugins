@@ -588,18 +588,25 @@ class ExtensionBase {
     private getPopupData(): Promise<IPopupInitData> {
         return new Promise<IPopupInitData>((resolve, reject) => {
             this.getActiveTabTitle().then((title) => {
-                resolve({
-                    title: title,
-                    timer: this._timer,
-                    timeFormat: this._userProfile && this._userProfile.timeFormat,
-                    projects: this._projects
-                        .filter(project => project.projectStatus == Models.ProjectStatus.Open)
-                        .sort((a, b) => a.projectName.localeCompare(b.projectName, [], { sensitivity: 'base' })),
-                    tags: this._tags,
-                    canMembersManagePublicProjects: this._account.canMembersManagePublicProjects,
-                    userRole: this._userProfile.accountMembership[0].role,
-                    constants: this._constants
-                });
+                let activeAccountId = this._userProfile.activeAccountId;
+                let userRole = this._userProfile.accountMembership
+                    .find(_ => _.account.accountId == activeAccountId)
+                    .role;
+                let canMembersManagePublicProjects = this._account.canMembersManagePublicProjects;
+                let isAdmin = (userRole == Models.ServiceRole.Admin || userRole == Models.ServiceRole.Owner);
+
+                let canCreateProjects =
+                    resolve({
+                        title: title,
+                        timer: this._timer,
+                        timeFormat: this._userProfile && this._userProfile.timeFormat,
+                        projects: this._projects
+                            .filter(project => project.projectStatus == Models.ProjectStatus.Open)
+                            .sort((a, b) => a.projectName.localeCompare(b.projectName, [], { sensitivity: 'base' })),
+                        tags: this._tags,
+                        canCreateProjects: isAdmin || canMembersManagePublicProjects,
+                        constants: this._constants
+                    });
             });
         });
     }

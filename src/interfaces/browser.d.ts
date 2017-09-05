@@ -43,6 +43,5 @@ interface IPopupInitData {
     projects: Models.Project[];
     tags: Models.Tag[];
     constants: Models.Constants;
-    userRole: Models.ServiceRole;
-    canMembersManagePublicProjects: boolean;
+    canCreateProjects: boolean;
 }
