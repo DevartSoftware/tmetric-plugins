@@ -29,19 +29,6 @@
             a(constants.extensionName + '\n\n' + message.data.message);
         }
 
-        // Only for Edge
-        if (message.action == 'notify') {
-            if ("Notification" in window) {
-                Notification.requestPermission(permission => {
-                    if (permission === "granted") {
-                        new Notification(message.data.title, {
-                            body: message.data.message
-                        });
-                    }
-                });
-            }
-        }
-
         if (message.action == 'setTimer') {
             Integrations.IntegrationService.setTimer(message.data);
             if (Integrations.IntegrationService.needsUpdate()) {

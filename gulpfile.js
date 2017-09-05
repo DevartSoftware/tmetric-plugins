@@ -88,7 +88,13 @@ function replaceInFile(file, find, replace) {
 
 function stripDebugCommon(folder) {
     if (!config.keepDebug) {
-        return gulp.src([folder + '**/*.js', '!' + folder + 'lib/**/*.js'], { base: folder })
+        return gulp.src([
+                folder + '**/*.js',
+                '!' + folder + 'lib/**/*.js',
+                '!' + folder + '*APIBridge.js'
+            ], {
+                base: folder
+            })
             .pipe(stripDebug())
             .pipe(gulp.dest(folder));
     }

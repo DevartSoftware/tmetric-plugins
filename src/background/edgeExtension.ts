@@ -12,25 +12,10 @@
         return !!sender.id;
     }
 
-    /**
-     * Show push notification (Does not support through web extension by Edge right now)
-     * @override
-     * @param message
-     * @param title
-     */
+    /** @override */
     showNotification(message: string, title?: string) {
-
-        this.getActiveTabId().then(id => {
-            title = title || 'TMetric';
-
-            this.sendToTabs({
-                action: 'notify',
-                data: {
-                    message: message,
-                    title: title
-                }
-            }, id);
-        });
+        // Notifications are not supported:
+        // https://docs.microsoft.com/en-us/microsoft-edge/extensions/api-support/extension-api-roadmap
     }
 
     /**
