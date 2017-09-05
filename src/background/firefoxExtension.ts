@@ -31,14 +31,6 @@ class FirefoxExtension extends ExtensionBase {
     }
 
     /**
-     * @override
-     * @param sender
-     */
-    isPopupRequest(sender: chrome.runtime.MessageSender) {
-        return /^moz-extension:.+popup.html/.test(sender.url);
-    }
-
-    /**
      * Create popup window
      * @override
      * @param width

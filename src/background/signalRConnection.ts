@@ -367,9 +367,15 @@
 
     getAccount() {
         return this.checkProfile().then(profile => {
-            let account = profile.accountMembership[0].account;
-            this.onUpdateAccount.emit(account);
-            return account;
+
+            let promise = this.serverApiVersion < 2.3 ?
+                Promise.resolve(<Models.Account>{}) :
+                this.get<Models.Account>('api/accounts/' + profile.activeAccountId);
+
+            return promise.then(account => {
+                this.onUpdateAccount.emit(account);
+                return account;
+            });
         });
     }
 

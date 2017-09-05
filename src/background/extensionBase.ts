@@ -47,17 +47,8 @@ class ExtensionBase {
 
     showError(message: string) {
         // This needed to prevent alert cleaning via build.
-        var a = alert;
+        let a = alert;
         a(message);
-    }
-
-    /**
-     * Check popup request
-     * @abstract
-     * @param sender
-     */
-    isPopupRequest(sender: chrome.runtime.MessageSender): boolean {
-        return false;
     }
 
     /**
@@ -70,8 +61,8 @@ class ExtensionBase {
             chrome.notifications.clear(this.lastNotificationId, () => { });
         }
         title = title || 'TMetric';
-        var type = 'basic';
-        var iconUrl = 'images/icon80.png';
+        let type = 'basic';
+        let iconUrl = 'images/icon80.png';
         chrome.notifications.create(
             null,
             { title, message, type, iconUrl },
@@ -142,7 +133,7 @@ class ExtensionBase {
 
             // timer should be received from server on connect
             if (timer) {
-                var action = this._actionOnConnect;
+                let action = this._actionOnConnect;
                 if (action) {
                     this._actionOnConnect = null;
                     action();
@@ -204,7 +195,7 @@ class ExtensionBase {
         this.registerMessageListener();
 
         // Update hint once per minute
-        var setUpdateTimeout = () => setTimeout(() => {
+        let setUpdateTimeout = () => setTimeout(() => {
             this.updateState();
             setUpdateTimeout();
         }, (60 - new Date().getSeconds()) * 1000);
@@ -213,7 +204,7 @@ class ExtensionBase {
     }
 
     /** Handles messages from in-page scripts */
-    onTabMessage(message: ITabMessage, tabId: any) {
+    onTabMessage(message: ITabMessage, tabId: number) {
 
         this.sendToTabs({ action: message.action + '_callback' }, tabId);
 
@@ -258,7 +249,7 @@ class ExtensionBase {
     }
 
     openTrackerPage() {
-        var url = this.serviceUrl;
+        let url = this.serviceUrl;
         if (this._userProfile && this._userProfile.activeAccountId) {
             url += '#/tracker/' + this._userProfile.activeAccountId + '/';
         }
@@ -270,7 +261,7 @@ class ExtensionBase {
         this.openTrackerPage();
     }
 
-    putExtenralTimer(timer: Integrations.WebToolIssueTimer, tabId?: any) {
+    putExtenralTimer(timer: Integrations.WebToolIssueTimer, tabId?: number) {
 
         let showPopup = false;
 
@@ -299,14 +290,14 @@ class ExtensionBase {
 
     putData<T>(data: T, action: (data: T) => Promise<any>, retryAction?: (data: T) => Promise<any>) {
 
-        var onFail = (status: AjaxStatus, showDialog: boolean) => {
+        let onFail = (status: AjaxStatus, showDialog: boolean) => {
 
             this._actionOnConnect = null;
 
             // Zero status when server is unavailable or certificate fails (#59755). Show dialog in that case too.
             if (!status || status.statusCode == HttpStatusCode.Unauthorized || status.statusCode == 0) {
 
-                var disconnectPromise = this.connection.disconnect();
+                let disconnectPromise = this.connection.disconnect();
 
                 if (showDialog) {
                     disconnectPromise.then(() => {
@@ -331,7 +322,7 @@ class ExtensionBase {
             }
         };
 
-        var onConnect = (showDialog: boolean) => {
+        let onConnect = (showDialog: boolean) => {
 
             if (this.buttonState == ButtonState.fixtimer) {
 
@@ -394,7 +385,7 @@ class ExtensionBase {
             showIssueId: timer.showIssueId
         }).then(status => {
 
-            var notification: string;
+            let notification: string;
 
             if (timer.projectName) {
                 const contactAdmin = 'Please contact the account administrator to fix the problem.';
@@ -408,7 +399,7 @@ class ExtensionBase {
                     }
                 }
                 else if (status.projectStatus != Models.ProjectStatus.Open) {
-                    var statusText = status.projectStatus == Models.ProjectStatus.Archived ? 'archived' : 'readonly';
+                    let statusText = status.projectStatus == Models.ProjectStatus.Archived ? 'archived' : 'readonly';
                     notification = `Cannot assign the task to the ${statusText} project '${timer.projectName}'.\n\n${contactAdmin}`;
                     timer.projectName = undefined;
                 }
@@ -418,7 +409,7 @@ class ExtensionBase {
                 }
             }
 
-            var promise = this.connection.setAccountToPost(status.accountId);
+            let promise = this.connection.setAccountToPost(status.accountId);
 
             if (!timer.serviceUrl != !status.integrationType ||
                 !timer.projectName != !status.projectStatus) {
@@ -454,7 +445,7 @@ class ExtensionBase {
 
     private normalizeUrl(url: string) {
         if (url) {
-            var i = url.indexOf('#');
+            let i = url.indexOf('#');
             if (i > 0) {
                 url = url.substring(0, i);
             }
@@ -470,11 +461,11 @@ class ExtensionBase {
     private getDuration(timeEntries: Models.TimeEntry[]): number
     private getDuration(arg: any): any {
         if (arg) {
-            var now = new Date().getTime();
+            let now = new Date().getTime();
             if ((<Models.TimeEntry[]>arg).reduce) {
                 return (<Models.TimeEntry[]>arg).reduce((duration, entry) => {
-                    var startTime = Date.parse(entry.startTime);
-                    var endTime = entry.endTime ? Date.parse(entry.endTime) : now;
+                    let startTime = Date.parse(entry.startTime);
+                    let endTime = entry.endTime ? Date.parse(entry.endTime) : now;
                     return duration + (endTime - startTime);
                 }, 0);
             }
@@ -501,7 +492,7 @@ class ExtensionBase {
     }
 
     private getErrorText(status: AjaxStatus) {
-        var result = status && (status.statusText || status.statusCode);
+        let result = status && (status.statusText || status.statusCode);
         if (result) {
             return result.toString();
         }
@@ -579,8 +570,8 @@ class ExtensionBase {
     }
 
     onPopupRequest(request: IPopupRequest, callback: (response: IPopupResponse) => void) {
-        var action = request.action;
-        var handler = this._popupActions[action];
+        let action = request.action;
+        let handler = this._popupActions[action];
         if (action && handler) {
             handler.call(this, request.data).then((result: IPopupInitData) => {
                 callback({ action: action, data: result });
@@ -702,7 +693,7 @@ class ExtensionBase {
         chrome.browserAction.setTitle({ title: tooltip });
     }
 
-    sendToTabs(message: ITabMessage, tabId?: any) {
+    sendToTabs(message: ITabMessage, tabId?: number) {
         if (tabId != null) {
             chrome.tabs.sendMessage(tabId, message);
         }
@@ -721,8 +712,8 @@ class ExtensionBase {
         return new Promise<string>((resolve, reject) => {
             chrome.tabs.query({ currentWindow: true, active: true },
                 function (tabs) {
-                    var activeTab = tabs[0];
-                    var title = activeTab && activeTab.title;
+                    let activeTab = tabs[0];
+                    let title = activeTab && activeTab.title;
                     resolve(title);
                 });
         });
@@ -732,8 +723,8 @@ class ExtensionBase {
         return new Promise<number>((resolve, reject) => {
             chrome.tabs.query({ currentWindow: true, active: true },
                 function (tabs) {
-                    var activeTab = tabs[0];
-                    var id = activeTab && activeTab.id;
+                    let activeTab = tabs[0];
+                    let id = activeTab && activeTab.id;
                     resolve(id);
                 });
         });
@@ -742,16 +733,16 @@ class ExtensionBase {
     openPage(url: string) {
         chrome.tabs.query({ active: true, windowId: chrome.windows.WINDOW_ID_CURRENT }, tabs => {
 
-            var currentWindowId = tabs && tabs.length && tabs[0].windowId;
+            let currentWindowId = tabs && tabs.length && tabs[0].windowId;
 
             // chrome.tabs.query do not support tab search with hashed urls
             // https://developer.chrome.com/extensions/match_patterns
             chrome.tabs.query({ url: url.split('#')[0] }, tabs => {
                 // filter tabs queried without hashes by actual url
-                var pageTabs = tabs.filter(tab => tab.url == url);
+                let pageTabs = tabs.filter(tab => tab.url == url);
                 if (pageTabs.length) {
 
-                    var anyWindowTab: chrome.tabs.Tab, anyWindowActiveTab: chrome.tabs.Tab, currentWindowTab: chrome.tabs.Tab, currentWindowActiveTab: chrome.tabs.Tab;
+                    let anyWindowTab: chrome.tabs.Tab, anyWindowActiveTab: chrome.tabs.Tab, currentWindowTab: chrome.tabs.Tab, currentWindowActiveTab: chrome.tabs.Tab;
                     for (let index = 0, size = pageTabs.length; index < size; index += 1) {
                         anyWindowTab = pageTabs[index];
                         if (anyWindowTab.active) {
@@ -765,7 +756,7 @@ class ExtensionBase {
                         }
                     }
 
-                    var tabToActivate = currentWindowActiveTab || currentWindowTab || anyWindowActiveTab || anyWindowTab;
+                    let tabToActivate = currentWindowActiveTab || currentWindowTab || anyWindowActiveTab || anyWindowTab;
                     chrome.windows.update(tabToActivate.windowId, { focused: true });
                     chrome.tabs.update(tabToActivate.id, { active: true });
                 } else {
@@ -800,18 +791,25 @@ class ExtensionBase {
 
     registerMessageListener() {
         chrome.runtime.onMessage.addListener((message: ITabMessage | IPopupRequest, sender: chrome.runtime.MessageSender, senderResponse: (IPopupResponse) => void) => {
-            if (this.isPopupRequest(sender)) {
-                this.onPopupRequest(message, senderResponse);
-                return !!senderResponse;
-            }
-            if (sender.tab) {
-                if (sender.tab.id == this.loginTabId) { // Ignore login dialog
-                    return;
-                }
 
-                var tabId = sender.tab.id;
-                this.onTabMessage(message, tabId);
+            // Popup requests
+            if (!sender.url || sender.url.startsWith(this._constants.browserSchema)) {
+                this.onPopupRequest(message, senderResponse);
+                return;
             }
+
+            if (!sender.tab) {
+                return;
+            }
+
+            // Ignore login dialog
+            if (sender.tab.id == this.loginTabId) {
+                return;
+            }
+
+            // Tab page requests
+            let tabId = sender.tab.id;
+            this.onTabMessage(message, tabId);
         });
     }
 }
