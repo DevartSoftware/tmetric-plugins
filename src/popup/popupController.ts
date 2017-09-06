@@ -7,15 +7,15 @@
         this.initializeAction().then(data => {
             this.setData(data);
 
-            if (_issue == null && data.timer && data.timer.isStarted) {
-                if (this.isLongRunning(data.timer.startTime)) {
-                    this.fillFixForm(data.timer);
-                    this.switchState(this._states.fixing);
-                } else {
-                    this.fillViewForm(data.timer);
-                    this.fillCreateForm(data.title);
-                    this.switchState(this._states.viewing);
-                }
+            if (this.isLongRunning(data.timer.startTime)) {
+                this.fillFixForm(data.timer);
+                this.switchState(this._states.fixing);
+
+            } else if (_issue == null && data.timer && data.timer.isStarted) {
+                this.fillViewForm(data.timer);
+                this.fillCreateForm(data.title);
+                this.switchState(this._states.viewing);
+
             } else {
                 this.fillCreateForm((_issue && _issue.issueName) || data.title);
                 this.switchState(this._states.creating);
@@ -66,10 +66,6 @@
     putTimer(timer: Integrations.WebToolIssueTimer) {
         this.putTimerAction(timer);
         this.close();
-    }
-
-    private clone(obj: any) {
-        return JSON.parse(JSON.stringify(obj));
     }
 
     private compare(a: string, b: string) {
@@ -454,9 +450,7 @@
     }
 
     private onStopClick() {
-        let timer = this.clone(this._activeTimer);
-        timer.isStarted = false;
-        this.putTimer(timer);
+        this.putTimer(<Integrations.WebToolIssueTimer>{ isStarted: false });
     }
 
     private onCreateClick() {
