@@ -186,11 +186,14 @@
     }
 
     fillCreateForm(description: string) {
-        if (description) {
-            $(this._forms.create + ' .task .input').val(description).focus().select();
-        }
+        $(this._forms.create + ' .task .input').val(description).focus().select();
         this.setSelectValue(this._forms.create + ' .project .input', this.makeProjectSelectData());
         this.setSelectValue(this._forms.create + ' .tags .input', this.makeTagSelectData());
+        if (description) {
+            setTimeout(() => {
+                $('#create-form .project .input').select2('focus');
+            });
+        }
     }
 
     initCreatingForm() {

@@ -429,9 +429,7 @@ class ExtensionBase {
                 })
                 .then(() => {
                     if (notification) {
-                        status.projectStatus != Models.ProjectStatus.Open ?
-                            this.showError(notification) :
-                            this.showNotification(notification);
+                        this.showNotification(notification);
                     }
                 })
                 .catch(status => {
