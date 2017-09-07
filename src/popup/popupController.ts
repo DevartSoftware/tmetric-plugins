@@ -359,14 +359,14 @@
 
     initControls() {
 
-        $('#site-link').click(() => this.onSiteLinkClick());
-        $('#task-link').click(() => this.onTaskLinkClick());
-        $('#login').click(() => this.onLoginClick());
-        $('#retry').click(() => this.onRetryClick());
-        $('#fix').click(() => this.onFixClick());
-        $('#start').click(() => this.onStartClick());
-        $('#stop').click(() => this.onStopClick());
-        $('#create-link').click(() => this.onCreateClick());
+        $('#site-link').click(() => (this.onSiteLinkClick(), false));
+        $('#task-link').click(() => (this.onTaskLinkClick(), false));
+        $('#login').click(() => (this.onLoginClick(), false));
+        $('#retry').click(() => (this.onRetryClick(), false));
+        $('#fix').click(() => (this.onFixClick(), false));
+        $('#start').click(() => (this.onStartClick(), false));
+        $('#stop').click(() => (this.onStopClick(), false));
+        $('#create-link').click(() => (this.onCreateClick(), false));
 
         // close popup when escape key pressed and no selectors are opened
         window.addEventListener('keydown', event => {
