@@ -738,13 +738,14 @@ class ExtensionBase {
     }
 
     openPage(url: string) {
+
         chrome.tabs.query({ active: true, windowId: chrome.windows.WINDOW_ID_CURRENT }, tabs => {
 
             let currentWindowId = tabs && tabs.length && tabs[0].windowId;
 
             // chrome.tabs.query do not support tab search with hashed urls
             // https://developer.chrome.com/extensions/match_patterns
-            chrome.tabs.query({ url: url.split('#')[0] }, tabs => {
+            chrome.tabs.query({ url: url.split('#')[0] + '*' }, tabs => {
                 // filter tabs queried without hashes by actual url
                 let pageTabs = tabs.filter(tab => tab.url == url);
                 if (pageTabs.length) {
