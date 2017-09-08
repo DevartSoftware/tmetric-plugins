@@ -344,7 +344,7 @@
 
     makeTagSelectData() {
         return this._tags.map(tag => {
-            return { id: tag.tagId, text: tag.tagName };
+            return { id: tag.tagName, text: tag.tagName };
         });
     }
 
