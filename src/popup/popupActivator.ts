@@ -20,6 +20,10 @@
         return value ? value.split(',').map(s => parseInt(s)) : [];
     }
 
+    function parseStringArray(value: string) {
+        return value ? value.split(',').map(s => parseString(s)) : [];
+    }
+
     let issue = <Integrations.WebToolIssueTimer>{
         isStarted: <any>parseBoolean,
         issueId: <any>parseString,
@@ -29,7 +33,7 @@
         serviceType: <any>parseString,
         serviceUrl: <any>parseString,
         showIssueId: <any>parseBoolean,
-        tagsIdentifiers: <any>parseIntArray
+        tagsNames: <any>parseStringArray
     };
 
     for (let key in issue) {

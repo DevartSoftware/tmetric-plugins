@@ -43,7 +43,7 @@ declare module Integrations {
 
     interface WebToolIssueTimer extends WebToolIssue {
         isStarted: boolean;
-        tagsIdentifiers: number[];
+        tagsNames: string[];
         showIssueId?: boolean;
     }
 

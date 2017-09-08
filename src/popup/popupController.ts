@@ -434,8 +434,7 @@
         if (isSelected && selectedProject[0].id == -1) {
             timer.projectName = $.trim($(this._forms.create + ' .new-project .input').val());
         }
-        timer.tagsIdentifiers = (this.getSelectValue(this._forms.create + ' .tags .input') || [])
-            .map(tag => parseInt(tag));
+        timer.tagsNames = this.getSelectValue(this._forms.create + ' .tags .input') || [];
 
         if (this._issue && this._issue.issueName == timer.issueName) {
             let issue = this._issue;
