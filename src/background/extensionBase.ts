@@ -592,7 +592,9 @@ class ExtensionBase {
                 let userRole = this._userProfile.accountMembership
                     .find(_ => _.account.accountId == activeAccountId)
                     .role;
+
                 let canMembersManagePublicProjects = this._account.canMembersManagePublicProjects;
+                let canMembersCreateTags = this._account.canMembersCreateTags;
                 let isAdmin = (userRole == Models.ServiceRole.Admin || userRole == Models.ServiceRole.Owner);
 
                 let canCreateProjects =
@@ -605,6 +607,7 @@ class ExtensionBase {
                             .sort((a, b) => a.projectName.localeCompare(b.projectName, [], { sensitivity: 'base' })),
                         tags: this._tags,
                         canCreateProjects: isAdmin || canMembersManagePublicProjects,
+                        canCreateTags: canMembersCreateTags,
                         constants: this._constants
                     });
             });

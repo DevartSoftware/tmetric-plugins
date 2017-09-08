@@ -37,6 +37,7 @@
     private _tags: Models.Tag[];
     private _constants: Models.Constants;
     private _canCreateProjects: boolean;
+    private _canCreateTags: boolean;
 
     callBackground(request: IPopupRequest): Promise<IPopupResponse> {
         return new Promise((resolve, reject) => {
@@ -58,6 +59,7 @@
             this._tags = data.tags.filter(tag => !!tag).sort((a, b) => this.compare(a.tagName, b.tagName));
             this._constants = data.constants;
             this._canCreateProjects = data.canCreateProjects;
+            this._canCreateTags = data.canCreateTags;
         } else {
             this.close();
         }
@@ -184,10 +186,10 @@
     fillCreateForm(description: string) {
         $(this._forms.create + ' .task .input').val(description).focus().select();
         this.setSelectValue(this._forms.create + ' .project .input', this.makeProjectSelectData());
-        this.setSelectValue(this._forms.create + ' .tags .input', this.makeTagSelectData());
+        this.setSelectValue(this._forms.create + ' .tags .input', this.makeTagSelectOptions());
         if (description) {
             setTimeout(() => {
-                $('#create-form .project .input').select2('focus');
+                $(this._forms.create + ' .project .input').select2('focus');
             });
         }
     }
@@ -348,12 +350,22 @@
         });
     }
 
+    makeTagSelectOptions(): Select2Options {
+        return {
+            data: this.makeTagSelectData(),
+            tags: this._canCreateTags
+        };
+    }
+
     getSelectValue(selector: string) {
         return $(selector).select().val();
     }
 
-    setSelectValue(selector: string, data: IdTextPair[]) {
-        $(selector).select2({ data }).val('').trigger('change');
+    setSelectValue(selector: string, options: Select2Options);
+    setSelectValue(selector: string, data: IdTextPair[]);
+    setSelectValue(selector: string, param: any) {
+        let options: Select2Options = param instanceof Array ? { data: param } : param;
+        $(selector).select2(options).val('').trigger('change');
     }
 
     // ui event handlers
