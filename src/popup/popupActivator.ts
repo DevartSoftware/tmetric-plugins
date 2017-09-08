@@ -33,7 +33,7 @@
         serviceType: <any>parseString,
         serviceUrl: <any>parseString,
         showIssueId: <any>parseBoolean,
-        tagsNames: <any>parseStringArray
+        tagNames: <any>parseStringArray
     };
 
     for (let key in issue) {
