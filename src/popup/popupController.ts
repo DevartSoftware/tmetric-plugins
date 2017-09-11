@@ -10,12 +10,10 @@
             if (this.isLongRunning(data.timer.startTime)) {
                 this.fillFixForm(data.timer);
                 this.switchState(this._states.fixing);
-
             } else if (_issue == null && data.timer && data.timer.isStarted) {
                 this.fillViewForm(data.timer);
                 this.fillCreateForm(data.title);
                 this.switchState(this._states.viewing);
-
             } else {
                 this.fillCreateForm((_issue && _issue.issueName) || data.title);
                 this.switchState(this._states.creating);
@@ -381,7 +379,7 @@
         $('#stop').click(() => (this.onStopClick(), false));
         $('#create-link').click(() => (this.onCreateClick(), false));
         $(this._forms.create + ' .project .input').change(this.onProjectSelectChange());
-        $('#cancel').click(() => this.onCancelClick());
+        $('#cancel').click(() => (this.onCancelClick(), false));
 
         // close popup when escape key pressed and no selectors are opened
         window.addEventListener('keydown', event => {

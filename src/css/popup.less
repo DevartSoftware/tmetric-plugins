@@ -7,6 +7,7 @@
 @margin-double: @margin * 2;
 @padding: 0.5em;
 @padding-double: @padding * 2;
+@padding-large: 20px;
 
 @field-min-height: 2.5em;
 @field-line-height: 2.5em;
@@ -28,7 +29,7 @@
 //=============================
 @font-size-base: 14px;
 @font-family: "Open Sans", sans-serif;
-@body-width: 20em;
+@body-width: 380px;
 @body-height: 25em;
 @background-color: #fff;
 @action-margin: 5.5em;
@@ -75,8 +76,6 @@
 @btn-font-weight: 300;
 
 body {
-    width: @body-width;
-    min-width: @body-width;
     height: auto;
     min-height: initial;
     margin: auto;
@@ -85,6 +84,10 @@ body {
     color: @text-color;
     background-color: @background-color;
     overflow: hidden;
+}
+
+.container {
+    min-width: @body-width;
 }
 
 header {
@@ -244,7 +247,6 @@ input {
 
     &.actions {
         margin-top: @action-margin;
-        margin-bottom: @padding-double;
 
         & > *:not(:last-child) {
             margin-right: 12px;
@@ -390,8 +392,9 @@ input {
 content {
 
     & > * {
-        padding-left: @padding-double;
-        padding-right: @padding-double;
+        padding-left: @padding-large;
+        padding-right: @padding-large;
+        padding-bottom: @padding-large;
     }
 
     #loader {
@@ -474,7 +477,7 @@ content.creating {
 }
 
 .select2-selection--multiple {
-    height: 34px !important;
+    min-height: 34px !important;
     padding: 0 0 !important;
     border: none !important;
     border-bottom: 1px solid #e0e0e0 !important;
