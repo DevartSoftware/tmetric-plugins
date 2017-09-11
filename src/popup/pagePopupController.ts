@@ -1,9 +1,9 @@
 ﻿class PagePopupController extends PopupController {
 
-    constructor(private issue: Integrations.WebToolIssueTimer) {
-        super(issue);
+    constructor() {
+        super();
 
-        this.insertFrame();
+        this.initFrame();
         this.registerListeners();
     }
 
@@ -22,16 +22,27 @@
         this.hidePopupAction();
     }
 
-    private insertFrame() {
+    private initFrame() {
+
         let style = document.createElement('style');
         let css = `
 body {
-position: fixed; background-color: rgba(0, 0, 0, .5); width: 100%;
-padding: 0 !important; top: 0; left: 0; height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    padding: 0 !important;
+    background-color: rgba(0, 0, 0, .5);
 }
 .container {
-position: absolute; top: 50%; left: 50%; margin-left: -175px; margin-top: -211px;
-width: 320px; background-color: #ffffff;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 320px;
+    margin-left: -175px;
+    margin-top: -211px;
+    background-color: #ffffff;
 }
 `;
         style.appendChild(document.createTextNode(css));

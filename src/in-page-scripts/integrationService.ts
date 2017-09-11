@@ -14,17 +14,9 @@
 
         static showPopup(issue: WebToolIssueTimer) {
 
-            let params = <string[]>[];
-            for (let key in issue) {
-                let value = issue[key];
-                if (value != null) {
-                    params.push(key + '=' + encodeURIComponent(value))
-                }
-            }
-
             let iframe = document.createElement('iframe');
             iframe.id = this.popupId;
-            iframe.src = `${this._constants.browserSchema}://${this._constants.extensionUUID}/popup/popup.html?${params.join('&')}`;
+            iframe.src = `${this._constants.browserSchema}://${this._constants.extensionUUID}/popup/popup.html?integration`;
 
             Object.assign(iframe.style, {
                 position: 'fixed',
