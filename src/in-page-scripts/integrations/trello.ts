@@ -55,7 +55,9 @@
 
             var issueUrl = '/c/' + match[1];
 
-            return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+            var tagNames = $$.all('.js-card-detail-labels-list .card-label').map(label => label.textContent);
+
+            return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
         }
     }
 

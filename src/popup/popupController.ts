@@ -7,15 +7,15 @@
         this.initializeAction().then(data => {
             this.setData(data);
 
-            if (_issue == null && data.timer && data.timer.isStarted) {
-                if (this.isLongRunning(data.timer.startTime)) {
-                    this.fillFixForm(data.timer);
-                    this.switchState(this._states.fixing);
-                } else {
-                    this.fillViewForm(data.timer);
-                    this.fillCreateForm(data.title);
-                    this.switchState(this._states.viewing);
-                }
+            if (this.isLongRunning(data.timer.startTime)) {
+                this.fillFixForm(data.timer);
+                this.switchState(this._states.fixing);
+
+            } else if (_issue == null && data.timer && data.timer.isStarted) {
+                this.fillViewForm(data.timer);
+                this.fillCreateForm(data.title);
+                this.switchState(this._states.viewing);
+
             } else {
                 this.fillCreateForm((_issue && _issue.issueName) || data.title);
                 this.switchState(this._states.creating);
@@ -37,6 +37,7 @@
     private _tags: Models.Tag[];
     private _constants: Models.Constants;
     private _canCreateProjects: boolean;
+    private _canCreateTags: boolean;
 
     callBackground(request: IPopupRequest): Promise<IPopupResponse> {
         return new Promise((resolve, reject) => {
@@ -58,6 +59,7 @@
             this._tags = data.tags.filter(tag => !!tag).sort((a, b) => this.compare(a.tagName, b.tagName));
             this._constants = data.constants;
             this._canCreateProjects = data.canCreateProjects;
+            this._canCreateTags = data.canCreateTags;
         } else {
             this.close();
         }
@@ -66,10 +68,6 @@
     putTimer(timer: Integrations.WebToolIssueTimer) {
         this.putTimerAction(timer);
         this.close();
-    }
-
-    private clone(obj: any) {
-        return JSON.parse(JSON.stringify(obj));
     }
 
     private compare(a: string, b: string) {
@@ -188,10 +186,10 @@
     fillCreateForm(description: string) {
         $(this._forms.create + ' .task .input').val(description).focus().select();
         this.setSelectValue(this._forms.create + ' .project .input', this.makeProjectSelectData());
-        this.setSelectValue(this._forms.create + ' .tags .input', this.makeTagSelectData());
+        this.setSelectValue(this._forms.create + ' .tags .input', this.makeTagSelectOptions());
         if (description) {
             setTimeout(() => {
-                $('#create-form .project .input').select2('focus');
+                $(this._forms.create + ' .project .input').select2('focus');
             });
         }
     }
@@ -348,30 +346,40 @@
 
     makeTagSelectData() {
         return this._tags.map(tag => {
-            return { id: tag.tagId, text: tag.tagName };
+            return { id: tag.tagName, text: tag.tagName };
         });
+    }
+
+    makeTagSelectOptions(): Select2Options {
+        return {
+            data: this.makeTagSelectData(),
+            tags: this._canCreateTags
+        };
     }
 
     getSelectValue(selector: string) {
         return $(selector).select().val();
     }
 
-    setSelectValue(selector: string, data: IdTextPair[]) {
-        $(selector).select2({ data }).val('').trigger('change');
+    setSelectValue(selector: string, options: Select2Options);
+    setSelectValue(selector: string, data: IdTextPair[]);
+    setSelectValue(selector: string, param: any) {
+        let options: Select2Options = param instanceof Array ? { data: param } : param;
+        $(selector).select2(options).val('').trigger('change');
     }
 
     // ui event handlers
 
     initControls() {
 
-        $('#site-link').click(() => this.onSiteLinkClick());
-        $('#task-link').click(() => this.onTaskLinkClick());
-        $('#login').click(() => this.onLoginClick());
-        $('#retry').click(() => this.onRetryClick());
-        $('#fix').click(() => this.onFixClick());
-        $('#start').click(() => this.onStartClick());
-        $('#stop').click(() => this.onStopClick());
-        $('#create-link').click(() => this.onCreateClick());
+        $('#site-link').click(() => (this.onSiteLinkClick(), false));
+        $('#task-link').click(() => (this.onTaskLinkClick(), false));
+        $('#login').click(() => (this.onLoginClick(), false));
+        $('#retry').click(() => (this.onRetryClick(), false));
+        $('#fix').click(() => (this.onFixClick(), false));
+        $('#start').click(() => (this.onStartClick(), false));
+        $('#stop').click(() => (this.onStopClick(), false));
+        $('#create-link').click(() => (this.onCreateClick(), false));
         $(this._forms.create + ' .project .input').change(this.onProjectSelectChange());
         $('#cancel').click(() => this.onCancelClick());
 
@@ -443,8 +451,7 @@
         if (isSelected && selectedProject[0].id == -1) {
             timer.projectName = $.trim($(this._forms.create + ' .new-project .input').val());
         }
-        timer.tagsIdentifiers = (this.getSelectValue(this._forms.create + ' .tags .input') || [])
-            .map(tag => parseInt(tag));
+        timer.tagNames = this.getSelectValue(this._forms.create + ' .tags .input') || [];
 
         if (this._issue && this._issue.issueName == timer.issueName) {
             let issue = this._issue;
@@ -459,9 +466,7 @@
     }
 
     private onStopClick() {
-        let timer = this.clone(this._activeTimer);
-        timer.isStarted = false;
-        this.putTimer(timer);
+        this.putTimer(<Integrations.WebToolIssueTimer>{ isStarted: false });
     }
 
     private onCreateClick() {

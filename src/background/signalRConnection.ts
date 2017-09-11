@@ -42,6 +42,36 @@
 
     onUpdateTags = SimpleEvent.create<Models.Tag[]>();
 
+    /** Like promise.all but reject is called after all promises are settled */
+    waitAllRejects = Promise.all;
+
+    constructor() {
+
+        this.waitAllRejects = (promises: Promise<any>[]) => new Promise((resolve, reject) => {
+
+            let error;
+            let pendingCounter = promises.length;
+
+            const callback = err => {
+                if (err == null) {
+                    err = err;
+                }
+                pendingCounter--;
+                if (!pendingCounter && err != null) {
+                    reject(err);
+                }
+            }
+
+            promises.forEach(p => p
+                .then(() => callback(null))
+                .catch((e) => callback(e != null ? e : "failed")));
+
+            Promise.all(promises)
+                .then(r => resolve(r))
+                .catch(() => { });
+        });
+    }
+
     init(url: string): Promise<void> {
 
         this.url = url;
@@ -199,9 +229,9 @@
                 return;
             }
 
-            Promise.all([this.getVersion(), this.getProfile()])
+            this.waitAllRejects([this.getVersion(), this.getProfile()])
                 .then(([version, profile]) => {
-                    Promise.all([this.getAccount(), this.getProjects(), this.getTags()])
+                    this.waitAllRejects([this.getAccount(), this.getProjects(), this.getTags()])
                         .then(() => {
                             this.hub.start()
                                 .then(() => {

@@ -44,4 +44,5 @@ interface IPopupInitData {
     tags: Models.Tag[];
     constants: Models.Constants;
     canCreateProjects: boolean;
+    canCreateTags: boolean;
 }

@@ -592,7 +592,9 @@ class ExtensionBase {
                 let userRole = this._userProfile.accountMembership
                     .find(_ => _.account.accountId == activeAccountId)
                     .role;
+
                 let canMembersManagePublicProjects = this._account.canMembersManagePublicProjects;
+                let canMembersCreateTags = this._account.canMembersCreateTags;
                 let isAdmin = (userRole == Models.ServiceRole.Admin || userRole == Models.ServiceRole.Owner);
 
                 let canCreateProjects =
@@ -605,6 +607,7 @@ class ExtensionBase {
                             .sort((a, b) => a.projectName.localeCompare(b.projectName, [], { sensitivity: 'base' })),
                         tags: this._tags,
                         canCreateProjects: isAdmin || canMembersManagePublicProjects,
+                        canCreateTags: canMembersCreateTags,
                         constants: this._constants
                     });
             });
@@ -738,13 +741,14 @@ class ExtensionBase {
     }
 
     openPage(url: string) {
+
         chrome.tabs.query({ active: true, windowId: chrome.windows.WINDOW_ID_CURRENT }, tabs => {
 
             let currentWindowId = tabs && tabs.length && tabs[0].windowId;
 
             // chrome.tabs.query do not support tab search with hashed urls
             // https://developer.chrome.com/extensions/match_patterns
-            chrome.tabs.query({ url: url.split('#')[0] }, tabs => {
+            chrome.tabs.query({ url: url.split('#')[0] + '*' }, tabs => {
                 // filter tabs queried without hashes by actual url
                 let pageTabs = tabs.filter(tab => tab.url == url);
                 if (pageTabs.length) {

@@ -6,14 +6,8 @@
      * Retrieves messages from background script.
      */
     function onBackgroundMessage(message: ITabMessage) {
-        if (isFinalized) {
-            return;
-        }
 
-        // Only for FireFox to inject scripts in right order
-        if (message.action == 'initPage') {
-            sendBackgroundMessage({ action: 'getConstants' });
-            sendBackgroundMessage({ action: 'getTimer' });
+        if (isFinalized) {
             return;
         }
 
@@ -22,7 +16,14 @@
             pingTimeouts[message.action] = null;
         }
 
-        // Only for FireFox
+        // Only for Firefox to inject scripts in right order
+        if (message.action == 'initPage') {
+            sendBackgroundMessage({ action: 'getConstants' });
+            sendBackgroundMessage({ action: 'getTimer' });
+            return;
+        }
+
+        // Only for Firefox to show error alerts
         if (message.action == 'error') {
             let a = alert; // prevent strip in release;
             a(constants.extensionName + '\n\n' + message.data.message);
