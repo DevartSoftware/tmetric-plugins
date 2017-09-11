@@ -379,7 +379,7 @@
         $('#stop').click(() => (this.onStopClick(), false));
         $('#create-link').click(() => (this.onCreateClick(), false));
         $(this._forms.create + ' .project .input').change(this.onProjectSelectChange());
-        $('#cancel').click(() => (this.onCancelClick(), false));
+        $('.cancel-btn').click(() => (this.onCancelClick(), false));
 
         // close popup when escape key pressed and no selectors are opened
         window.addEventListener('keydown', event => {
@@ -392,6 +392,7 @@
     }
 
     private onCancelClick() {
+        console.log('Cancel click');
         this.close();
     }
 
