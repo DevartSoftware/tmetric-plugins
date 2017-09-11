@@ -91,6 +91,8 @@ class ExtensionBase {
 
     private _timer: Models.Timer;
 
+    private _issue: Integrations.WebToolIssueTimer;
+
     private _timeEntries: Models.TimeEntry[];
 
     private _userProfile: Models.UserProfile;
@@ -182,7 +184,7 @@ class ExtensionBase {
         this.listenPopupAction<void, void>('login', this.loginPopupAction);
         this.listenPopupAction<void, void>('fixTimer', this.fixTimerPopupAction);
         this.listenPopupAction<Integrations.WebToolIssueTimer, void>('putTimer', data => {
-            this.putExtenralTimer(data);
+            this.putExternalTimer(data);
             return Promise.resolve();
         });
         this.listenPopupAction<void, void>('hideAllPopups', () => {
@@ -219,7 +221,7 @@ class ExtensionBase {
                 break;
 
             case 'putTimer':
-                this.putExtenralTimer(message.data, tabId);
+                this.putExternalTimer(message.data, tabId);
                 break;
 
             case 'getIssuesDurations':
@@ -261,7 +263,7 @@ class ExtensionBase {
         this.openTrackerPage();
     }
 
-    putExtenralTimer(timer: Integrations.WebToolIssueTimer, tabId?: number) {
+    putExternalTimer(timer: Integrations.WebToolIssueTimer, tabId?: number) {
 
         let showPopup = false;
 
@@ -276,6 +278,10 @@ class ExtensionBase {
                 }
 
                 showPopup = true;
+
+                // this timer will be send when popup ask for initial data
+                this._issue = timer;
+
                 return this.connection.connect().then(() => {
                     this.sendToTabs({ action: 'showPopup', data: timer }, tabId);
                 });
@@ -597,19 +603,19 @@ class ExtensionBase {
                 let canMembersCreateTags = this._account.canMembersCreateTags;
                 let isAdmin = (userRole == Models.ServiceRole.Admin || userRole == Models.ServiceRole.Owner);
 
-                let canCreateProjects =
-                    resolve({
-                        title: title,
-                        timer: this._timer,
-                        timeFormat: this._userProfile && this._userProfile.timeFormat,
-                        projects: this._projects
-                            .filter(project => project.projectStatus == Models.ProjectStatus.Open)
-                            .sort((a, b) => a.projectName.localeCompare(b.projectName, [], { sensitivity: 'base' })),
-                        tags: this._tags,
-                        canCreateProjects: isAdmin || canMembersManagePublicProjects,
-                        canCreateTags: canMembersCreateTags,
-                        constants: this._constants
-                    });
+                resolve({
+                    title: title,
+                    timer: this._timer,
+                    issue: this._issue,
+                    timeFormat: this._userProfile && this._userProfile.timeFormat,
+                    projects: this._projects
+                        .filter(project => project.projectStatus == Models.ProjectStatus.Open)
+                        .sort((a, b) => a.projectName.localeCompare(b.projectName, [], { sensitivity: 'base' })),
+                    tags: this._tags,
+                    canCreateProjects: isAdmin || canMembersManagePublicProjects,
+                    canCreateTags: canMembersCreateTags,
+                    constants: this._constants
+                });
             });
         });
     }

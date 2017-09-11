@@ -1,6 +1,6 @@
 ﻿class PopupController {
 
-    constructor(private _issue?: Integrations.WebToolIssueTimer) {
+    constructor() {
 
         this.initControls();
         this.switchState(this._states.loading);
@@ -10,12 +10,12 @@
             if (this.isLongRunning(data.timer.startTime)) {
                 this.fillFixForm(data.timer);
                 this.switchState(this._states.fixing);
-            } else if (_issue == null && data.timer && data.timer.isStarted) {
+            } else if (data.issue == null && data.timer && data.timer.isStarted) {
                 this.fillViewForm(data.timer);
                 this.fillCreateForm(data.title);
                 this.switchState(this._states.viewing);
             } else {
-                this.fillCreateForm((_issue && _issue.issueName) || data.title);
+                this.fillCreateForm((data.issue && data.issue.issueName) || data.title);
                 this.switchState(this._states.creating);
             }
         }).catch(error => {
@@ -30,6 +30,7 @@
     }
 
     private _activeTimer: Models.Timer;
+    private _issue: Integrations.WebToolIssueTimer;
     private _timeFormat: string;
     private _projects: Models.Project[];
     private _tags: Models.Tag[];
@@ -52,6 +53,7 @@
     setData(data: IPopupInitData) {
         if (data.timer) {
             this._activeTimer = data.timer;
+            this._issue = data.issue;
             this._timeFormat = data.timeFormat;
             this._projects = data.projects;
             this._tags = data.tags.filter(tag => !!tag).sort((a, b) => this.compare(a.tagName, b.tagName));
