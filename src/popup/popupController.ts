@@ -345,8 +345,29 @@
     }
 
     makeTagSelectData() {
-        return this._tags.map(tag => {
-            return { id: tag.tagName, text: tag.tagName };
+
+        let tags: string[] = [];
+        let index: {[key: string]: string} = {};
+        
+        this._tags.forEach(tag => {
+            tags.push(tag.tagName);
+            let key = tag.tagName.toLowerCase();
+            index[key] = tag.tagName;
+        });
+
+        if (this._canCreateTags && this._issue.tagNames) {
+            this._issue.tagNames.forEach(tag => {
+                let key = tag.toLowerCase();
+                if (!index[tag]) {
+                    tags.push(tag);
+                }
+            });
+        }
+
+        tags.sort(this.compare);
+
+        return tags.map(tag => {
+            return { id: tag, text: tag };
         });
     }
 
