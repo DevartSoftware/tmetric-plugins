@@ -50,7 +50,9 @@
             var serviceType = 'Asana';
             var serviceUrl = source.protocol + source.host;
 
-            return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+            var tagNames = $$.all('.TaskTags .Token').map(label => label.textContent);
+
+            return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
         }
     }
 
