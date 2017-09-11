@@ -382,7 +382,7 @@ class ExtensionBase {
             serviceUrl: timer.serviceUrl,
             serviceType: timer.serviceType,
             projectName: timer.projectName,
-            showIssueId: timer.showIssueId
+            showIssueId: !!timer.showIssueId
         }).then(status => {
 
             let notification: string;
