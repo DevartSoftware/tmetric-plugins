@@ -3,22 +3,26 @@
 <head>
     <meta charset="utf-8" />
     <title>TMetric</title>
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,600,700,400&subset=latin,greek,cyrillic" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,700,400&amp;subset=latin,greek,cyrillic" rel="stylesheet" type="text/css">
     <link href="../css/popup.css" rel="stylesheet" type="text/css">
     <link href="../lib/select2/select2.min.css" rel="stylesheet" type="text/css">
 </head>
 <body>
     <div class="container">
         <header>
-            <a id="site-link" href="#">
-                <img src="../images/logo.png" />
-            </a>
+            <nav class="navbar">
+                <span class="logo">
+                    <a id="site-link" href="#">
+                        <img src="../images/logo.png" />
+                    </a>
+                </span>
+            </nav>
         </header>
         <content>
             <div id="loader"></div>
             <div id="login-form">
                 <div class="row actions">
-                    <input id="login" class="input" type="button" value="Login" />
+                    <button id="login" class="btn btn-info btn-full-width">Login</button>
                 </div>
             </div>
             <div id="retry-form">
@@ -26,7 +30,7 @@
                     <strong>Connection to the server is lost. We&apos;ll try to recover in a while.</strong>
                 </div>
                 <div class="row actions">
-                    <input id="retry" class="input" type="button" value="Retry Now" />
+                    <button id="retry" class="btn btn-warning btn-full-width">Retry</button>
                 </div>
             </div>
             <div id="fix-form">
@@ -36,12 +40,12 @@
                     <strong class="startTime"></strong>
                 </div>
                 <div class="row actions">
-                    <input id="fix" class="input" type="button" value="Fix Timer" />
+                    <button id="fix" class="btn btn-info btn-full-width">Fix Timer</button>
                 </div>
             </div>
             <div id="view-form">
                 <div class="row title">
-                    <span class="label">Active Task</span><span class="time"></span>
+                    <span>Active Task&nbsp;</span><span class="time"></span>
                 </div>
                 <div class="row task">
                     <span class="id"><a id="task-link" class="link"></a></span><span class="name"></span>
@@ -56,27 +60,28 @@
                     <a id="create-link" class="link" href="#">New Time Entry</a>
                 </div>
                 <div class="row actions">
-                    <input id="stop" class="input" type="button" value="Stop" />
+                    <button id="stop" class="btn btn-danger btn-full-width">Stop</button>
                 </div>
             </div>
             <div id="create-form">
                 <div class="row title">
-                    <span class="label">New Time Entry</span>
+                    <span>Start Timer</span>
                 </div>
                 <div class="row task">
-                    <input class="input" type="text" placeholder="Description" />
+                    <input class="input form-control" type="text" placeholder="Enter description" />
                 </div>
                 <div class="row project">
-                    <select class="input" placeholder="Project" data-placeholder="Project"></select>
+                    <select class="input form-control" placeholder="Select project" data-placeholder="Select project"></select>
                 </div>
                 <div class="row new-project">
-                    <input type="text" placeholder="New Project" class="input" />
+                    <input type="text" placeholder="Enter new project" class="input form-control" />
                 </div>
                 <div class="row tags">
-                    <select class="input" placeholder="Tags" data-placeholder="Tags" multiple="multiple"></select>
+                    <select class="input" placeholder="Select tags" data-placeholder="Select tags" multiple="multiple"></select>
                 </div>
                 <div class="row actions">
-                    <input id="start" class="input" type="button" value="Start" />
+                    <button id="start" class="btn btn-success">Start</button>
+                    <button id="cancel" class="btn btn-default">Cancel</button>
                 </div>
             </div>
         </content>

@@ -1,48 +1,18 @@
-﻿@background-color: #fff;
-@background-color-dark: darken(@background-color, 50%);
-@background-color-light: lighten(@background-color, 50%);
-@border-width: 0.1em;
-@border-style: solid;
+﻿@border-style: solid;
 @border-color: #aaa;
-@border-raduis: 0.25em;
+@border-width: 0.1em;
 @color: #444;
-@color-dark: darken(@color, 50%);
 @color-light: lighten(@color, 50%);
-@font-family: "Open Sans", Helvetica, Arial, sans-serif;
-@font-size: 14px;
 @margin: 0.5em;
-@margin-large: 2.5em;
-@margin-small: 0.1em;
 @margin-double: @margin * 2;
-@margin-half: @margin / 2;
 @padding: 0.5em;
-@padding-large: 2.5em;
-@padding-small: 0.1em;
 @padding-double: @padding * 2;
-@padding-half: @padding / 2;
-
-@body-width: 20em;
-@body-height: 25em;
-
-@input-background-color: @background-color-light;
-@input-color: @color;
-@input-button-background-color: @color-light;
-@input-button-color: @background-color-light;
 
 @field-min-height: 2.5em;
 @field-line-height: 2.5em;
 
 @field-min-height-viewing: 1.2em;
 @field-line-height-viewing: 1.2em;
-
-@login-button-color: #67809f;
-@retry-button-color: #67809f;
-@fix-button-color: #67809f;
-@start-button-color: #44b6ae;
-@stop-button-color: #e26a6a;
-@save-button-color: #67809f;
-
-@dropdown-max-height: 8em;
 
 @border: @border-width @border-style @border-color;
 
@@ -55,6 +25,54 @@
 @info-color: #8A6D3B;
 @info-background-color: #FCF8E3;
 @info-border-color: #FAEBCC;
+//=============================
+@font-size-base: 14px;
+@font-family: "Open Sans", sans-serif;
+@body-width: 20em;
+@body-height: 25em;
+@background-color: #fff;
+@action-margin: 5.5em;
+@input-color: @text-color;
+@border-raduis: 4px;
+
+//== Forms
+@cursor-disabled: default;
+@input-color-placeholder: fade(@text-color, 50%);
+@dropdown-link-disabled-color: lighten(#000, 73%);
+
+//== Navbar
+@navbar-default-bg: #464646;
+@navbar-height: 70px;
+
+//== Colors
+@accent: #178fe5;
+
+//== Typografy
+@text-color: #525252;
+@line-height-base: 1.42857;
+
+//== Buttons
+@btn-default-color: @text-color;
+@btn-default-bg: rgba(0,0,0,0.05);
+@btn-default-border: rgba(0,0,0,0.07);
+
+@btn-success-color: #fff;
+@btn-success-bg: #00bc6a;
+@btn-success-border: @btn-success-bg;
+
+@btn-danger-color: #fff;
+@btn-danger-bg: #e26a6a;
+@btn-danger-border: @btn-danger-bg;
+
+@btn-info-color: #fff;
+@btn-info-bg: #14b9d6;
+@btn-info-border: @btn-info-bg;
+
+@btn-warning-color: #fff;
+@btn-warning-bg: #f0ad4e;
+@btn-warning-border: @btn-warning-bg;
+
+@btn-font-weight: 300;
 
 body {
     width: @body-width;
@@ -62,10 +80,9 @@ body {
     height: auto;
     min-height: initial;
     margin: auto;
-    padding: @padding-double;
-    font-family: @font-family;
-    font-size: @font-size;
-    color: @color;
+    font-family: @font-family !important;
+    font-size: @font-size-base;
+    color: @text-color;
     background-color: @background-color;
     overflow: hidden;
 }
@@ -73,6 +90,28 @@ body {
 header {
     margin: 0;
     text-align: center;
+    box-shadow: 0 2px 3px 0 rgba(47,47,47,.25);
+}
+
+img {
+    vertical-align: middle;
+}
+
+.navbar {
+    background-color: @navbar-default-bg;
+    position: relative;
+    display: flex;
+    justify-content: flex-start;
+    padding-left: @padding-double;
+    padding-right: @padding-double;
+
+    & > * {
+        height: @navbar-height;
+    }
+
+    .logo {
+        line-height: @navbar-height;
+    }
 }
 
 .message {
@@ -111,15 +150,44 @@ header {
     }
 }
 
+.form-control {
+    width: 100% !important;
+    height: 34px !important;
+    padding: 6px 0 !important;
+    background-color: transparent !important;
+    border: none !important;
+    border-bottom: 1px solid #e0e0e0 !important;
+    border-radius: 0 !important;
+    transition: border-color ease-in-out .2s !important;
+    font-size: @font-size-base !important;
+    line-height: 1.42457 !important;
+    color: #555 !important;
+    display: block !important;
+    margin: 0 !important;
+
+    &:focus {
+        border-bottom: 2px solid @accent !important;
+        outline: 0 !important;
+        padding: 6px 0 5px !important;
+    }
+}
+
+input {
+    color: @input-color;
+    background-color: #fff;
+    .placeholder;
+}
+
 .row {
-    margin: @margin-double 0;
+    margin-top: 20px;
     word-wrap: break-word;
 
     > * {
-        width: 100%;
         box-sizing: border-box;
-        line-height: @field-line-height;
-        min-height: @field-min-height;
+    }
+
+    > *:not(button) {
+        width: 100%;
     }
 
     .label, .id {
@@ -127,11 +195,10 @@ header {
     }
 
     &.title {
-        .label {
-            font-size: large;
-            line-height: initial;
-            min-height: initial;
-        }
+        font-size: 21px;
+        font-weight: 300;
+        line-height: 33px;
+        letter-spacing: 0;
     }
 
     &.task {
@@ -171,65 +238,16 @@ header {
         color: #0082a7;
     }
 
-    input {
-        color: @input-color;
-        background-color: @input-background-color;
-    }
-
     .input {
-        border: @border;
-        border-radius: @border-raduis;
-        padding: 0 @padding;
-        font-family: @font-family;
-        font-size: @font-size;
-        color: @input-color;
-        background-color: @input-background-color;
-    }
-
-    .input[type=button] {
-        border: 0;
-        color: @input-button-color;
-        background-color: @input-button-background-color;
-        cursor: pointer;
-    }
-
-    .button-states(@color) {
-        background-color: @color;
-
-        &:hover {
-            background-color: darken(@color, 10%);
-        }
-
-        &:active {
-            background-color: darken(@color, 20%);
-        }
+        font-family: @font-family !important;
     }
 
     &.actions {
-        margin: @margin-large + @margin-double 0 @margin-large 0;
+        margin-top: @action-margin;
+        margin-bottom: @padding-double;
 
-        #login {
-            .button-states(@login-button-color);
-        }
-
-        #retry {
-            .button-states(@retry-button-color);
-        }
-
-        #fix {
-            .button-states(@fix-button-color);
-        }
-
-        #start {
-            .button-states(@start-button-color);
-        }
-
-        #stop {
-            .button-states(@stop-button-color);
-        }
-
-        #save {
-            .button-states(@save-button-color);
+        & > *:not(:last-child) {
+            margin-right: 12px;
         }
     }
 }
@@ -238,9 +256,144 @@ header {
     text-align: center;
 }
 
+// ==============================================
+//                  BUTTONS
+// ==============================================
+.btn {
+    min-width: 90px;
+    display: inline-block;
+    margin-bottom: 0; // For input.btn
+    font-weight: @btn-font-weight;
+    text-align: center;
+    letter-spacing: .2px;
+    vertical-align: middle;
+    touch-action: manipulation;
+    cursor: pointer;
+    box-shadow: none !important;
+    background-image: none;
+    border: 1px solid transparent;
+    white-space: nowrap;
+    .button-size(6px, 12px, 14px, @line-height-base, 3px);
+
+    &,
+    &:active,
+    &.active {
+        &:focus,
+        &.focus {
+            outline: none;
+        }
+    }
+
+    &:hover,
+    &:focus,
+    &.focus {
+        color: @btn-default-color;
+        text-decoration: none;
+    }
+
+    &:active,
+    &.active {
+        outline: 0;
+        background-image: none;
+    }
+
+    &.disabled,
+    &[disabled],
+    fieldset[disabled] & {
+        cursor: @cursor-disabled;
+        opacity: 0.65;
+    }
+}
+
+.btn-default {
+    @color: @btn-default-color;
+    @background: @btn-default-bg;
+    @background-hover: rgba(0, 0, 0, 0.08);
+    @background-pressed: rgba(0, 0, 0, 0.11);
+    @border: @btn-default-border;
+    @border-hover: rgba(0, 0, 0, 0.1);
+    @border-pressed: rgba(0, 0, 0, 0.13);
+
+    color: @color;
+    background-color: @background;
+    border-color: @border;
+
+    &:focus,
+    &.focus {
+        color: @color;
+        background-color: @background-hover;
+        border-color: @border-hover;
+    }
+
+    &:hover {
+        color: @color;
+        background-color: @background-hover;
+        border-color: @border-hover;
+    }
+
+    &:active,
+    &.active,
+    .open > &.dropdown-toggle {
+        color: @color;
+        background-color: @background-hover;
+        border-color: @border-hover;
+
+        &:hover,
+        &:focus,
+        &.focus {
+            color: @color;
+            background-color: @background-pressed;
+            border-color: @border-pressed;
+        }
+    }
+
+    &:active,
+    &.active,
+    .open > &.dropdown-toggle {
+        background-image: none;
+    }
+
+    &.disabled,
+    &[disabled],
+    fieldset[disabled] & {
+        &:hover,
+        &:focus,
+        &.focus {
+            background-color: @background;
+            border-color: @border;
+        }
+    }
+}
+
+.btn-info {
+    .button-variant(@btn-info-color, @btn-info-bg, @btn-info-border);
+}
+
+.btn-success {
+    .button-variant(@btn-success-color, @btn-success-bg, @btn-success-border);
+}
+
+.btn-danger {
+    .button-variant(@btn-danger-color, @btn-danger-bg, @btn-danger-border);
+}
+
+.btn-warning {
+    .button-variant(@btn-warning-color, @btn-warning-bg, @btn-warning-border);
+}
+
+.btn-full-width {
+    width: 100% !important;
+}
+
 // states
 
 content {
+
+    & > * {
+        padding-left: @padding-double;
+        padding-right: @padding-double;
+    }
+
     #loader {
         display: none;
     }
@@ -305,13 +458,6 @@ content.viewing {
             line-height: @field-line-height-viewing;
         }
     }
-
-    .row.actions {
-        > * {
-            min-height: @field-min-height;
-            line-height: @field-line-height;
-        }
-    }
 }
 
 content.creating {
@@ -320,57 +466,222 @@ content.creating {
     }
 }
 
-// select2 styles
-
+// ================================================
+//                      SELECT2
+// ================================================
 .select2 {
     width: 100% !important;
-    box-sizing: border-box !important;
+}
 
-    .select2-selection {
-        border: @border !important;
-        border-radius: @border-raduis !important;
-        height: unset !important;
-        min-height: unset !important;
-        line-height: unset !important;
+.select2-selection--multiple {
+    height: 34px !important;
+    padding: 0 0 !important;
+    border: none !important;
+    border-bottom: 1px solid #e0e0e0 !important;
+    border-radius: 0 !important;
+    transition: border-color ease-in-out .2s !important;
 
-        * {
-            height: unset !important;
-            min-height: unset !important;
-            line-height: unset !important;
-        }
+    .select2-selection__rendered {
+        box-sizing: border-box !important;
+        display: block !important;
+        line-height: 1.42457 !important;
+        list-style: none !important;
+        margin: 0 !important;
+        overflow: hidden !important;
+        padding: 0 !important;
+        width: 100% !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }
 
-        .select2-selection__rendered, .select2-selection__arrow {
-            display: block !important;
-            min-height: @field-min-height !important;
-            line-height: @field-line-height !important;
-        }
-
-        @multiselect-container-padding: @padding-small;
-        @multiselect-tag-margin: @margin-small;
-        @multiselect-search-margin: @margin - @multiselect-container-padding - @multiselect-tag-margin;
-
-        ul.select2-selection__rendered {
-            padding: @multiselect-container-padding !important;
-
-            .select2-selection__choice, .select2-search {
-                box-sizing: border-box !important;
-                margin: @multiselect-tag-margin !important;
-                padding: 0 @padding-half !important;
-                height: (@field-min-height - 2 * @margin-small - 2 * @padding-small) !important;
-                line-height: (@field-min-height - 2 * @margin-small - 2 * @padding-small) !important;
-            }
-
-            .select2-search {
-                padding: 0 !important;
-
-                .select2-search__field {
-                    margin: 0 @multiselect-search-margin !important;
-                }
-            }
+    .select2-selection__choice {
+        color: @text-color !important;
+        background: @btn-default-bg !important;
+        border: 1px solid @btn-default-border !important;
+        border-radius: 3px !important;
+        cursor: default !important;
+        float: left !important;
+        margin: 5px 0 0 6px !important;
+        padding: 0 6px !important;
+    }
+    /**
+         * Minus 2px borders.
+         */
+    .select2-search--inline {
+        .select2-search__field {
+            background: transparent !important;
+            padding: 0 0 !important;
+            height: 32px;
+            line-height: 1.42457 !important;
+            margin-top: 0 !important;
+            min-width: 5em;
+            font-family: @font-family;
+            .placeholder;
         }
     }
 }
 
-.select2-results__options {
-    max-height: @dropdown-max-height !important;
+.select2-selection__rendered .select2-selection__placeholder {
+    color: @input-color-placeholder !important;
+}
+
+.select2-container--focus,
+.select2-container--open {
+    .select2-selection {
+        border-color: @accent !important;
+    }
+}
+
+.select2-container--open {
+    &.select2-container--below {
+        .select2-selection {
+            border-bottom-color: transparent !important;
+        }
+    }
+}
+
+.select2-container--open .select2-dropdown--below {
+    border-top: 1px solid rgba(0, 0, 0, 0.15) !important;
+    border-top-left-radius: @border-raduis !important;
+    border-top-right-radius: @border-raduis !important;
+}
+
+.select2-dropdown {
+    border-color: rgba(0, 0, 0, 0.15) !important;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175) !important;
+    overflow-x: hidden;
+}
+
+.select2-dropdown .select2-dropdown--below {
+    border: 1px solid @border-color !important;
+    border-radius: @border-raduis !important;
+}
+
+.select2-selection--single {
+    height: 34px !important;
+    padding: 6px 0 !important;
+    border: none !important;
+    border-bottom: 1px solid #e0e0e0 !important;
+    border-radius: 0 !important;
+    transition: border-color ease-in-out .2s !important;
+
+    &:focus {
+        border-bottom: 2px solid @accent !important;
+        outline: 0 !important;
+        padding: 6px 0 5px 0 !important;
+    }
+
+    .select2-selection__rendered {
+        color: @text-color;
+        padding-left: 0 !important;
+        line-height: @line-height-base !important;
+        .placeholder;
+    }
+
+    .select2-selection__arrow {
+        height: 31px !important;
+    }
+}
+
+.select2-results__option {
+
+    &[role=group] {
+        padding: 0 !important;
+    }
+
+    &[aria-disabled=true] {
+        color: @dropdown-link-disabled-color !important;
+        cursor: @cursor-disabled !important;
+    }
+    /**
+         * Hover state.
+         */
+    &[aria-selected=true] {
+        background-color: lighten(#eee, 3%) !important;
+        color: #555 !important;
+    }
+    /**
+         * Selected state.
+         */
+    &--highlighted[aria-selected] {
+        background-color: lighten(#eee, 3%) !important;
+        color: #555 !important;
+    }
+}
+// =================================================
+//                      MIXINS
+// =================================================
+.button-variant(@color, @background, @border) {
+    color: @color;
+    background-color: @background;
+    border-color: @border;
+
+    &:focus,
+    &.focus {
+        color: @color;
+        background-color: darken(@background, 5%);
+        border-color: darken(@border, 5%);
+    }
+
+    &:hover {
+        color: @color;
+        background-color: darken(@background, 5%);
+        border-color: darken(@border, 5%);
+    }
+
+    &:active,
+    &.active,
+    .open > &.dropdown-toggle {
+        color: @color;
+        background-color: darken(@background, 5%);
+        border-color: darken(@border, 5%);
+
+        &:hover,
+        &:focus,
+        &.focus {
+            color: @color;
+            background-color: darken(@background, 10%);
+            border-color: darken(@border, 10%);
+        }
+    }
+
+    &:active,
+    &.active,
+    .open > &.dropdown-toggle {
+        background-image: none;
+    }
+
+    &.disabled,
+    &[disabled],
+    fieldset[disabled] & {
+        &:hover,
+        &:focus,
+        &.focus {
+            background-color: @background;
+            border-color: @border;
+        }
+    }
+}
+
+.button-size(@padding-vertical, @padding-horizontal, @font-size, @line-height, @border-radius) {
+    padding: @padding-vertical @padding-horizontal;
+    font-size: @font-size;
+    line-height: @line-height;
+    border-radius: @border-radius;
+}
+
+.placeholder {
+
+    &::-moz-placeholder {
+        color: @input-color-placeholder !important;
+        opacity: 1; // Override Firefox's unusual default opacity; see https://github.com/twbs/bootstrap/pull/11526
+    }
+
+    &:-ms-input-placeholder {
+        color: @input-color-placeholder !important;
+    }
+
+    &::-webkit-input-placeholder {
+        color: @input-color-placeholder !important;
+    }
 }

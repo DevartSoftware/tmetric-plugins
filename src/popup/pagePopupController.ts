@@ -31,7 +31,7 @@ padding: 0 !important; top: 0; left: 0; height: 100%;
 }
 .container {
 position: absolute; top: 50%; left: 50%; margin-left: -175px; margin-top: -211px;
-width: 320px; padding: 15px; background-color: #ffffff;
+width: 320px; background-color: #ffffff;
 }
 `;
         style.appendChild(document.createTextNode(css));
