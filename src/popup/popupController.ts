@@ -392,7 +392,6 @@
     }
 
     private onCancelClick() {
-        console.log('Cancel click');
         this.close();
     }
 
