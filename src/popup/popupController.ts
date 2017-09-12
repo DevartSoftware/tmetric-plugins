@@ -346,27 +346,29 @@
 
     makeTagItems() {
 
-        let tags: string[] = [];
-        let index: { [key: string]: string } = {};
+        let dictionary: { [key: string]: string } = {};
 
         this._tags.forEach(tag => {
-            tags.push(tag.tagName);
             let key = tag.tagName.toLowerCase();
-            index[key] = tag.tagName;
+            dictionary[key] = tag.tagName;
         });
 
-        if (this._canCreateTags && this._issue.tagNames) {
-            this._issue.tagNames.forEach(tag => {
+        if (this._canCreateTags) {
+            (this._issue.tagNames || []).forEach(tag => {
                 let key = tag.toLowerCase();
-                if (!index[key]) {
-                    tags.push(tag);
+                if (!dictionary[key]) {
+                    dictionary[key] = tag;
                 }
             });
         }
 
-        tags.sort(this.compare);
+        let tags: IdTextPair[] = [];
 
-        return tags.map(tag => ({ id: tag.toLowerCase(), text: tag }));
+        for (let key in dictionary) {
+            tags.push({ id: key, text: dictionary[key] });
+        }
+
+        return tags.sort((a, b) => this.compare(a.text, b.text));
 
     }
 
