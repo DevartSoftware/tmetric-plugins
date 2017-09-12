@@ -371,14 +371,7 @@
     }
 
     makeTagSelectedItems() {
-
-        let tags: string[] = [];
-
-        if (this._canCreateTags && this._issue.tagNames) {
-            tags = this._issue.tagNames.map(tag => tag.toLowerCase());
-        }
-
-        return tags;
+        return (this._issue.tagNames || []).map(tag => tag.toLowerCase());
     }
 
     getSelectValue(selector: string) {
