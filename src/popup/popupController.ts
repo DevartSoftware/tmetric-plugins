@@ -1,8 +1,4 @@
-﻿interface SelectOption extends IdTextPair {
-    preselected?: boolean;
-}
-
-class PopupController {
+﻿class PopupController {
 
     constructor() {
 
@@ -189,8 +185,8 @@ class PopupController {
 
     fillCreateForm(description: string) {
         $(this._forms.create + ' .task .input').val(description).focus().select();
-        this.setSelectValue(this._forms.create + ' .project .input', this.makeProjectSelectData());
-        this.setSelectValue(this._forms.create + ' .tags .input', this.makeTagSelectOptions());
+        this.initSelector(this._forms.create + ' .project .input', this.makeProjectItems());
+        this.initMultiSelector(this._forms.create + ' .tags .input', this.makeTagItems(), this.makeTagSelectedItems(), this._canCreateTags);
         if (description) {
             setTimeout(() => {
                 $(this._forms.create + ' .project .input').select2('focus');
@@ -337,7 +333,7 @@ class PopupController {
 
     private _createNewProjectOption: IdTextPair = { id: -1, text: 'Create New Project' };
 
-    makeProjectSelectData() {
+    makeProjectItems() {
         let projects = <IdTextPair[]>[];
         if (this._canCreateProjects) {
             projects.push(this._createNewProjectOption);
@@ -348,7 +344,7 @@ class PopupController {
         }));
     }
 
-    makeTagSelectData() {
+    makeTagItems() {
 
         let tags: string[] = [];
         let index: { [key: string]: string } = {};
@@ -370,28 +366,36 @@ class PopupController {
 
         tags.sort(this.compare);
 
-        return tags.map(tag => {
-            let key = tag.toLowerCase();
-            let preselected = !index[key];
-            return <SelectOption>{ id: tag, text: tag, preselected };
-        });
+        return tags.map(tag => ({ id: tag, text: tag }));
+
     }
 
-    makeTagSelectOptions(): Select2Options {
-        return {
-            data: this.makeTagSelectData(),
-            tags: this._canCreateTags
-        };
+    makeTagSelectedItems() {
+
+        let tags: string[] = [];
+
+        if (this._canCreateTags && this._issue.tagNames) {
+            tags = this._issue.tagNames;
+        }
+
+        tags.sort(this.compare);
+
+        return tags;
     }
 
     getSelectValue(selector: string) {
         return $(selector).select().val();
     }
 
-    setSelectValue(selector: string, data: Select2Options | SelectOption[]) {
-        let options: Select2Options = data instanceof Array ? { data } : data;
-        let values = (<SelectOption[]>options.data).filter(_ => _.preselected).map(_ => _.id);
-        $(selector).select2(options).val(values).trigger('change');
+    initSelector(selector: string, items: IdTextPair[]) {
+        $(selector).select2({ data: items }).trigger('change');
+    }
+
+    initMultiSelector(selector: string, items: IdTextPair[], selectedItems: string[], allowNewItems?: boolean) {
+        $(selector).select2({
+            data: items,
+            tags: allowNewItems
+        }).val(selectedItems).trigger('change');
     }
 
     // ui event handlers
