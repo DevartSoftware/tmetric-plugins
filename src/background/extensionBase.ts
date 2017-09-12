@@ -616,6 +616,8 @@ class ExtensionBase {
                     canCreateTags: canMembersCreateTags,
                     constants: this._constants
                 });
+
+                this._issue = null;
             });
         });
     }
