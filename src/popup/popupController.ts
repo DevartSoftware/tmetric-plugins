@@ -1,4 +1,8 @@
-﻿class PopupController {
+﻿interface SelectOption extends IdTextPair {
+    preselected?: boolean;
+}
+
+class PopupController {
 
     constructor() {
 
@@ -334,12 +338,12 @@
     private _createNewProjectOption: IdTextPair = { id: -1, text: 'Create New Project' };
 
     makeProjectSelectData() {
-        let selectableProjects = <IdTextPair[]>[];
+        let projects = <IdTextPair[]>[];
         if (this._canCreateProjects) {
-            selectableProjects.push(this._createNewProjectOption);
+            projects.push(this._createNewProjectOption);
         }
-        selectableProjects.push(this._noProjectOption);
-        return selectableProjects.concat(this._projects.map(project => {
+        projects.push(this._noProjectOption);
+        return projects.concat(this._projects.map(project => {
             return { id: project.projectId, text: project.projectName };
         }));
     }
@@ -358,7 +362,7 @@
         if (this._canCreateTags && this._issue.tagNames) {
             this._issue.tagNames.forEach(tag => {
                 let key = tag.toLowerCase();
-                if (!index[tag]) {
+                if (!index[key]) {
                     tags.push(tag);
                 }
             });
@@ -367,7 +371,9 @@
         tags.sort(this.compare);
 
         return tags.map(tag => {
-            return { id: tag, text: tag };
+            let key = tag.toLowerCase();
+            let preselected = !index[key];
+            return <SelectOption>{ id: tag, text: tag, preselected };
         });
     }
 
@@ -382,11 +388,10 @@
         return $(selector).select().val();
     }
 
-    setSelectValue(selector: string, options: Select2Options);
-    setSelectValue(selector: string, data: IdTextPair[]);
-    setSelectValue(selector: string, param: any) {
-        let options: Select2Options = param instanceof Array ? { data: param } : param;
-        $(selector).select2(options).val('').trigger('change');
+    setSelectValue(selector: string, data: Select2Options | SelectOption[]) {
+        let options: Select2Options = data instanceof Array ? { data } : data;
+        let values = (<SelectOption[]>options.data).filter(_ => _.preselected).map(_ => _.id);
+        $(selector).select2(options).val(values).trigger('change');
     }
 
     // ui event handlers
