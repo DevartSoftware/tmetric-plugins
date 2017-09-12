@@ -57,6 +57,10 @@
 @btn-default-bg: rgba(0,0,0,0.05);
 @btn-default-border: rgba(0,0,0,0.07);
 
+@btn-primary-color: #fff;
+@btn-primary-bg: #545454;
+@btn-primary-border: @btn-primary-bg;
+
 @btn-success-color: #fff;
 @btn-success-bg: #00bc6a;
 @btn-success-border: @btn-success-bg;
@@ -64,14 +68,6 @@
 @btn-danger-color: #fff;
 @btn-danger-bg: #e26a6a;
 @btn-danger-border: @btn-danger-bg;
-
-@btn-info-color: #fff;
-@btn-info-bg: #14b9d6;
-@btn-info-border: @btn-info-bg;
-
-@btn-warning-color: #fff;
-@btn-warning-bg: #f0ad4e;
-@btn-warning-border: @btn-warning-bg;
 
 @btn-font-weight: 300;
 
@@ -371,10 +367,6 @@ input {
     }
 }
 
-.btn-info {
-    .button-variant(@btn-info-color, @btn-info-bg, @btn-info-border);
-}
-
 .btn-success {
     .button-variant(@btn-success-color, @btn-success-bg, @btn-success-border);
 }
@@ -383,8 +375,8 @@ input {
     .button-variant(@btn-danger-color, @btn-danger-bg, @btn-danger-border);
 }
 
-.btn-warning {
-    .button-variant(@btn-warning-color, @btn-warning-bg, @btn-warning-border);
+.btn-primary {
+    .button-variant(@btn-primary-color, @btn-primary-bg, @btn-primary-border);
 }
 
 .btn-full-width {
