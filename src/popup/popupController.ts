@@ -366,7 +366,7 @@
 
         tags.sort(this.compare);
 
-        return tags.map(tag => ({ id: tag, text: tag }));
+        return tags.map(tag => ({ id: tag.toLowerCase(), text: tag }));
 
     }
 
@@ -375,10 +375,8 @@
         let tags: string[] = [];
 
         if (this._canCreateTags && this._issue.tagNames) {
-            tags = this._issue.tagNames;
+            tags = this._issue.tagNames.map(tag => tag.toLowerCase());
         }
-
-        tags.sort(this.compare);
 
         return tags;
     }
