@@ -351,8 +351,8 @@ class PopupController {
     makeTagSelectData() {
 
         let tags: string[] = [];
-        let index: {[key: string]: string} = {};
-        
+        let index: { [key: string]: string } = {};
+
         this._tags.forEach(tag => {
             tags.push(tag.tagName);
             let key = tag.tagName.toLowerCase();
@@ -426,10 +426,11 @@ class PopupController {
     private onProjectSelectChange() {
         const $divNewProject = $(this._forms.create + ' .new-project');
         const $inputNewProject = $(this._forms.create + ' .new-project .input');
-        const issueProjectName = (this._issue && this._issue.projectName) || '';
+        const self = this;
 
         return function () {
             if ($(this).val() == -1) { // create new project option
+                let issueProjectName = (self._issue && self._issue.projectName) || '';
                 $inputNewProject.val(issueProjectName);
                 $divNewProject.css('display', 'block');
             } else {

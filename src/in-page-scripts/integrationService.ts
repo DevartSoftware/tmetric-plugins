@@ -20,7 +20,7 @@
 
             Object.assign(iframe.style, {
                 position: 'fixed',
-                zIndex: 9999,
+                zIndex: 999999,
                 top: 0,
                 left: 0,
                 width: '100%',
@@ -34,7 +34,6 @@
         static hidePopup() {
             $$('#' + this.popupId).remove();
         }
-
 
         static isUrlMatched(integration: WebToolIntegration, url: string) {
             function convertPatternToRegExp(matchPattern: string) {
