@@ -515,11 +515,11 @@ class ExtensionBase {
             return;
         }
 
-        let tagsDictionary: { [tagName: string]: Models.Tag } = {};
-        this._tags.forEach(tag => tagsDictionary[tag.tagName.toLowerCase()] = tag);
-
         if (timer.tagNames) {
 
+            let tagsDictionary: { [tagName: string]: Models.Tag } = {};
+            this._tags.forEach(tag => tagsDictionary[tag.tagName.toLowerCase()] = tag);
+    
             let timerHasWorkType = timer.tagNames.some(name => {
                 let tag = tagsDictionary[name.toLowerCase()];
                 return tag && tag.isWorkType;
