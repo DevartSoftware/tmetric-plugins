@@ -270,6 +270,8 @@ class ExtensionBase {
         this.putData(timer,
             timer => {
 
+                this.addDefaultWorkType(timer);
+
                 if (!tabId ||
                     !timer.isStarted ||
                     (timer.projectName && this._projects.filter(_ => _.projectName == timer.projectName).length)) {
@@ -505,6 +507,34 @@ class ExtensionBase {
         return 'Connection to the server failed or was aborted.';
     }
 
+    private addDefaultWorkType(timer: Integrations.WebToolIssueTimer) {
+
+        let activeAccount = this._userProfile.accountMembership.find(_ => _.account.accountId == this._userProfile.activeAccountId);
+        let defaultWorkType = this._tags.find(tag => tag.tagId == activeAccount.defaultWorkTypeId);
+        if (!defaultWorkType) {
+            return;
+        }
+
+        let tagsDictionary: { [tagName: string]: Models.Tag } = {};
+        this._tags.forEach(tag => tagsDictionary[tag.tagName.toLowerCase()] = tag);
+
+        if (timer.tagNames) {
+
+            let timerHasWorkType = timer.tagNames.some(name => {
+                let tag = tagsDictionary[name.toLowerCase()];
+                return tag && tag.isWorkType;
+            });
+    
+            if (!timerHasWorkType) {
+                timer.tagNames.unshift(defaultWorkType.tagName);
+            }
+    
+        } else {
+            timer.tagNames = [ defaultWorkType.tagName ];
+        }
+
+    }
+
     // issues durations cache
 
     private _issuesDurationsCache: { [key: string]: Integrations.WebToolIssueDuration } = {};
@@ -594,10 +624,10 @@ class ExtensionBase {
     private getPopupData(): Promise<IPopupInitData> {
         return new Promise<IPopupInitData>((resolve, reject) => {
             this.getActiveTabTitle().then((title) => {
-
-                let activeAccount = this._userProfile.accountMembership.find(_ => _.account.accountId == this._userProfile.activeAccountId);
-                let userRole = activeAccount.role;
-                let defaultWorkTypeId = activeAccount.defaultWorkTypeId;
+                let activeAccountId = this._userProfile.activeAccountId;
+                let userRole = this._userProfile.accountMembership
+                    .find(_ => _.account.accountId == activeAccountId)
+                    .role;
 
                 let canMembersManagePublicProjects = this._account.canMembersManagePublicProjects;
                 let canMembersCreateTags = this._account.canMembersCreateTags;
@@ -615,7 +645,6 @@ class ExtensionBase {
                         .filter(project => project.projectStatus == Models.ProjectStatus.Open)
                         .sort((a, b) => a.projectName.localeCompare(b.projectName, [], { sensitivity: 'base' })),
                     tags: this._tags,
-                    defaultWorkType: this._tags.find(tag => tag.tagId == defaultWorkTypeId),
                     canCreateProjects: isAdmin || canMembersManagePublicProjects,
                     canCreateTags: canMembersCreateTags,
                     constants: this._constants

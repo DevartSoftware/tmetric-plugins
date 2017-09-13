@@ -34,7 +34,6 @@
     private _timeFormat: string;
     private _projects: Models.Project[];
     private _tags: Models.Tag[];
-    private _defaultWorkType: Models.Tag;
     private _constants: Models.Constants;
     private _canCreateProjects: boolean;
     private _canCreateTags: boolean;
@@ -58,7 +57,6 @@
             this._timeFormat = data.timeFormat;
             this._projects = data.projects;
             this._tags = data.tags.filter(tag => !!tag).sort((a, b) => this.compare(a.tagName, b.tagName));
-            this._defaultWorkType = data.defaultWorkType;
             this._constants = data.constants;
             this._canCreateProjects = data.canCreateProjects;
             this._canCreateTags = data.canCreateTags;
@@ -377,13 +375,6 @@
         if (this._issue && this._issue.tagNames) {
 
             let selectedTags = this._issue.tagNames.map(tag => tag.toLowerCase());
-
-            if (this._defaultWorkType) {
-                let defaultWorkTypeTag = this._defaultWorkType.tagName.toLowerCase();
-                if (selectedTags.indexOf(defaultWorkTypeTag) < 0) {
-                    selectedTags.unshift(defaultWorkTypeTag);
-                }
-            }
 
             let dictionary: { [key: string]: Models.Tag } = {};
             this._tags.forEach(tag => dictionary[tag.tagName.toLowerCase()] = tag);
