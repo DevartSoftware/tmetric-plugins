@@ -69,8 +69,7 @@
             // https://devart.visualstudio.com/
             let serviceUrl = source.protocol + source.host;
             let serviceType = 'TFS';
-            let controlContainer = $$.all('.work-item-form-main-core .work-item-header-page .work-item-header-control-container')[2];
-            let projectName = (<HTMLInputElement>$$.try('input', controlContainer)).value;
+            let projectName = (<HTMLInputElement>$$.try('.work-item-form-main-core .combo.input-text-box.treeSearch.drop input')).value;
 
             return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
         }
