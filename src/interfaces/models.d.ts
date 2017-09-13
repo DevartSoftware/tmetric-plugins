@@ -172,5 +172,8 @@ declare module Models {
         tagId: number;
         accountId: number;
         tagName: string;
+        defaultBillableRate: any;
+        isWorkType: boolean;
+        workTypeProjects: number[];
     }
 }

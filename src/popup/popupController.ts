@@ -373,7 +373,24 @@
 
     makeTagSelectedItems() {
         if (this._issue && this._issue.tagNames) {
-            return this._issue.tagNames.map(tag => tag.toLowerCase());
+
+            let selectedTags = this._issue.tagNames.map(tag => tag.toLowerCase());
+
+            let dictionary: { [key: string]: Models.Tag } = {};
+            this._tags.forEach(tag => dictionary[tag.tagName.toLowerCase()] = tag);
+
+            let firstWorkType: Models.Tag = null;
+
+            return selectedTags.filter(tag => {
+                let accountTag = dictionary[tag.toLowerCase()];
+                if (accountTag && accountTag.isWorkType) {
+                    if (firstWorkType) {
+                        return false;
+                    }
+                    firstWorkType = accountTag;
+                }
+                return true;
+            });
         }
         return [];
     }
