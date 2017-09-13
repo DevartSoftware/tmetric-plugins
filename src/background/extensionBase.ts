@@ -594,14 +594,15 @@ class ExtensionBase {
     private getPopupData(): Promise<IPopupInitData> {
         return new Promise<IPopupInitData>((resolve, reject) => {
             this.getActiveTabTitle().then((title) => {
-                let activeAccountId = this._userProfile.activeAccountId;
-                let userRole = this._userProfile.accountMembership
-                    .find(_ => _.account.accountId == activeAccountId)
-                    .role;
+
+                let activeAccount = this._userProfile.accountMembership.find(_ => _.account.accountId == this._userProfile.activeAccountId);
+                let userRole = activeAccount.role;
+                let defaultWorkTypeId = activeAccount.defaultWorkTypeId;
 
                 let canMembersManagePublicProjects = this._account.canMembersManagePublicProjects;
                 let canMembersCreateTags = this._account.canMembersCreateTags;
                 let isAdmin = (userRole == Models.ServiceRole.Admin || userRole == Models.ServiceRole.Owner);
+
                 let issue = this._newPopupIssue;
                 this._newPopupIssue = null;
 
@@ -614,6 +615,7 @@ class ExtensionBase {
                         .filter(project => project.projectStatus == Models.ProjectStatus.Open)
                         .sort((a, b) => a.projectName.localeCompare(b.projectName, [], { sensitivity: 'base' })),
                     tags: this._tags,
+                    defaultWorkType: this._tags.find(tag => tag.tagId == defaultWorkTypeId),
                     canCreateProjects: isAdmin || canMembersManagePublicProjects,
                     canCreateTags: canMembersCreateTags,
                     constants: this._constants

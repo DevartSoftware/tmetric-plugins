@@ -79,6 +79,7 @@ declare module Models {
         accountMemberId: number;
         account: Models.Account;
         role: ServiceRole;
+        defaultWorkTypeId: number;
         isLocked: boolean;
         userProfile: Models.UserProfile;
     }
