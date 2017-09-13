@@ -68,7 +68,14 @@
         pingTimeouts[callbackAction] = setTimeout(() => finalize(), 30000);
 
         try {
-            chrome.runtime.sendMessage(message);
+            chrome.runtime.sendMessage(message, response => {
+                let error = chrome.runtime.lastError;
+
+                // Background page is not loaded yet
+                if (error) {
+                    console.log(`${message.action}: ${error}`)
+                }
+            });
         }
         catch (e) {
             finalize();

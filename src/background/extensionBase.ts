@@ -714,14 +714,24 @@ class ExtensionBase {
     }
 
     sendToTabs(message: ITabMessage, tabId?: number) {
+
         if (tabId != null) {
             chrome.tabs.sendMessage(tabId, message);
+            return;
         }
-        else {
-            chrome.tabs.query({}, tabs => tabs.forEach(tab => {
-                chrome.tabs.sendMessage(tab.id, message);
-            }));
-        }
+
+        chrome.tabs.query({}, tabs => tabs.forEach(tab => {
+            if (tab.url && tab.url.startsWith('http')) {
+                chrome.tabs.sendMessage(tab.id, message, response => {
+
+                    // Ignore errors in broadcast messages
+                    let error = chrome.runtime.lastError;
+                    if (error) {
+                        console.log(`${message.action}: ${error}`)
+                    }
+                });
+            }
+        }));
     }
 
     getTestValue(name: string): any {
