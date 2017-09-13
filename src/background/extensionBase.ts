@@ -91,7 +91,7 @@ class ExtensionBase {
 
     private _timer: Models.Timer;
 
-    private _issue: Integrations.WebToolIssueTimer;
+    private _newPopupIssue: Integrations.WebToolIssueTimer;
 
     private _timeEntries: Models.TimeEntry[];
 
@@ -280,7 +280,7 @@ class ExtensionBase {
                 showPopup = true;
 
                 // this timer will be send when popup ask for initial data
-                this._issue = timer;
+                this._newPopupIssue = timer;
 
                 return this.connection.connect().then(() => {
                     this.sendToTabs({ action: 'showPopup', data: timer }, tabId);
@@ -602,11 +602,13 @@ class ExtensionBase {
                 let canMembersManagePublicProjects = this._account.canMembersManagePublicProjects;
                 let canMembersCreateTags = this._account.canMembersCreateTags;
                 let isAdmin = (userRole == Models.ServiceRole.Admin || userRole == Models.ServiceRole.Owner);
+                let issue = this._newPopupIssue;
+                this._newPopupIssue = null;
 
-                resolve({
-                    title: title,
+                resolve(<IPopupInitData>{
+                    title,
                     timer: this._timer,
-                    issue: this._issue,
+                    issue,
                     timeFormat: this._userProfile && this._userProfile.timeFormat,
                     projects: this._projects
                         .filter(project => project.projectStatus == Models.ProjectStatus.Open)
@@ -616,8 +618,6 @@ class ExtensionBase {
                     canCreateTags: canMembersCreateTags,
                     constants: this._constants
                 });
-
-                this._issue = null;
             });
         });
     }

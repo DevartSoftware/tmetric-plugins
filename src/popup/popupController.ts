@@ -353,8 +353,8 @@
             dictionary[key] = tag.tagName;
         });
 
-        if (this._canCreateTags) {
-            (this._issue.tagNames || []).forEach(tag => {
+        if (this._canCreateTags && this._issue && this._issue.tagNames) {
+            this._issue.tagNames.forEach(tag => {
                 let key = tag.toLowerCase();
                 if (!dictionary[key]) {
                     dictionary[key] = tag;
@@ -369,11 +369,13 @@
         }
 
         return tags.sort((a, b) => this.compare(a.text, b.text));
-
     }
 
     makeTagSelectedItems() {
-        return (this._issue.tagNames || []).map(tag => tag.toLowerCase());
+        if (this._issue && this._issue.tagNames) {
+            return this._issue.tagNames.map(tag => tag.toLowerCase());
+        }
+        return [];
     }
 
     getSelectValue(selector: string) {
