@@ -20,6 +20,7 @@ Web browsers are **Chrome**, **Firefox**, **Edge**, and **Opera**.
 * [Redmine](https://www.redmine.org)
 * [Sprintly](https://sprint.ly)
 * [Taiga](https://taiga.io)
+* [Team Foundation Server](https://www.visualstudio.com/tfs/)
 * [Teamweek](https://teamweek.com)
 * [Teamwork](https://www.teamwork.com)
 * [TestLink](http://testlink.org)
