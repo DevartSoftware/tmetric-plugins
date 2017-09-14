@@ -204,39 +204,38 @@
 
             let isNewIssueStarted = this.isIssueStarted(newIssue);
 
-            let newIssueTimer = <WebToolIssueTimer>{};
+            let newIssueTimer = <WebToolIssueTimer & WebToolIssueDuration>{};
             newIssueTimer.isStarted = !isNewIssueStarted;
             newIssueTimer.showIssueId = integration.showIssueId;
-
-            for (let i in newIssue) {
-                newIssueTimer[i] = newIssue[i];
-            }
-
-            let oldIssueTimer: WebToolIssueTimer
-            let oldSession: number;
-            if (oldLink) {
-                oldIssueTimer = <WebToolIssueTimer>JSON.parse(oldLink.getAttribute('data-' + this.affix));
-                oldSession = parseInt(oldLink.getAttribute('data-session'));
-            }
-
-            if (this.isSameIssue(oldIssueTimer, newIssueTimer) &&
-                newIssueTimer.isStarted == oldIssueTimer.isStarted &&
-                newIssueTimer.projectName == oldIssueTimer.projectName &&
-                oldSession == this.session
-            ) {
-                // Issue is not changed and belong to same session (#67711)
-                return;
-            }
-
-            let duration = issueDuration && issueDuration.duration || 0;
+            newIssueTimer.duration = issueDuration && issueDuration.duration || 0;
             if (isNewIssueStarted && newIssue.issueUrl) {
 
                 // Show zero duration if client clock is late (TMET-947)
                 let timerDuration = Math.max(0, Date.now() - Date.parse(this._timer.startTime));
 
                 if (timerDuration <= this._constants.maxTimerHours * HOUR) { // add current timer duration if timer is not long running
-                    duration += timerDuration;
+                    newIssueTimer.duration += timerDuration;
                 }
+            }
+            for (let i in newIssue) {
+                newIssueTimer[i] = newIssue[i];
+            }
+
+            let oldIssueTimer: WebToolIssueTimer & WebToolIssueDuration;
+            let oldSession: number;
+            if (oldLink) {
+                oldIssueTimer = <WebToolIssueTimer & WebToolIssueDuration>JSON.parse(oldLink.getAttribute('data-' + this.affix));
+                oldSession = parseInt(oldLink.getAttribute('data-session'));
+            }
+
+            if (this.isSameIssue(oldIssueTimer, newIssueTimer) &&
+                oldIssueTimer.duration == newIssueTimer.duration &&
+                newIssueTimer.isStarted == oldIssueTimer.isStarted &&
+                newIssueTimer.projectName == oldIssueTimer.projectName &&
+                oldSession == this.session
+            ) {
+                // Issue is not changed and belong to same session (#67711)
+                return;
             }
 
             this.removeLink(oldLink);
@@ -258,8 +257,8 @@
             newLink.appendChild(spanWithIcon);
             let span = document.createElement('span');
             span.textContent = newIssueTimer.isStarted ? 'Start timer' : 'Stop timer';
-            if (newIssue.issueUrl && (duration || !newIssueTimer.isStarted)) {
-                span.textContent += ' (' + this.durationToString(duration) + ')';
+            if (newIssue.issueUrl && (newIssueTimer.duration || !newIssueTimer.isStarted)) {
+                span.textContent += ' (' + this.durationToString(newIssueTimer.duration) + ')';
             }
             newLink.appendChild(span);
 
