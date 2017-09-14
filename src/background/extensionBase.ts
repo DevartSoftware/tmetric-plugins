@@ -532,7 +532,6 @@ class ExtensionBase {
         } else {
             timer.tagNames = [ defaultWorkType.tagName ];
         }
-
     }
 
     // issues durations cache
