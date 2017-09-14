@@ -70,7 +70,8 @@
             let serviceUrl = source.protocol + source.host;
             let serviceType = 'TFS';
             let projectName = (<HTMLInputElement>$$.try('.work-item-form-areaIteration input', issueElement)).value // old UI
-                || (<HTMLInputElement>$$.try('.work-item-form input[aria-label="Area Path"]', issueElement)).value;
+                || (<HTMLInputElement>$$.try('.work-item-view.new-work-item-view:not([style]) input[aria-label="Area Path"], .work-item-view.new-work-item-view[style*="display: block"] input[aria-label="Area Path"]', issueElement))
+                    .value;
 
             return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
         }
