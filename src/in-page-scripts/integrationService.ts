@@ -193,7 +193,8 @@
 
         static updateLink(element: HTMLElement, integration: WebToolIntegration, newIssue: WebToolIssue, issueDuration: WebToolIssueDuration) {
 
-            const HOUR = 1000 * 60 * 60;
+            const MIN = 60 * 1000;
+            const HOUR = 60 * MIN;
 
             let oldLink = $$('a.' + this.affix, element);
 
@@ -217,6 +218,7 @@
                     newIssueTimer.duration += timerDuration;
                 }
             }
+            newIssueTimer.duration = Math.floor(newIssueTimer.duration / MIN) * MIN;
             for (let i in newIssue) {
                 newIssueTimer[i] = newIssue[i];
             }
