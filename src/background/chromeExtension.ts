@@ -16,7 +16,7 @@ class ChromeExtension extends ExtensionBase {
             let runAt = contentScripts.run_at;
 
             chrome.tabs.query({}, tabs =>
-                tabs.forEach(tab => {
+                tabs && tabs.forEach(tab => {
                     let isMatched = (regexp: RegExp) => regexp.test(tab.url);
                     if (matches.some(isMatched) && !excludeMatches.some(isMatched)) {
                         jsFiles.forEach(file => chrome.tabs.executeScript(tab.id, { file, runAt }));

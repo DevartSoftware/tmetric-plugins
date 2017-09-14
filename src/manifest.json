@@ -110,7 +110,7 @@
             "run_at": "document_end"
         },
         {
-            "matches": [ "https://beta.tmetric.com/*", "https://app.tmetric.com/*", "*://localhost/*" ],
+            "matches": [ "https://beta.tmetric.com/*", "https://app.tmetric.com/*" ],
             "js": [ "in-page-scripts/version.js" ],
             "run_at": "document_end"
         }

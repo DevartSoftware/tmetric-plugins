@@ -69,8 +69,11 @@
             // https://devart.visualstudio.com/
             let serviceUrl = source.protocol + source.host;
             let serviceType = 'TFS';
-            let projectName = (<HTMLInputElement>$$.try('.work-item-form-areaIteration input', issueElement)).value // old UI
-                || (<HTMLInputElement>$$.try('.work-item-form input[aria-label="Area Path"]', issueElement)).value;
+
+            let itemView = $$.visible('.work-item-view', issueElement);
+            let projectInput = itemView && $$('input[aria-label="Area Path"]', itemView) // new layout
+                || $$('.work-item-form-areaIteration input', issueElement) // old layout
+            let projectName = projectInput && (<HTMLInputElement>projectInput).value;
 
             return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
         }

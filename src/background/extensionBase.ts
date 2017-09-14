@@ -748,7 +748,7 @@ class ExtensionBase {
             return;
         }
 
-        chrome.tabs.query({}, tabs => tabs.forEach(tab => {
+        chrome.tabs.query({}, tabs => tabs && tabs.forEach(tab => {
             if (tab.url && tab.url.startsWith('http')) {
                 chrome.tabs.sendMessage(tab.id, message, response => {
 
@@ -770,7 +770,7 @@ class ExtensionBase {
         return new Promise<string>((resolve, reject) => {
             chrome.tabs.query({ currentWindow: true, active: true },
                 function (tabs) {
-                    let activeTab = tabs[0];
+                    let activeTab = tabs && tabs[0];
                     let title = activeTab && activeTab.title;
                     resolve(title);
                 });
@@ -781,7 +781,7 @@ class ExtensionBase {
         return new Promise<number>((resolve, reject) => {
             chrome.tabs.query({ currentWindow: true, active: true },
                 function (tabs) {
-                    let activeTab = tabs[0];
+                    let activeTab = tabs && tabs[0];
                     let id = activeTab && activeTab.id;
                     resolve(id);
                 });
@@ -798,8 +798,8 @@ class ExtensionBase {
             // https://developer.chrome.com/extensions/match_patterns
             chrome.tabs.query({ url: url.split('#')[0] + '*' }, tabs => {
                 // filter tabs queried without hashes by actual url
-                let pageTabs = tabs.filter(tab => tab.url == url);
-                if (pageTabs.length) {
+                let pageTabs = tabs && tabs.filter(tab => tab.url == url);
+                if (pageTabs && pageTabs.length) {
 
                     let anyWindowTab: chrome.tabs.Tab, anyWindowActiveTab: chrome.tabs.Tab, currentWindowTab: chrome.tabs.Tab, currentWindowActiveTab: chrome.tabs.Tab;
                     for (let index = 0, size = pageTabs.length; index < size; index += 1) {
