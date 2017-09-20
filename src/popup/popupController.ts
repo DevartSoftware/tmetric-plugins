@@ -488,6 +488,7 @@
         let timer = <Integrations.WebToolIssueTimer>{};
         timer.isStarted = true;
         timer.issueName = $(this._forms.create + ' .task .input').val();
+        timer.description = $(this._forms.create + ' .te-description input').val();
         let selectedProject = $(this._forms.create + ' .project .input').select2('data');
         let isSelected = selectedProject && !!selectedProject[0];
         timer.projectName = isSelected ? selectedProject[0].text : '';

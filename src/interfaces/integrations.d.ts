@@ -45,6 +45,7 @@ declare module Integrations {
     interface WebToolIssueTimer extends WebToolIssue {
         isStarted: boolean;
         showIssueId?: boolean;
+        description?: string;
     }
 
     interface WebToolParsedIssue {
