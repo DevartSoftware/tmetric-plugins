@@ -82,7 +82,9 @@
 
             let issueUrl = $$.getRelativeUrl(serviceUrl, source.path);
 
-            return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+            var tagNames = $$.all('.labels .label').map(label => label.textContent);
+
+            return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
         }
     }
 
