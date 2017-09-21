@@ -26,6 +26,8 @@
 
     serverApiVersion: number;
 
+    tags: Models.Tag[];
+
     onUpdateActiveAccount = SimpleEvent.create<number>();
 
     onRemoveExternalIssuesDurations = SimpleEvent.create<Integrations.WebToolIssueIdentifier[]>();
@@ -296,6 +298,13 @@
             return this.putTimer(<Models.Timer>{ isStarted: false });
         }
 
+        // Legacy API
+        if (this.serverApiVersion < 2.4 && timer.tagNames && this.tags) {
+            let nameToId = <{ [name: string]: number }>{};
+            this.tags.forEach(tag => nameToId[tag.tagName] = tag.tagId);
+            timer.tagsIdentifiers = timer.tagNames.map(name => nameToId[name]).filter(id => !id);
+        }
+
         return this.connect().then(profile => {
             let accountId = this.accountToPost || profile.activeAccountId;
             this.expectedTimerUpdate = true;
@@ -399,7 +408,7 @@
         return this.checkProfile().then(profile => {
 
             let promise = this.serverApiVersion < 2.3 ?
-                Promise.resolve(<Models.Account>{}) :
+                Promise.resolve(<Models.Account>{}) : // Legacy API
                 this.get<Models.Account>('api/accounts/' + profile.activeAccountId);
 
             return promise.then(account => {
@@ -423,6 +432,7 @@
         return this.checkProfile().then(profile => {
             var url = 'api/accounts/' + profile.activeAccountId + '/tags';
             return this.get<Models.Tag[]>(url).then(tags => {
+                this.tags = tags;
                 this.onUpdateTags.emit(tags);
                 return tags;
             });

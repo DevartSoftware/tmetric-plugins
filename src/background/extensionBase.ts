@@ -519,18 +519,17 @@ class ExtensionBase {
 
             let tagsDictionary: { [tagName: string]: Models.Tag } = {};
             this._tags.forEach(tag => tagsDictionary[tag.tagName.toLowerCase()] = tag);
-    
+
             let timerHasWorkType = timer.tagNames.some(name => {
                 let tag = tagsDictionary[name.toLowerCase()];
                 return tag && tag.isWorkType;
             });
-    
+
             if (!timerHasWorkType) {
                 timer.tagNames.unshift(defaultWorkType.tagName);
             }
-    
         } else {
-            timer.tagNames = [ defaultWorkType.tagName ];
+            timer.tagNames = [defaultWorkType.tagName];
         }
     }
 
@@ -629,7 +628,7 @@ class ExtensionBase {
                     .role;
 
                 let canMembersManagePublicProjects = this._account.canMembersManagePublicProjects;
-                let canMembersCreateTags = this._account.canMembersCreateTags;
+                let canCreateTags = this._account.canMembersCreateTags;
                 let isAdmin = (userRole == Models.ServiceRole.Admin || userRole == Models.ServiceRole.Owner);
 
                 let issue = this._newPopupIssue;
@@ -645,7 +644,7 @@ class ExtensionBase {
                         .sort((a, b) => a.projectName.localeCompare(b.projectName, [], { sensitivity: 'base' })),
                     tags: this._tags,
                     canCreateProjects: isAdmin || canMembersManagePublicProjects,
-                    canCreateTags: canMembersCreateTags,
+                    canCreateTags,
                     constants: this._constants
                 });
             });
