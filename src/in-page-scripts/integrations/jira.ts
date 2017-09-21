@@ -119,7 +119,9 @@
 
             var { serviceUrl, issueUrl } = this.getUrls(source, issueHref);
 
-            return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Jira' };
+            var tagNames = $$.all('.labels .lozenge').map(label => label.textContent);
+
+            return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Jira', tagNames };
         }
     }
 
