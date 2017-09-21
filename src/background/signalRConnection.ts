@@ -299,10 +299,17 @@
         }
 
         // Legacy API
-        if (this.serverApiVersion < 2.4 && timer.tagNames && this.tags) {
-            let nameToId = <{ [name: string]: number }>{};
-            this.tags.forEach(tag => nameToId[tag.tagName] = tag.tagId);
-            timer.tagsIdentifiers = timer.tagNames.map(name => nameToId[name]).filter(id => !id);
+        if (this.serverApiVersion < 2.4) {
+
+            if (timer.description) {
+                timer.issueName = timer.description;
+            }
+
+            if (timer.tagNames && this.tags) {
+                let nameToId = <{ [name: string]: number }>{};
+                this.tags.forEach(tag => nameToId[tag.tagName] = tag.tagId);
+                timer.tagsIdentifiers = timer.tagNames.map(name => nameToId[name]).filter(id => !id);
+            }
         }
 
         return this.connect().then(profile => {
