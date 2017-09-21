@@ -63,6 +63,7 @@
                 "in-page-scripts/integrations/bugzilla.js",
                 "in-page-scripts/integrations/gitHub.js",
                 "in-page-scripts/integrations/gitLab.js",
+                "in-page-scripts/integrations/gsuite.js",
                 "in-page-scripts/integrations/jira.js",
                 "in-page-scripts/integrations/pivotalTracker.js",
                 "in-page-scripts/integrations/podio.js",
