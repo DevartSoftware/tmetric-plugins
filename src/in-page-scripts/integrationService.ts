@@ -109,7 +109,6 @@
                         // Remove link when issue can not be parsed after DOM changes
                         this.updateLink(element, null, null, null);
                     } else {
-
                         // normalize urls
                         issue.serviceUrl = issue.serviceUrl ? issue.serviceUrl.replace(/\/+$/, '') : issue.serviceUrl;
                         issue.issueUrl = issue.issueUrl ? issue.issueUrl.replace(/^\/*/, '/') : issue.issueUrl;
@@ -142,6 +141,12 @@
                             issue.issueId = null;
                             issue.serviceUrl = null;
                             issue.serviceType = null;
+                        }
+
+                        if (issue.tagNames) {
+                            issue.tagNames = issue.tagNames
+                                .map(tagName => this.trimText(tagName, Models.Limits.maxTag))
+                                .filter(tagName => !!tagName);
                         }
 
                         issues.push(issue);
