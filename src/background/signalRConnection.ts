@@ -301,8 +301,13 @@
         // Legacy API
         if (this.serverApiVersion < 2.4) {
 
-            if (timer.description) {
+            if (timer.description && timer.description != timer.issueName) {
                 timer.issueName = timer.description;
+                delete timer.issueId;
+                delete timer.issueUrl;
+                delete timer.serviceUrl;
+                delete timer.serviceType;
+                delete timer.showIssueId;
             }
 
             if (timer.tagNames && this.tags) {

@@ -497,7 +497,7 @@
         }
         timer.tagNames = this.getSelectValue(this._forms.create + ' .tags .input') || [];
 
-        if (this._issue && this._issue.issueName == timer.issueName) {
+        if (this._issue) {
             let issue = this._issue;
             timer.issueId = issue.issueId;
             timer.issueUrl = issue.issueUrl;
