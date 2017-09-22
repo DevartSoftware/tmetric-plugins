@@ -37,13 +37,41 @@ class ExtensionBase {
 
     /**
      * Create popup window
-     * @abstract
+     * @virtual
      * @param width
      * @param height
      * @param left
      * @param top
      */
-    createPopupWindow(width: number, height: number, left: number, top: number) { }
+    createLoginDialog(width: number, height: number, left: number, top: number) {
+
+        chrome.windows.create(<chrome.windows.CreateData>{
+            left,
+            top,
+            width,
+            height,
+            url: this.getLoginUrl(),
+            type: 'popup'
+        }, popupWindow => {
+
+            let popupTab = popupWindow.tabs[0];
+
+            this.loginWinId = popupWindow.id;
+            this.loginTabId = popupTab.id;
+            this.loginWindowPending = false;
+
+            let deltaWidth = width - popupTab.width;
+            let deltaHeight = height - popupTab.height;
+
+            chrome.windows.update(popupWindow.id, <chrome.windows.UpdateInfo>{
+                focused: true,
+                left: left - Math.round(deltaWidth / 2),
+                top: top - Math.round(deltaHeight / 2),
+                width: width + deltaWidth,
+                height: height + deltaHeight
+            });
+        });
+    }
 
     showError(message: string) {
         // This needed to prevent alert cleaning via build.
@@ -705,7 +733,7 @@ class ExtensionBase {
                     top = Math.round(pageWindow.top + (pageWindow.height - height) / 2);
                 }
 
-                this.createPopupWindow(width, height, left, top);
+                this.createLoginDialog(width, height, left, top);
             }
             catch (e) {
                 this.loginWindowPending = false;

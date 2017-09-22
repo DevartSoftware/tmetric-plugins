@@ -28,7 +28,7 @@
      * @param left
      * @param top
      */
-    createPopupWindow(width: number, height: number, left: number, top: number) {
+    createLoginDialog(width: number, height: number, left: number, top: number) {
         chrome.windows.create(<chrome.windows.CreateData>{
             left,
             top,
