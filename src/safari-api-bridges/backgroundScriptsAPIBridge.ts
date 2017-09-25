@@ -7,6 +7,28 @@
     tabToId = new WeakMap<SafariWebPageProxy, number>();
     idToTab: { [id: number]: SafariWebPageProxy } = {};
 
+    constructor() {
+
+        // Listen messages from content scripts
+        safari.application.addEventListener('message', (messageEvent: SafariMessage) => {
+            let target = <SafariBrowserTab>messageEvent.target;
+            let sender = <chrome.runtime.MessageSender>{
+                tab: {
+                    id: this.getTabId(target.page),
+                    index: null,
+                    pinned: null,
+                    highlighted: null,
+                    windowId: null,
+                    active: null,
+                    incognito: null,
+                    selected: null
+                },
+                url: target.url
+            }
+            this.onMessage(messageEvent.message, sender);
+        }, false);
+    }
+
     getWinId(win: SafariBrowserWindow) {
         let id = this.winToId.get(win);
         if (!id) {
@@ -50,14 +72,17 @@
         }
     }
 
-    onMessage(message: any, responseCallback?: (response: any) => void) {
+    messageHandlers: ((message: any, sender: chrome.runtime.MessageSender, sendResponse: (response: any) => void) => void)[] = [];
+
+    onMessage(message: any, sender: chrome.runtime.MessageSender, responseCallback?: (response: any) => void) {
+        this.messageHandlers.forEach(handler => handler(message, sender, responseCallback));
     }
 }
 
 interface Window {
     safariBridge: SafariBridge;
 }
-
+declare var safariBridge: SafariBridge;
 window.safariBridge = new SafariBridge();
 
 window.chrome = <typeof chrome>{
@@ -67,8 +92,8 @@ window.chrome = <typeof chrome>{
         onMessage: {
 
             addListener: (handler) => {
-                // TODO: support message: any, sender: {url: string, tab: { id: number } }
-            }
+                safariBridge.messageHandlers.push(handler);
+            },
         }
     },
 
@@ -88,7 +113,8 @@ window.chrome = <typeof chrome>{
     tabs: {
 
         sendMessage: (tabId: number, message: any) => {
-            // TODO:
+            let tab = safariBridge.findTabById(tabId);
+            tab && tab.dispatchMessage('message', message);
         },
 
         query: (queryInfo, callback) => {

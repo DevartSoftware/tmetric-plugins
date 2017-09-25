@@ -6,7 +6,7 @@ interface SafariApplication extends SafariEventTarget {
     openBrowserWindow(): SafariBrowserWindow;
 }
 
-interface SafariBrowserWindow {
+interface SafariBrowserWindow extends SafariEventTarget {
     tabs: SafariBrowserTab[];
     activeTab: SafariBrowserTab;
     visible: boolean;
@@ -16,7 +16,7 @@ interface SafariBrowserWindow {
     insertTab(tab: SafariBrowserTab, index: number);
 }
 
-interface SafariBrowserTab {
+interface SafariBrowserTab extends SafariEventTarget {
     browserWindow: SafariBrowserWindow;
     private: boolean;
     reader: any;
@@ -116,6 +116,8 @@ interface SafariWebPageProxy {
 }
 
 interface SafariContentBrowserTabProxy extends SafariDispatcher {
+    canLoad(event: Event, message: any);
+    setContextMenuEventUserInfo(event: MouseEvent, userInfo: any);
 }
 
 interface SafariEvent {
@@ -135,6 +137,7 @@ interface SafariEventTarget {
 }
 
 interface SafariContentWebPage extends SafariEventTarget, SafariDispatcher {
+    tab: SafariContentBrowserTabProxy;
 }
 
 interface SafariDispatcher {
@@ -144,4 +147,5 @@ interface SafariDispatcher {
 declare namespace safari {
     export var self: SafariContentWebPage;
     export var extension: SafariExtension;
+    export var application: SafariApplication;
 }

@@ -9,7 +9,14 @@
                     responseCallback(response);
                 };
             }
-            safari.extension.globalPage.contentWindow.safariBridge.onMessage(message, callback);
+            safari.extension.globalPage.contentWindow.safariBridge.onMessage(
+                message,
+                { url: null, tab: null },
+                response => {
+                    Promise.resolve().then(() => {
+                        responseCallback && responseCallback(response);
+                    });
+                });
         }
     }
 }

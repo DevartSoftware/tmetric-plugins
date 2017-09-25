@@ -5,12 +5,14 @@
         onMessage: {
 
             addListener: (handler) => {
-                // TODO: support message only
+                safari.self.addEventListener('message', (messageEvent: SafariMessage) => {
+                    handler(messageEvent.message, null, null);
+                }, false)
             }
         },
 
         sendMessage: (message: any) => {
-            // TODO:
+            safari.self.tab.dispatchMessage('message', message);
         }
     }
 }
