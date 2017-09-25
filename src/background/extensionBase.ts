@@ -853,7 +853,7 @@ class ExtensionBase {
     }
 
     registerTabsUpdateListener() {
-        chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+        chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
             if (tabId == this.loginTabId && changeInfo.url) {
                 let tabUrl = changeInfo.url.toLowerCase();
                 let serviceUrl = this.serviceUrl.toLowerCase();
@@ -866,7 +866,7 @@ class ExtensionBase {
     }
 
     registerTabsRemoveListener() {
-        chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
+        chrome.tabs.onRemoved.addListener((tabId) => {
             if (tabId == this.loginTabId) {
                 this.loginTabId = null;
                 this.loginWinId = null;
