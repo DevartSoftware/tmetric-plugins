@@ -1,21 +1,26 @@
 ﻿class SafariBridge {
 
-    winCounter = 1;
-    winToId = new WeakMap<SafariBrowserWindow, number>();
-    idToWin: { [id: number]: SafariBrowserWindow } = {};
+    private _windowCounter = 1;
+    private _windowToId = new WeakMap<SafariBrowserWindow, number>();
+    private _idToWindow: { [id: number]: SafariBrowserWindow } = {};
 
-    tabCounter = 1;
-    tabToId = new WeakMap<SafariWebPageProxy, number>();
-    idToTab: { [id: number]: SafariWebPageProxy } = {};
+    private _tabCounter = 1;
+    private _tabToId = new WeakMap<SafariBrowserTab, number>();
+    private _idToTab: { [id: number]: SafariBrowserTab } = {};
+
+    messageHandlers: ((message: any, sender: chrome.runtime.MessageSender, sendResponse: (response: any) => void) => void)[] = [];
 
     constructor() {
 
         // Listen messages from content scripts
         safari.application.addEventListener('message', (messageEvent: SafariMessage) => {
+            if (messageEvent.name != 'api_bridge') {
+                return;
+            }
             let target = <SafariBrowserTab>messageEvent.target;
             let sender = <chrome.runtime.MessageSender>{
                 tab: {
-                    id: this.getTabId(target.page),
+                    id: this.getTabId(target),
                     index: null,
                     pinned: null,
                     highlighted: null,
@@ -30,19 +35,19 @@
         }, false);
     }
 
-    getWinId(win: SafariBrowserWindow) {
-        let id = this.winToId.get(win);
+    getWindowId(win: SafariBrowserWindow) {
+        let id = this._windowToId.get(win);
         if (!id) {
-            id = this.winCounter++;
-            this.winToId.set(win, id);
+            id = this._windowCounter++;
+            this._windowToId.set(win, id);
         }
         return id;
     }
 
     findWindowById(id: number) {
-        let window = this.idToWin[id];
+        let window = this._idToWindow[id];
         if (!window) {
-            this.getWindows(false, () => window = this.idToWin[id]);
+            this.getWindows(false, () => window = this._idToWindow[id]);
         }
         return window;
     }
@@ -60,42 +65,32 @@
         }
 
         windows.forEach(window => {
-            let id = this.getWinId(window);
-            this.idToWin[id] = window;
+            let id = this.getWindowId(window);
+            this._idToWindow[id] = window;
         });
         try {
             callback(windows);
         }
         finally {
-            this.idToWin = {};
+            this._idToWindow = {};
         }
     }
 
-    getTabId(tab: SafariWebPageProxy) {
-        let id = this.tabToId.get(tab);
+    getTabId(tab: SafariBrowserTab) {
+        let id = this._tabToId.get(tab);
         if (!id) {
-            id = this.tabCounter++;
-            this.tabToId.set(tab, id);
+            id = this._tabCounter++;
+            this._tabToId.set(tab, id);
         }
         return id;
     }
 
     findTabById(id: number) {
-        let tab = this.idToTab[id];
+        let tab = this._idToTab[id];
         if (!tab) {
-            this.getTabs({}, () => tab = this.idToTab[id]);
+            this.getTabs({}, () => tab = this._idToTab[id]);
         }
         return tab;
-    }
-
-    findTabByProxy(id: number) {
-        for (let window of safari.application.browserWindows) {
-            for (let tab of window.tabs) {
-                if (this.getTabId(tab.page) == id) {
-                    return tab;
-                }
-            }
-        }
     }
 
     getTabs(queryInfo: chrome.tabs.QueryInfo, callback: (tabs: SafariBrowserTab[]) => void) {
@@ -120,28 +115,24 @@
             }
 
             tabs.push(...windowTabs.filter(tab => {
-                for (let tab of windowTabs) {
-                    if (queryInfo.url && tab.url != queryInfo.url) {
-                        return false;
-                    }
-                    return true;
+                if (queryInfo.url && tab.url != queryInfo.url) {
+                    return false;
                 }
+                return true;
             }));
         }
 
         tabs.forEach(tab => {
-            let id = this.getTabId(tab.page);
-            this.idToTab[id] = tab.page;
+            let id = this.getTabId(tab);
+            this._idToTab[id] = tab;
         });
         try {
             callback(tabs);
         }
         finally {
-            this.idToTab = {};
+            this._idToTab = {};
         }
     }
-
-    messageHandlers: ((message: any, sender: chrome.runtime.MessageSender, sendResponse: (response: any) => void) => void)[] = [];
 
     onMessage(message: any, sender: chrome.runtime.MessageSender, responseCallback?: (response: any) => void) {
         this.messageHandlers.forEach(handler => handler(message, sender, responseCallback));
@@ -171,30 +162,24 @@ window.chrome = <typeof chrome>{
         WINDOW_ID_CURRENT: -2,
 
         update: (windowId, updateInfo) => {
-
             let window = safariBridge.findWindowById(windowId);
-            if (!window) {
-                return;
-            }
-
-            // TODO: support left, top, width, height
-            if (updateInfo.focused) {
-                window.activate();
+            if (window) {
+                // TODO: support left, top, width, height
+                if (updateInfo.focused) {
+                    window.activate();
+                }
             }
         },
 
         getLastFocused: (callback: (window: chrome.windows.Window) => void) => {
-
             Promise.resolve().then(() => {
                 safariBridge.getWindows(true, windows => {
-
                     let chromeWindow = <chrome.windows.Window>null;
                     let window = windows[0];
-
                     // TODO: support left, top, width, height
                     if (window) {
                         chromeWindow = {
-                            id: safariBridge.getWinId(window),
+                            id: safariBridge.getWindowId(window),
                             left: 0,
                             top: 0,
                             width: 1000,
@@ -206,7 +191,6 @@ window.chrome = <typeof chrome>{
                             type: null
                         };
                     }
-
                     callback(chromeWindow);
                 });
             });
@@ -217,19 +201,17 @@ window.chrome = <typeof chrome>{
 
         sendMessage: (tabId: number, message: any) => {
             let tab = safariBridge.findTabById(tabId);
-            tab && tab.dispatchMessage('message', message);
+            tab && tab.page.dispatchMessage('api_bridge', message);
         },
 
         query: (queryInfo, callback) => {
-
             Promise.resolve().then(() => {
-
                 safariBridge.getTabs(queryInfo, tabs => {
-
-                    // TODO: fill other properties
                     let chromeTabs = tabs.map(tab => <chrome.tabs.Tab>{
                         id: this.getTabId(tab.page),
-                        windowId: safariBridge.getWinId(tab.browserWindow),
+                        windowId: safariBridge.getWindowId(tab.browserWindow),
+                        title: tab.title,
+                        url: tab.url,
                         index: null,
                         pinned: null,
                         highlighted: null,
@@ -237,32 +219,29 @@ window.chrome = <typeof chrome>{
                         incognito: null,
                         selected: null
                     });
-
                     callback(chromeTabs);
                 });
             });
         },
 
         create: (createProperties) => {
-
             let window = safariBridge.findWindowById(createProperties.windowId);
-            if (!window) {
-                return;
+            if (window) {
+                let tab = window.openTab(createProperties.active ? 'foreground' : 'background');
+                tab.url = createProperties.url;
             }
-
-            // TODO:
-            // chrome.tabs.create({ active: true, windowId: currentWindowId, url });
         },
 
         update: (tabId: number, updateProperties: chrome.tabs.UpdateProperties) => {
-
-            let tab = safariBridge.findTabByProxy(tabId);
-            if (!tab) {
-                return;
-            }
-
-            if (updateProperties.active) {
-                tab.activate();
+            let tab: SafariBrowserTab;
+            for (let window of safari.application.browserWindows) {
+                let tab = safariBridge.findTabById(tabId);
+                if (tab) {
+                    if (updateProperties.active) {
+                        tab.activate();
+                    }
+                    break;
+                }
             }
         },
 

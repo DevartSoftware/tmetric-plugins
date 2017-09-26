@@ -1,5 +1,7 @@
 ﻿window.chrome = <typeof chrome>{
+
     runtime: {
+
         sendMessage(message: any, responseCallback?: (response: any) => void) {
             message = JSON.parse(JSON.stringify(message || null));
             let callback = responseCallback;
