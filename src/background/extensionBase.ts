@@ -37,13 +37,41 @@ class ExtensionBase {
 
     /**
      * Create popup window
-     * @abstract
+     * @virtual
      * @param width
      * @param height
      * @param left
      * @param top
      */
-    createPopupWindow(width: number, height: number, left: number, top: number) { }
+    createLoginDialog(width: number, height: number, left: number, top: number) {
+
+        chrome.windows.create(<chrome.windows.CreateData>{
+            left,
+            top,
+            width,
+            height,
+            url: this.getLoginUrl(),
+            type: 'popup'
+        }, popupWindow => {
+
+            let popupTab = popupWindow.tabs[0];
+
+            this.loginWinId = popupWindow.id;
+            this.loginTabId = popupTab.id;
+            this.loginWindowPending = false;
+
+            let deltaWidth = width - popupTab.width;
+            let deltaHeight = height - popupTab.height;
+
+            chrome.windows.update(popupWindow.id, <chrome.windows.UpdateInfo>{
+                focused: true,
+                left: left - Math.round(deltaWidth / 2),
+                top: top - Math.round(deltaHeight / 2),
+                width: width + deltaWidth,
+                height: height + deltaHeight
+            });
+        });
+    }
 
     showError(message: string) {
         // This needed to prevent alert cleaning via build.
@@ -519,18 +547,17 @@ class ExtensionBase {
 
             let tagsDictionary: { [tagName: string]: Models.Tag } = {};
             this._tags.forEach(tag => tagsDictionary[tag.tagName.toLowerCase()] = tag);
-    
+
             let timerHasWorkType = timer.tagNames.some(name => {
                 let tag = tagsDictionary[name.toLowerCase()];
                 return tag && tag.isWorkType;
             });
-    
+
             if (!timerHasWorkType) {
                 timer.tagNames.unshift(defaultWorkType.tagName);
             }
-    
         } else {
-            timer.tagNames = [ defaultWorkType.tagName ];
+            timer.tagNames = [defaultWorkType.tagName];
         }
     }
 
@@ -629,7 +656,7 @@ class ExtensionBase {
                     .role;
 
                 let canMembersManagePublicProjects = this._account.canMembersManagePublicProjects;
-                let canMembersCreateTags = this._account.canMembersCreateTags;
+                let canCreateTags = this._account.canMembersCreateTags;
                 let isAdmin = (userRole == Models.ServiceRole.Admin || userRole == Models.ServiceRole.Owner);
 
                 let issue = this._newPopupIssue;
@@ -645,7 +672,7 @@ class ExtensionBase {
                         .sort((a, b) => a.projectName.localeCompare(b.projectName, [], { sensitivity: 'base' })),
                     tags: this._tags,
                     canCreateProjects: isAdmin || canMembersManagePublicProjects,
-                    canCreateTags: canMembersCreateTags,
+                    canCreateTags,
                     constants: this._constants
                 });
             });
@@ -706,7 +733,7 @@ class ExtensionBase {
                     top = Math.round(pageWindow.top + (pageWindow.height - height) / 2);
                 }
 
-                this.createPopupWindow(width, height, left, top);
+                this.createLoginDialog(width, height, left, top);
             }
             catch (e) {
                 this.loginWindowPending = false;
@@ -826,7 +853,7 @@ class ExtensionBase {
     }
 
     registerTabsUpdateListener() {
-        chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+        chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
             if (tabId == this.loginTabId && changeInfo.url) {
                 let tabUrl = changeInfo.url.toLowerCase();
                 let serviceUrl = this.serviceUrl.toLowerCase();
@@ -839,7 +866,7 @@ class ExtensionBase {
     }
 
     registerTabsRemoveListener() {
-        chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
+        chrome.tabs.onRemoved.addListener((tabId) => {
             if (tabId == this.loginTabId) {
                 this.loginTabId = null;
                 this.loginWinId = null;

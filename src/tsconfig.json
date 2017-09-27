@@ -11,6 +11,7 @@
         "interfaces/integrations.d.ts",
         "interfaces/browser.d.ts",
         "interfaces/notification.d.ts",
+        "interfaces/safari.d.ts",
         "typings/tsd.d.ts",
         "background/chromeExtension.ts",
         "background/edgeExtension.ts",
@@ -57,6 +58,9 @@
         "in-page-scripts/utils.ts",
         "popup/popupController.ts",
         "popup/pagePopupController.ts",
-        "popup/popupActivator.ts"
+        "popup/popupActivator.ts",
+        "safari-api-bridges/backgroundScriptsAPIBridge.ts",
+        "safari-api-bridges/contentScriptsAPIBridge.ts",
+        "safari-api-bridges/popupScriptsAPIBridge.ts"
     ]
 }

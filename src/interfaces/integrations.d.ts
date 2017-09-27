@@ -46,6 +46,7 @@ declare module Integrations {
         isStarted: boolean;
         showIssueId?: boolean;
         description?: string;
+        tagsIdentifiers: number[]; // Legacy API
     }
 
     interface WebToolParsedIssue {
