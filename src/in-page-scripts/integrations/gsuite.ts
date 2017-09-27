@@ -24,18 +24,14 @@
                 return;
             }
 
+            let projectName = $$.try('.ha .hN').textContent;
+
             let issueUrl: string;
             let issueId: string;
 
-            let matches = source.fullUrl.match(/\/mail\/.*#inbox\/([a-zA-Z0-9]+)/);
-            if (matches) {
-                issueUrl = matches[0];
-                issueId = matches[1];
-            }
-
             var serviceUrl = source.protocol + source.host;
 
-            return { issueId, issueName, issueUrl, serviceUrl, serviceType: 'GoogleMail' };
+            return { issueId, issueName, issueUrl, serviceUrl, serviceType: 'GoogleMail', projectName };
         }
     }
 
