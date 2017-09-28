@@ -32,9 +32,7 @@
                 return;
             }
 
-            var serviceUrl = source.protocol + source.host;
-
-            return { issueName, serviceUrl, serviceType: 'GoogleCalendar' };
+            return { issueName, serviceType: 'GoogleCalendar' };
         }
     }
 
