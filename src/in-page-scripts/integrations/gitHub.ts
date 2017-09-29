@@ -37,8 +37,9 @@
             let issueId = match[4];
             issueId = (issueType == 'pull' ? '!' : '#') + issueId
             let serviceType = 'GitHub';
+            let tagNames = $$.all('.discussion-sidebar .labels.css-truncate a').map(label => label.textContent);
 
-            return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+            return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
         }
     }
 
