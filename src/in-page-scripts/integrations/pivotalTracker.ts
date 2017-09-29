@@ -62,7 +62,9 @@
 
             var issueUrl = '/story/show/' + issueId.substring(1);
 
-            return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+            let tagNames = $$.all('.labels_container.full div[data-aid="Label__Name"]').map(label => label.textContent);
+
+            return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
         }
     }
 
