@@ -354,7 +354,7 @@
     fetchIssuesDurations(identifiers: Integrations.WebToolIssueIdentifier[]) {
         console.log('fetchIssuesDurations', identifiers);
         return this.checkProfile().then(profile =>
-            this.postWithPesponse<Integrations.WebToolIssueIdentifier[], Integrations.WebToolIssueDuration[]>(
+            this.post<Integrations.WebToolIssueIdentifier[], Integrations.WebToolIssueDuration[]>(
                 this.getTimeEntriesSummaryUrl(profile.activeAccountId),
                 identifiers));
     }
@@ -455,12 +455,10 @@
         return this.ajax(url, 'GET');
     }
 
-    post<TReq>(url: string, data: TReq): Promise<void> {
-        return this.ajax<TReq, void>(url, 'POST', data);
-    }
-
-    postWithPesponse<TReq, TRes>(url: string, data: TReq): Promise<TRes> {
-        return this.ajax<TReq, TRes>(url, 'POST', data);
+    post<TReq, TRes>(url: string, data: TReq): Promise<TRes>
+    post<TReq>(url: string, data: TReq): Promise<void>
+    post<TReq>(url: string, data: TReq): Promise<any> {
+        return this.ajax<TReq, any>(url, 'POST', data);
     }
 
     put<TReq>(url: string, data: TReq): Promise<void> {
