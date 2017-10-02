@@ -69,7 +69,8 @@
 
             let projectName = projectNameNode ?
                 projectNameNode.textContent : // New design (both new and old navigation)
-                $$.try('.title > span > a:nth-last-child(2)').textContent; // Old design
+                ($$.try('.title > span > a:nth-last-child(2)').textContent // Old design
+                    || $$.try('.breadcrumbs-container .breadcrumbs-links li:nth-child(2) > a').textContent); // newest design
 
             let serviceType = 'GitLab';
 
