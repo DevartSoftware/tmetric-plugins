@@ -1,7 +1,7 @@
 interface WebToolIntegration {
     matchUrl?: string | RegExp | (string | RegExp)[];
     match?: (source: Source) => boolean;
-    issueElementSelector?: string | (() => HTMLElement[]);
+    issueElementSelector?: string | string[] | (() => HTMLElement[]);
     observeMutations?: boolean;
     render(issueElement: HTMLElement, linkElement: HTMLElement);
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue;
