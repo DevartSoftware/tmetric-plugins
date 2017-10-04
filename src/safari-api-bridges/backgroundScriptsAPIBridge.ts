@@ -2,11 +2,11 @@
 
     private _windowCounter = 1;
     private _windowToId = new WeakMap<SafariBrowserWindow, number>();
-    private _idToWindow: { [id: number]: SafariBrowserWindow } = {};
+    private _idToWindow = new Map<number, SafariBrowserWindow>();
 
     private _tabCounter = 1;
     private _tabToId = new WeakMap<SafariBrowserTab, number>();
-    private _idToTab: { [id: number]: SafariBrowserTab } = {};
+    private _idToTab = new Map<number, SafariBrowserTab>();
 
     messageHandlers: ((message: any, sender: chrome.runtime.MessageSender, sendResponse: (response: any) => void) => void)[] = [];
 
@@ -45,9 +45,9 @@
     }
 
     findWindowById(id: number) {
-        let window = this._idToWindow[id];
+        let window = this._idToWindow.get(id);
         if (!window) {
-            this.getWindows(false, () => window = this._idToWindow[id]);
+            this.getWindows(false, () => window = this._idToWindow.get(id));
         }
         return window;
     }
@@ -64,15 +64,15 @@
             windows = safari.application.browserWindows;
         }
 
-        windows.forEach(window => {
-            let id = this.getWindowId(window);
-            this._idToWindow[id] = window;
-        });
         try {
+            windows.forEach(window => {
+                let id = this.getWindowId(window);
+                this._idToWindow.set(id, window);
+            });
             callback(windows);
         }
         finally {
-            this._idToWindow = {};
+            this._idToWindow.clear();
         }
     }
 
@@ -86,9 +86,9 @@
     }
 
     findTabById(id: number) {
-        let tab = this._idToTab[id];
+        let tab = this._idToTab.get(id);
         if (!tab) {
-            this.getTabs({}, () => tab = this._idToTab[id]);
+            this.getTabs({}, () => tab = this._idToTab.get(id));
         }
         return tab;
     }
@@ -122,15 +122,15 @@
             }));
         }
 
-        tabs.forEach(tab => {
-            let id = this.getTabId(tab);
-            this._idToTab[id] = tab;
-        });
         try {
+            tabs.forEach(tab => {
+                let id = this.getTabId(tab);
+                this._idToTab.set(id, tab);
+            });
             callback(tabs);
         }
         finally {
-            this._idToTab = {};
+            this._idToTab.clear();
         }
     }
 

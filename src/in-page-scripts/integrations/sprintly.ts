@@ -1,65 +1,62 @@
-﻿module Integrations {
+﻿class Sprintly implements WebToolIntegration {
 
-    class Sprintly implements WebToolIntegration {
+    showIssueId = true;
 
-        showIssueId = true;
+    observeMutations = true;
 
-        observeMutations = true;
+    matchUrl = '*://sprint.ly/*';
 
-        matchUrl = '*://sprint.ly/*';
+    issueElementSelector = '.card';
 
-        issueElementSelector = '.card';
+    render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
-        render(issueElement: HTMLElement, linkElement: HTMLElement) {
-
-            // Add link to actions if card opens in single mode
-            if ($$.closest('#product-item-view', issueElement)) {
-                let host = $$('.actions .buttons', issueElement);
-                if (host) {
-                    host.appendChild(linkElement);
-                    return;
-                }
-            }
-
-            // Add link to menu otherwise
-            let host = $$('.settings .popup ul', issueElement);
+        // Add link to actions if card opens in single mode
+        if ($$.closest('#product-item-view', issueElement)) {
+            let host = $$('.actions .buttons', issueElement);
             if (host) {
-                let li = $$.create('li', 'devart-timer-link-sprintly');
-                li.appendChild(linkElement);
-                host.insertBefore(li, host.firstChild);
+                host.appendChild(linkElement);
+                return;
             }
         }
 
-        getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-
-            var issueName = $$.try('.title', issueElement).textContent;
-            if (!issueName) {
-                return;
-            }
-
-            var projectNameElement = $$('a.products');
-            if (projectNameElement) {
-                var projectName = projectNameElement.textContent;
-                var projectUrl = projectNameElement.getAttribute('href');
-            }
-
-            var serviceType = 'Sprintly';
-
-            var issueNumberElement = $$('.number .value', issueElement);
-            if (issueNumberElement) {
-                var issueId = issueNumberElement.textContent;
-                if (projectUrl) {
-                    var match = /^([^\d]*)(\d+)$/.exec(issueNumberElement.textContent);
-                    if (match) {
-                        var issueUrl = projectUrl + 'item/' + match[2];
-                        var serviceUrl = source.protocol + source.host;
-                    }
-                }
-            }
-
-            return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+        // Add link to menu otherwise
+        let host = $$('.settings .popup ul', issueElement);
+        if (host) {
+            let li = $$.create('li', 'devart-timer-link-sprintly');
+            li.appendChild(linkElement);
+            host.insertBefore(li, host.firstChild);
         }
     }
 
-    IntegrationService.register(new Sprintly());
+    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+
+        var issueName = $$.try('.title', issueElement).textContent;
+        if (!issueName) {
+            return;
+        }
+
+        var projectNameElement = $$('a.products');
+        if (projectNameElement) {
+            var projectName = projectNameElement.textContent;
+            var projectUrl = projectNameElement.getAttribute('href');
+        }
+
+        var serviceType = 'Sprintly';
+
+        var issueNumberElement = $$('.number .value', issueElement);
+        if (issueNumberElement) {
+            var issueId = issueNumberElement.textContent;
+            if (projectUrl) {
+                var match = /^([^\d]*)(\d+)$/.exec(issueNumberElement.textContent);
+                if (match) {
+                    var issueUrl = projectUrl + 'item/' + match[2];
+                    var serviceUrl = source.protocol + source.host;
+                }
+            }
+        }
+
+        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+    }
 }
+
+IntegrationService.register(new Sprintly());

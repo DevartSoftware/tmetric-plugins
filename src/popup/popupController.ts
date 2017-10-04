@@ -30,7 +30,7 @@
     }
 
     private _activeTimer: Models.Timer;
-    private _issue: Integrations.WebToolIssueTimer;
+    private _issue: WebToolIssueTimer;
     private _timeFormat: string;
     private _projects: Models.Project[];
     private _tags: Models.Tag[];
@@ -65,7 +65,7 @@
         }
     }
 
-    putTimer(timer: Integrations.WebToolIssueTimer) {
+    putTimer(timer: WebToolIssueTimer) {
         this.putTimerAction(timer);
         this.close();
     }
@@ -106,7 +106,7 @@
     isConnectionRetryEnabledAction = this.wrapBackgroundAction<void, boolean>('isConnectionRetryEnabled');
     retryAction = this.wrapBackgroundAction<void, void>('retry');
     fixTimerAction = this.wrapBackgroundAction<void, void>('fixTimer');
-    putTimerAction = this.wrapBackgroundAction<Integrations.WebToolIssueTimer, void>('putTimer');
+    putTimerAction = this.wrapBackgroundAction<WebToolIssueTimer, void>('putTimer');
 
     // ui mutations
 
@@ -485,7 +485,7 @@
 
     private onStartClick() {
 
-        let timer = <Integrations.WebToolIssueTimer>{};
+        let timer = <WebToolIssueTimer>{};
         timer.isStarted = true;
         timer.issueName = $(this._forms.create + ' .task .input').val();
         timer.description = $(this._forms.create + ' .te-description input').val();
@@ -510,7 +510,7 @@
     }
 
     private onStopClick() {
-        this.putTimer(<Integrations.WebToolIssueTimer>{ isStarted: false });
+        this.putTimer(<WebToolIssueTimer>{ isStarted: false });
     }
 
     private onCreateClick() {

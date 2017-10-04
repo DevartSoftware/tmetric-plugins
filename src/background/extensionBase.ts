@@ -119,7 +119,7 @@ class ExtensionBase {
 
     private _timer: Models.Timer;
 
-    private _newPopupIssue: Integrations.WebToolIssueTimer;
+    private _newPopupIssue: WebToolIssueTimer;
 
     private _timeEntries: Models.TimeEntry[];
 
@@ -211,7 +211,7 @@ class ExtensionBase {
         this.listenPopupAction<void, void>('retry', this.retryConnectionPopupAction);
         this.listenPopupAction<void, void>('login', this.loginPopupAction);
         this.listenPopupAction<void, void>('fixTimer', this.fixTimerPopupAction);
-        this.listenPopupAction<Integrations.WebToolIssueTimer, void>('putTimer', data => {
+        this.listenPopupAction<WebToolIssueTimer, void>('putTimer', data => {
             this.putExternalTimer(data);
             return Promise.resolve();
         });
@@ -291,7 +291,7 @@ class ExtensionBase {
         this.openTrackerPage();
     }
 
-    putExternalTimer(timer: Integrations.WebToolIssueTimer, tabId?: number) {
+    putExternalTimer(timer: WebToolIssueTimer, tabId?: number) {
 
         let showPopup = false;
 
@@ -412,7 +412,7 @@ class ExtensionBase {
         return this.serviceUrl + 'login';
     }
 
-    private putTimerWithNewIntegration(timer: Integrations.WebToolIssueTimer) {
+    private putTimerWithNewIntegration(timer: WebToolIssueTimer) {
 
         return this.connection.getIntegration(<Models.IntegratedProjectIdentifier>{
             serviceUrl: timer.serviceUrl,
@@ -489,7 +489,7 @@ class ExtensionBase {
         return url;
     }
 
-    private getTabIssue(url: string, title: string): Integrations.WebToolIssue {
+    private getTabIssue(url: string, title: string): WebToolIssue {
         return { issueName: title || this.normalizeUrl(url) };
     }
 
@@ -535,7 +535,7 @@ class ExtensionBase {
         return 'Connection to the server failed or was aborted.';
     }
 
-    private addDefaultWorkType(timer: Integrations.WebToolIssueTimer) {
+    private addDefaultWorkType(timer: WebToolIssueTimer) {
 
         let activeAccount = this._userProfile.accountMembership.find(_ => _.account.accountId == this._userProfile.activeAccountId);
         let defaultWorkType = this._tags.find(tag => tag.tagId == activeAccount.defaultWorkTypeId);
@@ -563,23 +563,23 @@ class ExtensionBase {
 
     // issues durations cache
 
-    private _issuesDurationsCache: { [key: string]: Integrations.WebToolIssueDuration } = {};
+    private _issuesDurationsCache: { [key: string]: WebToolIssueDuration } = {};
 
-    private makeIssueDurationKey(identifier: Integrations.WebToolIssueIdentifier): string {
+    private makeIssueDurationKey(identifier: WebToolIssueIdentifier): string {
         return identifier.serviceUrl + '/' + identifier.issueUrl;
     }
 
-    private getIssueDurationFromCache(identifier: Integrations.WebToolIssueIdentifier): Integrations.WebToolIssueDuration {
+    private getIssueDurationFromCache(identifier: WebToolIssueIdentifier): WebToolIssueDuration {
         return this._issuesDurationsCache[this.makeIssueDurationKey(identifier)];
     }
 
-    private putIssuesDurationsToCache(durations: Integrations.WebToolIssueDuration[]) {
+    private putIssuesDurationsToCache(durations: WebToolIssueDuration[]) {
         durations.forEach(duration => {
             this._issuesDurationsCache[this.makeIssueDurationKey(duration)] = duration;
         });
     }
 
-    private removeIssuesDurationsFromCache(identifiers: Integrations.WebToolIssueIdentifier[]) {
+    private removeIssuesDurationsFromCache(identifiers: WebToolIssueIdentifier[]) {
         identifiers.forEach(identifier => {
             delete this._issuesDurationsCache[this.makeIssueDurationKey(identifier)];
         });
@@ -589,10 +589,10 @@ class ExtensionBase {
         this._issuesDurationsCache = {};
     }
 
-    getIssuesDurations(identifiers: Integrations.WebToolIssueIdentifier[]): Promise<Integrations.WebToolIssueDuration[]> {
+    getIssuesDurations(identifiers: WebToolIssueIdentifier[]): Promise<WebToolIssueDuration[]> {
 
-        let durations = <Integrations.WebToolIssueDuration[]>[];
-        let fetchIdentifiers = <Integrations.WebToolIssueIdentifier[]>[];
+        let durations = <WebToolIssueDuration[]>[];
+        let fetchIdentifiers = <WebToolIssueIdentifier[]>[];
 
         // Do not show durations of tasks without url
         identifiers = identifiers.filter(_ => !!_.serviceUrl && !!_.issueUrl);
@@ -611,7 +611,7 @@ class ExtensionBase {
             return Promise.resolve(durations);
         }
 
-        return new Promise<Integrations.WebToolIssueDuration[]>(resolve => {
+        return new Promise<WebToolIssueDuration[]>(resolve => {
             this.connection.fetchIssuesDurations(fetchIdentifiers)
                 .then(fetchDurations => {
                     this.putIssuesDurationsToCache(fetchDurations);

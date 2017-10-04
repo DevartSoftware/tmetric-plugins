@@ -30,7 +30,7 @@
 
     onUpdateActiveAccount = SimpleEvent.create<number>();
 
-    onRemoveExternalIssuesDurations = SimpleEvent.create<Integrations.WebToolIssueIdentifier[]>();
+    onRemoveExternalIssuesDurations = SimpleEvent.create<WebToolIssueIdentifier[]>();
 
     onUpdateTimer = SimpleEvent.create<Models.Timer>();
 
@@ -140,7 +140,7 @@
             }
         });
 
-        this.hubProxy.on('updateExternalIssuesDurations', (accountId: number, identifiers: Integrations.WebToolIssueIdentifier[]) => {
+        this.hubProxy.on('updateExternalIssuesDurations', (accountId: number, identifiers: WebToolIssueIdentifier[]) => {
             if (this.userProfile && this.userProfile.activeAccountId == accountId) {
                 this.onRemoveExternalIssuesDurations.emit(identifiers);
             }
@@ -292,7 +292,7 @@
         });
     }
 
-    putExternalTimer(timer: Integrations.WebToolIssueTimer) {
+    putExternalTimer(timer: WebToolIssueTimer) {
 
         if (!timer.isStarted) {
             return this.putTimer(<Models.Timer>{ isStarted: false });
@@ -351,10 +351,10 @@
         });
     }
 
-    fetchIssuesDurations(identifiers: Integrations.WebToolIssueIdentifier[]) {
+    fetchIssuesDurations(identifiers: WebToolIssueIdentifier[]) {
         console.log('fetchIssuesDurations', identifiers);
         return this.checkProfile().then(profile =>
-            this.postWithPesponse<Integrations.WebToolIssueIdentifier[], Integrations.WebToolIssueDuration[]>(
+            this.post<WebToolIssueIdentifier[], WebToolIssueDuration[]>(
                 this.getTimeEntriesSummaryUrl(profile.activeAccountId),
                 identifiers));
     }
@@ -455,12 +455,10 @@
         return this.ajax(url, 'GET');
     }
 
-    post<TReq>(url: string, data: TReq): Promise<void> {
-        return this.ajax<TReq, void>(url, 'POST', data);
-    }
-
-    postWithPesponse<TReq, TRes>(url: string, data: TReq): Promise<TRes> {
-        return this.ajax<TReq, TRes>(url, 'POST', data);
+    post<TReq, TRes>(url: string, data: TReq): Promise<TRes>
+    post<TReq>(url: string, data: TReq): Promise<void>
+    post<TReq>(url: string, data: TReq): Promise<any> {
+        return this.ajax<TReq, any>(url, 'POST', data);
     }
 
     put<TReq>(url: string, data: TReq): Promise<void> {
