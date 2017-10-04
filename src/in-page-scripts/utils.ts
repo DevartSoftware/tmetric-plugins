@@ -39,7 +39,7 @@ $$.try = function (selector: string, element?: NodeSelector, condition?: (el: El
 
 $$.create = function (tagName, ...classNames: string[]) {
     let element = <HTMLElement>document.createElement(tagName);
-    classNames.push(Integrations.IntegrationService.affix + '-' + tagName.toLowerCase());
+    classNames.push(IntegrationService.affix + '-' + tagName.toLowerCase());
     element.classList.add(...classNames);
     return element;
 };

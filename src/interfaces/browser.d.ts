@@ -6,7 +6,7 @@
 interface ITabInfo {
     url: string;
     title: string;
-    issue: Integrations.WebToolIssue;
+    issue: WebToolIssue;
 }
 
 interface ITabMessage {
@@ -39,7 +39,7 @@ interface ITaskInfo {
 interface IPopupInitData {
     title: string;
     timer: Models.Timer;
-    issue: Integrations.WebToolIssueTimer;
+    issue: WebToolIssueTimer;
     timeFormat: string;
     projects: Models.Project[];
     tags: Models.Tag[];

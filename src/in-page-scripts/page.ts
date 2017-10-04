@@ -30,19 +30,19 @@
         }
 
         if (message.action == 'setTimer') {
-            Integrations.IntegrationService.setTimer(message.data);
-            if (Integrations.IntegrationService.needsUpdate()) {
+            IntegrationService.setTimer(message.data);
+            if (IntegrationService.needsUpdate()) {
                 parseAfterPings = true;
             }
         } else if (message.action == 'setIssuesDurations') {
-            Integrations.IntegrationService.setIssuesDurations(message.data);
+            IntegrationService.setIssuesDurations(message.data);
         } else if (message.action == 'setConstants') {
             constants = message.data;
-            Integrations.IntegrationService.setConstants(constants);
+            IntegrationService.setConstants(constants);
         } else if (message.action == 'showPopup') {
-            Integrations.IntegrationService.showPopup(message.data);
+            IntegrationService.showPopup(message.data);
         } else if (message.action == 'hidePopup') {
-            Integrations.IntegrationService.hidePopup();
+            IntegrationService.hidePopup();
         }
 
         if (parseAfterPings) {
@@ -157,7 +157,7 @@
         oldUrl = url;
         oldTitle = title;
 
-        let { issues, observeMutations } = Integrations.IntegrationService.updateLinks(checkAllIntegrations);
+        let { issues, observeMutations } = IntegrationService.updateLinks(checkAllIntegrations);
 
         if (mutationObserver) {
             // clear queue to prevent observer reentering
@@ -179,7 +179,7 @@
     let isFinalized = false;
     let parseAfterPings = true;
 
-    Integrations.IntegrationService.clearPage();
+    IntegrationService.clearPage();
     sendBackgroundMessage({ action: 'getConstants' });
     sendBackgroundMessage({ action: 'getTimer' });
 }
