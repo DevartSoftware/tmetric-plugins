@@ -66,7 +66,7 @@
             // Project tab: <a href="#" class="project_link"><span>Личные </span></a>
             // Other tabs: <span class="pname" > Project Name </span>
             let projectName = $$.try('.pname', issueElement).textContent || $$.try('.project_link').textContent
-                || ($$.try('.drag_and_drop_handler', issueElement) && $$.try('.project_item__name', issueElement).textContent.toLowerCase() != 'inbox'
+                || ($$.try('.project_item__name', issueElement).textContent.toLowerCase() != 'inbox'
                     ? $$.try('.project_item__name', issueElement).textContent : null);
 
         let serviceType = 'Todoist';
