@@ -24,7 +24,7 @@
         let issueUrl: string;
         let issueId: string;
 
-        let matches = source.fullUrl.match(/\/document\/d\/([a-zA-Z0-9\-]+)\/edit/);
+        let matches = source.fullUrl.match(/\/.+\/d\/([a-zA-Z0-9\-]+)\/edit/);
 
         if (matches) {
             issueUrl = matches[0];
