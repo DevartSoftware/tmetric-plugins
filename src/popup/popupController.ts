@@ -29,6 +29,10 @@
         });
     }
 
+    private get _hostname() {
+        return 'https://app.tmetric.com';
+    }
+
     private _activeTimer: Models.Timer;
     private _issue: WebToolIssueTimer;
     private _timeFormat: string;
@@ -329,18 +333,18 @@
             .join(', ');
     }
 
-    private _noProjectOption: IdTextPair = { id: 0, text: 'No Project' };
+    private _selectProjectOption: IdTextAvatar = { id: 0, text: 'Select project', avatar: null };
 
-    private _createNewProjectOption: IdTextPair = { id: -1, text: 'Create New Project' };
+    private _createNewProjectOption: IdTextAvatar = { id: -1, text: 'New project', avatar: null };
 
     makeProjectItems() {
-        let projects = <IdTextPair[]>[];
+        let projects = <IdTextAvatar[]>[];
         if (this._canCreateProjects) {
             projects.push(this._createNewProjectOption);
         }
-        projects.push(this._noProjectOption);
+        projects.push(this._selectProjectOption);
         return projects.concat(this._projects.map(project => {
-            return { id: project.projectId, text: project.projectName };
+            return <IdTextAvatar>{ id: project.projectId, text: project.projectName, avatar: project.avatar };
         }));
     }
 
@@ -393,7 +397,45 @@
     }
 
     initSelector(selector: string, items: IdTextPair[]) {
-        $(selector).select2({ data: items }).val('').trigger('change');
+        $(selector).select2({
+            data: items,
+            templateSelection: this.formatDataForTemplateSelection.bind(this),
+            templateResult: this.formatDataForTemplateResult.bind(this)
+        }).val(this._selectProjectOption.id).trigger('change');
+    }
+
+    private formatDataForTemplateResult(data: IProjectSelection) {
+        let html = '<span ';
+
+        html += (Number(data.id) == 0
+            ? 'class="mute-text"'
+            : '');
+
+        html += '>';
+
+        html += (!!data.avatar
+            ? `<img class="project-avatar-image" src="${this._hostname}/${data.avatar}" />`
+            : '');
+
+        html += (Number(data.id) == -1
+            ? '<strong>' + data.text + '</strong>'
+            : data.text);
+
+        html += '</span>';
+
+        return $(html);
+    }
+
+    private formatDataForTemplateSelection(data: IProjectSelection) {
+        let html = '<span>';
+
+        html += (!!data.avatar
+            ? `<img class="project-avatar-image" src="${this._hostname}/${data.avatar}" />`
+            : '');
+
+        html += data.text + '</span>';
+
+        return $(html);
     }
 
     initMultiSelector(selector: string, items: IdTextPair[], selectedItems: string[], allowNewItems?: boolean) {
@@ -482,7 +524,7 @@
         timer.isStarted = true;
         timer.description = $(this._forms.create + ' .task .input').val();
         let selectedProject = $(this._forms.create + ' .project .input').select2('data');
-        let isSelected = selectedProject && !!selectedProject[0];
+        let isSelected = selectedProject[0] && selectedProject[0].selected && (selectedProject[0].id != 0);
         timer.projectName = isSelected ? selectedProject[0].text : '';
         if (isSelected && selectedProject[0].id == -1) {
             timer.projectName = $.trim($(this._forms.create + ' .new-project .input').val());
@@ -509,4 +551,12 @@
     private onCreateClick() {
         this.switchState(this._states.creating);
     }
+}
+
+interface IProjectSelection extends Select2SelectionObject {
+    avatar: string;
+}
+
+interface IdTextAvatar extends IdTextPair {
+    avatar: string;
 }
