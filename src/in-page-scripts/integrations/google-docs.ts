@@ -2,7 +2,7 @@
 
     showIssueId = false;
 
-    matchUrl = '*://docs.google.com/document/*';
+    matchUrl = '*://docs.google.com/*';
 
     observeMutations = true;
 
