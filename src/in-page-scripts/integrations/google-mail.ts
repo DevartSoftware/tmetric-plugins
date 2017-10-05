@@ -10,7 +10,7 @@
 
         let taskHeader = $$('.ha');
         if (taskHeader) {
-            linkElement.classList.add('devart-timer-link-gmail');
+            linkElement.classList.add('devart-timer-link-google-mail');
             taskHeader.appendChild(linkElement);
         }
     }

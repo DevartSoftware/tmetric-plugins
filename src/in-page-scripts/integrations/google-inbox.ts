@@ -10,7 +10,7 @@
 
         let toolbar = $$('.bJ .iK');
         if (toolbar) {
-            let menuItem = $$.create('li', 'action', 'devart-timer-link-inbox');
+            let menuItem = $$.create('li', 'action', 'devart-timer-link-google-inbox');
             menuItem.appendChild(linkElement);
             toolbar.insertBefore(menuItem, toolbar.firstElementChild);
         }
