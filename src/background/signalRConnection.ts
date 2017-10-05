@@ -313,7 +313,7 @@
             if (timer.tagNames && this.tags) {
                 let nameToId = <{ [name: string]: number }>{};
                 this.tags.forEach(tag => nameToId[tag.tagName] = tag.tagId);
-                timer.tagsIdentifiers = timer.tagNames.map(name => nameToId[name]).filter(id => !id);
+                timer.tagsIdentifiers = timer.tagNames.map(name => nameToId[name]).filter(id => !!id);
             }
         }
 
@@ -419,7 +419,7 @@
     getAccount() {
         return this.checkProfile().then(profile => {
 
-            let promise = this.serverApiVersion < 2.3 ?
+            let promise = this.serverApiVersion < 2.4 ?
                 Promise.resolve(<Models.Account>{}) : // Legacy API
                 this.get<Models.Account>('api/accounts/' + profile.activeAccountId);
 
