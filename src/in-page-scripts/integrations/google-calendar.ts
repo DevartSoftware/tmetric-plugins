@@ -25,9 +25,20 @@
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        let issueName = $$.try('#mtb').textContent || (<any>$$.try('.ep-title input')).value;
+        let issueName = $$.try('#mtb').textContent ||
+            (<any>$$.try('.ep-title input')).value ||
+            $$.try('.bubblecontent .gcal-contenteditable-textinput').textContent;
+
         if (!issueName) {
-            return;
+            let iframe = <HTMLIFrameElement>$$('.bubblecontent iframe');
+            if (iframe) {
+                issueName = iframe.contentDocument.querySelector('textarea').textContent;
+                if (!issueName) {
+                    return;
+                }
+            } else {
+                return;
+            }
         }
 
         return { issueName, serviceType: 'GoogleCalendar' };
