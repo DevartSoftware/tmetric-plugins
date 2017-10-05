@@ -91,7 +91,7 @@
         this._possibleIntegrations.some(integration => {
 
             let elements = [<HTMLElement>null];
-            let selector = (<any>integration).issueElementSelector;
+            let selector = integration.issueElementSelector;
             if (selector) {
                 if (typeof selector === 'function') {
                     elements = (<() => HTMLElement[]>selector)().filter(_ => !!_);
