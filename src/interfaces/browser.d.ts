@@ -41,7 +41,7 @@ interface IPopupInitData {
     timer: Models.Timer;
     issue: WebToolIssueTimer;
     timeFormat: string;
-    projects: Models.Project[];
+    projects: Models.ProjectLite[];
     tags: Models.Tag[];
     constants: Models.Constants;
     canCreateProjects: boolean;

@@ -127,7 +127,7 @@ class ExtensionBase {
 
     private _account: Models.Account;
 
-    private _projects: Models.Project[];
+    private _projects: Models.ProjectLite[];
 
     private _tags: Models.Tag[];
 
