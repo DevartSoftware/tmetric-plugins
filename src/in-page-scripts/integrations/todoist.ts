@@ -63,11 +63,10 @@
             return;
         }
 
-        // Project tab: <a href="#" class="project_link"><span>Личные </span></a>
-        // Other tabs: <span class="pname" > Project Name </span>
-        let projectName = $$.try('.pname', issueElement).textContent
-            || $$.try('.project_link').textContent
-            || $$.try('.project_item__name', issueElement).textContent; // // for Today, 7 Days in new design
+        let projectName =
+            $$.try('.project_item__name', issueElement).textContent || // Today, 7 Days
+            $$.try('.project_link').textContent || // Project tab (new design)
+            $$.try('.pname', issueElement).textContent; // Project tab (old design)
 
         let serviceType = 'Todoist';
         let serviceUrl = source.protocol + source.host;
