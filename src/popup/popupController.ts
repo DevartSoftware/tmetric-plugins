@@ -346,48 +346,41 @@
 
     makeTagItems() {
 
-        let dictionary: { [key: string]: string } = {};
+        let existingItems: { [name: string]: boolean } = {};
 
-        this._tags.forEach(tag => {
-            let key = tag.tagName.toLowerCase();
-            dictionary[key] = tag.tagName;
+        let items = this._tags.map(tag => {
+            let name = tag.tagName;
+            existingItems[name.toLowerCase()] = true;
+            return <IdTextPair>{ id: name, text: name };
         });
 
         if (this._canCreateTags && this._issue && this._issue.tagNames) {
-            this._issue.tagNames.forEach(tag => {
-                let key = tag.toLowerCase();
-                if (!dictionary[key]) {
-                    dictionary[key] = tag;
+            this._issue.tagNames.forEach(name => {
+                if (!existingItems[name.toLowerCase()]) {
+                    items.push(<IdTextPair>{ id: name, text: name });
                 }
             });
         }
 
-        let tags: IdTextPair[] = [];
-
-        for (let key in dictionary) {
-            tags.push({ id: key, text: dictionary[key] });
-        }
-
-        return tags.sort((a, b) => this.compare(a.text, b.text));
+        return items;
     }
 
     makeTagSelectedItems() {
+
         if (this._issue && this._issue.tagNames) {
 
-            let selectedTags = this._issue.tagNames.map(tag => tag.toLowerCase());
+            let hasWorkType = false;
+            let isWorkType: { [name: string]: boolean } = {};
+            this._tags.forEach(tag => {
+                isWorkType[tag.tagName.toLowerCase()] = tag.isWorkType;
+            });
 
-            let dictionary: { [key: string]: Models.Tag } = {};
-            this._tags.forEach(tag => dictionary[tag.tagName.toLowerCase()] = tag);
-
-            let firstWorkType: Models.Tag = null;
-
-            return selectedTags.filter(tag => {
-                let accountTag = dictionary[tag.toLowerCase()];
-                if (accountTag && accountTag.isWorkType) {
-                    if (firstWorkType) {
+            return this._issue.tagNames.filter(name => {
+                if (isWorkType[name.toLowerCase()]) {
+                    if (hasWorkType) {
                         return false;
                     }
-                    firstWorkType = accountTag;
+                    hasWorkType = true;
                 }
                 return true;
             });
@@ -400,7 +393,7 @@
     }
 
     initSelector(selector: string, items: IdTextPair[]) {
-        $(selector).select2({ data: items }).trigger('change');
+        $(selector).select2({ data: items }).val('').trigger('change');
     }
 
     initMultiSelector(selector: string, items: IdTextPair[], selectedItems: string[], allowNewItems?: boolean) {
@@ -487,8 +480,7 @@
 
         let timer = <WebToolIssueTimer>{};
         timer.isStarted = true;
-        timer.issueName = $(this._forms.create + ' .task .input').val();
-        timer.description = $(this._forms.create + ' .te-description input').val();
+        timer.description = $(this._forms.create + ' .task .input').val();
         let selectedProject = $(this._forms.create + ' .project .input').select2('data');
         let isSelected = selectedProject && !!selectedProject[0];
         timer.projectName = isSelected ? selectedProject[0].text : '';
@@ -499,6 +491,7 @@
 
         if (this._issue) {
             let issue = this._issue;
+            timer.issueName = this._issue.issueName;
             timer.issueId = issue.issueId;
             timer.issueUrl = issue.issueUrl;
             timer.serviceUrl = issue.serviceUrl;

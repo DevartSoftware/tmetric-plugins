@@ -94,9 +94,9 @@
             let selector = integration.issueElementSelector;
             if (selector) {
                 if (typeof selector === 'function') {
-                    elements = selector().filter(_ => !!_);
+                    elements = (<() => HTMLElement[]>selector)().filter(_ => !!_);
                 } else {
-                    elements = $$.all(Array.isArray(selector) ? selector.join(', ') : selector);
+                    elements = $$.all(Array.isArray(selector) ? (<string[]><any>selector).join(', ') : selector);
                 }
             }
 
