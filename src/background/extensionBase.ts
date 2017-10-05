@@ -896,6 +896,8 @@ class ExtensionBase {
             // Tab page requests
             let tabId = sender.tab.id;
             this.onTabMessage(message, tabId);
+
+            senderResponse(null);
         });
     }
 }

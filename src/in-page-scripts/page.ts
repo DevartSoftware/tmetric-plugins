@@ -73,7 +73,7 @@
 
                 // Background page is not loaded yet
                 if (error) {
-                    console.log(`${message.action}: ${error}`)
+                    console.log(`${message.action}: ${JSON.stringify(error, null, '  ')}`)
                 }
             });
         }
