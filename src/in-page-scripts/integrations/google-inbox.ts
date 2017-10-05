@@ -23,19 +23,7 @@
             return;
         }
 
-        let issueUrl: string;
-        let issueId: string;
-
-        let matches = source.fullUrl.match(/\/document\/d\/([a-zA-Z0-9\-]+)\/edit/);
-
-        if (matches) {
-            issueUrl = matches[0];
-            issueId = matches[1];
-        }
-
-        var serviceUrl = source.protocol + source.host;
-
-        return { issueId, issueName, issueUrl, serviceUrl, serviceType: 'GoogleInbox' };
+        return { issueName };
     }
 }
 
