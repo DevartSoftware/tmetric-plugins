@@ -11,7 +11,7 @@
     Version="2.3.0.0" />
 
   <Properties>
-    <DisplayName>TMetric</DisplayName>
+    <DisplayName>TMetric – Time Tracker And Productivity App</DisplayName>
     <PublisherDisplayName>Devart s.r.o.</PublisherDisplayName>
     <Logo>Extension/images/icon150.png</Logo>
   </Properties>

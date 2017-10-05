@@ -157,16 +157,21 @@ declare module Models {
         tagsIdentifiers?: number[];
     }
 
-    interface Project {
+    interface ProjectLite {
         projectId: number;
         projectName: string;
         projectCode: string;
         accountId: number;
         avatar: string;
         clientId: number;
-        projectStatus: ProjectStatus;
         isBillable: boolean;
+        projectStatus: ProjectStatus;
+        budgetSize: number;
+        budgetAlertPercents: number;
         notes: string;
+        workTypeIdentifires: number[];
+        memberCount: number;
+        groupCount: number;
     }
 
     interface Tag {

@@ -32,7 +32,7 @@
     private _activeTimer: Models.Timer;
     private _issue: WebToolIssueTimer;
     private _timeFormat: string;
-    private _projects: Models.Project[];
+    private _projects: Models.ProjectLite[];
     private _tags: Models.Tag[];
     private _constants: Models.Constants;
     private _canCreateProjects: boolean;
@@ -298,7 +298,7 @@
         return '';
     }
 
-    getProject(id: number): Models.Project {
+    getProject(id: number): Models.ProjectLite {
         let project = null;
         if (this._projects) {
             let projects = this._projects.filter(project => project.projectId === id);

@@ -40,7 +40,7 @@
 
     onUpdateAccount = SimpleEvent.create<Models.Account>();
 
-    onUpdateProjects = SimpleEvent.create<Models.Project[]>();
+    onUpdateProjects = SimpleEvent.create<Models.ProjectLite[]>();
 
     onUpdateTags = SimpleEvent.create<Models.Tag[]>();
 
@@ -433,7 +433,7 @@
     getProjects() {
         return this.checkProfile().then(profile => {
             var url = 'api/accounts/' + profile.activeAccountId + '/projects?onlyTracked=true';
-            return this.get<Models.Project[]>(url).then(projects => {
+            return this.get<Models.ProjectLite[]>(url).then(projects => {
                 this.onUpdateProjects.emit(projects);
                 return projects;
             });
