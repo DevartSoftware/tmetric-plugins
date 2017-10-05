@@ -66,6 +66,7 @@
                 "in-page-scripts/integrations/google-calendar.js",
                 "in-page-scripts/integrations/google-docs.js",
                 "in-page-scripts/integrations/google-inbox.js",
+                "in-page-scripts/integrations/google-keep.js",
                 "in-page-scripts/integrations/google-mail.js",
                 "in-page-scripts/integrations/jira.js",
                 "in-page-scripts/integrations/pivotalTracker.js",

@@ -10,7 +10,7 @@
 
         let taskHeader = $$('.ha');
         if (taskHeader) {
-            linkElement.classList.add('devart-timer-link-gmail');
+            linkElement.classList.add('devart-timer-link-google-mail');
             taskHeader.appendChild(linkElement);
         }
     }
@@ -24,7 +24,7 @@
 
         let projectName = $$.try('.ha:last-of-type .hN').textContent;
 
-        return { issueName, serviceType: 'GoogleMail', projectName };
+        return { issueName, projectName };
     }
 }
 

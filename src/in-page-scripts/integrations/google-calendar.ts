@@ -11,14 +11,14 @@
         // detail view
         let detailedView = $$('.ep .ep-dpc', issueElement);
         if (detailedView) {
-            linkElement.classList.add('devart-timer-link-calendar-detailed');
+            linkElement.classList.add('devart-timer-link-google-calendar-detailed');
             detailedView.insertBefore(linkElement, detailedView.firstChild);
         }
 
         // popup view
         let popup = $$('.bubblecontent');
         if (popup) {
-            linkElement.classList.add('devart-timer-link-calendar-popup');
+            linkElement.classList.add('devart-timer-link-google-calendar-popup');
             popup.insertBefore(linkElement, popup.firstChild);
         }
     }
