@@ -24,7 +24,7 @@
 
         let projectName = $$.try('.ha:last-of-type .hN').textContent;
 
-        return { issueName, serviceType: 'GoogleMail', projectName };
+        return { issueName, projectName };
     }
 }
 
