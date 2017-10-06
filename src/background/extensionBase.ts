@@ -2,7 +2,7 @@
 
 class ExtensionBase {
 
-    getDefaultConstants() {
+    private getDefaultConstants() {
         let constants: Models.Constants = {
             maxTimerHours: 12,
             extensionName: chrome.runtime.getManifest().name,
@@ -12,7 +12,7 @@ class ExtensionBase {
         return constants;
     }
 
-    getDefaultLoginPosition() {
+    private getDefaultLoginPosition() {
         return {
             width: 420,
             height: 535,
@@ -37,13 +37,12 @@ class ExtensionBase {
 
     /**
      * Create popup window
-     * @virtual
      * @param width
      * @param height
      * @param left
      * @param top
      */
-    createLoginDialog(width: number, height: number, left: number, top: number) {
+    private createLoginDialog(width: number, height: number, left: number, top: number) {
 
         chrome.windows.create(<chrome.windows.CreateData>{
             left,
@@ -60,20 +59,25 @@ class ExtensionBase {
             this.loginTabId = popupTab.id;
             this.loginWindowPending = false;
 
-            let deltaWidth = width - popupTab.width;
-            let deltaHeight = height - popupTab.height;
+            let updateInfo = <chrome.windows.UpdateInfo>{ focused: true };
 
-            chrome.windows.update(popupWindow.id, <chrome.windows.UpdateInfo>{
-                focused: true,
-                left: left - Math.round(deltaWidth / 2),
-                top: top - Math.round(deltaHeight / 2),
-                width: width + deltaWidth,
-                height: height + deltaHeight
-            });
+            if (popupTab.width) {
+                let deltaWidth = width - popupTab.width;
+                updateInfo.left = left - Math.round(deltaWidth / 2);
+                updateInfo.width = width + deltaWidth;
+            }
+
+            if (popupTab.height) {
+                let deltaHeight = height - popupTab.height;
+                updateInfo.top = top - Math.round(deltaHeight / 2);
+                updateInfo.height = height + deltaHeight;
+            }
+
+            chrome.windows.update(popupWindow.id, updateInfo);
         });
     }
 
-    showError(message: string) {
+    protected showError(message: string) {
         // This needed to prevent alert cleaning via build.
         let a = alert;
         a(message);
@@ -84,7 +88,7 @@ class ExtensionBase {
      * @param message
      * @param title
      */
-    showNotification(message: string, title?: string) {
+    protected showNotification(message: string, title?: string) {
         if (this.lastNotificationId) {
             chrome.notifications.clear(this.lastNotificationId, () => { });
         }
@@ -97,21 +101,21 @@ class ExtensionBase {
             id => this.lastNotificationId = id);
     }
 
-    buttonState = ButtonState.start;
+    private buttonState = ButtonState.start;
 
-    loginTabId: number;
+    private loginTabId: number;
 
-    loginWinId: number;
+    private loginWinId: number;
 
-    loginWindowPending: boolean;
+    private loginWindowPending: boolean;
 
-    lastNotificationId: string;
+    private lastNotificationId: string;
 
-    connection = new SignalRConnection();
+    private connection = new SignalRConnection();
 
-    protected serviceUrl: string;
+    private serviceUrl: string;
 
-    protected extraHours: number;
+    private extraHours: number;
 
     private _constants: Models.Constants;
 
@@ -234,7 +238,7 @@ class ExtensionBase {
     }
 
     /** Handles messages from in-page scripts */
-    onTabMessage(message: ITabMessage, tabId: number) {
+    private onTabMessage(message: ITabMessage, tabId: number) {
 
         this.sendToTabs({ action: message.action + '_callback' }, tabId);
 
@@ -278,7 +282,7 @@ class ExtensionBase {
         }
     }
 
-    openTrackerPage() {
+    private openTrackerPage() {
         let url = this.serviceUrl;
         if (this._userProfile && this._userProfile.activeAccountId) {
             url += '#/tracker/' + this._userProfile.activeAccountId + '/';
@@ -286,12 +290,12 @@ class ExtensionBase {
         this.openPage(url);
     }
 
-    fixTimer() {
+    private fixTimer() {
         this.showNotification('You should fix the timer.');
         this.openTrackerPage();
     }
 
-    putExternalTimer(timer: WebToolIssueTimer, tabId?: number) {
+    private putExternalTimer(timer: WebToolIssueTimer, tabId?: number) {
 
         let showPopup = false;
 
@@ -324,7 +328,7 @@ class ExtensionBase {
             });
     }
 
-    putData<T>(data: T, action: (data: T) => Promise<any>, retryAction?: (data: T) => Promise<any>) {
+    private putData<T>(data: T, action: (data: T) => Promise<any>, retryAction?: (data: T) => Promise<any>) {
 
         let onFail = (status: AjaxStatus, showDialog: boolean) => {
 
@@ -381,7 +385,7 @@ class ExtensionBase {
         }
     }
 
-    updateState() {
+    private updateState() {
         let state = ButtonState.connect;
         let text = 'Not Connected';
         if (this._timer) {
@@ -408,7 +412,7 @@ class ExtensionBase {
         this.setButtonIcon(state == ButtonState.stop || state == ButtonState.fixtimer ? 'active' : 'inactive', text);
     }
 
-    getLoginUrl(): string {
+    private getLoginUrl(): string {
         return this.serviceUrl + 'login';
     }
 
@@ -589,7 +593,7 @@ class ExtensionBase {
         this._issuesDurationsCache = {};
     }
 
-    getIssuesDurations(identifiers: WebToolIssueIdentifier[]): Promise<WebToolIssueDuration[]> {
+    private getIssuesDurations(identifiers: WebToolIssueIdentifier[]): Promise<WebToolIssueDuration[]> {
 
         let durations = <WebToolIssueDuration[]>[];
         let fetchIdentifiers = <WebToolIssueIdentifier[]>[];
@@ -627,11 +631,11 @@ class ExtensionBase {
 
     private _popupActions = {};
 
-    listenPopupAction<TParams, TResult>(action: string, handler: (TParams) => Promise<TResult>) {
+    private listenPopupAction<TParams, TResult>(action: string, handler: (TParams) => Promise<TResult>) {
         this._popupActions[action] = handler;
     }
 
-    onPopupRequest(request: IPopupRequest, callback: (response: IPopupResponse) => void) {
+    private onPopupRequest(request: IPopupRequest, callback: (response: IPopupResponse) => void) {
         let action = request.action;
         let handler = this._popupActions[action];
         if (action && handler) {
@@ -679,7 +683,7 @@ class ExtensionBase {
         });
     }
 
-    initializePopupAction(): Promise<IPopupInitData> {
+    private initializePopupAction(): Promise<IPopupInitData> {
         return new Promise((resolve, reject) => {
             // Forget about old action when user open popup again
             this._actionOnConnect = null;
@@ -691,27 +695,27 @@ class ExtensionBase {
         });
     }
 
-    openTrackerPagePopupAction() {
+    private openTrackerPagePopupAction() {
         return Promise.resolve(null).then(() => {
             this.openTrackerPage();
         });
     }
 
-    openPagePopupAction(url) {
+    private openPagePopupAction(url) {
         return Promise.resolve(null).then(() => {
             this.openPage(url);
         });
     }
 
-    isConnectionRetryEnabledPopupAction(): Promise<boolean> {
+    private isConnectionRetryEnabledPopupAction(): Promise<boolean> {
         return this.connection.isConnectionRetryEnabled();
     }
 
-    retryConnectionPopupAction() {
+    private retryConnectionPopupAction() {
         return this.connection.retryConnection();
     }
 
-    showLoginDialog() {
+    private showLoginDialog() {
         if (this.loginWinId) {
             chrome.windows.update(this.loginWinId, { focused: true });
             return;
@@ -741,24 +745,24 @@ class ExtensionBase {
         });
     }
 
-    loginPopupAction() {
+    private loginPopupAction() {
         return Promise.resolve(null).then(() => {
             this.connection.reconnect().catch(() => this.showLoginDialog());
         });
     }
 
-    fixTimerPopupAction() {
+    private fixTimerPopupAction() {
         return Promise.resolve(null).then(() => {
             this.openTrackerPage();
         });
     }
 
-    putTimerPopupAction(timer: Models.Timer) {
+    private putTimerPopupAction(timer: Models.Timer) {
         return Promise.resolve(null).then(() =>
             this.putData(timer, timer => this.connection.putTimer(timer)));
     }
 
-    setButtonIcon(icon: string, tooltip: string) {
+    private setButtonIcon(icon: string, tooltip: string) {
         chrome.browserAction.setIcon({
             path: {
                 '19': 'images/' + icon + '19.png',
@@ -768,7 +772,7 @@ class ExtensionBase {
         chrome.browserAction.setTitle({ title: tooltip });
     }
 
-    sendToTabs(message: ITabMessage, tabId?: number) {
+    protected sendToTabs(message: ITabMessage, tabId?: number) {
 
         if (tabId != null) {
             chrome.tabs.sendMessage(tabId, message);
@@ -789,11 +793,11 @@ class ExtensionBase {
         }));
     }
 
-    getTestValue(name: string): any {
+    private getTestValue(name: string): any {
         return localStorage.getItem(name);
     }
 
-    getActiveTabTitle() {
+    private getActiveTabTitle() {
         return new Promise<string>((resolve, reject) => {
             chrome.tabs.query({ currentWindow: true, active: true },
                 function (tabs) {
@@ -804,7 +808,7 @@ class ExtensionBase {
         });
     }
 
-    getActiveTabId() {
+    protected getActiveTabId() {
         return new Promise<number>((resolve, reject) => {
             chrome.tabs.query({ currentWindow: true, active: true },
                 function (tabs) {
@@ -815,7 +819,7 @@ class ExtensionBase {
         });
     }
 
-    openPage(url: string) {
+    private openPage(url: string) {
 
         chrome.tabs.query({ active: true, windowId: chrome.windows.WINDOW_ID_CURRENT }, tabs => {
 
@@ -852,7 +856,7 @@ class ExtensionBase {
         });
     }
 
-    registerTabsUpdateListener() {
+    private registerTabsUpdateListener() {
         chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
             if (tabId == this.loginTabId && changeInfo.url) {
                 let tabUrl = changeInfo.url.toLowerCase();
@@ -865,7 +869,7 @@ class ExtensionBase {
         });
     }
 
-    registerTabsRemoveListener() {
+    private registerTabsRemoveListener() {
         chrome.tabs.onRemoved.addListener((tabId) => {
             if (tabId == this.loginTabId) {
                 this.loginTabId = null;
@@ -875,7 +879,7 @@ class ExtensionBase {
         });
     }
 
-    registerMessageListener() {
+    private registerMessageListener() {
         chrome.runtime.onMessage.addListener((message: ITabMessage | IPopupRequest, sender: chrome.runtime.MessageSender, senderResponse: (IPopupResponse) => void) => {
 
             // Popup requests
