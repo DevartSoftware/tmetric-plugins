@@ -34,7 +34,6 @@
     private _timeFormat: string;
     private _projects: Models.ProjectLite[];
     private _tags: Models.Tag[];
-    private _defaultWorkType: Models.Tag;
     private _constants: Models.Constants;
     private _canCreateProjects: boolean;
     private _canCreateTags: boolean;
@@ -58,7 +57,6 @@
             this._timeFormat = data.timeFormat;
             this._projects = data.projects;
             this._tags = data.tags.filter(tag => !!tag).sort((a, b) => this.compare(a, b));
-            this._defaultWorkType = data.defaultWorkType;
             this._constants = data.constants;
             this._canCreateProjects = data.canCreateProjects;
             this._canCreateTags = data.canCreateTags;
@@ -382,26 +380,7 @@
     }
 
     makeTagSelectedItems() {
-
-        if (!this._issue || !this._issue.tagNames) {
-            return this._defaultWorkType ? [this._defaultWorkType.tagName] : [];
-        }
-
-        let hasWorkType = false;
-        let isWorkType: { [name: string]: boolean } = {};
-        this._tags.forEach(tag => {
-            isWorkType[tag.tagName.toLowerCase()] = tag.isWorkType;
-        });
-
-        return this._issue.tagNames.filter(name => {
-            if (isWorkType[name.toLowerCase()]) {
-                if (hasWorkType) {
-                    return false;
-                }
-                hasWorkType = true;
-            }
-            return true;
-        });
+        return (this._issue && this._issue.tagNames) || [];
     }
 
     getSelectValue(selector: string) {
