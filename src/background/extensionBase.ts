@@ -7,7 +7,8 @@ class ExtensionBase {
             maxTimerHours: 12,
             extensionName: chrome.runtime.getManifest().name,
             browserSchema: this.getBrowserSchema(),
-            extensionUUID: this.getExtensionUUID()
+            extensionUUID: this.getExtensionUUID(),
+            serviceUrl: this.defaultApplicationUrl
         };
         return constants;
     }
@@ -532,17 +533,21 @@ class ExtensionBase {
     }
 
     private getErrorText(status: AjaxStatus) {
-        let result = status && (status.statusText || status.statusCode);
+        let result = status && (status.responseMessage || status.statusText || status.statusCode);
         if (result) {
             return result.toString();
         }
         return 'Connection to the server failed or was aborted.';
     }
 
+    private getDefaultWorkType() {
+        let activeAccount = this._userProfile.accountMembership.find(_ => _.account.accountId == this._userProfile.activeAccountId);
+        return this._tags.find(tag => tag.tagId == activeAccount.defaultWorkTypeId);
+    }
+
     private addDefaultWorkType(timer: WebToolIssueTimer) {
 
-        let activeAccount = this._userProfile.accountMembership.find(_ => _.account.accountId == this._userProfile.activeAccountId);
-        let defaultWorkType = this._tags.find(tag => tag.tagId == activeAccount.defaultWorkTypeId);
+        let defaultWorkType = this.getDefaultWorkType();
         if (!defaultWorkType) {
             return;
         }
@@ -675,6 +680,7 @@ class ExtensionBase {
                         .filter(project => project.projectStatus == Models.ProjectStatus.Open)
                         .sort((a, b) => a.projectName.localeCompare(b.projectName, [], { sensitivity: 'base' })),
                     tags: this._tags,
+                    defaultWorkType: this.getDefaultWorkType(),
                     canCreateProjects: isAdmin || canMembersManagePublicProjects,
                     canCreateTags,
                     constants: this._constants

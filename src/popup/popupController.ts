@@ -29,15 +29,12 @@
         });
     }
 
-    private get _hostname() {
-        return 'https://app.tmetric.com';
-    }
-
     private _activeTimer: Models.Timer;
     private _issue: WebToolIssueTimer;
     private _timeFormat: string;
     private _projects: Models.ProjectLite[];
     private _tags: Models.Tag[];
+    private _defaultWorkType: Models.Tag;
     private _constants: Models.Constants;
     private _canCreateProjects: boolean;
     private _canCreateTags: boolean;
@@ -61,6 +58,7 @@
             this._timeFormat = data.timeFormat;
             this._projects = data.projects;
             this._tags = data.tags.filter(tag => !!tag).sort((a, b) => this.compare(a.tagName, b.tagName));
+            this._defaultWorkType = data.defaultWorkType;
             this._constants = data.constants;
             this._canCreateProjects = data.canCreateProjects;
             this._canCreateTags = data.canCreateTags;
@@ -189,8 +187,8 @@
 
     fillCreateForm(description: string) {
         $(this._forms.create + ' .task .input').val(description).focus().select();
-        this.initSelector(this._forms.create + ' .project .input', this.makeProjectItems());
-        this.initMultiSelector(this._forms.create + ' .tags .input', this.makeTagItems(), this.makeTagSelectedItems(), this._canCreateTags);
+        this.initProjectSelector(this._forms.create + ' .project .input', this.makeProjectItems());
+        this.initTagSelector(this._forms.create + ' .tags .input', this.makeTagItems(), this.makeTagSelectedItems(), this._canCreateTags);
         if (description) {
             setTimeout(() => {
                 $(this._forms.create + ' .project .input').select2('focus');
@@ -333,7 +331,7 @@
             .join(', ');
     }
 
-    private _selectProjectOption: IdTextAvatar = { id: 0, text: 'Select project', avatar: null };
+    private _selectProjectOption: IdTextAvatar = { id: 0, text: 'No project', avatar: null };
 
     private _createNewProjectOption: IdTextAvatar = { id: -1, text: 'New project', avatar: null };
 
@@ -371,74 +369,94 @@
 
     makeTagSelectedItems() {
 
-        if (this._issue && this._issue.tagNames) {
-
-            let hasWorkType = false;
-            let isWorkType: { [name: string]: boolean } = {};
-            this._tags.forEach(tag => {
-                isWorkType[tag.tagName.toLowerCase()] = tag.isWorkType;
-            });
-
-            return this._issue.tagNames.filter(name => {
-                if (isWorkType[name.toLowerCase()]) {
-                    if (hasWorkType) {
-                        return false;
-                    }
-                    hasWorkType = true;
-                }
-                return true;
-            });
+        if (!this._issue || !this._issue.tagNames) {
+            return this._defaultWorkType ? [this._defaultWorkType.tagName] : [];
         }
-        return [];
+
+        let hasWorkType = false;
+        let isWorkType: { [name: string]: boolean } = {};
+        this._tags.forEach(tag => {
+            isWorkType[tag.tagName.toLowerCase()] = tag.isWorkType;
+        });
+
+        return this._issue.tagNames.filter(name => {
+            if (isWorkType[name.toLowerCase()]) {
+                if (hasWorkType) {
+                    return false;
+                }
+                hasWorkType = true;
+            }
+            return true;
+        });
     }
 
     getSelectValue(selector: string) {
         return $(selector).select().val();
     }
 
-    initSelector(selector: string, items: IdTextPair[]) {
+    initProjectSelector(selector: string, items: IdTextPair[]) {
         $(selector).select2({
             data: items,
-            templateSelection: this.formatDataForTemplateSelection.bind(this),
-            templateResult: this.formatDataForTemplateResult.bind(this)
+            templateSelection: this.formatSelectedProject.bind(this),
+            templateResult: this.formatProjectItem.bind(this)
         }).val(this._selectProjectOption.id).trigger('change');
     }
 
-    private formatDataForTemplateResult(data: IProjectSelection) {
-        let html = '<span ';
+    private formatProjectItem(data: IProjectSelection) {
+        let html = '<span>';
+        let text = this.escape(data.text);
 
-        html += (Number(data.id) == 0
-            ? 'class="mute-text"'
-            : '');
-
-        html += '>';
-
-        html += (!!data.avatar
-            ? `<img class="project-avatar-image" src="${this._hostname}/${data.avatar}" />`
-            : '');
+        if (Number(data.id) != 0 && Number(data.id) != -1) {
+            html += (!!data.avatar
+                ? `<img class="project-avatar-image" src="${this._constants.serviceUrl}/${data.avatar}" />`
+                : '<img class="project-avatar-image" src="../images/project.png" />');
+        }
 
         html += (Number(data.id) == -1
-            ? '<strong>' + data.text + '</strong>'
-            : data.text);
+            ? '<strong>' + this.escape(text) + '</strong>'
+            : this.escape(text));
 
         html += '</span>';
 
         return $(html);
     }
 
-    private formatDataForTemplateSelection(data: IProjectSelection) {
-        let html = '<span>';
+    private formatSelectedProject(data: IProjectSelection) {
+        let html = '<span ';
+        let text = this.escape(data.text);
 
-        html += (!!data.avatar
-            ? `<img class="project-avatar-image" src="${this._hostname}/${data.avatar}" />`
-            : '');
+        if (Number(data.id) == 0) {
+            html += 'class="mute-text"';
+            text = 'Select project';
+        }
 
-        html += data.text + '</span>';
+        html += '>'
+
+        if (Number(data.id) != 0 && Number(data.id) != -1) {
+            html += (!!data.avatar
+                ? `<img class="project-avatar-image" src="${this._constants.serviceUrl}/${data.avatar}" />`
+                : '<img class="project-avatar-image" src="../images/project.png" />');
+        }
+
+        html += text + '</span>'
 
         return $(html);
     }
 
-    initMultiSelector(selector: string, items: IdTextPair[], selectedItems: string[], allowNewItems?: boolean) {
+    private escape(str: string) {
+        let escapeMap = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#x27;',
+            '`': '&#x60;'
+        };
+        let htmlEscaper = /[&<>`"'\/]/g;
+        return ('' + str).replace(htmlEscaper, _ => htmlEscaper[_]);
+    }
+
+    initTagSelector(selector: string, items: IdTextPair[], selectedItems: string[], allowNewItems?: boolean) {
         $(selector).select2({
             data: items,
             tags: allowNewItems
