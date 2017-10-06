@@ -504,6 +504,10 @@
             function fail() {
                 var statusCode = xhr.status;
                 var statusText = xhr.statusText;
+                if (xhr.responseJSON) {
+                    var responseMessage = xhr.responseJSON.Message;
+                }
+
                 if (statusText == 'error') // jQuery replaces empty status to 'error'
                 {
                     statusText = '';
@@ -511,7 +515,7 @@
                 if (statusCode && !statusText) { // HTTP/2 does not define a way to carry the reason phrase
                     statusText = SignalRConnection.statusDescriptions[statusCode];
                 }
-                reject(<AjaxStatus>{ statusCode, statusText });
+                reject(<AjaxStatus>{ statusCode, statusText, responseMessage });
             }
         });
     }

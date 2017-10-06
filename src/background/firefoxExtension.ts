@@ -20,7 +20,7 @@ class FirefoxExtension extends ExtensionBase {
      * @override
      * @param message
      */
-    showError(message: string) {
+    protected showError(message: string) {
         this.getActiveTabId().then(id => {
 
             this.sendToTabs({

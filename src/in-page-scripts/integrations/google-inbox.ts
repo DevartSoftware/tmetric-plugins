@@ -19,9 +19,6 @@
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
         let issueName = $$.try('.eo > span').textContent;
-        if (!issueName) {
-            return;
-        }
 
         return { issueName };
     }

@@ -25,23 +25,23 @@
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        let issueName = $$.try('#mtb').textContent ||
-            (<any>$$.try('.ep-title input')).value ||
-            $$.try('.bubblecontent .gcal-contenteditable-textinput').textContent;
+        let issueName = $$.try('#mtb').textContent || // event popup -> event title
+            (<any>$$.try('.ep-title input')).value || // event detailed view (event edit) -> event title
+            $$.try('.bubblecontent .gcal-contenteditable-textinput').textContent; // reminder popup -> reminder title
 
         if (!issueName) {
             let iframe = <HTMLIFrameElement>$$('.bubblecontent iframe');
             if (iframe) {
-                issueName = iframe.contentDocument.querySelector('textarea').textContent;
-                if (!issueName) {
-                    return;
+                let textArea = (<HTMLTextAreaElement>iframe.contentDocument.querySelector('textarea'));
+                if (textArea) {
+                    issueName = textArea.textContent;
+                } else {
+                    iframe.addEventListener('load', () => window.parsePage());
                 }
-            } else {
-                return;
             }
         }
 
-        return { issueName, serviceType: 'GoogleCalendar' };
+        return { issueName };
     }
 }
 

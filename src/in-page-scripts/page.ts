@@ -1,4 +1,8 @@
-﻿if (typeof document !== 'undefined') {
+﻿interface Window {
+    parsePage: () => void;
+}
+
+if (typeof document !== 'undefined') {
 
     let constants: Models.Constants;
 
@@ -169,6 +173,8 @@
             mutationObserver.observe(document, { childList: true, subtree: true });
         }
     }
+
+    window.parsePage = parsePage;
 
     let oldUrl = '';
     let oldTitle = '';
