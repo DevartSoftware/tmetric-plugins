@@ -57,7 +57,13 @@ declare module Models {
          * This collection defines which service accounts the user can access.
          * Accounts where user is locked are not included in the list.
          */
-        accountMembership: Models.AccountMember[];
+        accountMembership: {
+            accountMemberId: number,
+            account: Models.Account,
+            role: Models.ServiceRole,
+            defaultWorkTypeId?: number
+        }[];
+
         isRegistered: boolean;
     }
 
