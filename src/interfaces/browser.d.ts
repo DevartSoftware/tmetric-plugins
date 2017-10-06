@@ -1,6 +1,7 @@
 ﻿interface AjaxStatus {
     statusCode: number;
     statusText: string;
+    responseMessage: string;
 }
 
 interface ITabInfo {

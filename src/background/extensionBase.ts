@@ -532,7 +532,7 @@ class ExtensionBase {
     }
 
     private getErrorText(status: AjaxStatus) {
-        let result = status && (status.statusText || status.statusCode);
+        let result = status && (status.responseMessage || status.statusText || status.statusCode);
         if (result) {
             return result.toString();
         }
