@@ -8,7 +8,7 @@ class ExtensionBase {
             extensionName: chrome.runtime.getManifest().name,
             browserSchema: this.getBrowserSchema(),
             extensionUUID: this.getExtensionUUID(),
-            serviceUrl: this.defaultApplicationUrl
+            serviceUrl: this.serviceUrl
         };
         return constants;
     }

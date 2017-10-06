@@ -397,17 +397,17 @@
 
     private formatProjectItem(data: IProjectSelection) {
         let html = '<span>';
-        let text = this.escape(data.text);
+        let text = $('<span>').text(data.text).html();
 
-        if (Number(data.id) != 0 && Number(data.id) != -1) {
+        if (Number(data.id) > 0) {
             html += (!!data.avatar
                 ? `<img class="project-avatar-image" src="${this._constants.serviceUrl}/${data.avatar}" />`
-                : '<img class="project-avatar-image" src="../images/project.png" />');
+                : `<img class="project-avatar-image" src="${this._constants.serviceUrl}/Content/Avatars/project.svg" />`);
         }
 
         html += (Number(data.id) == -1
-            ? '<strong>' + this.escape(text) + '</strong>'
-            : this.escape(text));
+            ? '<strong>' + text + '</strong>'
+            : text);
 
         html += '</span>';
 
@@ -416,7 +416,7 @@
 
     private formatSelectedProject(data: IProjectSelection) {
         let html = '<span ';
-        let text = this.escape(data.text);
+        let text = $('<span>').text(data.text).html();
 
         if (Number(data.id) == 0) {
             html += 'class="mute-text"';
@@ -434,19 +434,6 @@
         html += text + '</span>'
 
         return $(html);
-    }
-
-    private escape(str: string) {
-        let escapeMap = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#x27;',
-            '`': '&#x60;'
-        };
-        let htmlEscaper = /[&<>`"'\/]/g;
-        return ('' + str).replace(htmlEscaper, _ => htmlEscaper[_]);
     }
 
     initTagSelector(selector: string, items: IdTextPair[], selectedItems: string[], allowNewItems?: boolean) {
