@@ -7,7 +7,8 @@ class ExtensionBase {
             maxTimerHours: 12,
             extensionName: chrome.runtime.getManifest().name,
             browserSchema: this.getBrowserSchema(),
-            extensionUUID: this.getExtensionUUID()
+            extensionUUID: this.getExtensionUUID(),
+            serviceUrl: this.defaultApplicationUrl
         };
         return constants;
     }
