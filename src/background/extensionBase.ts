@@ -539,10 +539,14 @@ class ExtensionBase {
         return 'Connection to the server failed or was aborted.';
     }
 
+    private getDefaultWorkType() {
+        let activeAccount = this._userProfile.accountMembership.find(_ => _.account.accountId == this._userProfile.activeAccountId);
+        return this._tags.find(tag => tag.tagId == activeAccount.defaultWorkTypeId);
+    }
+
     private addDefaultWorkType(timer: WebToolIssueTimer) {
 
-        let activeAccount = this._userProfile.accountMembership.find(_ => _.account.accountId == this._userProfile.activeAccountId);
-        let defaultWorkType = this._tags.find(tag => tag.tagId == activeAccount.defaultWorkTypeId);
+        let defaultWorkType = this.getDefaultWorkType();
         if (!defaultWorkType) {
             return;
         }
@@ -675,6 +679,7 @@ class ExtensionBase {
                         .filter(project => project.projectStatus == Models.ProjectStatus.Open)
                         .sort((a, b) => a.projectName.localeCompare(b.projectName, [], { sensitivity: 'base' })),
                     tags: this._tags,
+                    defaultWorkType: this.getDefaultWorkType(),
                     canCreateProjects: isAdmin || canMembersManagePublicProjects,
                     canCreateTags,
                     constants: this._constants
