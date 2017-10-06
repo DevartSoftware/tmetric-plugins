@@ -17,10 +17,10 @@
             linkElement.classList.add('devart-timer-link-minimal');
 
             if (issueElement.matches(this.issueElementSelector[0])) { // for checklist
-                linkElement.classList.add('devart-timer-link-google-keep-minimal')
+                linkElement.classList.add('devart-timer-link-google-keep-item')
                 issueElement.insertBefore(linkElement, issueElement.querySelector('div[role="button"]:last-child'));
             } else if (issueElement.matches(this.issueElementSelector[1])) { // for note
-                linkElement.classList.add('devart-timer-link-google-keep-toolbar')
+                linkElement.classList.add('devart-timer-link-google-keep-note')
                 let toolbar = issueElement.querySelector('[role="toolbar"]');
                 toolbar.appendChild(linkElement);
             }
@@ -33,7 +33,7 @@
             let issueId: string;
             let serviceUrl: string;
 
-            if (issueElement.matches(this.issueElementSelector[0])) {
+            if (issueElement.matches(this.issueElementSelector[0])) { // if checklist
                 issueName = $$.try('.notranslate', issueElement).textContent;
             } else if (issueElement.matches(this.issueElementSelector[1])) {
                 let card = $$.closest('.XKSfm-L9AdLc', issueElement);
@@ -49,15 +49,7 @@
                 }
             }
 
-            if (!issueName) {
-                return;
-            }
-
-            if (issueUrl) {
-                return { issueUrl, issueId, issueName, serviceUrl, serviceType: 'GoogleKeep' };
-            } else {
-                return { issueName };
-            }
+            return { issueUrl, issueId, issueName, serviceUrl, serviceType: 'GoogleKeep' };
         }
     }
 
