@@ -303,7 +303,7 @@ class ExtensionBase {
         this.putData(timer,
             timer => {
 
-                this.addDefaultWorkType(timer);
+                this.validateTimerTags(timer);
 
                 if (!tabId ||
                     !timer.isStarted ||
@@ -540,33 +540,40 @@ class ExtensionBase {
         return 'Connection to the server failed or was aborted.';
     }
 
-    private getDefaultWorkType() {
-        let activeAccount = this._userProfile.accountMembership.find(_ => _.account.accountId == this._userProfile.activeAccountId);
-        return this._tags.find(tag => tag.tagId == activeAccount.defaultWorkTypeId);
-    }
+    private validateTimerTags(timer: WebToolIssueTimer) {
 
-    private addDefaultWorkType(timer: WebToolIssueTimer) {
+        let hasWorkType = false;
+        let tagByName: { [name: string]: Models.Tag } = {};
+        this._tags.forEach(tag => {
+            tagByName[tag.tagName.toLowerCase()] = tag;
+        });
 
-        let defaultWorkType = this.getDefaultWorkType();
-        if (!defaultWorkType) {
-            return;
-        }
+        timer.tagNames = (timer.tagNames || [])
+            .map(name => {
 
-        if (timer.tagNames) {
+                let tag = tagByName[name.toLowerCase()];
 
-            let tagsDictionary: { [tagName: string]: Models.Tag } = {};
-            this._tags.forEach(tag => tagsDictionary[tag.tagName.toLowerCase()] = tag);
+                if (!tag) {
+                    return name; // new tag
+                }
 
-            let timerHasWorkType = timer.tagNames.some(name => {
-                let tag = tagsDictionary[name.toLowerCase()];
-                return tag && tag.isWorkType;
-            });
+                if (tag.isWorkType) {
+                    if (hasWorkType) {
+                        return null; // accept only first work type
+                    }
+                    hasWorkType = true;
+                }
 
-            if (!timerHasWorkType) {
-                timer.tagNames.unshift(defaultWorkType.tagName);
+                return tag.tagName; // old tag (character case can be different)
+            })
+            .filter(name => !!name);
+
+        if (!hasWorkType) {
+            let member = this._userProfile.accountMembership.find(_ => _.account.accountId == this._userProfile.activeAccountId);
+            let defaultWorkType = this._tags.find(tag => tag.tagId == member.defaultWorkTypeId);
+            if (defaultWorkType) {
+                timer.tagNames.push(defaultWorkType.tagName);
             }
-        } else {
-            timer.tagNames = [defaultWorkType.tagName];
         }
     }
 
@@ -680,7 +687,6 @@ class ExtensionBase {
                         .filter(project => project.projectStatus == Models.ProjectStatus.Open)
                         .sort((a, b) => a.projectName.localeCompare(b.projectName, [], { sensitivity: 'base' })),
                     tags: this._tags,
-                    defaultWorkType: this.getDefaultWorkType(),
                     canCreateProjects: isAdmin || canMembersManagePublicProjects,
                     canCreateTags,
                     constants: this._constants

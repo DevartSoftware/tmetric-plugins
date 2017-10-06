@@ -44,7 +44,6 @@ interface IPopupInitData {
     timeFormat: string;
     projects: Models.ProjectLite[];
     tags: Models.Tag[];
-    defaultWorkType: Models.Tag;
     constants: Models.Constants;
     canCreateProjects: boolean;
     canCreateTags: boolean;
