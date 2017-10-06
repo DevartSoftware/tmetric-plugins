@@ -57,7 +57,7 @@
             this._issue = data.issue;
             this._timeFormat = data.timeFormat;
             this._projects = data.projects;
-            this._tags = data.tags.filter(tag => !!tag).sort((a, b) => this.compare(a.tagName, b.tagName));
+            this._tags = data.tags.filter(tag => !!tag).sort((a, b) => this.compare(a, b));
             this._defaultWorkType = data.defaultWorkType;
             this._constants = data.constants;
             this._canCreateProjects = data.canCreateProjects;
@@ -72,12 +72,22 @@
         this.close();
     }
 
-    private compare(a: string, b: string) {
-        let aLower = a.toLowerCase();
-        let bLower = b.toLowerCase();
-        if (aLower < bLower) return -1;
-        if (aLower > bLower) return 1;
-        return 0;
+    private compare(t1: Models.Tag, t2: Models.Tag): number {
+
+        function compareByName(a: string, b: string) {
+            let aLower = a.toLowerCase();
+            let bLower = b.toLowerCase();
+            if (aLower < bLower) return -1;
+            if (aLower > bLower) return 1;
+            return 0;
+        }
+
+        // sorting by type, from tag to worktype
+        let direction = -1;
+        let nameDiff = compareByName(t1.tagName, t2.tagName);
+        let typeDiff = (t1.isWorkType ? 0 : direction) - (t2.isWorkType ? 0 : direction);
+
+        return typeDiff || nameDiff;
     }
 
     // actions
@@ -322,12 +332,10 @@
     }
 
     makeTimerTagsText(timerTags: number[]) {
-        return timerTags.map(id => {
-            let tag = this.getTag(id);
-            return tag ? tag.tagName : '';
-        })
+        return timerTags.map(id => this.getTag(id))
             .filter(tag => !!tag)
             .sort(this.compare)
+            .map(tag => tag.tagName)
             .join(', ');
     }
 
@@ -348,18 +356,24 @@
 
     makeTagItems() {
 
-        let existingItems: { [name: string]: boolean } = {};
+        let existingItems = <{ [name: string]: boolean }>{};
 
         let items = this._tags.map(tag => {
             let name = tag.tagName;
             existingItems[name.toLowerCase()] = true;
-            return <IdTextPair>{ id: name, text: name };
+            return <IdTextTagType>{ id: name, text: name, isWorkType: tag.isWorkType };
+        });
+
+        let isWorkTypeMap: { [name: string]: boolean } = {};
+        this._tags.forEach(tag => {
+            isWorkTypeMap[tag.tagName.toLowerCase()] = tag.isWorkType;
         });
 
         if (this._canCreateTags && this._issue && this._issue.tagNames) {
             this._issue.tagNames.forEach(name => {
+                let isWorkType = isWorkTypeMap[name.toLowerCase()]
                 if (!existingItems[name.toLowerCase()]) {
-                    items.push(<IdTextPair>{ id: name, text: name });
+                    items.push(<IdTextTagType>{ id: name, text: name, isWorkType });
                 }
             });
         }
@@ -459,8 +473,22 @@
     initTagSelector(selector: string, items: IdTextPair[], selectedItems: string[], allowNewItems?: boolean) {
         $(selector).select2({
             data: items,
-            tags: allowNewItems
+            tags: allowNewItems,
+            templateResult: this.formatTagItem.bind(this)
         }).val(selectedItems).trigger('change');
+    }
+
+    private formatTagItem(data: ITagSelection) {
+        let text = $('<span>').text(data.text).html();
+        let html = '<span><i class="tag-icon fa ';
+
+        data.isWorkType
+            ? html += 'fa-worktype'
+            : html += 'fa-tag';
+
+        html += '"></i>' + text + '</span>';
+
+        return $(html);
     }
 
     // ui event handlers
@@ -577,4 +605,12 @@ interface IProjectSelection extends Select2SelectionObject {
 
 interface IdTextAvatar extends IdTextPair {
     avatar: string;
+}
+
+interface ITagSelection extends Select2SelectionObject {
+    isWorkType: boolean;
+}
+
+interface IdTextTagType extends IdTextPair {
+    isWorkType: boolean;
 }
