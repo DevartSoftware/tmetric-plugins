@@ -39,7 +39,7 @@ body {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 320px;
+    width: 380px;
     margin-left: -175px;
     margin-top: -211px;
     background-color: #ffffff;
