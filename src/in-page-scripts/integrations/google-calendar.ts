@@ -32,7 +32,12 @@
         if (!issueName) {
             let iframe = <HTMLIFrameElement>$$('.bubblecontent iframe');
             if (iframe) {
-                issueName = iframe.contentDocument.querySelector('textarea').textContent;
+                let textArea = (<HTMLTextAreaElement>iframe.contentDocument.querySelector('textarea'));
+                if (textArea) {
+                    issueName = textArea.textContent;
+                } else {
+                    iframe.addEventListener('load', () => window.parsePage());
+                }
             }
         }
 
