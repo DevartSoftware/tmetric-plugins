@@ -140,12 +140,12 @@ class ExtensionBase {
 
     constructor() {
 
-        this._constants = this.getDefaultConstants();
-
         this.serviceUrl = this.getTestValue('tmetric.url') || this.defaultApplicationUrl;
         if (this.serviceUrl[this.serviceUrl.length - 1] != '/') {
             this.serviceUrl += '/';
         }
+
+        this._constants = this.getDefaultConstants();
 
         this.extraHours = this.getTestValue('tmetric.extraHours');
         if (this.extraHours) {
