@@ -223,3 +223,7 @@
 .fa-worktype:before {
     content: "\e92c";
 }
+
+.fa-ring:before {
+    content: "\e92d";
+}
