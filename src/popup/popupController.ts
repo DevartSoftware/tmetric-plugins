@@ -56,7 +56,7 @@
             this._issue = data.issue;
             this._timeFormat = data.timeFormat;
             this._projects = data.projects;
-            this._tags = data.tags.filter(tag => !!tag).sort((a, b) => this.compare(a, b));
+            this._tags = data.tags.filter(tag => !!tag).sort((a, b) => this.compareTags(a, b));
             this._constants = data.constants;
             this._canCreateProjects = data.canCreateProjects;
             this._canCreateTags = data.canCreateTags;
@@ -70,20 +70,17 @@
         this.close();
     }
 
-    private compare(t1: Models.Tag, t2: Models.Tag): number {
-
-        function compareByName(a: string, b: string) {
-            let aLower = a.toLowerCase();
-            let bLower = b.toLowerCase();
-            if (aLower < bLower) return -1;
-            if (aLower > bLower) return 1;
-            return 0;
-        }
+    private compareTags(t1: Models.Tag, t2: Models.Tag): number {
 
         // sorting by type, from tag to worktype
         let direction = -1;
-        let nameDiff = compareByName(t1.tagName, t2.tagName);
         let typeDiff = (t1.isWorkType ? 0 : direction) - (t2.isWorkType ? 0 : direction);
+        let nameDiff = 0;
+
+        let aLower = t1.tagName.toLowerCase();
+        let bLower = t2.tagName.toLowerCase();
+        if (aLower < bLower) nameDiff = -1;
+        if (aLower > bLower) nameDiff = 1;
 
         return typeDiff || nameDiff;
     }
@@ -332,7 +329,7 @@
     makeTimerTagsText(timerTags: number[]) {
         return timerTags.map(id => this.getTag(id))
             .filter(tag => !!tag)
-            .sort(this.compare)
+            .sort(this.compareTags)
             .map(tag => tag.tagName)
             .join(', ');
     }
