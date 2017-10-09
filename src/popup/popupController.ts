@@ -70,19 +70,18 @@
         this.close();
     }
 
-    private compareTags(t1: Models.Tag, t2: Models.Tag): number {
+    private compareTags(t1: Models.Tag, t2: Models.Tag) {
 
-        // sorting by type, from tag to worktype
-        let direction = -1;
-        let typeDiff = (t1.isWorkType ? 0 : direction) - (t2.isWorkType ? 0 : direction);
-        let nameDiff = 0;
+        // sort by type, from tag to worktype
+        let diff = (t1.isWorkType ? 1 : 0) - (t2.isWorkType ? 1 : 0);
+        if (diff) {
+            return diff;
+        }
 
-        let aLower = t1.tagName.toLowerCase();
-        let bLower = t2.tagName.toLowerCase();
-        if (aLower < bLower) nameDiff = -1;
-        if (aLower > bLower) nameDiff = 1;
-
-        return typeDiff || nameDiff;
+        // sort by name
+        let name1 = t1.tagName.toLowerCase();
+        let name2 = t2.tagName.toLowerCase();
+        return name1 == name2 ? 0 : (name1 > name2 ? 1 : -1);
     }
 
     // actions
