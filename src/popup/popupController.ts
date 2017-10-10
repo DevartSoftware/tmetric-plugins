@@ -194,14 +194,16 @@
     }
 
     fillCreateForm(description: string) {
-        $(this._forms.create + ' .task .input').val(description).focus().select();
         this.initProjectSelector(this._forms.create + ' .project .input', this.makeProjectItems());
         this.initTagSelector(this._forms.create + ' .tags .input', this.makeTagItems(), this.makeTagSelectedItems(), this._canCreateTags);
-        if (description) {
-            setTimeout(() => {
+        let taskInput = $(this._forms.create + ' .task .input');
+        taskInput.val(description).focus().select();
+        setTimeout(() => {
+            // Firefox does not allow to focus elements on popup (TE-117)
+            if (description && taskInput.is(':focus')) {
                 $(this._forms.create + ' .project .input').select2('focus');
-            });
-        }
+            }
+        });
     }
 
     initCreatingForm() {
