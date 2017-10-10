@@ -21,12 +21,14 @@ class FirefoxExtension extends ExtensionBase {
      * @param message
      */
     protected showError(message: string) {
+        // https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Chrome_incompatibilities#Additional_incompatibilities
         this.getActiveTabId().then(id => {
-
-            this.sendToTabs({
-                action: 'error',
-                data: { message: message }
-            }, id);
+            if (id) {
+                this.sendToTabs({
+                    action: 'error',
+                    data: { message: message }
+                }, id);
+            }
         });
     }
 }

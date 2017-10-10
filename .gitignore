@@ -12,6 +12,7 @@ Thumbs.db
 /src/Properties
 /src/background/*.js
 /src/css/*.css
+!/src/css/tmetricicons.css
 /src/in-page-scripts/**/*.js
 /src/safari-api-bridges/*.js
 /src/popup/*.js

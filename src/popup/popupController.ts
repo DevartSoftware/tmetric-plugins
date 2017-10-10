@@ -56,7 +56,7 @@
             this._issue = data.issue;
             this._timeFormat = data.timeFormat;
             this._projects = data.projects;
-            this._tags = data.tags.filter(tag => !!tag).sort((a, b) => this.compare(a, b));
+            this._tags = data.tags.filter(tag => !!tag).sort((a, b) => this.compareTags(a, b));
             this._constants = data.constants;
             this._canCreateProjects = data.canCreateProjects;
             this._canCreateTags = data.canCreateTags;
@@ -70,22 +70,18 @@
         this.close();
     }
 
-    private compare(t1: Models.Tag, t2: Models.Tag): number {
+    private compareTags(t1: Models.Tag, t2: Models.Tag) {
 
-        function compareByName(a: string, b: string) {
-            let aLower = a.toLowerCase();
-            let bLower = b.toLowerCase();
-            if (aLower < bLower) return -1;
-            if (aLower > bLower) return 1;
-            return 0;
+        // sort by type, from tag to worktype
+        let diff = (t1.isWorkType ? 1 : 0) - (t2.isWorkType ? 1 : 0);
+        if (diff) {
+            return diff;
         }
 
-        // sorting by type, from tag to worktype
-        let direction = -1;
-        let nameDiff = compareByName(t1.tagName, t2.tagName);
-        let typeDiff = (t1.isWorkType ? 0 : direction) - (t2.isWorkType ? 0 : direction);
-
-        return typeDiff || nameDiff;
+        // sort by name
+        let name1 = t1.tagName.toLowerCase();
+        let name2 = t2.tagName.toLowerCase();
+        return name1 == name2 ? 0 : (name1 > name2 ? 1 : -1);
     }
 
     // actions
@@ -334,23 +330,23 @@
     makeTimerTagsText(timerTags: number[]) {
         return timerTags.map(id => this.getTag(id))
             .filter(tag => !!tag)
-            .sort(this.compare)
+            .sort(this.compareTags)
             .map(tag => tag.tagName)
             .join(', ');
     }
 
-    private _selectProjectOption: IdTextAvatar = { id: 0, text: 'No project', avatar: null };
+    private _selectProjectOption: IdTextPair = { id: 0, text: 'No project' };
 
-    private _createNewProjectOption: IdTextAvatar = { id: -1, text: 'New project', avatar: null };
+    private _createNewProjectOption: IdTextPair = { id: -1, text: 'New project' };
 
     makeProjectItems() {
-        let projects = <IdTextAvatar[]>[];
+        let projects = <IdTextPair[]>[];
         if (this._canCreateProjects) {
             projects.push(this._createNewProjectOption);
         }
         projects.push(this._selectProjectOption);
         return projects.concat(this._projects.map(project => {
-            return <IdTextAvatar>{ id: project.projectId, text: project.projectName, avatar: project.avatar };
+            return <IdTextPair>{ id: project.projectId, text: project.projectName };
         }));
     }
 
@@ -392,71 +388,75 @@
     initProjectSelector(selector: string, items: IdTextPair[]) {
         $(selector).select2({
             data: items,
-            templateSelection: this.formatSelectedProject.bind(this),
-            templateResult: this.formatProjectItem.bind(this)
+            templateSelection: (options) => this.formatSelectedProject(options),
+            templateResult: (options) => this.formatProjectItem(options)
         }).val(this._selectProjectOption.id).trigger('change');
     }
 
-    private formatProjectItem(data: IProjectSelection) {
-        let html = '<span>';
-        let text = $('<span>').text(data.text).html();
-
-        if (Number(data.id) > 0) {
-            html += (!!data.avatar
-                ? `<img class="project-avatar-image" src="${this._constants.serviceUrl}/${data.avatar}" />`
-                : `<img class="project-avatar-image" src="${this._constants.serviceUrl}/Content/Avatars/project.svg" />`);
+    private formatProjectItem(data: Select2SelectionObject) {
+        let id = parseInt(data.id);
+        if (!id) {
+            return $('<span>').text(data.text)
         }
 
-        html += (Number(data.id) == -1
-            ? '<strong>' + text + '</strong>'
-            : text);
+        if (id == -1) {
+            return $('<strong>').text(data.text);
+        }
 
-        html += '</span>';
-
-        return $(html);
+        return this.createProjectItemElement(data);
     }
 
-    private formatSelectedProject(data: IProjectSelection) {
-        let html = '<span ';
-        let text = $('<span>').text(data.text).html();
-
-        if (Number(data.id) == 0) {
-            html += 'class="mute-text"';
-            text = 'Select project';
+    private formatSelectedProject(data: Select2SelectionObject) {
+        let id = parseInt(data.id);
+        if (!id) {
+            return $('<span class="mute-text">').text('Select project');
         }
 
-        html += '>'
+        return this.createProjectItemElement(data);
+    }
 
-        if (Number(data.id) != 0 && Number(data.id) != -1) {
-            html += (!!data.avatar
-                ? `<img class="project-avatar-image" src="${this._constants.serviceUrl}/${data.avatar}" />`
-                : '<img class="project-avatar-image" src="../images/project.png" />');
+    private createProjectItemElement(selectionObject: Select2SelectionObject) {
+        let projectId = parseInt(selectionObject.id)
+        let projectName = '';
+        let project = this.getProject(projectId);
+        projectName = !!project ? project.projectName : selectionObject.text;
+
+        let avatarPath = '';
+
+        if (projectId > 0) {
+            avatarPath = !!project.avatar
+                ? `${this._constants.serviceUrl}/${project.avatar}`
+                : `${this._constants.serviceUrl}/Content/Avatars/project.svg`;
         }
 
-        html += text + '</span>'
+        let span = $('<span>');
 
-        return $(html);
+        if (avatarPath) {
+            let avatarElement = $(`<img src="${avatarPath}" />`).addClass('project-avatar-image');
+            span.append(avatarElement);
+        }
+
+        let projectNameElement = $('<span>').text(projectName);
+
+        return span.append(projectNameElement);
     }
 
     initTagSelector(selector: string, items: IdTextPair[], selectedItems: string[], allowNewItems?: boolean) {
         $(selector).select2({
             data: items,
             tags: allowNewItems,
-            templateResult: this.formatTagItem.bind(this)
+            templateResult: (options: ITagSelection) => this.formatTagItem(options)
         }).val(selectedItems).trigger('change');
     }
 
     private formatTagItem(data: ITagSelection) {
-        let text = $('<span>').text(data.text).html();
-        let html = '<span><i class="tag-icon fa ';
+        let i = $('<i>').addClass('tag-icon').addClass('fa');
 
         data.isWorkType
-            ? html += 'fa-worktype'
-            : html += 'fa-tag';
+            ? i.addClass('fa-worktype')
+            : i.addClass('fa-tag');
 
-        html += '"></i>' + text + '</span>';
-
-        return $(html);
+        return $('<span>').append(i).append($('<span>').text(data.text));
     }
 
     // ui event handlers
@@ -565,14 +565,6 @@
     private onCreateClick() {
         this.switchState(this._states.creating);
     }
-}
-
-interface IProjectSelection extends Select2SelectionObject {
-    avatar: string;
-}
-
-interface IdTextAvatar extends IdTextPair {
-    avatar: string;
 }
 
 interface ITagSelection extends Select2SelectionObject {

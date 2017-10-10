@@ -419,7 +419,7 @@
     getAccount() {
         return this.checkProfile().then(profile => {
 
-            let promise = this.serverApiVersion < 2.4 ?
+            let promise = this.serverApiVersion < 2.3 ?
                 Promise.resolve(<Models.Account>{}) : // Legacy API
                 this.get<Models.Account>('api/accounts/' + profile.activeAccountId);
 
