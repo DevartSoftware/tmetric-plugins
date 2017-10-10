@@ -394,51 +394,59 @@
     }
 
     private formatProjectItem(data: Select2SelectionObject) {
+
         let id = parseInt(data.id);
+
+        // No project
         if (!id) {
             return $('<span>').text(data.text)
         }
 
+        // New project
         if (id == -1) {
             return $('<strong>').text(data.text);
         }
 
-        return this.createProjectItemElement(data);
+        // Existing project
+        return this.formatExistingProject(data);
     }
 
     private formatSelectedProject(data: Select2SelectionObject) {
+
         let id = parseInt(data.id);
+
+        // No project
         if (!id) {
             return $('<span class="mute-text">').text('Select project');
         }
 
-        return this.createProjectItemElement(data);
+        // New Project
+        if (id == -1) {
+            return $('<span>').text(data.text);
+        }
+
+        // Existing project
+        return this.formatExistingProject(data);
     }
 
-    private createProjectItemElement(selectionObject: Select2SelectionObject) {
-        let projectId = parseInt(selectionObject.id)
-        let projectName = '';
+    private formatExistingProject(data: Select2SelectionObject) {
+
+        let result = $('<span>');
+
+        // Find project
+        let projectId = parseInt(data.id)
         let project = this.getProject(projectId);
-        projectName = !!project ? project.projectName : selectionObject.text;
+        let projectName = project ? project.projectName : data.text;
+        let projectAvatar = project && project.avatar || 'Content/Avatars/project.svg';
 
-        let avatarPath = '';
+        // Add avatar
+        let avatarPath = `${this._constants.serviceUrl}/${projectAvatar}`
+        let avatarElement = $(`<img src="${avatarPath}" />`).addClass('project-avatar-image');
+        result.append(avatarElement);
 
-        if (projectId > 0) {
-            avatarPath = !!project.avatar
-                ? `${this._constants.serviceUrl}/${project.avatar}`
-                : `${this._constants.serviceUrl}/Content/Avatars/project.svg`;
-        }
-
-        let span = $('<span>');
-
-        if (avatarPath) {
-            let avatarElement = $(`<img src="${avatarPath}" />`).addClass('project-avatar-image');
-            span.append(avatarElement);
-        }
-
+        // Add project name
         let projectNameElement = $('<span>').text(projectName);
-
-        return span.append(projectNameElement);
+        return result.append(projectNameElement);
     }
 
     initTagSelector(selector: string, items: IdTextPair[], selectedItems: string[], allowNewItems?: boolean) {
