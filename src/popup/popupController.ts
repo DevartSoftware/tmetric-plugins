@@ -18,6 +18,8 @@
                 this.fillCreateForm();
                 this.switchState(this._states.creating);
             }
+
+            this._postLoad(); // TE-128
         }).catch(error => {
             this.isConnectionRetryEnabledAction().then(retrying => {
                 if (retrying) {
@@ -27,6 +29,10 @@
                 }
             });
         });
+    }
+
+    private _postLoad() {
+        document.body.style.visibility = 'visible';
     }
 
     private _activeTimer: Models.Timer;
