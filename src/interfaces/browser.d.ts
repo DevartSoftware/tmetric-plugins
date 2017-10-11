@@ -38,9 +38,8 @@ interface ITaskInfo {
 }
 
 interface IPopupInitData {
-    title: string;
     timer: Models.Timer;
-    issue: WebToolIssueTimer;
+    newIssue: WebToolIssueTimer;
     timeFormat: string;
     projects: Models.ProjectLite[];
     tags: Models.Tag[];

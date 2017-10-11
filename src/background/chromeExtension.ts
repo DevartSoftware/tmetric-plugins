@@ -19,8 +19,12 @@ class ChromeExtension extends ExtensionBase {
                 tabs && tabs.forEach(tab => {
                     let isMatched = (regexp: RegExp) => regexp.test(tab.url);
                     if (matches.some(isMatched) && !excludeMatches.some(isMatched)) {
-                        jsFiles.forEach(file => chrome.tabs.executeScript(tab.id, { file, runAt }));
-                        cssFiles.forEach(file => chrome.tabs.insertCSS(tab.id, { file }));
+                        if (jsFiles) {
+                            jsFiles.forEach(file => chrome.tabs.executeScript(tab.id, { file, runAt }));
+                        }
+                        if (cssFiles) {
+                            cssFiles.forEach(file => chrome.tabs.insertCSS(tab.id, { file }));
+                        }
                     }
                 }));
         });
