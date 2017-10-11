@@ -1,7 +1,7 @@
 ﻿class PopupController {
 
     constructor() {
-
+        this.preLoad(); // TE-128
         this.initControls();
         this.switchState(this._states.loading);
         this.initializeAction().then(data => {
@@ -18,8 +18,6 @@
                 this.fillCreateForm((data.issue && data.issue.issueName) || data.title);
                 this.switchState(this._states.creating);
             }
-
-            this._postLoad(); // TE-128
         }).catch(error => {
             this.isConnectionRetryEnabledAction().then(retrying => {
                 if (retrying) {
@@ -31,7 +29,7 @@
         });
     }
 
-    private _postLoad() {
+    private preLoad() {
         document.body.style.visibility = 'visible';
     }
 
