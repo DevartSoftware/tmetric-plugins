@@ -569,12 +569,16 @@ class ExtensionBase {
             .filter(name => !!name);
 
         if (!hasWorkType) {
-            let member = this._userProfile.accountMembership.find(_ => _.account.accountId == this._userProfile.activeAccountId);
-            let defaultWorkType = this._tags.find(tag => tag.tagId == member.defaultWorkTypeId);
+            let defaultWorkType = this.getDefaultWorkType();
             if (defaultWorkType) {
                 timer.tagNames.push(defaultWorkType.tagName);
             }
         }
+    }
+
+    private getDefaultWorkType() {
+        let member = this._userProfile.accountMembership.find(_ => _.account.accountId == this._userProfile.activeAccountId);
+        return this._tags.find(tag => tag.tagId == member.defaultWorkTypeId);
     }
 
     // issues durations cache
@@ -675,13 +679,16 @@ class ExtensionBase {
                 let canCreateTags = this._account.canMembersCreateTags;
                 let isAdmin = (userRole == Models.ServiceRole.Admin || userRole == Models.ServiceRole.Owner);
 
-                let issue = this._newPopupIssue;
+                let defaultWorkType = this.getDefaultWorkType();
+                let newIssue = this._newPopupIssue || {
+                    description: title,
+                    tagNames: defaultWorkType ? [defaultWorkType.tagName] : []
+                };
                 this._newPopupIssue = null;
 
                 resolve(<IPopupInitData>{
-                    title,
                     timer: this._timer,
-                    issue,
+                    newIssue,
                     timeFormat: this._userProfile && this._userProfile.timeFormat,
                     projects: this._projects
                         .filter(project => project.projectStatus == Models.ProjectStatus.Open)
