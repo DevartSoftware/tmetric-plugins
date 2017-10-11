@@ -163,11 +163,12 @@
 
         let url = this.getTaskUrl(details);
         if (url && details.projectTask && details.projectTask.externalIssueId) {
-            let issueIdText = '\u29C9'; // "Two joined squares" symbol
+            let a = $(this._forms.view + ' .task .id .link').attr('href', url);
             if (details.projectTask.showIssueId) {
-                issueIdText = details.projectTask.externalIssueId;
+                a.text(details.projectTask.externalIssueId);
+            } else {
+                a.addClass('fa fa-external-link');
             }
-            $(this._forms.view + ' .task .id .link').attr('href', url).text(issueIdText);
         } else {
             $(this._forms.view + ' .task .id').hide();
         }
