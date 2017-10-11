@@ -19,7 +19,7 @@
                 this.switchState(this._states.creating);
             }
 
-            this._postLoad();
+            this._postLoad(); // TE-128
         }).catch(error => {
             this.isConnectionRetryEnabledAction().then(retrying => {
                 if (retrying) {
