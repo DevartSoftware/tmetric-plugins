@@ -1,7 +1,7 @@
 ﻿class PopupController {
 
     constructor() {
-        this.preLoad(); // TE-128
+
         this.initControls();
         this.switchState(this._states.loading);
         this.initializeAction().then(data => {
@@ -27,10 +27,6 @@
                 }
             });
         });
-    }
-
-    private preLoad() {
-        document.body.style.visibility = 'visible';
     }
 
     private _activeTimer: Models.Timer;
