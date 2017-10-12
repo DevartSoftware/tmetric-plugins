@@ -25,15 +25,18 @@
     private initFrame() {
 
         let style = document.createElement('style');
+
+        // Set background-color as important to override inline style.
+        // It needs to prevent flickering popup.
         let css = `
 body {
+    background-color: rgba(0, 0, 0, .5) !important;
     position: fixed;
     top: 0;
     left: 0;
     height: 100%;
     width: 100%;
     padding: 0 !important;
-    background-color: rgba(0, 0, 0, .5) !important;
 }
 .container {
     position: absolute;
