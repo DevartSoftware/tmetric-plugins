@@ -440,12 +440,12 @@ class ExtensionBase {
                     }
                 }
                 else if (status.projectStatus != Models.ProjectStatus.Open) {
-                    let statusText = status.projectStatus == Models.ProjectStatus.Archived ? 'archived' : 'readonly';
-                    notification = `Cannot assign the task to the ${statusText} project '${timer.projectName}'.\n\n${contactAdmin}`;
+                    let statusText = status.projectStatus == Models.ProjectStatus.Archived ? 'archived' : 'done';
+                    notification = `Project '${timer.projectName}' exists, but it has '${statusText}' status. You cannot log time to this project.\n\n${contactAdmin}`;
                     timer.projectName = undefined;
                 }
                 else if (status.projectRole == null) {
-                    notification = `You are not a member of the project '${timer.projectName}.\n\n${contactAdmin}`
+                    notification = `Project '${timer.projectName}' exists, but you don't have access to the project.\n\n${contactAdmin}`;
                     timer.projectName = undefined;
                 }
             }
