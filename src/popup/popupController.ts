@@ -184,7 +184,7 @@
         }
 
         if (timer.tagsIdentifiers && timer.tagsIdentifiers.length) {
-            $(this._forms.view + ' .tags .items').text(this.makeTimerTagsText(timer.tagsIdentifiers)).show();
+            $(this._forms.view + ' .tags .items').append(this.makeTimerTagsElement(timer.tagsIdentifiers)).show();
         } else {
             $(this._forms.view + ' .tags').hide();
         }
@@ -328,12 +328,32 @@
         return null;
     }
 
-    makeTimerTagsText(timerTags: number[]) {
-        return timerTags.map(id => this.getTag(id))
+    makeTimerTagsElement(timerTags: number[]) {
+        let sortedTags = timerTags.map(id => this.getTag(id))
             .filter(tag => !!tag)
-            .sort(this.compareTags)
-            .map(tag => tag.tagName)
-            .join(', ');
+            .sort(this.compareTags);
+
+        let length = sortedTags.length;
+        let container = $('<span>');
+
+        sortedTags.forEach((tag, i) => {
+            let span = $('<span>');
+
+            if (tag.isWorkType) {
+                let i = $('<i>').addClass('tag-icon').addClass('fa fa-dollar');
+                span.append(i);
+            }
+
+            if (i == length - 1) {
+                span.append($('<span>').text(tag.tagName));
+            } else {
+                span.append($('<span>').text(tag.tagName + ', '));
+            }
+
+            container.append(span);
+        });
+
+        return container;
     }
 
     private _selectProjectOption: IdTextPair = { id: 0, text: 'No project' };
