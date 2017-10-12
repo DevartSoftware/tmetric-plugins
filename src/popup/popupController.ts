@@ -450,18 +450,30 @@
         $(selector).select2({
             data: items,
             tags: allowNewItems,
+            templateSelection: (options: ITagSelection) => this.formatSelectedTag(options),
             templateResult: (options: ITagSelection) => this.formatTagItem(options)
         }).val(selectedItems).trigger('change');
     }
 
-    private formatTagItem(data: ITagSelection) {
+    private formatSelectedTag(data: ITagSelection) {
+        return this.formatExistingTag(data, false);
+    }
 
+    private formatTagItem(data: ITagSelection) {
+        return this.formatExistingTag(data, true);
+    }
+
+    private formatExistingTag(data: ITagSelection, hasIconIndentForTag: boolean) {
         if (data.isWorkType) {
             let i = $('<i>').addClass('tag-icon').addClass('fa fa-dollar');
             return $('<span>').append(i).append($('<span>').text(data.text));
         }
 
-        return $('<span>').addClass('tag-without-icon').text(data.text);
+        if (hasIconIndentForTag) {
+            return $('<span>').addClass('tag-without-icon').text(data.text);
+        }
+
+        return $('<span>').text(data.text);
     }
 
     // ui event handlers
