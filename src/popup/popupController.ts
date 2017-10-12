@@ -455,13 +455,13 @@
     }
 
     private formatTagItem(data: ITagSelection) {
-        let i = $('<i>').addClass('tag-icon').addClass('fa');
 
-        data.isWorkType
-            ? i.addClass('fa-worktype')
-            : i.addClass('fa-tag');
+        if (data.isWorkType) {
+            let i = $('<i>').addClass('tag-icon').addClass('fa fa-dollar');
+            return $('<span>').append(i).append($('<span>').text(data.text));
+        }
 
-        return $('<span>').append(i).append($('<span>').text(data.text));
+        return $('<span>').addClass('tag-without-icon').text(data.text);
     }
 
     // ui event handlers
