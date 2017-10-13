@@ -333,23 +333,16 @@
             .filter(tag => !!tag)
             .sort(this.compareTags);
 
-        let length = sortedTags.length;
         let container = $('<span>');
 
         sortedTags.forEach((tag, i) => {
-            let span = $('<span>');
+            let span = $('<span>').addClass('label').addClass('label-default');
 
             if (tag.isWorkType) {
                 let i = $('<i>').addClass('tag-icon').addClass('fa fa-dollar');
                 span.append(i);
             }
-
-            if (i == length - 1) {
-                span.append($('<span>').text(tag.tagName));
-            } else {
-                span.append($('<span>').text(tag.tagName + ', '));
-            }
-
+            span.append($('<span>').text(tag.tagName));
             container.append(span);
         });
 
@@ -507,7 +500,7 @@
         $('#fix').click(() => (this.onFixClick(), false));
         $('#start').click(() => (this.onStartClick(), false));
         $('#stop').click(() => (this.onStopClick(), false));
-        $('#create-link').click(() => (this.onCreateClick(), false));
+        $('#create').click(() => (this.onCreateClick(), false));
         $(this._forms.create + ' .project .input').change(this.onProjectSelectChange());
         $('.cancel-btn').click(() => (this.onCancelClick(), false));
 

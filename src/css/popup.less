@@ -193,6 +193,24 @@ img {
     }
 }
 
+.label {
+    margin-right: 5px;
+}
+
+.label-default {
+    display: inline-block;
+    padding: 4px 6px;
+    font-size: 11px;
+    font-weight: normal;
+    line-height: 1;
+    text-align: center;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    background-color: rgba(0, 0, 0, 0.07);
+    color: @text-color;
+}
+
 input {
     color: @input-color;
     background-color: #fff;
@@ -220,9 +238,15 @@ input {
         font-weight: 300;
         line-height: 33px;
         letter-spacing: 0;
+
+        .time {
+            font-weight: 600;
+        }
     }
 
     &.task {
+        margin-top: 10px;
+
         .id {
             .link {
                 margin: 0;
@@ -230,10 +254,8 @@ input {
         }
     }
 
-    &.project, &.tags {
-        .label {
-            color: @color-light;
-        }
+    &.project .name {
+        font-weight: 600;
     }
 
     .value, .name, .items {
@@ -267,7 +289,7 @@ input {
         margin-top: @action-margin;
 
         & > *:not(:last-child) {
-            margin-right: 12px;
+            margin-right: 9px;
         }
     }
 }
