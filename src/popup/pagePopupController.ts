@@ -7,6 +7,18 @@
         this.registerListeners();
     }
 
+    protected init(data: IPopupInitData) {
+        this.setData(data);
+
+        if (this.isLongRunning(data.timer.startTime)) {
+            this.fillFixForm(data.timer);
+            this.switchState(this._states.fixing);
+        } else {
+            this.fillCreateForm();
+            this.switchState(this._states.creating);
+        }
+    }
+
     hidePopupAction = this.wrapBackgroundAction<Models.Timer, void>('hideAllPopups');
 
     registerListeners() {

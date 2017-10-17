@@ -301,6 +301,7 @@ input {
 // ==============================================
 //                  BUTTONS
 // ==============================================
+
 .btn {
     min-width: 90px;
     display: inline-block;
@@ -508,6 +509,7 @@ content.creating {
 // ================================================
 //                      SELECT2
 // ================================================
+
 .select2 {
     width: 100% !important;
 }
@@ -542,10 +544,16 @@ content.creating {
         float: left !important;
         margin: 5px 0 0 6px !important;
         padding: 0 6px !important;
+
+        .select2-selection__choice__remove {
+            float: right !important;
+            width: 20px !important;
+            text-align: right !important;
+        }
     }
     /**
-         * Minus 2px borders.
-         */
+     * Minus 2px borders.
+     */
     .select2-search--inline {
         .select2-search__field {
             background: transparent !important;
@@ -651,9 +659,11 @@ content.creating {
         color: #555 !important;
     }
 }
+
 // =================================================
 //                      MIXINS
 // =================================================
+
 .button-variant(@color, @background, @border) {
     color: @color;
     background-color: @background;
