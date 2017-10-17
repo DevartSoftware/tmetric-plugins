@@ -4,29 +4,18 @@
 
         this.initControls();
         this.switchState(this._states.loading);
-        this.initializeAction().then(data => {
-            this.setData(data);
-
-            if (this.isLongRunning(data.timer.startTime)) {
-                this.fillFixForm(data.timer);
-                this.switchState(this._states.fixing);
-            } else if (data.newIssue == null && data.timer && data.timer.isStarted) {
-                this.fillViewForm(data.timer);
-                this.fillCreateForm();
-                this.switchState(this._states.viewing);
-            } else {
-                this.fillCreateForm();
-                this.switchState(this._states.creating);
+        this.initializeAction()
+            .then(data => this.init(data))
+            .catch(error => {
+                this.isConnectionRetryEnabledAction().then(retrying => {
+                    if (retrying) {
+                        this.switchState(this._states.retrying);
+                    } else {
+                        this.switchState(this._states.authenticating);
+                    }
+                });
             }
-        }).catch(error => {
-            this.isConnectionRetryEnabledAction().then(retrying => {
-                if (retrying) {
-                    this.switchState(this._states.retrying);
-                } else {
-                    this.switchState(this._states.authenticating);
-                }
-            });
-        });
+        );
     }
 
     private _activeTimer: Models.Timer;
@@ -37,6 +26,22 @@
     private _constants: Models.Constants;
     private _canCreateProjects: boolean;
     private _canCreateTags: boolean;
+
+    protected init(data: IPopupInitData) {
+        this.setData(data);
+
+        if (this.isLongRunning(data.timer.startTime)) {
+            this.fillFixForm(data.timer);
+            this.switchState(this._states.fixing);
+        } else if (data.timer && data.timer.isStarted) {
+            this.fillViewForm(data.timer);
+            this.fillCreateForm();
+            this.switchState(this._states.viewing);
+        } else {
+            this.fillCreateForm();
+            this.switchState(this._states.creating);
+        }
+    }
 
     callBackground(request: IPopupRequest): Promise<IPopupResponse> {
         return new Promise((resolve, reject) => {
@@ -116,20 +121,20 @@
 
     // ui mutations
 
-    private _forms = {
+    protected _forms = {
         login: '#login-form',
         fix: '#fix-form',
         view: '#view-form',
         create: '#create-form'
     };
 
-    private _messageTypes = {
+    protected _messageTypes = {
         error: 'error',
         warning: 'warning',
         info: 'info'
     };
 
-    private _states = {
+    protected _states = {
         loading: 'loading',
         retrying: 'retrying',
         authenticating: 'authenticating',
