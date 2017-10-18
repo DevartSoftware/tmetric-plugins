@@ -49,7 +49,8 @@
                 "https://addons.opera.com/*",
                 "*://*/*lib/execute/execSetResults.php*",
                 "https://*/*portal/*/*.do*",
-                "https://*/*crm/*.do*"
+                "https://*/*crm/*.do*",
+                "*://*.bitrix24.com/*/tasks/"
             ],
             "js": [
                 "in-page-scripts/utils.js",
@@ -59,8 +60,8 @@
                 "in-page-scripts/integrations/axosoft.js",
                 "in-page-scripts/integrations/basecamp.js",
                 "in-page-scripts/integrations/bitbucket.js",
-                "in-page-scripts/integrations/freshdesk.js",
                 "in-page-scripts/integrations/bugzilla.js",
+                "in-page-scripts/integrations/freshdesk.js",
                 "in-page-scripts/integrations/gitHub.js",
                 "in-page-scripts/integrations/gitLab.js",
                 "in-page-scripts/integrations/google-calendar.js",
@@ -99,12 +100,14 @@
             "matches": [
                 "*://*/*lib/execute/execSetResults.php*",
                 "https://*/*portal/*/*.do*",
-                "https://*/*crm/*.do*"
+                "https://*/*crm/*.do*",
+                "*://*.bitrix24.com/*/tasks/"
             ],
             "all_frames": true,
             "js": [
                 "in-page-scripts/utils.js",
                 "in-page-scripts/integrationService.js",
+                "in-page-scripts/integrations/bitrix24.js",
                 "in-page-scripts/integrations/testLink.js",
                 "in-page-scripts/integrations/zohoCRM.js",
                 "in-page-scripts/page.js"
