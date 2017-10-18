@@ -476,15 +476,21 @@
         $(selector).select2({
             data: items,
             tags: allowNewItems,
-            createTag: (params) => this.createTag(params),
+            createTag: (params) => this.createTag(params, selector),
             templateSelection: (options: ITagSelection) => this.formatSelectedTag(options),
             templateResult: (options: ITagSelection) => this.formatTagItem(options)
         }).val(selectedItems).trigger('change');
     }
 
-    private createTag(params: any) {
-        var name = $.trim(params.term);
-        if (name != '') {
+    private createTag(params: any, selector: string) {
+        let name = $.trim(params.term);
+        if (name == '') {
+            return;
+        }
+
+        let options = <HTMLOptionElement[]>$(selector).find('option').toArray();
+        let isOptionNotExist = !options.find(_ => $(_).text().toLowerCase() == name.toLowerCase());
+        if (isOptionNotExist) {
             return this.makeTagItem(name);
         }
     }
