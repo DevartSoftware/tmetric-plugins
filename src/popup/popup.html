@@ -8,7 +8,7 @@
     <link href="../css/tmetricicons.css" rel="stylesheet" type="text/css" />
     <link href="../lib/select2/select2.min.css" rel="stylesheet" type="text/css">
 </head>
-<body>
+<body style="visibility: hidden; background-color: rgba(0, 0, 0, 0)">
     <div class="container">
         <header>
             <nav class="navbar">
@@ -51,20 +51,18 @@
                 <div class="row title">
                     <span>Active Task&nbsp;</span><span class="time"></span>
                 </div>
+                <div class="row project">
+                    <span class="name"></span>
+                </div>
                 <div class="row task">
                     <span class="id"><a id="task-link" class="link"></a></span><span class="name"></span>
                 </div>
-                <div class="row project">
-                    <span class="label">Project</span><span class="name"></span>
-                </div>
                 <div class="row tags">
-                    <span class="label">Tags</span><span class="items"></span>
-                </div>
-                <div class="row links">
-                    <a id="create-link" class="link" href="#">New Time Entry</a>
+                    <span class="items"></span>
                 </div>
                 <div class="row actions">
                     <button id="stop" class="btn btn-danger">Stop</button>
+                    <button id="create" class="btn btn-success">New Task</button>
                     <button class="cancel-btn btn btn-default">Cancel</button>
                 </div>
             </div>

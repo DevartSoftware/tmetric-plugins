@@ -4,39 +4,44 @@
 
         this.initControls();
         this.switchState(this._states.loading);
-        this.initializeAction().then(data => {
-            this.setData(data);
-
-            if (this.isLongRunning(data.timer.startTime)) {
-                this.fillFixForm(data.timer);
-                this.switchState(this._states.fixing);
-            } else if (data.issue == null && data.timer && data.timer.isStarted) {
-                this.fillViewForm(data.timer);
-                this.fillCreateForm(data.title);
-                this.switchState(this._states.viewing);
-            } else {
-                this.fillCreateForm((data.issue && data.issue.issueName) || data.title);
-                this.switchState(this._states.creating);
+        this.initializeAction()
+            .then(data => this.init(data))
+            .catch(error => {
+                this.isConnectionRetryEnabledAction().then(retrying => {
+                    if (retrying) {
+                        this.switchState(this._states.retrying);
+                    } else {
+                        this.switchState(this._states.authenticating);
+                    }
+                });
             }
-        }).catch(error => {
-            this.isConnectionRetryEnabledAction().then(retrying => {
-                if (retrying) {
-                    this.switchState(this._states.retrying);
-                } else {
-                    this.switchState(this._states.authenticating);
-                }
-            });
-        });
+        );
     }
 
     private _activeTimer: Models.Timer;
-    private _issue: WebToolIssueTimer;
+    private _newIssue: WebToolIssueTimer;
     private _timeFormat: string;
     private _projects: Models.ProjectLite[];
     private _tags: Models.Tag[];
     private _constants: Models.Constants;
     private _canCreateProjects: boolean;
     private _canCreateTags: boolean;
+
+    protected init(data: IPopupInitData) {
+        this.setData(data);
+
+        if (this.isLongRunning(data.timer.startTime)) {
+            this.fillFixForm(data.timer);
+            this.switchState(this._states.fixing);
+        } else if (data.timer && data.timer.isStarted) {
+            this.fillViewForm(data.timer);
+            this.fillCreateForm();
+            this.switchState(this._states.viewing);
+        } else {
+            this.fillCreateForm();
+            this.switchState(this._states.creating);
+        }
+    }
 
     callBackground(request: IPopupRequest): Promise<IPopupResponse> {
         return new Promise((resolve, reject) => {
@@ -53,7 +58,7 @@
     setData(data: IPopupInitData) {
         if (data.timer) {
             this._activeTimer = data.timer;
-            this._issue = data.issue;
+            this._newIssue = data.newIssue;
             this._timeFormat = data.timeFormat;
             this._projects = data.projects;
             this._tags = data.tags.filter(tag => !!tag).sort((a, b) => this.compareTags(a, b));
@@ -116,20 +121,20 @@
 
     // ui mutations
 
-    private _forms = {
+    protected _forms = {
         login: '#login-form',
         fix: '#fix-form',
         view: '#view-form',
         create: '#create-form'
     };
 
-    private _messageTypes = {
+    protected _messageTypes = {
         error: 'error',
         warning: 'warning',
         info: 'info'
     };
 
-    private _states = {
+    protected _states = {
         loading: 'loading',
         retrying: 'retrying',
         authenticating: 'authenticating',
@@ -163,11 +168,12 @@
 
         let url = this.getTaskUrl(details);
         if (url && details.projectTask && details.projectTask.externalIssueId) {
-            let issueIdText = '\u29C9'; // "Two joined squares" symbol
+            let a = $(this._forms.view + ' .task .id .link').attr('href', url);
             if (details.projectTask.showIssueId) {
-                issueIdText = details.projectTask.externalIssueId;
+                a.text(details.projectTask.externalIssueId);
+            } else {
+                a.addClass('fa fa-external-link');
             }
-            $(this._forms.view + ' .task .id .link').attr('href', url).text(issueIdText);
         } else {
             $(this._forms.view + ' .task .id').hide();
         }
@@ -183,20 +189,20 @@
         }
 
         if (timer.tagsIdentifiers && timer.tagsIdentifiers.length) {
-            $(this._forms.view + ' .tags .items').text(this.makeTimerTagsText(timer.tagsIdentifiers)).show();
+            $(this._forms.view + ' .tags .items').append(this.makeTimerTagsElement(timer.tagsIdentifiers)).show();
         } else {
             $(this._forms.view + ' .tags').hide();
         }
     }
 
-    fillCreateForm(description: string) {
+    fillCreateForm() {
         this.initProjectSelector(this._forms.create + ' .project .input', this.makeProjectItems());
         this.initTagSelector(this._forms.create + ' .tags .input', this.makeTagItems(), this.makeTagSelectedItems(), this._canCreateTags);
         let taskInput = $(this._forms.create + ' .task .input');
-        taskInput.val(description).focus().select();
+        taskInput.val(this._newIssue.issueName).focus().select();
         setTimeout(() => {
             // Firefox does not allow to focus elements on popup (TE-117)
-            if (description && taskInput.is(':focus')) {
+            if (this._newIssue.description && taskInput.is(':focus')) {
                 $(this._forms.create + ' .project .input').select2('focus');
             }
         });
@@ -327,12 +333,25 @@
         return null;
     }
 
-    makeTimerTagsText(timerTags: number[]) {
-        return timerTags.map(id => this.getTag(id))
+    makeTimerTagsElement(timerTags: number[]) {
+        let sortedTags = timerTags.map(id => this.getTag(id))
             .filter(tag => !!tag)
-            .sort(this.compareTags)
-            .map(tag => tag.tagName)
-            .join(', ');
+            .sort(this.compareTags);
+
+        let container = $('<span>');
+
+        sortedTags.forEach((tag, i) => {
+            let span = $('<span>').addClass('label').addClass('label-default');
+
+            if (tag.isWorkType) {
+                let i = $('<i>').addClass('tag-icon').addClass('fa fa-dollar');
+                span.append(i);
+            }
+            span.append($('<span>').text(tag.tagName));
+            container.append(span);
+        });
+
+        return container;
     }
 
     private _selectProjectOption: IdTextPair = { id: 0, text: 'No project' };
@@ -365,8 +384,8 @@
             isWorkTypeMap[tag.tagName.toLowerCase()] = tag.isWorkType;
         });
 
-        if (this._canCreateTags && this._issue && this._issue.tagNames) {
-            this._issue.tagNames.forEach(name => {
+        if (this._canCreateTags && this._newIssue.tagNames) {
+            this._newIssue.tagNames.forEach(name => {
                 let isWorkType = isWorkTypeMap[name.toLowerCase()]
                 if (!existingItems[name.toLowerCase()]) {
                     items.push(<IdTextTagType>{ id: name, text: name, isWorkType });
@@ -378,11 +397,7 @@
     }
 
     makeTagSelectedItems() {
-        return (this._issue && this._issue.tagNames) || [];
-    }
-
-    getSelectValue(selector: string) {
-        return $(selector).select().val();
+        return this._newIssue.tagNames || [];
     }
 
     initProjectSelector(selector: string, items: IdTextPair[]) {
@@ -394,69 +409,89 @@
     }
 
     private formatProjectItem(data: Select2SelectionObject) {
+
         let id = parseInt(data.id);
+
+        // No project
         if (!id) {
             return $('<span>').text(data.text)
         }
 
+        // New project
         if (id == -1) {
             return $('<strong>').text(data.text);
         }
 
-        return this.createProjectItemElement(data);
+        // Existing project
+        return this.formatExistingProject(data);
     }
 
     private formatSelectedProject(data: Select2SelectionObject) {
+
         let id = parseInt(data.id);
+
+        // No project
         if (!id) {
             return $('<span class="mute-text">').text('Select project');
         }
 
-        return this.createProjectItemElement(data);
+        // New Project
+        if (id == -1) {
+            return $('<span>').text(data.text);
+        }
+
+        // Existing project
+        return this.formatExistingProject(data);
     }
 
-    private createProjectItemElement(selectionObject: Select2SelectionObject) {
-        let projectId = parseInt(selectionObject.id)
-        let projectName = '';
+    private formatExistingProject(data: Select2SelectionObject) {
+
+        let result = $('<span>');
+
+        // Find project
+        let projectId = parseInt(data.id)
         let project = this.getProject(projectId);
-        projectName = !!project ? project.projectName : selectionObject.text;
+        let projectName = project ? project.projectName : data.text;
+        let projectAvatar = project && project.avatar || 'Content/Avatars/project.svg';
 
-        let avatarPath = '';
+        // Add avatar
+        let avatarPath = `${this._constants.serviceUrl}/${projectAvatar}`
+        let avatarElement = $(`<img src="${avatarPath}" />`).addClass('project-avatar-image');
+        result.append(avatarElement);
 
-        if (projectId > 0) {
-            avatarPath = !!project.avatar
-                ? `${this._constants.serviceUrl}/${project.avatar}`
-                : `${this._constants.serviceUrl}/Content/Avatars/project.svg`;
-        }
-
-        let span = $('<span>');
-
-        if (avatarPath) {
-            let avatarElement = $(`<img src="${avatarPath}" />`).addClass('project-avatar-image');
-            span.append(avatarElement);
-        }
-
+        // Add project name
         let projectNameElement = $('<span>').text(projectName);
-
-        return span.append(projectNameElement);
+        return result.append(projectNameElement);
     }
 
     initTagSelector(selector: string, items: IdTextPair[], selectedItems: string[], allowNewItems?: boolean) {
         $(selector).select2({
             data: items,
             tags: allowNewItems,
+            templateSelection: (options: ITagSelection) => this.formatSelectedTag(options),
             templateResult: (options: ITagSelection) => this.formatTagItem(options)
         }).val(selectedItems).trigger('change');
     }
 
+    private formatSelectedTag(data: ITagSelection) {
+        return this.formatExistingTag(data, false);
+    }
+
     private formatTagItem(data: ITagSelection) {
-        let i = $('<i>').addClass('tag-icon').addClass('fa');
+        return this.formatExistingTag(data, true);
+    }
 
-        data.isWorkType
-            ? i.addClass('fa-worktype')
-            : i.addClass('fa-tag');
+    private formatExistingTag(data: ITagSelection, hasIconIndentForTag: boolean) {
+        if (data.isWorkType) {
+            let i = $('<i>').addClass('tag-icon').addClass('fa fa-dollar');
+            return $('<span>').append(i).append($('<span>').text(data.text));
+        }
 
-        return $('<span>').append(i).append($('<span>').text(data.text));
+        if (hasIconIndentForTag) {
+            return $('<span>').addClass('tag-without-icon').text(data.text);
+        }
+
+        return $('<span>').text(data.text);
     }
 
     // ui event handlers
@@ -470,7 +505,7 @@
         $('#fix').click(() => (this.onFixClick(), false));
         $('#start').click(() => (this.onStartClick(), false));
         $('#stop').click(() => (this.onStopClick(), false));
-        $('#create-link').click(() => (this.onCreateClick(), false));
+        $('#create').click(() => (this.onCreateClick(), false));
         $(this._forms.create + ' .project .input').change(this.onProjectSelectChange());
         $('.cancel-btn').click(() => (this.onCancelClick(), false));
 
@@ -495,7 +530,7 @@
 
         return function () {
             if ($(this).val() == -1) { // create new project option
-                let issueProjectName = (self._issue && self._issue.projectName) || '';
+                let issueProjectName = (self._newIssue.projectName) || '';
                 $inputNewProject.val(issueProjectName);
                 $divNewProject.css('display', 'block');
             } else {
@@ -534,27 +569,25 @@
 
     private onStartClick() {
 
-        let timer = <WebToolIssueTimer>{};
+        // Clone issue
+        let timer = Object.assign({}, this._newIssue);
+
+        // Set project
+        let selectedProject = <Select2SelectionObject>$(this._forms.create + ' .project .input').select2('data')[0];
+        if (!selectedProject || !selectedProject.selected || !selectedProject.id) {
+            timer.projectName = ''; // No project
+        } else if (<any>selectedProject.id > 0) {
+            timer.projectName = selectedProject.text; // Existing project
+        } else {
+            timer.projectName = $.trim($(this._forms.create + ' .new-project .input').val()); // New project
+        }
+
+        // Set description and tags
         timer.isStarted = true;
         timer.description = $(this._forms.create + ' .task .input').val();
-        let selectedProject = $(this._forms.create + ' .project .input').select2('data');
-        let isSelected = selectedProject[0] && selectedProject[0].selected && (selectedProject[0].id != 0);
-        timer.projectName = isSelected ? selectedProject[0].text : '';
-        if (isSelected && selectedProject[0].id == -1) {
-            timer.projectName = $.trim($(this._forms.create + ' .new-project .input').val());
-        }
-        timer.tagNames = this.getSelectValue(this._forms.create + ' .tags .input') || [];
+        timer.tagNames = $(this._forms.create + ' .tags .input').select().val() || [];
 
-        if (this._issue) {
-            let issue = this._issue;
-            timer.issueName = this._issue.issueName;
-            timer.issueId = issue.issueId;
-            timer.issueUrl = issue.issueUrl;
-            timer.serviceUrl = issue.serviceUrl;
-            timer.serviceType = issue.serviceType;
-            timer.showIssueId = issue.showIssueId;
-        }
-
+        // Put timer
         this.putTimer(timer);
     }
 

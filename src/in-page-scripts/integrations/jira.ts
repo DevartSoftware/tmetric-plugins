@@ -30,6 +30,10 @@
 
 class Jira extends JiraBase implements WebToolIntegration {
 
+    get isNewJira() {
+        return !!$$('#navigation-app');
+    }
+
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
         var host = $$('.command-bar .toolbar-split');
         if (host) {
@@ -40,6 +44,11 @@ class Jira extends JiraBase implements WebToolIntegration {
 
             // <li class="toolbar-item">
             var containerLi = $$.create('li', 'toolbar-item');
+
+            if (this.isNewJira) {
+                $$('.devart-timer-link-icon', linkElement).style.lineHeight = '0';
+            }
+
             containerLi.appendChild(linkElement);
 
             containerUl.appendChild(containerLi);
@@ -74,6 +83,10 @@ class Jira extends JiraBase implements WebToolIntegration {
             $$.try('#project-name-val').textContent || // separate task view (/browse/... URL)
             $$.try('.project-title > a').textContent || // service desk
             $$.try('.sd-notify-header').textContent; // service desk form https://issues.apache.org/jira/servicedesk/agent/all
+
+        if (!projectName && this.isNewJira) {
+            projectName = $$.try('#navigation-app span[role="menuitem"] > span:nth-child(2) > span > span').textContent;
+        }
 
         var { serviceUrl, issueUrl } = this.getUrls(source, issueHref);
 
