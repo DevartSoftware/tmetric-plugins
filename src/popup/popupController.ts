@@ -369,6 +369,14 @@
         }));
     }
 
+    makeTagItem(name: string, isWorkType?: boolean) {
+        return <IdTextTagType>{
+            id: name,
+            text: name,
+            isWorkType: !!isWorkType
+        };
+    }
+
     makeTagItems() {
 
         let existingItems = <{ [name: string]: boolean }>{};
@@ -376,7 +384,7 @@
         let items = this._tags.map(tag => {
             let name = tag.tagName;
             existingItems[name.toLowerCase()] = true;
-            return <IdTextTagType>{ id: name, text: name, isWorkType: tag.isWorkType };
+            return this.makeTagItem(name, tag.isWorkType);
         });
 
         let isWorkTypeMap: { [name: string]: boolean } = {};
@@ -388,7 +396,7 @@
             this._newIssue.tagNames.forEach(name => {
                 let isWorkType = isWorkTypeMap[name.toLowerCase()]
                 if (!existingItems[name.toLowerCase()]) {
-                    items.push(<IdTextTagType>{ id: name, text: name, isWorkType });
+                    items.push(this.makeTagItem(name, isWorkType));
                 }
             });
         }
@@ -468,9 +476,17 @@
         $(selector).select2({
             data: items,
             tags: allowNewItems,
+            createTag: (params) => this.createTag(params),
             templateSelection: (options: ITagSelection) => this.formatSelectedTag(options),
             templateResult: (options: ITagSelection) => this.formatTagItem(options)
         }).val(selectedItems).trigger('change');
+    }
+
+    private createTag(params: any) {
+        var name = $.trim(params.term);
+        if (name != '') {
+            return this.makeTagItem(name);
+        }
     }
 
     private formatSelectedTag(data: ITagSelection) {
