@@ -82,11 +82,8 @@ class Jira extends JiraBase implements WebToolIntegration {
         var projectName =
             $$.try('#project-name-val').textContent || // separate task view (/browse/... URL)
             $$.try('.project-title > a').textContent || // service desk
-            $$.try('.sd-notify-header').textContent; // service desk form https://issues.apache.org/jira/servicedesk/agent/all
-
-        if (!projectName && this.isNewJira) {
-            projectName = $$.try('#navigation-app span[role="menuitem"] > span:nth-child(2) > span > span').textContent;
-        }
+            $$.try('.sd-notify-header').textContent || // service desk form https://issues.apache.org/jira/servicedesk/agent/all
+            $$.try('#navigation-app span[role="menuitem"] > span:nth-child(2) > span > span').textContent;
 
         var { serviceUrl, issueUrl } = this.getUrls(source, issueHref);
 
