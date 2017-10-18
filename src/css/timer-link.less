@@ -1,6 +1,11 @@
 ﻿.devart-timer-link {
     text-decoration: none;
     white-space: nowrap !important;
+    position: relative;
+
+    & > span:not(.devart-timer-link-icon) {
+        margin-left: 18px;
+    }
 }
 
 .devart-timer-link-minimal {
@@ -12,11 +17,10 @@
 }
 
 .devart-timer-link-icon {
-    margin: -2px 0;
-    padding-right: 3px;
+    margin-top: 2px;
+    position: absolute;
     display: inline-block;
     vertical-align: middle;
-    height: 19px;
 
     .devart-timer-link-start > &:before {
         content: data-uri('src/images/start16.png');
