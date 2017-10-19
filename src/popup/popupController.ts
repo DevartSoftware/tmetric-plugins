@@ -473,6 +473,26 @@
         $(selector).select2({
             data: items,
             tags: allowNewItems,
+            matcher: (a: any, b: any) => {
+                let params = <{ term: string }>a;
+                let option = <Select2SelectionObject>b;
+
+                let term = $.trim(params.term || "").toLowerCase();
+                let text = $(option.element).text().toLowerCase();
+
+                let isSelected = !!(option.element && option.element.selected);
+                let isTermIncluded = text.length >= term.length && text.indexOf(term) > -1;
+                let isEqual = text == term;
+
+                if (
+                    (isSelected && isEqual) || // match selected option to avoid message about not found option during input
+                    (!isSelected && isTermIncluded)
+                ) {
+                    return option;
+                }
+
+                return <any>null;
+            },
             createTag: (params) => {
                 let name = $.trim(params.term);
                 if (name) {
