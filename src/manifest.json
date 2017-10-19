@@ -125,10 +125,7 @@
         {
             "matches": [ "http://*/*", "https://*/*" ],
             "js": [
-                "in-page-scripts/popup.js"
-            ],
-            "css": [
-                "css/timer-link.css"
+                "in-page-scripts/topmostPage.js"
             ],
             "run_at": "document_end"
         }

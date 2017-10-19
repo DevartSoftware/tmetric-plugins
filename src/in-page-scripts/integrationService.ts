@@ -4,8 +4,6 @@
 
     static affix = 'devart-timer-link';
 
-    static popupId = 'tmetric-popup';
-
     static register(...integrations: WebToolIntegration[]) {
         this._allIntegrations.push(...integrations);
     }
@@ -36,14 +34,6 @@
 
     static setConstants(constants: Models.Constants) {
         this._constants = constants;
-    }
-
-    static getBrowserSchema() {
-        return this._constants.browserSchema;
-    }
-
-    static getExtensionUUID() {
-        return this._constants.extensionUUID;
     }
 
     static setTimer(timer: Models.Timer) {
