@@ -10,29 +10,6 @@
         this._allIntegrations.push(...integrations);
     }
 
-    static showPopup(issue: WebToolIssueTimer) {
-
-        let iframe = document.createElement('iframe');
-        iframe.id = this.popupId;
-        iframe.src = `${this._constants.browserSchema}://${this._constants.extensionUUID}/popup/popup.html?integration`;
-
-        Object.assign(iframe.style, {
-            position: 'fixed',
-            zIndex: 999999,
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            display: 'block'
-        });
-
-        document.body.appendChild(iframe);
-    }
-
-    static hidePopup() {
-        $$('#' + this.popupId).remove();
-    }
-
     static isUrlMatched(integration: WebToolIntegration, url: string) {
         function convertPatternToRegExp(matchPattern: string) {
             let regexp = IntegrationService._matchPatternCache[matchPattern];
@@ -59,6 +36,14 @@
 
     static setConstants(constants: Models.Constants) {
         this._constants = constants;
+    }
+
+    static getBrowserSchema() {
+        return this._constants.browserSchema;
+    }
+
+    static getExtensionUUID() {
+        return this._constants.extensionUUID;
     }
 
     static setTimer(timer: Models.Timer) {

@@ -43,10 +43,6 @@ if (typeof document !== 'undefined') {
         } else if (message.action == 'setConstants') {
             constants = message.data;
             IntegrationService.setConstants(constants);
-        } else if (message.action == 'showPopup') {
-            IntegrationService.showPopup(message.data);
-        } else if (message.action == 'hidePopup') {
-            IntegrationService.hidePopup();
         }
 
         if (parseAfterPings) {

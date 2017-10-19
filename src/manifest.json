@@ -50,7 +50,7 @@
                 "*://*/*lib/execute/execSetResults.php*",
                 "https://*/*portal/*/*.do*",
                 "https://*/*crm/*.do*",
-                "*://*.bitrix24.com/*/tasks/"
+                "*://*.bitrix24.com/*/tasks*"
             ],
             "js": [
                 "in-page-scripts/utils.js",
@@ -101,7 +101,7 @@
                 "*://*/*lib/execute/execSetResults.php*",
                 "https://*/*portal/*/*.do*",
                 "https://*/*crm/*.do*",
-                "*://*.bitrix24.com/*/tasks/"
+                "*://*.bitrix24.com/*/tasks*"
             ],
             "all_frames": true,
             "js": [
@@ -120,6 +120,16 @@
         {
             "matches": [ "https://beta.tmetric.com/*", "https://app.tmetric.com/*" ],
             "js": [ "in-page-scripts/version.js" ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [ "http://*/*", "https://*/*" ],
+            "js": [
+                "in-page-scripts/popup.js"
+            ],
+            "css": [
+                "css/timer-link.css"
+            ],
             "run_at": "document_end"
         }
     ]
