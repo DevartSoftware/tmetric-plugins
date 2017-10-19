@@ -21,13 +21,11 @@
             // Only for Firefox to inject scripts in right order
             case 'initPage':
                 sendBackgroundMessage({ action: 'getConstants' });
-                sendBackgroundMessage({ action: 'getTimer' });
                 break;
         }
     });
 
     sendBackgroundMessage({ action: 'getConstants' });
-    sendBackgroundMessage({ action: 'getTimer' });
 
     const popupId = 'tmetric-popup';
 
