@@ -1,11 +1,6 @@
 ﻿.devart-timer-link {
     text-decoration: none;
     white-space: nowrap !important;
-    position: relative;
-
-    & > span:not(.devart-timer-link-icon) {
-        margin-left: 18px;
-    }
 }
 
 .devart-timer-link-minimal {
@@ -17,8 +12,8 @@
 }
 
 .devart-timer-link-icon {
-    margin-top: 2px;
-    position: absolute;
+    margin: -2px 0;
+    padding-right: 3px;
     display: inline-block;
     vertical-align: middle;
 
@@ -171,11 +166,11 @@
 .devart-timer-link-todoist {
 
     .task_item &.devart-timer-link-start {
-        display: none !important;
+        visibility: hidden !important;
     }
 
     .task_item:hover &.devart-timer-link-start {
-        display: initial !important;
+        visibility: visible !important;
     }
 }
 
