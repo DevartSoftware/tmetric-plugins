@@ -59,7 +59,7 @@
         "in-page-scripts/integrations/zohoCRM.ts",
         "in-page-scripts/integrationService.ts",
         "in-page-scripts/page.ts",
-        "in-page-scripts/popup.ts",
+        "in-page-scripts/topmostPage.ts",
         "in-page-scripts/version.ts",
         "in-page-scripts/utils.ts",
         "popup/popupController.ts",
