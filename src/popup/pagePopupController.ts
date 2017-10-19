@@ -1,33 +1,12 @@
 ﻿class PagePopupController extends PopupController {
 
     constructor() {
-        super();
+        super(true);
 
         this.initFrame();
-        this.registerListeners();
-    }
-
-    protected init(data: IPopupInitData) {
-        this.setData(data);
-
-        if (this.isLongRunning(data.timer.startTime)) {
-            this.fillFixForm(data.timer);
-            this.switchState(this._states.fixing);
-        } else {
-            this.fillCreateForm();
-            this.switchState(this._states.creating);
-        }
     }
 
     hidePopupAction = this.wrapBackgroundAction<Models.Timer, void>('hideAllPopups');
-
-    registerListeners() {
-        $(document).mousedown(e => {
-            if (e.target.tagName.toLowerCase() == 'body') {
-                this.close();
-            }
-        });
-    }
 
     /** @override */
     close() {
@@ -62,5 +41,11 @@ body {
 `;
         style.appendChild(document.createTextNode(css));
         document.head.appendChild(style);
+
+        $(document).mousedown(e => {
+            if (e.target.tagName.toLowerCase() == 'body') {
+                this.close();
+            }
+        });
     }
 }

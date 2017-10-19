@@ -16,7 +16,6 @@
     padding-right: 3px;
     display: inline-block;
     vertical-align: middle;
-    height: 19px;
 
     .devart-timer-link-start > &:before {
         content: data-uri('src/images/start16.png');
@@ -167,11 +166,11 @@
 .devart-timer-link-todoist {
 
     .task_item &.devart-timer-link-start {
-        display: none !important;
+        visibility: hidden !important;
     }
 
     .task_item:hover &.devart-timer-link-start {
-        display: initial !important;
+        visibility: visible !important;
     }
 }
 

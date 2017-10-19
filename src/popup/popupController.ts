@@ -1,11 +1,25 @@
 ﻿class PopupController {
 
-    constructor() {
+    constructor(suppressViewState?: boolean) {
 
         this.initControls();
         this.switchState(this._states.loading);
         this.initializeAction()
-            .then(data => this.init(data))
+            .then(data => {
+                this.setData(data);
+
+                if (this.isLongRunning(data.timer.startTime)) {
+                    this.fillFixForm(data.timer);
+                    this.switchState(this._states.fixing);
+                } else if (!suppressViewState && data.timer && data.timer.isStarted) {
+                    this.fillViewForm(data.timer);
+                    this.fillCreateForm();
+                    this.switchState(this._states.viewing);
+                } else {
+                    this.fillCreateForm();
+                    this.switchState(this._states.creating);
+                }
+            })
             .catch(error => {
                 this.isConnectionRetryEnabledAction().then(retrying => {
                     if (retrying) {
@@ -14,8 +28,7 @@
                         this.switchState(this._states.authenticating);
                     }
                 });
-            }
-        );
+            });
     }
 
     private _activeTimer: Models.Timer;
@@ -26,22 +39,6 @@
     private _constants: Models.Constants;
     private _canCreateProjects: boolean;
     private _canCreateTags: boolean;
-
-    protected init(data: IPopupInitData) {
-        this.setData(data);
-
-        if (this.isLongRunning(data.timer.startTime)) {
-            this.fillFixForm(data.timer);
-            this.switchState(this._states.fixing);
-        } else if (data.timer && data.timer.isStarted) {
-            this.fillViewForm(data.timer);
-            this.fillCreateForm();
-            this.switchState(this._states.viewing);
-        } else {
-            this.fillCreateForm();
-            this.switchState(this._states.creating);
-        }
-    }
 
     callBackground(request: IPopupRequest): Promise<IPopupResponse> {
         return new Promise((resolve, reject) => {
@@ -121,20 +118,20 @@
 
     // ui mutations
 
-    protected _forms = {
+    private _forms = {
         login: '#login-form',
         fix: '#fix-form',
         view: '#view-form',
         create: '#create-form'
     };
 
-    protected _messageTypes = {
+    private _messageTypes = {
         error: 'error',
         warning: 'warning',
         info: 'info'
     };
 
-    protected _states = {
+    private _states = {
         loading: 'loading',
         retrying: 'retrying',
         authenticating: 'authenticating',
@@ -369,6 +366,14 @@
         }));
     }
 
+    makeTagItem(name: string, isWorkType?: boolean) {
+        return <IdTextTagType>{
+            id: name,
+            text: name,
+            isWorkType: !!isWorkType
+        };
+    }
+
     makeTagItems() {
 
         let existingItems = <{ [name: string]: boolean }>{};
@@ -376,7 +381,7 @@
         let items = this._tags.map(tag => {
             let name = tag.tagName;
             existingItems[name.toLowerCase()] = true;
-            return <IdTextTagType>{ id: name, text: name, isWorkType: tag.isWorkType };
+            return this.makeTagItem(name, tag.isWorkType);
         });
 
         let isWorkTypeMap: { [name: string]: boolean } = {};
@@ -388,7 +393,7 @@
             this._newIssue.tagNames.forEach(name => {
                 let isWorkType = isWorkTypeMap[name.toLowerCase()]
                 if (!existingItems[name.toLowerCase()]) {
-                    items.push(<IdTextTagType>{ id: name, text: name, isWorkType });
+                    items.push(this.makeTagItem(name, isWorkType));
                 }
             });
         }
@@ -468,30 +473,36 @@
         $(selector).select2({
             data: items,
             tags: allowNewItems,
-            templateSelection: (options: ITagSelection) => this.formatSelectedTag(options),
-            templateResult: (options: ITagSelection) => this.formatTagItem(options)
+            createTag: (params) => {
+                let name = $.trim(params.term);
+                if (name) {
+                    let foundOptions = $(selector)
+                        .find('option')
+                        .filter((i, option) => $(option).text().toLowerCase() == name.toLowerCase());
+                    if (!foundOptions.length) {
+                        return this.makeTagItem(name);
+                    }
+                }
+            },
+            templateSelection: (options: ITagSelection) => this.formatTag(options, false),
+            templateResult: (options: ITagSelection) => this.formatTag(options, true)
         }).val(selectedItems).trigger('change');
     }
 
-    private formatSelectedTag(data: ITagSelection) {
-        return this.formatExistingTag(data, false);
-    }
+    private formatTag(data: ITagSelection, useIndentForTag: boolean) {
 
-    private formatTagItem(data: ITagSelection) {
-        return this.formatExistingTag(data, true);
-    }
+        let textSpan = $('<span>').text(data.text);
 
-    private formatExistingTag(data: ITagSelection, hasIconIndentForTag: boolean) {
         if (data.isWorkType) {
             let i = $('<i>').addClass('tag-icon').addClass('fa fa-dollar');
-            return $('<span>').append(i).append($('<span>').text(data.text));
+            return $('<span>').append(i).append(textSpan);
         }
 
-        if (hasIconIndentForTag) {
-            return $('<span>').addClass('tag-without-icon').text(data.text);
+        if (useIndentForTag) {
+            textSpan.addClass('tag-without-icon');
         }
 
-        return $('<span>').text(data.text);
+        return textSpan;
     }
 
     // ui event handlers
