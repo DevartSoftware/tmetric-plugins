@@ -246,6 +246,7 @@
             oldIssueTimer.duration == newIssueTimer.duration &&
             newIssueTimer.isStarted == oldIssueTimer.isStarted &&
             newIssueTimer.projectName == oldIssueTimer.projectName &&
+            this.areSetsEqual(newIssueTimer.tagNames, oldIssueTimer.tagNames) &&
             oldSession == this.session
         ) {
             // Issue is not changed and belong to same session (#67711)
@@ -346,6 +347,17 @@
         }
 
         return { fullUrl, protocol, host, path };
+    }
+
+    private static areSetsEqual<T>(set1: T[], set2: T[]) {
+        set1 = set1 || [];
+        set2 = set2 || [];
+        if (set1.length != set2.length) {
+            return false;
+        }
+        let hasValue: { [key: string]: boolean } = {};
+        set1.forEach(item => hasValue[item && item.toString()] = true);
+        return set2.every(item => hasValue[item && item.toString()]);
     }
 
     private static removeLink(link: HTMLElement) {
