@@ -1,7 +1,7 @@
 @font-face {
     font-family: 'tmetricicons';
-    src: url('https://app.tmetric.com/fonts/tmetricicons.eot?ee4t87');
-    src: url('https://app.tmetric.com/fonts/tmetricicons.eot?ee4t87#iefix') format('embedded-opentype'), url('https://app.tmetric.com/fonts/tmetricicons.ttf?ee4t87') format('truetype'), url('https://app.tmetric.com/fonts/tmetricicons.woff?ee4t87') format('woff'), url('https://app.tmetric.com/fonts/tmetricicons.svg?ee4t87#tmetricicons') format('svg');
+    src: url('../fonts/tmetricicons.eot?ee4t87');
+    src: url('../fonts/tmetricicons.eot?ee4t87#iefix') format('embedded-opentype'), url('../fonts/tmetricicons.ttf?ee4t87') format('truetype'), url('../fonts/tmetricicons.woff?ee4t87') format('woff'), url('../fonts/tmetricicons.svg?ee4t87#tmetricicons') format('svg');
     font-weight: normal;
     font-style: normal;
 }
