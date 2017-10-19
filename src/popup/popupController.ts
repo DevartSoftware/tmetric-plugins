@@ -28,8 +28,7 @@
                         this.switchState(this._states.authenticating);
                     }
                 });
-            }
-        );
+            });
     }
 
     private _activeTimer: Models.Timer;
@@ -474,44 +473,36 @@
         $(selector).select2({
             data: items,
             tags: allowNewItems,
-            createTag: (params) => this.createTag(params, selector),
-            templateSelection: (options: ITagSelection) => this.formatSelectedTag(options),
-            templateResult: (options: ITagSelection) => this.formatTagItem(options)
+            createTag: (params) => {
+                let name = $.trim(params.term);
+                if (name) {
+                    let foundOptions = $(selector)
+                        .find('option')
+                        .filter((i, option) => $(option).text().toLowerCase() == name.toLowerCase());
+                    if (!foundOptions.length) {
+                        return this.makeTagItem(name);
+                    }
+                }
+            },
+            templateSelection: (options: ITagSelection) => this.formatTag(options, false),
+            templateResult: (options: ITagSelection) => this.formatTag(options, true)
         }).val(selectedItems).trigger('change');
     }
 
-    private createTag(params: any, selector: string) {
-        let name = $.trim(params.term);
-        if (name == '') {
-            return;
-        }
+    private formatTag(data: ITagSelection, useIndentForTag: boolean) {
 
-        let options = <HTMLOptionElement[]>$(selector).find('option').toArray();
-        let isOptionNotExist = !options.find(_ => $(_).text().toLowerCase() == name.toLowerCase());
-        if (isOptionNotExist) {
-            return this.makeTagItem(name);
-        }
-    }
+        let textSpan = $('<span>').text(data.text);
 
-    private formatSelectedTag(data: ITagSelection) {
-        return this.formatExistingTag(data, false);
-    }
-
-    private formatTagItem(data: ITagSelection) {
-        return this.formatExistingTag(data, true);
-    }
-
-    private formatExistingTag(data: ITagSelection, hasIconIndentForTag: boolean) {
         if (data.isWorkType) {
             let i = $('<i>').addClass('tag-icon').addClass('fa fa-dollar');
-            return $('<span>').append(i).append($('<span>').text(data.text));
+            return $('<span>').append(i).append(textSpan);
         }
 
-        if (hasIconIndentForTag) {
-            return $('<span>').addClass('tag-without-icon').text(data.text);
+        if (useIndentForTag) {
+            textSpan.addClass('tag-without-icon');
         }
 
-        return $('<span>').text(data.text);
+        return textSpan;
     }
 
     // ui event handlers
