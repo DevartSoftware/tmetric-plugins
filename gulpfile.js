@@ -52,7 +52,6 @@ var files = {
     common: [
         'src/background/signalRConnection.js',
         'src/css/*.css',
-		'src/fonts/**',
         'src/in-page-scripts/integrations/*.js',
         'src/in-page-scripts/integrationService.js',
         'src/in-page-scripts/page.js',
