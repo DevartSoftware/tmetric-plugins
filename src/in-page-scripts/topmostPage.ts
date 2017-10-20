@@ -15,6 +15,10 @@
 
     const showPopup = () => {
 
+        if (document.querySelector('#' + popupId)) {
+            return;
+        }
+
         let iframe = document.createElement('iframe');
         iframe.id = popupId;
         iframe.src = `${constants.browserSchema}://${constants.extensionUUID}/popup/popup.html?integration`;
@@ -33,7 +37,10 @@
     }
 
     const hidePopup = () => {
-        $$('#' + popupId).remove();
+        let popup = document.querySelector('#' + popupId);
+        if (popup) {
+            popup.remove();
+        }
     }
 
     let constants: Models.Constants;
