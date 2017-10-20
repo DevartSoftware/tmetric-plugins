@@ -90,10 +90,10 @@ class ZohoProject implements WebToolIntegration {
     textAreaSelector = 'textarea.taskedit, #tdetails_task textarea'; // tasks and issues
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        let table = $$.closest('table', $$(this.textAreaSelector));
-        if (table) {
-            linkElement.classList.add('addbtn', 'devart-timer-link-zoho-project');
-            addTableRow(table, linkElement);
+        let panel = $$('.detail-updates');
+        if (panel) {
+            linkElement.classList.add('devart-timer-link-zoho-project');
+            panel.insertBefore(linkElement, panel.lastElementChild);
         }
     }
 
