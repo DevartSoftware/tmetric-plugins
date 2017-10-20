@@ -7,7 +7,7 @@
         switch (message.action) {
 
             case 'showPopup':
-                showPopup(message.data);
+                showPopup();
                 break;
 
             case 'hidePopup':
@@ -29,7 +29,7 @@
 
     const popupId = 'tmetric-popup';
 
-    function showPopup(issue: WebToolIssueTimer) {
+    function showPopup() {
 
         let iframe = document.createElement('iframe');
         iframe.id = popupId;
