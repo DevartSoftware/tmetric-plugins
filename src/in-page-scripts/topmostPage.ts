@@ -1,5 +1,41 @@
 ﻿if (typeof document !== 'undefined') {
 
+    const sendBackgroundMessage = (message: ITabMessage) => {
+        chrome.runtime.sendMessage(message, response => {
+            let error = chrome.runtime.lastError;
+
+            // Background page is not loaded yet
+            if (error) {
+                console.log(`${message.action}: ${JSON.stringify(error, null, '  ')}`)
+            }
+        });
+    }
+
+    const popupId = 'tmetric-popup';
+
+    const showPopup = () => {
+
+        let iframe = document.createElement('iframe');
+        iframe.id = popupId;
+        iframe.src = `${constants.browserSchema}://${constants.extensionUUID}/popup/popup.html?integration`;
+
+        Object.assign(iframe.style, {
+            position: 'fixed',
+            zIndex: 999999,
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            display: 'block'
+        });
+
+        document.body.appendChild(iframe);
+    }
+
+    const hidePopup = () => {
+        $$('#' + popupId).remove();
+    }
+
     let constants: Models.Constants;
 
     chrome.runtime.onMessage.addListener((message: ITabMessage) => {
@@ -22,33 +58,14 @@
             case 'initPage':
                 sendBackgroundMessage({ action: 'getConstants' });
                 break;
+
+            // Only for Firefox to show error alerts
+            case 'error':
+                let a = alert; // prevent strip in release;
+                a(constants.extensionName + '\n\n' + message.data.message);
+                break;
         }
     });
 
     sendBackgroundMessage({ action: 'getConstants' });
-
-    const popupId = 'tmetric-popup';
-
-    function showPopup() {
-
-        let iframe = document.createElement('iframe');
-        iframe.id = popupId;
-        iframe.src = `${constants.browserSchema}://${constants.extensionUUID}/popup/popup.html?integration`;
-
-        Object.assign(iframe.style, {
-            position: 'fixed',
-            zIndex: 999999,
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            display: 'block'
-        });
-
-        document.body.appendChild(iframe);
-    }
-
-    function hidePopup() {
-        $$('#' + popupId).remove();
-    }
 }
