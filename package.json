@@ -9,7 +9,7 @@
     "dependencies": {
         "jquery": "3.2.1",
         "ms-signalr-client": "2.2.4",
-        "select2": "4.0.3"
+        "select2": "4.0.2"
     },
     "devDependencies": {
         "deepmerge": "0.2.10",

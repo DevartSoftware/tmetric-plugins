@@ -194,7 +194,7 @@
 
     fillCreateForm() {
         this.initProjectSelector(this._forms.create + ' .project .input', this.makeProjectItems());
-        this.initTagSelector(this._forms.create + ' .tags .input', this.makeTagItems(), this.makeTagSelectedItems(), this._canCreateTags);
+        this.initTagSelector(this._forms.create + ' #tag-selector', this.makeTagItems(), this.makeTagSelectedItems(), this._canCreateTags);
         let taskInput = $(this._forms.create + ' .task .input');
         taskInput.val(this._newIssue.issueName).focus().select();
         setTimeout(() => {
