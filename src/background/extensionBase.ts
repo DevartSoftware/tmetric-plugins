@@ -321,7 +321,7 @@ class ExtensionBase {
                 this._newPopupIssue = timer;
 
                 return this.connection.connect().then(() => {
-                    this.sendToTabs({ action: 'showPopup', data: timer }, tabId);
+                    this.sendToTabs({ action: 'showPopup' }, tabId);
                 });
             },
             timer => {
