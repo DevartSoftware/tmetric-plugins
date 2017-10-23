@@ -50,7 +50,7 @@
                 "*://*/*lib/execute/execSetResults.php*",
                 "https://*/*portal/*/*.do*",
                 "https://*/*crm/*.do*",
-                "*://*.bitrix24.com/*/tasks*"
+                "*://*/*/tasks*"
             ],
             "js": [
                 "in-page-scripts/utils.js",
@@ -101,7 +101,7 @@
                 "*://*/*lib/execute/execSetResults.php*",
                 "https://*/*portal/*/*.do*",
                 "https://*/*crm/*.do*",
-                "*://*.bitrix24.com/*/tasks*"
+                "*://*/*/tasks*"
             ],
             "all_frames": true,
             "js": [

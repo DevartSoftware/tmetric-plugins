@@ -2,7 +2,7 @@
 
     showIssueId = false;
 
-    matchUrl = '*://*.bitrix24.com/*/tasks*'; // url of iframe
+    matchUrl = '*://*/*/tasks*'; // url of iframe
 
     observeMutations = true;
 
@@ -18,6 +18,7 @@
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
         let issueName = $$.try('.tasks-iframe-header #pagetitle').textContent;
+
         if (!issueName) {
             return;
         }
