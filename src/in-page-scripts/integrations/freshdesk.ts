@@ -76,36 +76,17 @@ class NewFreshdesk implements WebToolIntegration {
 
         let projectName: string;
 
-        let projectNameContainer: HTMLElement;
-
-        $$.all('.label-field').forEach(label => {
-            if (projectNameContainer = this.getProjectContainer(label)) {
-                return;
-            }
-        })
-
-        if (projectNameContainer) {
-            projectName = $$.try('.ember-power-select-selected-item', projectNameContainer).textContent;
-            if (projectName) {
-                projectName = projectName.trim();
-            }
+        let projectLabel = $$('.label-field', null, label => ['Product'].indexOf(label.textContent) >= 0);
+        if (projectLabel) {
+            let projectElement = $$('.ember-power-select-selected-item', projectLabel.parentElement);
+            projectName = projectElement && projectElement.textContent.trim();
         }
 
         if (projectName === '--') {
-            projectName = "";
+            projectName = '';
         }
 
         return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'NewFreshdesk' };
-    }
-
-    private getProjectContainer(label: HTMLElement) {
-        // hardcoded label names
-        switch (label.textContent) {
-            case 'Product':
-                return label.parentElement;
-            default:
-                return null;
-        }
     }
 }
 
