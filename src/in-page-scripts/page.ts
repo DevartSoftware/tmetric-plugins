@@ -27,12 +27,6 @@ if (typeof document !== 'undefined') {
             return;
         }
 
-        // Only for Firefox to show error alerts
-        if (message.action == 'error') {
-            let a = alert; // prevent strip in release;
-            a(constants.extensionName + '\n\n' + message.data.message);
-        }
-
         if (message.action == 'setTimer') {
             IntegrationService.setTimer(message.data);
             if (IntegrationService.needsUpdate()) {

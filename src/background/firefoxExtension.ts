@@ -26,7 +26,7 @@ class FirefoxExtension extends ExtensionBase {
             if (id) {
                 this.sendToTabs({
                     action: 'error',
-                    data: { message: message }
+                    data: { message }
                 }, id);
             }
         });

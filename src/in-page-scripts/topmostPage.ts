@@ -1,35 +1,23 @@
 ﻿if (typeof document !== 'undefined') {
 
-    let constants: Models.Constants;
+    const sendBackgroundMessage = (message: ITabMessage) => {
+        chrome.runtime.sendMessage(message, response => {
+            let error = chrome.runtime.lastError;
 
-    chrome.runtime.onMessage.addListener((message: ITabMessage) => {
-
-        switch (message.action) {
-
-            case 'showPopup':
-                showPopup(message.data);
-                break;
-
-            case 'hidePopup':
-                hidePopup();
-                break;
-
-            case 'setConstants':
-                constants = message.data;
-                break;
-
-            // Only for Firefox to inject scripts in right order
-            case 'initPage':
-                sendBackgroundMessage({ action: 'getConstants' });
-                break;
-        }
-    });
-
-    sendBackgroundMessage({ action: 'getConstants' });
+            // Background page is not loaded yet
+            if (error) {
+                console.log(`${message.action}: ${JSON.stringify(error, null, '  ')}`)
+            }
+        });
+    }
 
     const popupId = 'tmetric-popup';
 
-    function showPopup(issue: WebToolIssueTimer) {
+    const showPopup = () => {
+
+        if (document.querySelector('#' + popupId)) {
+            return;
+        }
 
         let iframe = document.createElement('iframe');
         iframe.id = popupId;
@@ -48,7 +36,43 @@
         document.body.appendChild(iframe);
     }
 
-    function hidePopup() {
-        $$('#' + popupId).remove();
+    const hidePopup = () => {
+        let popup = document.querySelector('#' + popupId);
+        if (popup) {
+            popup.remove();
+        }
     }
+
+    let constants: Models.Constants;
+
+    chrome.runtime.onMessage.addListener((message: ITabMessage) => {
+
+        switch (message.action) {
+
+            case 'showPopup':
+                showPopup();
+                break;
+
+            case 'hidePopup':
+                hidePopup();
+                break;
+
+            case 'setConstants':
+                constants = message.data;
+                break;
+
+            // Only for Firefox to inject scripts in right order
+            case 'initPage':
+                sendBackgroundMessage({ action: 'getConstants' });
+                break;
+
+            // Only for Firefox to show error alerts
+            case 'error':
+                let a = alert; // prevent strip in release;
+                a(constants.extensionName + '\n\n' + message.data.message);
+                break;
+        }
+    });
+
+    sendBackgroundMessage({ action: 'getConstants' });
 }

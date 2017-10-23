@@ -303,7 +303,10 @@ class ExtensionBase {
         this.putData(timer,
             timer => {
 
-                this.validateTimerTags(timer);
+                // do not validate tags in timer passed from popup
+                if (tabId) {
+                    this.validateTimerTags(timer);
+                }
 
                 if (!tabId ||
                     !timer.isStarted ||
@@ -318,7 +321,7 @@ class ExtensionBase {
                 this._newPopupIssue = timer;
 
                 return this.connection.connect().then(() => {
-                    this.sendToTabs({ action: 'showPopup', data: timer }, tabId);
+                    this.sendToTabs({ action: 'showPopup' }, tabId);
                 });
             },
             timer => {

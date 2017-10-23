@@ -1,12 +1,4 @@
-﻿const addTableRow = (table: HTMLElement, cellContent: HTMLElement) => {
-    let tr = $$.create('tr');
-    let td = $$.create('td');
-    td.appendChild(cellContent);
-    tr.appendChild(td);
-    table.appendChild(tr);
-}
-
-class ZohoActivity implements WebToolIntegration {
+﻿class ZohoActivity implements WebToolIntegration {
 
     showIssueId = false;
 
@@ -30,7 +22,11 @@ class ZohoActivity implements WebToolIntegration {
         if (button) {
             button.parentElement.insertBefore(linkElement, button);
         } else {
-            addTableRow(table, linkElement);
+            let tr = $$.create('tr');
+            let td = $$.create('td');
+            td.appendChild(linkElement);
+            tr.appendChild(td);
+            table.appendChild(tr);
         }
     }
 
