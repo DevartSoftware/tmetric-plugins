@@ -25,7 +25,8 @@ class ChromeExtension extends ExtensionBase {
                     let runAt = group.run_at;
 
                     let isMatched = (regexp: RegExp) => regexp.test(tab.url);
-                    if (matches[groupIndex].some(isMatched)) {
+                    let excludeMatches = (group.exclude_matches || []).map(patternToRegExp);
+                    if (matches[groupIndex].some(isMatched) && !excludeMatches.some(isMatched)) {
                         jsFiles.forEach(file => {
                             chrome.tabs.executeScript(tab.id, { file, runAt });
                             loadedFiles[file] = true;
