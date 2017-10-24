@@ -44,14 +44,6 @@
     "content_scripts": [
         {
             "matches": [ "http://*/*", "https://*/*" ],
-            "exclude_matches": [
-                "https://chrome.google.com/webstore/*",
-                "https://addons.opera.com/*",
-                "*://*/*lib/execute/execSetResults.php*",
-                "https://*/*portal/*/*.do*",
-                "https://*/*crm/*.do*",
-                "*://*/*/tasks*"
-            ],
             "js": [
                 "in-page-scripts/utils.js",
                 "in-page-scripts/integrationService.js",

@@ -4,30 +4,39 @@ class ChromeExtension extends ExtensionBase {
         super();
 
         // Manualy inject content scripts on all tabs.
-        chrome.runtime.getManifest().content_scripts.forEach(contentScripts => {
 
-            let patternToRegExp = (matchPattern: string) => new RegExp('^' + matchPattern
-                .replace(/[\-\/\\\^\$\+\?\.\(\)\|\[\]\{\}]/g, '\\$&')
-                .replace(/\*/g, '.*'));
-            let matches = contentScripts.matches.map(patternToRegExp);
-            let excludeMatches = (contentScripts.exclude_matches || []).map(patternToRegExp);
-            let jsFiles = contentScripts.js;
-            let cssFiles = contentScripts.css;
-            let runAt = contentScripts.run_at;
+        let contentScripts = chrome.runtime.getManifest().content_scripts;
 
-            chrome.tabs.query({}, tabs =>
-                tabs && tabs.forEach(tab => {
+        let patternToRegExp = (matchPattern: string) => new RegExp('^' + matchPattern
+            .replace(/[\-\/\\\^\$\+\?\.\(\)\|\[\]\{\}]/g, '\\$&')
+            .replace(/\*/g, '.*'));
+        let matches = contentScripts.map(x => x.matches.map(patternToRegExp));
+
+        chrome.tabs.query({}, tabs =>
+            tabs && tabs.forEach(tab => {
+
+                let loadedFiles: { [path: string]: boolean } = {};
+
+                contentScripts.forEach((group, groupIndex) => {
+
+                    // Do not load same scripts twice
+                    let jsFiles = (group.js || []).filter(path => !loadedFiles[path]);
+                    let cssFiles = (group.css || []).filter(path => !loadedFiles[path]);
+                    let runAt = group.run_at;
+
                     let isMatched = (regexp: RegExp) => regexp.test(tab.url);
-                    if (matches.some(isMatched) && !excludeMatches.some(isMatched)) {
-                        if (jsFiles) {
-                            jsFiles.forEach(file => chrome.tabs.executeScript(tab.id, { file, runAt }));
-                        }
-                        if (cssFiles) {
-                            cssFiles.forEach(file => chrome.tabs.insertCSS(tab.id, { file }));
-                        }
+                    if (matches[groupIndex].some(isMatched)) {
+                        jsFiles.forEach(file => {
+                            chrome.tabs.executeScript(tab.id, { file, runAt });
+                            loadedFiles[file] = true;
+                        });
+                        cssFiles.forEach(file => {
+                            chrome.tabs.insertCSS(tab.id, { file });
+                            loadedFiles[file] = true;
+                        });
                     }
-                }));
-        });
+                });
+            }));
     }
 
     /** @override */
