@@ -11,6 +11,7 @@ class ChromeExtension extends ExtensionBase {
             .replace(/[\-\/\\\^\$\+\?\.\(\)\|\[\]\{\}]/g, '\\$&')
             .replace(/\*/g, '.*'));
         let matches = contentScripts.map(x => x.matches.map(patternToRegExp));
+        let excludeMatches = contentScripts.map(x => x.exclude_matches.map(patternToRegExp));
 
         chrome.tabs.query({}, tabs =>
             tabs && tabs.forEach(tab => {
@@ -25,8 +26,8 @@ class ChromeExtension extends ExtensionBase {
                     let runAt = group.run_at;
 
                     let isMatched = (regexp: RegExp) => regexp.test(tab.url);
-                    let excludeMatches = (group.exclude_matches || []).map(patternToRegExp);
-                    if (matches[groupIndex].some(isMatched) && !excludeMatches.some(isMatched)) {
+
+                    if (matches[groupIndex].some(isMatched) && !excludeMatches[groupIndex].some(isMatched)) {
                         jsFiles.forEach(file => {
                             chrome.tabs.executeScript(tab.id, { file, runAt });
                             loadedFiles[file] = true;
