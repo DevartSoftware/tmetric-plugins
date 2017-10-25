@@ -310,7 +310,7 @@ class ExtensionBase {
 
                 if (!tabId ||
                     !timer.isStarted ||
-                    (timer.projectName && this._projects.filter(_ => _.projectName == timer.projectName).length)) {
+                    (timer.projectName && this._projects.filter(_ => _.projectName.toLowerCase() == timer.projectName.toLowerCase()).length)) {
 
                     return this.connection.putExternalTimer(timer);
                 }
