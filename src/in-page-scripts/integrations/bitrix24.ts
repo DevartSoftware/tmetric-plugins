@@ -2,7 +2,7 @@
 
     showIssueId = false;
 
-    matchUrl = '*://*/*/tasks*'; // url of iframe
+    matchUrl = 'https://*/*/tasks*'; // url of iframe
 
     observeMutations = true;
 
