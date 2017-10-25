@@ -60,7 +60,8 @@
 
         var issueUrl = '/story/show/' + issueId.substring(1);
 
-        let tagNames = $$.all('.labels_container.full div[data-aid="Label__Name"]').map(label => label.textContent);
+        let closestContainer = $$.closest('.story', issueElement);
+        let tagNames = $$.all('.labels_container.full div[data-aid="Label__Name"]', closestContainer).map(label => label.textContent);
 
         return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
     }
