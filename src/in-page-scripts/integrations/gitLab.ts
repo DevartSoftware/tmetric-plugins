@@ -87,4 +87,63 @@
     }
 }
 
-IntegrationService.register(new GitLab());
+class GitLabSidebar implements WebToolIntegration {
+
+    showIssueId = true;
+
+    matchUrl = '*://*/boards';
+
+    observeMutations = true;
+
+    get isSidebarOpen() {
+        return !!$$.visible('.right-sidebar');
+    }
+
+    render(issueElement: HTMLElement, linkElement: HTMLElement) {
+
+        if (!this.isSidebarOpen) {
+            return;
+        }
+
+        linkElement.classList.add('btn', 'btn-default');
+        linkElement.style.display = 'block';
+        $$('.issuable-sidebar-header .issuable-header-text').appendChild(linkElement);
+    }
+
+    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+
+        if (!this.isSidebarOpen) {
+            return;
+        }
+
+        let match = /^(.+)\/boards/.exec(source.path);
+
+        if (!match) {
+            return;
+        }
+
+        let issueId = $$.try('.issuable-header-text > span').textContent.trim();
+        let issueIdInt = issueId.split('').splice(1).join('');
+
+        let issueName = $$.try('.issuable-header-text > strong').textContent;
+
+        let projectName = $$.try('.sidebar-context-title').textContent;
+
+        let serviceType = 'GitLab';
+
+        // match[1] is a 'https://gitlab.com/NAMESPACE/PROJECT' from path
+        // cut '/NAMESPACE/PROJECT' from path
+        let servicePath = match[1].split('/').slice(0, -2).join('/');
+        servicePath = (servicePath) ? '/' + servicePath : '';
+
+        let serviceUrl = source.protocol + source.host + servicePath;
+
+        let issueUrl = $$.getRelativeUrl(serviceUrl, source.path).replace('boards', 'issues') + '/' + issueIdInt;
+
+        let tagNames = $$.all('.issuable-show-labels > a span').map(label => label.textContent);
+
+        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
+    }
+}
+
+IntegrationService.register(new GitLab(), new GitLabSidebar());
