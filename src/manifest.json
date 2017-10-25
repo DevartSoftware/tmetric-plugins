@@ -85,7 +85,8 @@
                 "in-page-scripts/integrations/wunderlist.js",
                 "in-page-scripts/integrations/youTrack.js",
                 "in-page-scripts/integrations/zendesk.js",
-                "in-page-scripts/page.js"
+                "in-page-scripts/page.js",
+                "in-page-scripts/topmostPage.js"
             ],
             "css": [
                 "css/timer-link.css"
@@ -97,7 +98,7 @@
                 "*://*/*lib/execute/execSetResults.php*",
                 "https://*/*portal/*/*.do*",
                 "https://*/*crm/*.do*",
-                "*://*/*/tasks*"
+                "https://*/*/tasks*"
             ],
             "all_frames": true,
             "js": [
@@ -116,13 +117,6 @@
         {
             "matches": [ "https://beta.tmetric.com/*", "https://app.tmetric.com/*" ],
             "js": [ "in-page-scripts/version.js" ],
-            "run_at": "document_end"
-        },
-        {
-            "matches": [ "http://*/*", "https://*/*" ],
-            "js": [
-                "in-page-scripts/topmostPage.js"
-            ],
             "run_at": "document_end"
         }
     ]

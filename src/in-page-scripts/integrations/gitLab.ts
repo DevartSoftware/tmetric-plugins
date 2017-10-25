@@ -2,6 +2,8 @@
 
     showIssueId = true;
 
+    observeMutations = true;
+
     matchUrl = [
         '*://*/issues/*',
         '*://*/merge_requests/*'
