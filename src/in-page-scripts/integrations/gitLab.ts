@@ -118,14 +118,14 @@ class GitLabSidebar implements WebToolIntegration {
             return;
         }
 
-        let match = /^(.+)\/boards/.exec(source.path);
+        let match = /(^.+)(\/[^\/]+\/[^\/]+\/)boards/.exec(source.fullUrl);
 
         if (!match) {
             return;
         }
 
         let issueId = $$.try('.issuable-header-text > span').textContent.trim();
-        let issueIdInt = issueId.split('').splice(1).join('');
+        let issueIdInt = issueId.replace('#', '');
 
         let issueName = $$.try('.issuable-header-text > strong').textContent;
 
@@ -133,14 +133,9 @@ class GitLabSidebar implements WebToolIntegration {
 
         let serviceType = 'GitLab';
 
-        // match[1] is a 'https://gitlab.com/NAMESPACE/PROJECT' from path
-        // cut '/NAMESPACE/PROJECT' from path
-        let servicePath = match[1].split('/').slice(0, -2).join('/');
-        servicePath = (servicePath) ? '/' + servicePath : '';
+        let serviceUrl = match[1];
 
-        let serviceUrl = source.protocol + source.host + servicePath;
-
-        let issueUrl = $$.getRelativeUrl(serviceUrl, source.path).replace('boards', 'issues') + '/' + issueIdInt;
+        let issueUrl = match[2] + '/issues/' + issueIdInt;
 
         let tagNames = $$.all('.issuable-show-labels > a span').map(label => label.textContent);
 
