@@ -135,7 +135,7 @@ class GitLabSidebar implements WebToolIntegration {
 
         let serviceUrl = match[1];
 
-        let issueUrl = match[2] + '/issues/' + issueIdInt;
+        let issueUrl = match[2] + 'issues/' + issueIdInt;
 
         let tagNames = $$.all('.issuable-show-labels > a span').map(label => label.textContent);
 
