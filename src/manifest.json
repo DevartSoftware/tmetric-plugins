@@ -84,9 +84,7 @@
                 "in-page-scripts/integrations/wrike.js",
                 "in-page-scripts/integrations/wunderlist.js",
                 "in-page-scripts/integrations/youTrack.js",
-                "in-page-scripts/integrations/zendesk.js",
-                "in-page-scripts/page.js",
-                "in-page-scripts/topmostPage.js"
+                "in-page-scripts/integrations/zendesk.js"
             ],
             "css": [
                 "css/timer-link.css"
@@ -111,6 +109,18 @@
             ],
             "css": [
                 "css/timer-link.css"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [ "http://*/*", "https://*/*" ],
+            "exclude_matches": [
+                "https://chrome.google.com/webstore/*",
+                "https://addons.opera.com/*"
+            ],
+            "js": [
+                "in-page-scripts/page.js",
+                "in-page-scripts/topmostPage.js"
             ],
             "run_at": "document_end"
         },
