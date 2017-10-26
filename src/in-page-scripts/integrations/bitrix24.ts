@@ -17,7 +17,7 @@
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        let issueName = $$.try('.tasks-iframe-header #pagetitle').textContent;
+        let issueName = $$.try('#pagetitle').textContent;
 
         if (!issueName) {
             return;
