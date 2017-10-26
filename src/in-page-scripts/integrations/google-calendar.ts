@@ -82,7 +82,7 @@ class NewGoogleCalendar implements WebToolIntegration {
             // When switching cards, the target element for insertion wraped into the empty elements.
             // In this way We define what the elemenet we need.
             let target: Node;
-            if (eventContainer.children[0].childNodes.length) {
+            if (eventContainer.children[0].hasChildNodes()) {
                 target = eventContainer.children[0];
             } else {
                 target = eventContainer.children[1];
