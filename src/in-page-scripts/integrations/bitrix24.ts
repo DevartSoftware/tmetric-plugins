@@ -29,7 +29,7 @@
         let matches = source.fullUrl.match(/\/company\/.*\/task\/view\/(\d+)/);
 
         if (matches) {
-            issueUrl = matches[0];
+            issueUrl = matches[0] + '/';
             issueId = matches[1];
         }
 
