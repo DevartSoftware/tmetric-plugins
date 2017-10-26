@@ -4,7 +4,7 @@
 
         showIssueId = false;
 
-        matchUrl = '*://keep.google.com/#*';
+        matchUrl = '*://keep.google.com/*#*';
 
         issueElementSelector = [
             '.XKSfm-L9AdLc .CmABtb.RNfche', // selector for row with checkbox (in the checklist)
