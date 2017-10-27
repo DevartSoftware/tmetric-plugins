@@ -107,9 +107,10 @@ class GitLabSidebar implements WebToolIntegration {
             return;
         }
 
+        let div = document.createElement('div');
         linkElement.classList.add('btn', 'btn-default');
-        linkElement.style.display = 'block';
-        $$('.issuable-sidebar-header .issuable-header-text').appendChild(linkElement);
+        div.appendChild(linkElement);
+        $$('.issuable-sidebar-header .issuable-header-text').appendChild(div);
     }
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
