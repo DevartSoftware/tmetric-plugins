@@ -3,7 +3,7 @@
     try<TElement extends HTMLElement>(selector: string, element?: NodeSelector, condition?: (el: TElement) => boolean): TElement;
     visible<TElement extends HTMLElement>(selector: string, element?: NodeSelector): TElement;
     all<TElement extends HTMLElement>(selector: string, element?: NodeSelector): TElement[];
-    closest<TElement extends HTMLElement>(selector: string, element: HTMLElement): TElement;
+    closest<TElement extends HTMLElement>(selector: string, element: HTMLElement, condition?: (el: TElement) => boolean): TElement;
     prev<TElement extends HTMLElement>(selector: string, element: HTMLElement): TElement;
     next<TElement extends HTMLElement>(selector: string, element: HTMLElement): TElement;
     getAttribute(selector: string, attributeName: string, element?: NodeSelector): string;
@@ -69,9 +69,9 @@ $$.visible = function (selector: string, element?: NodeSelector) {
     });
 };
 
-$$.closest = function (selector: string, element: HTMLElement) {
+$$.closest = function (selector: string, element: HTMLElement, condition: (el: HTMLElement) => boolean) {
     while (element) {
-        if (element.matches(selector)) {
+        if (element.matches(selector) && (!condition || condition(element))) {
             return element;
         }
         element = element.parentElement;

@@ -2,7 +2,7 @@
 
     showIssueId = false;
 
-    matchUrl = '*://calendar.google.com/calendar/*';
+    matchUrl = 'https://calendar.google.com/calendar/*';
 
     observeMutations = true;
 
@@ -49,34 +49,37 @@ class NewGoogleCalendar implements WebToolIntegration {
 
     showIssueId = false;
 
-    matchUrl = '*://calendar.google.com/calendar/*';
+    matchUrl = 'https://calendar.google.com/calendar/*';
 
     observeMutations = true;
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
-        // Event and task popup
-        let bodyContainer = $$('#xDtlDlgCt');
-        if (bodyContainer) {
+        // Find task deskription container and add link as its sibling
+
+        // Event or task popup
+        let container = $$.closest('.Tnsqdc', $$('#rAECCd'));
+        if (container) {
             linkElement.style.cssFloat = 'right';
             linkElement.style.padding = '16px 16px 0 0';
             let div = document.createElement('div');
             div.appendChild(linkElement);
-            bodyContainer.parentElement.insertBefore(div, bodyContainer);
+            container.parentNode.insertBefore(div, container.nextElementSibling);
+            return;
         }
 
         // Event editor
-        let closestLabel = $$.closest('label', $$('#xTiIn'));
-        if (closestLabel) {
-            linkElement.style.cssFloat = 'right';
-            closestLabel.parentNode.insertBefore(linkElement, null); // insert after
+        container = $$.closest('.UXzdrb', $$('#xTiIn'));
+        if (container) {
+            linkElement.style.marginLeft = '64px';
+            container.parentNode.insertBefore(linkElement, container.nextSibling);
         }
     }
 
     getIssue(issueElement: HTMLElement, source: Source) {
 
-        let issueName = $$.try('#rAECCd').textContent // Get event or task title from  popup
-            || (<any>$$.try('#xTiIn')).value; // Get title from event editor
+        let issueName = $$.try('#rAECCd').textContent // Event or task popup
+            || (<any>$$.try('#xTiIn')).value; // Event editor
 
         return { issueName };
     }
