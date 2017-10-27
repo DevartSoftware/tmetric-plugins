@@ -55,60 +55,28 @@ class NewGoogleCalendar implements WebToolIntegration {
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
-        // Task popup
-        let taskContainer = $$('div[data-taskid]');
-        if (taskContainer) {
+        // Event and task popup
+        let bodyContainer = $$('#xDtlDlgCt');
+        if (bodyContainer) {
             linkElement.style.cssFloat = 'right';
-            linkElement.style.padding = '13px 24px';
-
-            // When switching cards, the target element for insertion wraped into the empty elements.
-            // In this way We define what the elemenet we need.
-            let target: Node;
-            if (taskContainer.children[0].hasChildNodes()) {
-                target = taskContainer.children[1];
-            } else {
-                target = taskContainer.children[2]
-            }
-
-            taskContainer.insertBefore(linkElement, target);
-        }
-
-        // Event popup
-        let eventContainer = $$('div[data-eventid][id]');
-        if (eventContainer) {
-            linkElement.style.textAlign = 'right';
-            linkElement.style.padding = '13px 24px';
-
-            // When switching cards, the target element for insertion wraped into the empty elements.
-            // In this way We define what the elemenet we need.
-            let target: Node;
-            if (eventContainer.children[0].hasChildNodes()) {
-                target = eventContainer.children[0];
-            } else {
-                target = eventContainer.children[1];
-            }
-
-            target.insertBefore(linkElement, target.lastChild);
+            linkElement.style.padding = '16px 16px 0 0';
+            let div = document.createElement('div');
+            div.appendChild(linkElement);
+            bodyContainer.parentElement.insertBefore(div, bodyContainer);
         }
 
         // Event editor
-        let container = $$('#YPCqFe > div > div > div > div');
-        if (container && window.location.pathname.indexOf('eventedit/') > -1) {
-            linkElement.style.marginLeft = '63px';
-            let parent = container.parentElement;
-            parent.insertBefore(linkElement, parent.lastChild);
+        let closestLabel = $$.closest('label', $$('#xTiIn'));
+        if (closestLabel) {
+            linkElement.style.cssFloat = 'right';
+            closestLabel.parentNode.insertBefore(linkElement, null); // insert after
         }
     }
 
     getIssue(issueElement: HTMLElement, source: Source) {
 
-        let issueName = $$.try('#rAECCd').textContent; // Get event or task title from  popup
-
-        // Get title from event editor
-        if (!issueName && source.path.indexOf('eventedit/') > -1) {
-            let container = $$('#YPCqFe > div > div > div > div');
-            issueName = (<any>$$.try('input', container)).value;
-        }
+        let issueName = $$.try('#rAECCd').textContent // Get event or task title from  popup
+            || (<any>$$.try('#xTiIn')).value; // Get title from event editor
 
         return { issueName };
     }
