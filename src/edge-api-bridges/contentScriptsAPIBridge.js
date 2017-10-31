@@ -1,14 +1,20 @@
-if (!Range.prototype["intersectsNode"]) {
-    Range.prototype["intersectsNode"] = function (node) {
-        let range = document.createRange();
-        range.selectNode(node);
-        return 0 > this.compareBoundaryPoints(Range.END_TO_START, range)
-            && 0 < this.compareBoundaryPoints(Range.START_TO_END, range);
-    };
+try {
+    if (!Range.prototype.hasOwnProperty("intersectsNode")) {
+        Range.prototype["intersectsNode"] = function (node) {
+            let range = document.createRange();
+            range.selectNode(node);
+            return 0 > this.compareBoundaryPoints(Range.END_TO_START, range)
+                && 0 < this.compareBoundaryPoints(Range.START_TO_END, range);
+        };
+    }
 }
-if (!Navigator.prototype["languages"]) {
-    Navigator.prototype["languages"] = [navigator.language];
+catch (e) { }
+try {
+    if (!Navigator.prototype.hasOwnProperty("languages")) {
+        Navigator.prototype["languages"] = [navigator.language];
+    }
 }
+catch (e) { }
 var getExtensionProtocol = function () {
     if (typeof browser == "undefined") {
         if (typeof chrome !== "undefined")
