@@ -83,8 +83,6 @@ class ZohoProject implements WebToolIntegration {
 
     matchUrl = '*://*/portal/*/bizwoheader.do*';
 
-    textAreaSelector = 'textarea.taskedit, #tdetails_task textarea'; // tasks and issues
-
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
         let panel = $$('.detail-updates');
         if (panel) {
@@ -94,8 +92,12 @@ class ZohoProject implements WebToolIntegration {
     }
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-        let issueName = (<HTMLTextAreaElement>$$.try(this.textAreaSelector)).value;
-        let projectName = $$.try('#taskprojname, #projectname').textContent;
+        let issueName = (<HTMLTextAreaElement>$$.try('textarea.taskedit, #tdetails_task textarea')).value.trim() // tasks
+            || (<HTMLTextAreaElement>$$.try('textarea.detail-tsktitle')).value.trim(); // issues
+
+        let projectName = $$.try('.detail-hierarchy a').textContent.trim() // issues
+            || $$.try('.detail-hierarchy span > span').textContent.trim(); // tasks
+
         return { issueName, projectName };
     }
 }

@@ -201,11 +201,11 @@
 
         let taskInput = $(this._forms.create + ' .task .input');
         taskInput.attr('maxlength', Models.Limits.maxTask);
-        taskInput.val(this._newIssue.issueName).focus().select();
+        taskInput.val(this._newIssue.description || this._newIssue.issueName).focus().select();
 
         setTimeout(() => {
             // Firefox does not allow to focus elements on popup (TE-117)
-            if (this._newIssue.description && taskInput.is(':focus')) {
+            if (this._newIssue.issueUrl) {
                 $(this._forms.create + ' .project .input').select2('focus');
             }
         });
