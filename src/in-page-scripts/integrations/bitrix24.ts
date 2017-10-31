@@ -26,11 +26,12 @@
         let issueUrl: string;
         let issueId: string;
 
-        let matches = source.fullUrl.match(/\/company\/.*\/task\/view\/(\d+)/);
+        let matches = source.fullUrl.match(/\/company\/.*\/task\/view\/(\d+)/)
+            || source.fullUrl.match(/\/workgroups\/.*\/task\/view\/(\d+)/);
 
         if (matches) {
-            issueUrl = matches[0] + '/';
             issueId = matches[1];
+            issueUrl = '/company/personal/user/0/tasks/task/view/' + issueId + '/';
         }
 
         var serviceUrl = source.protocol + source.host;
