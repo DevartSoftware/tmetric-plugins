@@ -296,38 +296,123 @@ class ExtensionBase {
         this.openTrackerPage();
     }
 
+    private putTimerWithIntegration(timer: WebToolIssueTimer, status: Models.IntegratedProjectStatus, checkProject: boolean) {
+
+        let notification: string;
+
+        if (checkProject && timer.projectName) {
+            const contactAdmin = 'Please contact the account administrator to fix the problem.';
+
+            if (status.projectStatus == null) {
+                if (status.serviceRole != Models.ServiceRole.Admin &&
+                    status.serviceRole != Models.ServiceRole.Owner &&
+                    !status.canAddProject) {
+                    // No rights to create project
+                    timer.projectName = undefined;
+                }
+            }
+            else if (status.projectStatus != Models.ProjectStatus.Open) {
+                let statusText = status.projectStatus == Models.ProjectStatus.Archived ? 'archived' : 'done';
+                notification = `Project '${timer.projectName}' exists, but it has '${statusText}' status. You cannot log time to this project.\n\n${contactAdmin}`;
+                timer.projectName = undefined;
+            }
+            else if (status.projectRole == null) {
+                notification = `Project '${timer.projectName}' exists, but you don't have access to the project.\n\n${contactAdmin}`;
+                timer.projectName = undefined;
+            }
+        }
+
+        let promise = this.connection.setAccountToPost(status.accountId);
+
+        if (!timer.serviceUrl != !status.integrationType || // integration existing or
+            !timer.projectName != !status.projectStatus) {  // project existing differ
+
+            // Integration or project does not exist
+            promise = promise.then(() => this.connection.postIntegration(<Models.IntegratedProjectIdentifier>{
+                serviceUrl: timer.serviceUrl,
+                serviceType: timer.serviceType,
+                projectName: timer.projectName,
+                showIssueId: timer.showIssueId
+            }));
+        }
+
+        promise = promise
+            .then(() => {
+                return this.connection.putExternalTimer(timer);
+            })
+            .then(() => {
+                if (notification) {
+                    this.showNotification(notification);
+                }
+            })
+            .catch(status => {
+                this.showError(this.getErrorText(status));
+            })
+            .then(() => {
+                this.connection.setAccountToPost(null);
+            });
+
+        return promise;
+    }
+
     private putExternalTimer(timer: WebToolIssueTimer, tabId?: number) {
 
         let showPopup = false;
+        let status: Models.IntegratedProjectStatus;
 
         this.putData(timer,
             timer => {
 
-                // do not validate tags in timer passed from popup
-                if (tabId) {
-                    this.validateTimerTags(timer);
-                }
+                return this.connection.getIntegration(<Models.IntegratedProjectIdentifier>{
+                    serviceUrl: timer.serviceUrl,
+                    serviceType: timer.serviceType,
+                    projectName: timer.projectName,
+                    showIssueId: !!timer.showIssueId
+                }).then(receivedStatus => {
 
-                if (!tabId ||
-                    !timer.isStarted ||
-                    (timer.projectName && this._projects.filter(_ => _.projectName.toLowerCase() == timer.projectName.toLowerCase()).length)) {
+                    status = receivedStatus;
+                    let activeAccountId = this._userProfile.activeAccountId;
 
-                    return this.connection.putExternalTimer(timer);
-                }
+                    // Start task in account where integration/project exist (TE-173)
+                    if (tabId &&
+                        status.accountId != activeAccountId &&
+                        status.serviceRole &&
+                        status.integrationType &&
+                        status.projectRole != null &&
+                        status.projectStatus == Models.ProjectStatus.Open &&
+                        status.serviceRole != null) {
 
-                showPopup = true;
+                        return this.validateTimerTags(timer, status.accountId)
+                            .then(() => this.putTimerWithIntegration(timer, status, false));
+                    }
 
-                // this timer will be send when popup ask for initial data
-                this._newPopupIssue = timer;
+                    // Do not validate tags in timer passed from popup
+                    let tagsPromise = tabId ? this.validateTimerTags(timer, activeAccountId) : Promise.resolve();
 
-                return this.connection.connect().then(() => {
-                    this.sendToTabs({ action: 'showPopup' }, tabId);
+                    return tagsPromise.then(() => {
+
+                        if (!tabId ||
+                            !timer.isStarted ||
+                            (timer.projectName && this._projects.filter(_ => _.projectName.toLowerCase() == timer.projectName.toLowerCase()).length)) {
+
+                            return this.connection.putExternalTimer(timer);
+                        }
+
+                        showPopup = true;
+
+                        // This timer will be send when popup ask for initial data
+                        this._newPopupIssue = timer;
+
+                        return this.connection.connect().then(() => {
+                            this.sendToTabs({ action: 'showPopup' }, tabId);
+                        });
+                    });
                 });
             },
             timer => {
                 // Show error and exit when timer has no integration
                 if (!showPopup && (timer.serviceUrl || timer.projectName)) {
-                    return this.putTimerWithNewIntegration(timer)
+                    return this.putTimerWithIntegration(timer, status, true)
                 }
             });
     }
@@ -420,73 +505,6 @@ class ExtensionBase {
         return this.serviceUrl + 'login';
     }
 
-    private putTimerWithNewIntegration(timer: WebToolIssueTimer) {
-
-        return this.connection.getIntegration(<Models.IntegratedProjectIdentifier>{
-            serviceUrl: timer.serviceUrl,
-            serviceType: timer.serviceType,
-            projectName: timer.projectName,
-            showIssueId: !!timer.showIssueId
-        }).then(status => {
-
-            let notification: string;
-
-            if (timer.projectName) {
-                const contactAdmin = 'Please contact the account administrator to fix the problem.';
-
-                if (status.projectStatus == null) {
-                    if (status.serviceRole != Models.ServiceRole.Admin &&
-                        status.serviceRole != Models.ServiceRole.Owner &&
-                        !status.canAddProject) {
-                        // No rights to create project
-                        timer.projectName = undefined;
-                    }
-                }
-                else if (status.projectStatus != Models.ProjectStatus.Open) {
-                    let statusText = status.projectStatus == Models.ProjectStatus.Archived ? 'archived' : 'done';
-                    notification = `Project '${timer.projectName}' exists, but it has '${statusText}' status. You cannot log time to this project.\n\n${contactAdmin}`;
-                    timer.projectName = undefined;
-                }
-                else if (status.projectRole == null) {
-                    notification = `Project '${timer.projectName}' exists, but you don't have access to the project.\n\n${contactAdmin}`;
-                    timer.projectName = undefined;
-                }
-            }
-
-            let promise = this.connection.setAccountToPost(status.accountId);
-
-            if (!timer.serviceUrl != !status.integrationType ||
-                !timer.projectName != !status.projectStatus) {
-
-                // Integration or project does not exist
-                promise = promise.then(() => this.connection.postIntegration(<Models.IntegratedProjectIdentifier>{
-                    serviceUrl: timer.serviceUrl,
-                    serviceType: timer.serviceType,
-                    projectName: timer.projectName,
-                    showIssueId: timer.showIssueId
-                }));
-            }
-
-            promise = promise
-                .then(() => {
-                    return this.connection.putExternalTimer(timer);
-                })
-                .then(() => {
-                    if (notification) {
-                        this.showNotification(notification);
-                    }
-                })
-                .catch(status => {
-                    this.showError(this.getErrorText(status));
-                })
-                .then(() => {
-                    this.connection.setAccountToPost(null);
-                });
-
-            return promise;
-        });
-    }
-
     private normalizeUrl(url: string) {
         if (url) {
             let i = url.indexOf('#');
@@ -543,45 +561,60 @@ class ExtensionBase {
         return 'Connection to the server failed or was aborted.';
     }
 
-    private validateTimerTags(timer: WebToolIssueTimer) {
+    private validateTimerTags(timer: WebToolIssueTimer, accountId?: number) {
 
-        let hasWorkType = false;
-        let tagByName: { [name: string]: Models.Tag } = {};
-        this._tags.forEach(tag => {
-            tagByName[tag.tagName.toLowerCase()] = tag;
-        });
+        let activeAccountId = this._userProfile.activeAccountId;
+        accountId = accountId || activeAccountId;
 
-        timer.tagNames = (timer.tagNames || [])
-            .map(name => {
+        return (accountId == activeAccountId ? Promise.resolve(this._tags) : this.connection.getTagsFromAccount(accountId))
+            .then(tags => {
 
-                let tag = tagByName[name.toLowerCase()];
+                let hasWorkType = false;
+                let tagByName: { [name: string]: Models.Tag } = {};
+                this._tags.forEach(tag => {
+                    tagByName[tag.tagName.toLowerCase()] = tag;
+                });
 
-                if (!tag) {
-                    return name; // new tag
-                }
+                timer.tagNames = (timer.tagNames || [])
+                    .map(name => {
 
-                if (tag.isWorkType) {
-                    if (hasWorkType) {
-                        return null; // accept only first work type
+                        let tag = tagByName[name.toLowerCase()];
+
+                        if (!tag) {
+                            return name; // new tag
+                        }
+
+                        if (tag.isWorkType) {
+                            if (hasWorkType) {
+                                return null; // accept only first work type
+                            }
+                            hasWorkType = true;
+                        }
+
+                        return tag.tagName; // old tag (character case can be different)
+                    })
+                    .filter(name => !!name);
+
+                if (!hasWorkType) {
+                    let defaultWorkType = this.getDefaultWorkType(accountId, tags);
+                    if (defaultWorkType) {
+                        timer.tagNames.push(defaultWorkType.tagName);
                     }
-                    hasWorkType = true;
                 }
-
-                return tag.tagName; // old tag (character case can be different)
-            })
-            .filter(name => !!name);
-
-        if (!hasWorkType) {
-            let defaultWorkType = this.getDefaultWorkType();
-            if (defaultWorkType) {
-                timer.tagNames.push(defaultWorkType.tagName);
-            }
-        }
+            });
     }
 
-    private getDefaultWorkType() {
-        let member = this._userProfile.accountMembership.find(_ => _.account.accountId == this._userProfile.activeAccountId);
-        return this._tags.find(tag => tag.tagId == member.defaultWorkTypeId);
+    private getDefaultWorkType(accountId?: number, tags?: Models.Tag[]) {
+
+        if (!accountId) {
+            accountId = this._userProfile.activeAccountId;
+        }
+        if (accountId == this._userProfile.activeAccountId) {
+            tags = this._tags;
+        }
+
+        let member = this._userProfile.accountMembership.find(_ => _.account.accountId == accountId);
+        return tags.find(tag => tag.tagId == member.defaultWorkTypeId);
     }
 
     // issues durations cache

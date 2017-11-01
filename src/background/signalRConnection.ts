@@ -440,6 +440,11 @@
         });
     }
 
+    getTagsFromAccount(accountId: number) {
+        var url = 'api/accounts/' + accountId + '/tags';
+        return this.get<Models.Tag[]>(url);
+    }
+
     getTags() {
         return this.checkProfile().then(profile => {
             var url = 'api/accounts/' + profile.activeAccountId + '/tags';
