@@ -62,6 +62,7 @@
         "in-page-scripts/topmostPage.ts",
         "in-page-scripts/version.ts",
         "in-page-scripts/utils.ts",
+        "in-page-scripts/init.ts",
         "popup/popupController.ts",
         "popup/pagePopupController.ts",
         "popup/popupActivator.ts",

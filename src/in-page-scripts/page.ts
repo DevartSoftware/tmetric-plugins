@@ -1,8 +1,11 @@
 ﻿interface Window {
+    initPage: () => void;
     parsePage: () => void;
 }
 
-if (typeof document !== 'undefined') {
+var sendBackgroundMessage: (message: ITabMessage) => void;
+
+window.initPage = function () {
 
     let constants: Models.Constants;
 
@@ -51,7 +54,7 @@ if (typeof document !== 'undefined') {
     /**
      * Sends message to background script.
      */
-    function sendBackgroundMessage(message: ITabMessage) {
+    sendBackgroundMessage = function (message: ITabMessage) {
 
         // finalize script when extension removed/disabled/upgraded (#66666)
         let callbackAction = message.action + '_callback';

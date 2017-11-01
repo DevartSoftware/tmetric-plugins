@@ -55,6 +55,7 @@ var files = {
         'src/in-page-scripts/integrations/*.js',
         'src/in-page-scripts/integrationService.js',
         'src/in-page-scripts/page.js',
+		'src/in-page-scripts/init.js',
         'src/in-page-scripts/topmostPage.js',
         'src/in-page-scripts/version.js',
         'src/in-page-scripts/utils.js',
