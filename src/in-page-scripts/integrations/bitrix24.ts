@@ -26,8 +26,7 @@
         let issueUrl: string;
         let issueId: string;
 
-        let matches = source.fullUrl.match(/\/company\/.*\/task\/view\/(\d+)/)
-            || source.fullUrl.match(/\/workgroups\/.*\/task\/view\/(\d+)/);
+        let matches = source.fullUrl.match(/(?:company|workgroups)\/.*\/task\/view\/(\d+)/);
 
         if (matches) {
             issueId = matches[1];
