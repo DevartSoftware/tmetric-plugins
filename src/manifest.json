@@ -43,6 +43,31 @@
     ],
     "content_scripts": [
         {
+            "matches": [
+                "*://*/*lib/execute/execSetResults.php*",
+                "https://*/*portal/*/*.do*",
+                "https://*/*crm/*.do*",
+                "https://*/*/tasks*"
+            ],
+            "exclude_matches": [
+                "https://chrome.google.com/webstore/*",
+                "https://addons.opera.com/*"
+            ],
+            "all_frames": true,
+            "js": [
+                "in-page-scripts/utils.js",
+                "in-page-scripts/integrationService.js",
+                "in-page-scripts/integrations/bitrix24.js",
+                "in-page-scripts/integrations/testLink.js",
+                "in-page-scripts/integrations/zohoCRM.js",
+                "in-page-scripts/page.js"
+            ],
+            "css": [
+                "css/timer-link.css"
+            ],
+            "run_at": "document_end"
+        },
+        {
             "matches": [ "http://*/*", "https://*/*" ],
             "exclude_matches": [
                 "https://chrome.google.com/webstore/*",
@@ -84,30 +109,7 @@
                 "in-page-scripts/integrations/wrike.js",
                 "in-page-scripts/integrations/wunderlist.js",
                 "in-page-scripts/integrations/youTrack.js",
-                "in-page-scripts/integrations/zendesk.js",
-                "in-page-scripts/integrations/zohoCRM.js",
-                "in-page-scripts/integrations/bitrix24.js"
-            ],
-            "css": [
-                "css/timer-link.css"
-            ],
-            "run_at": "document_end"
-        },
-        {
-            "matches": [
-                "*://*/*lib/execute/execSetResults.php*",
-                "https://*/*portal/*/*.do*",
-                "https://*/*crm/*.do*",
-                "https://*/*/tasks*"
-            ],
-            "all_frames": true,
-            "js": [
-                "in-page-scripts/utils.js",
-                "in-page-scripts/integrationService.js",
-                "in-page-scripts/integrations/bitrix24.js",
-                "in-page-scripts/integrations/testLink.js",
-                "in-page-scripts/integrations/zohoCRM.js",
-                "in-page-scripts/page.js"
+                "in-page-scripts/integrations/zendesk.js"
             ],
             "css": [
                 "css/timer-link.css"
