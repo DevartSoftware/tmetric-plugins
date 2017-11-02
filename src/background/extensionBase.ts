@@ -376,11 +376,10 @@ class ExtensionBase {
                     // Start task in account where integration/project exist (TE-173)
                     if (tabId &&
                         status.accountId != activeAccountId &&
-                        status.serviceRole &&
+                        status.serviceRole != null &&
                         status.integrationType &&
                         status.projectRole != null &&
-                        status.projectStatus == Models.ProjectStatus.Open &&
-                        status.serviceRole != null) {
+                        status.projectStatus == Models.ProjectStatus.Open) {
 
                         return this.validateTimerTags(timer, status.accountId)
                             .then(() => this.putTimerWithIntegration(timer, status, false));
