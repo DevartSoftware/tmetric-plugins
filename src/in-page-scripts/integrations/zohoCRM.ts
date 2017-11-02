@@ -92,11 +92,11 @@ class ZohoProject implements WebToolIntegration {
     }
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-        let issueName = (<HTMLTextAreaElement>$$.try('textarea.taskedit, #tdetails_task textarea')).value.trim() // tasks
-            || (<HTMLTextAreaElement>$$.try('textarea.detail-tsktitle')).value.trim(); // issues
+        let issueName = (<HTMLTextAreaElement>$$.try('textarea.taskedit, #tdetails_task textarea')).value // tasks
+            || (<HTMLTextAreaElement>$$.try('textarea.detail-tsktitle')).value; // issues
 
-        let projectName = $$.try('.detail-hierarchy a').textContent.trim() // issues
-            || $$.try('.detail-hierarchy span > span').textContent.trim(); // tasks
+        let projectName = $$.try('.detail-hierarchy a').textContent // issues
+            || $$.try('.detail-hierarchy span > span').textContent; // tasks
 
         return { issueName, projectName };
     }
