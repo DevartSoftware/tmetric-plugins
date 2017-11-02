@@ -355,6 +355,15 @@ class ExtensionBase {
         return promise;
     }
 
+    private getIntegrationStatus(timer: WebToolIssueTimer) {
+        return this.connection.getIntegration(<Models.IntegratedProjectIdentifier>{
+            serviceUrl: timer.serviceUrl,
+            serviceType: timer.serviceType,
+            projectName: timer.projectName,
+            showIssueId: !!timer.showIssueId
+        });
+    }
+
     private putExternalTimer(timer: WebToolIssueTimer, tabId?: number) {
 
         let showPopup = false;
@@ -363,12 +372,12 @@ class ExtensionBase {
         this.putData(timer,
             timer => {
 
-                return this.connection.getIntegration(<Models.IntegratedProjectIdentifier>{
-                    serviceUrl: timer.serviceUrl,
-                    serviceType: timer.serviceType,
-                    projectName: timer.projectName,
-                    showIssueId: !!timer.showIssueId
-                }).then(receivedStatus => {
+                let statusPromise = this.getIntegrationStatus(timer);
+                statusPromise.catch(() => {
+                    this.connection.checkProfileChange(); // TMET-179
+                });
+
+                return statusPromise.then(receivedStatus => {
 
                     status = receivedStatus;
                     let activeAccountId = this._userProfile.activeAccountId;
@@ -411,7 +420,8 @@ class ExtensionBase {
             timer => {
                 // Show error and exit when timer has no integration
                 if (!showPopup && (timer.serviceUrl || timer.projectName)) {
-                    return this.putTimerWithIntegration(timer, status, true)
+                    let statusPromise = status ? Promise.resolve(status) : this.getIntegrationStatus(timer); // TMET-178
+                    return statusPromise.then(status => this.putTimerWithIntegration(timer, status, true));
                 }
             });
     }
