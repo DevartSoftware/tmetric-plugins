@@ -34,8 +34,10 @@
             if (iframe) {
                 let textArea = (<HTMLTextAreaElement>iframe.contentDocument.querySelector('textarea'));
                 if (textArea) {
-                    issueName = textArea.textContent;
-                } else {
+                    issueName = textArea.value;
+                }
+
+                if (!issueName) {
                     iframe.addEventListener('load', () => window.parsePage());
                 }
             }
