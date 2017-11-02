@@ -62,6 +62,17 @@
             this._constants = data.constants;
             this._canCreateProjects = data.canCreateProjects;
             this._canCreateTags = data.canCreateTags;
+
+            // TE-157 can be reproduced in old google calendar
+            let wbr = /<WBR>/ig;
+
+            if (this._newIssue.description) {
+                this._newIssue.description = this._newIssue.description.replace(wbr, '');
+            }
+
+            if (this._newIssue.issueName) {
+                this._newIssue.issueName = this._newIssue.issueName.replace(wbr, '');
+            }
         } else {
             this.close();
         }
