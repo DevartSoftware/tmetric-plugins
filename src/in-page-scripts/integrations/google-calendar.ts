@@ -29,6 +29,7 @@
             (<any>$$.try('.ep-title input')).value || // event detailed view (event edit) -> event title
             $$.try('.bubblecontent .gcal-contenteditable-textinput').textContent; // reminder popup -> reminder title
 
+        // get issueName from task popup
         if (!issueName) {
             let iframe = <HTMLIFrameElement>$$('.bubblecontent iframe');
             if (iframe) {
