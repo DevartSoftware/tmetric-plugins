@@ -193,6 +193,8 @@
     }
 
     fillCreateForm() {
+        // force focus on current window (for Firefox)
+        $(window).focus();
         this.initProjectSelector(this._forms.create + ' .project .input', this.makeProjectItems());
         $(this._forms.create + ' .new-project .input').attr('maxlength', Models.Limits.maxProjectName);
 
@@ -201,12 +203,13 @@
 
         let taskInput = $(this._forms.create + ' .task .input');
         taskInput.attr('maxlength', Models.Limits.maxTask);
-        taskInput.val(this._newIssue.issueName).focus().select();
+        taskInput.val(this._newIssue.description || this._newIssue.issueName).focus().select();
 
         setTimeout(() => {
             // Firefox does not allow to focus elements on popup (TE-117)
-            if (this._newIssue.description && taskInput.is(':focus')) {
-                $(this._forms.create + ' .project .input').select2('focus');
+            if (this._newIssue.issueUrl) {
+                // focusing on select2 dropdown
+                $(this._forms.create + ' .project .input').select2('open').select2('close');
             }
         });
     }

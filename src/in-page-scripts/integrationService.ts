@@ -45,6 +45,7 @@
         // If it is found we should refresh links on a page.
         return $$.all('a.' + this.affix).some(link => {
             let linkTimer = <WebToolIssueTimer>JSON.parse(link.getAttribute('data-' + this.affix));
+            this.checkTimerExternalTask(linkTimer);
             return !linkTimer.isStarted || this.isIssueStarted(linkTimer);
         });
     }
@@ -94,19 +95,7 @@
                     issue.projectName = this.trimText(issue.projectName, Models.Limits.maxProjectName);
 
                     // take issueId and issueUrl from started timer if description matches issue name
-                    if (!issue.issueUrl
-                        && this._timer
-                        && this._timer.isStarted) {
-
-                        let projectTask = this._timer.details && this._timer.details.projectTask;
-                        if (projectTask
-                            && projectTask.relativeIssueUrl
-                            && projectTask.description == issue.issueName) {
-
-                            issue.issueUrl = projectTask.relativeIssueUrl;
-                            issue.issueId = projectTask.externalIssueId;
-                        }
-                    }
+                    this.checkTimerExternalTask(issue);
 
                     if (!issue.issueUrl || !issue.serviceUrl || !issue.serviceType) {
                         issue.issueUrl = null;
@@ -274,7 +263,24 @@
         $$.all('a.' + this.affix).forEach(a => this.removeLink(a));
     }
 
-    static isSameIssue(oldIssue: WebToolIssue, newIssue: WebToolIssue) {
+    private static checkTimerExternalTask(issue: WebToolIssue) {
+        if (!issue.issueUrl
+            && this._timer
+            && this._timer.isStarted) {
+
+            let projectTask = this._timer.details && this._timer.details.projectTask;
+            if (projectTask
+                && projectTask.relativeIssueUrl
+                && projectTask.description == issue.issueName) {
+
+                issue.serviceUrl = projectTask.integrationUrl;
+                issue.issueUrl = projectTask.relativeIssueUrl;
+                issue.issueId = projectTask.externalIssueId;
+            }
+        }
+    }
+
+    private static isSameIssue(oldIssue: WebToolIssue, newIssue: WebToolIssue) {
 
         function normalizeServiceUrl(issue: WebToolIssue) {
             let url = (issue.serviceUrl || '').trim();
