@@ -419,7 +419,8 @@
             data: items,
             templateSelection: (options) => this.formatSelectedProject(options),
             templateResult: (options) => this.formatProjectItem(options)
-        }).val(this._selectProjectOption.id).trigger('change');
+        }).val(this._createNewProjectOption.id);
+        $(selector).select2().trigger('change');
     }
 
     private formatProjectItem(data: Select2SelectionObject) {
@@ -575,6 +576,7 @@
                 $divNewProject.css('display', 'block');
             } else {
                 $divNewProject.css('display', 'none');
+                $inputNewProject.val('');
             }
         }
     }
