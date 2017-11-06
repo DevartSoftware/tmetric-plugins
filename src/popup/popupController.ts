@@ -576,7 +576,6 @@
                 $divNewProject.css('display', 'block');
             } else {
                 $divNewProject.css('display', 'none');
-                $inputNewProject.val('');
             }
         }
     }
@@ -616,7 +615,7 @@
 
         // Set project
         let selectedProject = <Select2SelectionObject>$(this._forms.create + ' .project .input').select2('data')[0];
-        if (!selectedProject || !selectedProject.selected || !selectedProject.id) {
+        if (!selectedProject || !selectedProject.selected || !Number(selectedProject.id)) {
             timer.projectName = ''; // No project
         } else if (<any>selectedProject.id > 0) {
             timer.projectName = selectedProject.text; // Existing project
