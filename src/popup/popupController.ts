@@ -362,7 +362,7 @@
 
     private _selectProjectOption: IdTextPair = { id: 0, text: 'No project' };
 
-    private _createNewProjectOption: IdTextPair = { id: -1, text: 'New project' };
+    protected _createNewProjectOption: IdTextPair = { id: -1, text: 'New project' };
 
     makeProjectItems() {
         let projects = <IdTextPair[]>[];
@@ -414,12 +414,16 @@
         return this._newIssue.tagNames || [];
     }
 
+    getDefaultProjectSelectionId() {
+        return this._selectProjectOption.id;
+    }
+
     initProjectSelector(selector: string, items: IdTextPair[]) {
-        $(selector).select2({
+        let select2 = $(selector).select2({
             data: items,
             templateSelection: (options) => this.formatSelectedProject(options),
             templateResult: (options) => this.formatProjectItem(options)
-        }).val(this._createNewProjectOption.id).trigger('change');
+        }).val(this.getDefaultProjectSelectionId().toString()).trigger('change');
         (<Select2SelectionObject>$(this._forms.create + ' .project .input').select2('data')[0]).selected = true;
     }
 

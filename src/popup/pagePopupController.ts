@@ -13,6 +13,13 @@
         this.hidePopupAction();
     }
 
+    /**
+     * @override
+     */
+    getDefaultProjectSelectionId() {
+        return this._createNewProjectOption.id;
+    }
+
     private initFrame() {
 
         let style = document.createElement('style');
