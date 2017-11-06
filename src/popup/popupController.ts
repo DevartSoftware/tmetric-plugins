@@ -420,7 +420,7 @@
             templateSelection: (options) => this.formatSelectedProject(options),
             templateResult: (options) => this.formatProjectItem(options)
         }).val(this._createNewProjectOption.id).trigger('change');
-        let selected = (<Select2SelectionObject>$(this._forms.create + ' .project .input').select2('data')[0]).selected = true;
+        (<Select2SelectionObject>$(this._forms.create + ' .project .input').select2('data')[0]).selected = true;
     }
 
     private formatProjectItem(data: Select2SelectionObject) {
