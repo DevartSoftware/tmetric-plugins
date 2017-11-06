@@ -16,7 +16,7 @@
     /**
      * @override
      */
-    getDefaultProjectSelectionId() {
+    getDefaultProjectSelectionOption(): number {
         return this._createNewProjectOption.id;
     }
 

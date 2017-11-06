@@ -414,7 +414,7 @@
         return this._newIssue.tagNames || [];
     }
 
-    getDefaultProjectSelectionId() {
+    getDefaultProjectSelectionOption(): number {
         return this._selectProjectOption.id;
     }
 
@@ -423,7 +423,7 @@
             data: items,
             templateSelection: (options) => this.formatSelectedProject(options),
             templateResult: (options) => this.formatProjectItem(options)
-        }).val(this.getDefaultProjectSelectionId().toString()).trigger('change');
+        }).val(this.getDefaultProjectSelectionOption().toString()).trigger('change');
         (<Select2SelectionObject>$(this._forms.create + ' .project .input').select2('data')[0]).selected = true;
     }
 
