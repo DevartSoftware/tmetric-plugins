@@ -32,13 +32,14 @@
     }
 
     private _activeTimer: Models.Timer;
-    private _newIssue: WebToolIssueTimer;
     private _timeFormat: string;
     private _projects: Models.ProjectLite[];
     private _tags: Models.Tag[];
     private _constants: Models.Constants;
     private _canCreateProjects: boolean;
     private _canCreateTags: boolean;
+
+    protected newIssue: WebToolIssueTimer;
 
     callBackground(request: IPopupRequest): Promise<IPopupResponse> {
         return new Promise((resolve, reject) => {
@@ -55,7 +56,7 @@
     setData(data: IPopupInitData) {
         if (data.timer) {
             this._activeTimer = data.timer;
-            this._newIssue = data.newIssue;
+            this.newIssue = data.newIssue;
             this._timeFormat = data.timeFormat;
             this._projects = data.projects;
             this._tags = data.tags.filter(tag => !!tag).sort((a, b) => this.compareTags(a, b));
@@ -203,11 +204,11 @@
 
         let taskInput = $(this._forms.create + ' .task .input');
         taskInput.attr('maxlength', Models.Limits.maxTask);
-        taskInput.val(this._newIssue.description || this._newIssue.issueName).focus().select();
+        taskInput.val(this.newIssue.description || this.newIssue.issueName).focus().select();
 
         setTimeout(() => {
             // Firefox does not allow to focus elements on popup (TE-117)
-            if (this._newIssue.issueUrl) {
+            if (this.newIssue.issueUrl) {
                 // focusing on select2 dropdown
                 $(this._forms.create + ' .project .input').select2('open').select2('close');
             }
@@ -360,16 +361,16 @@
         return container;
     }
 
-    private _selectProjectOption: IdTextPair = { id: 0, text: 'No project' };
+    protected selectProjectOption: IdTextPair = { id: 0, text: 'No project' };
 
-    protected _createNewProjectOption: IdTextPair = { id: -1, text: 'New project' };
+    protected createNewProjectOption: IdTextPair = { id: -1, text: 'New project' };
 
     makeProjectItems() {
         let projects = <IdTextPair[]>[];
         if (this._canCreateProjects) {
-            projects.push(this._createNewProjectOption);
+            projects.push(this.createNewProjectOption);
         }
-        projects.push(this._selectProjectOption);
+        projects.push(this.selectProjectOption);
         return projects.concat(this._projects.map(project => {
             return <IdTextPair>{ id: project.projectId, text: project.projectName };
         }));
@@ -398,8 +399,8 @@
             isWorkTypeMap[tag.tagName.toLowerCase()] = tag.isWorkType;
         });
 
-        if (this._canCreateTags && this._newIssue.tagNames) {
-            this._newIssue.tagNames.forEach(name => {
+        if (this._canCreateTags && this.newIssue.tagNames) {
+            this.newIssue.tagNames.forEach(name => {
                 let isWorkType = isWorkTypeMap[name.toLowerCase()]
                 if (!existingItems[name.toLowerCase()]) {
                     items.push(this.makeTagItem(name, isWorkType));
@@ -411,11 +412,11 @@
     }
 
     makeTagSelectedItems() {
-        return this._newIssue.tagNames || [];
+        return this.newIssue.tagNames || [];
     }
 
     getDefaultProjectSelectionOption(): number {
-        return this._selectProjectOption.id;
+        return this.selectProjectOption.id;
     }
 
     initProjectSelector(selector: string, items: IdTextPair[]) {
@@ -575,7 +576,7 @@
 
         return function () {
             if ($(this).val() == -1) { // create new project option
-                let issueProjectName = (self._newIssue.projectName) || '';
+                let issueProjectName = (self.newIssue.projectName) || '';
                 $inputNewProject.val(issueProjectName);
                 $divNewProject.css('display', 'block');
             } else {
@@ -615,7 +616,7 @@
     private onStartClick() {
 
         // Clone issue
-        let timer = Object.assign({}, this._newIssue);
+        let timer = Object.assign({}, this.newIssue);
 
         // Set project
         let selectedProject = <Select2SelectionObject>$(this._forms.create + ' .project .input').select2('data')[0];

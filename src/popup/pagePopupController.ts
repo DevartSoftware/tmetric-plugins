@@ -17,7 +17,9 @@
      * @override
      */
     getDefaultProjectSelectionOption(): number {
-        return this._createNewProjectOption.id;
+        return this.newIssue.projectName
+            ? this.createNewProjectOption.id
+            : this.selectProjectOption.id;
     }
 
     private initFrame() {
