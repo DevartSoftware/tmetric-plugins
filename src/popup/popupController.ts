@@ -68,8 +68,8 @@
         }
     }
 
-    putTimer(timer: WebToolIssueTimer) {
-        this.putTimerAction(timer);
+    putTimer(timer: WebToolIssueTimer, originalTimer?: WebToolIssueTimer) {
+        this.putTimerAction([timer]);
         this.close();
     }
 
@@ -115,7 +115,7 @@
     isConnectionRetryEnabledAction = this.wrapBackgroundAction<void, boolean>('isConnectionRetryEnabled');
     retryAction = this.wrapBackgroundAction<void, void>('retry');
     fixTimerAction = this.wrapBackgroundAction<void, void>('fixTimer');
-    putTimerAction = this.wrapBackgroundAction<WebToolIssueTimer, void>('putTimer');
+    putTimerAction = this.wrapBackgroundAction<WebToolIssueTimer[], void>('putTimer');
 
     // ui mutations
 
@@ -634,7 +634,7 @@
         timer.tagNames = $(this._forms.create + ' .tags .input').select().val() || [];
 
         // Put timer
-        this.putTimer(timer);
+        this.putTimer(timer, Object.assign({}, this.newIssue));
     }
 
     private onStopClick() {

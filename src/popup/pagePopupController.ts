@@ -22,6 +22,16 @@
             : this.selectProjectOption.id;
     }
 
+    /**
+     * @override
+     * @param timer
+     * @param originalTimer
+     */
+    putTimer(timer: WebToolIssueTimer, originalTimer?: WebToolIssueTimer) {
+        this.putTimerAction([timer, originalTimer]);
+        this.close();
+    }
+
     private initFrame() {
 
         let style = document.createElement('style');

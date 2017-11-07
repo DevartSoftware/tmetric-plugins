@@ -138,6 +138,7 @@ class ExtensionBase {
 
     private defaultApplicationUrl = 'https://app.tmetric.com/';
 
+    private _accountToProjectKey = 'accountToProject';
     constructor() {
 
         this.serviceUrl = this.getTestValue('tmetric.url') || this.defaultApplicationUrl;
@@ -216,8 +217,9 @@ class ExtensionBase {
         this.listenPopupAction<void, void>('retry', this.retryConnectionPopupAction);
         this.listenPopupAction<void, void>('login', this.loginPopupAction);
         this.listenPopupAction<void, void>('fixTimer', this.fixTimerPopupAction);
-        this.listenPopupAction<WebToolIssueTimer, void>('putTimer', data => {
-            this.putExternalTimer(data);
+        this.listenPopupAction<WebToolIssueTimer[], void>('putTimer', data => {
+            const [timer, originalTimer] = data;
+            this.putExternalTimer(timer, null, originalTimer);
             return Promise.resolve();
         });
         this.listenPopupAction<void, void>('hideAllPopups', () => {
@@ -364,7 +366,7 @@ class ExtensionBase {
         });
     }
 
-    private putExternalTimer(timer: WebToolIssueTimer, tabId?: number) {
+    private putExternalTimer(timer: WebToolIssueTimer, tabId?: number, originalTimer?: WebToolIssueTimer) {
 
         let showPopup = false;
         let status: Models.IntegratedProjectStatus;
@@ -403,7 +405,32 @@ class ExtensionBase {
                             !timer.isStarted ||
                             (timer.projectName && this._projects.filter(_ => _.projectName.toLowerCase() == timer.projectName.toLowerCase()).length)) {
 
-                            return this.connection.putExternalTimer(timer);
+                            return this.connection.putExternalTimer(timer).then(() => {
+
+                                // Try save user selection into localstorage.
+                                // Creat account to project map.
+                                // TE-183.
+
+                                if (!originalTimer) { // toolbar popup does not send original timer
+                                    return;
+                                }
+
+                                // No project for issue.
+                                if (!timer.projectName) {
+                                    return;
+                                }
+
+                                // New project name for issue.
+                                const project = this._projects.filter(_ => _.projectName.toLowerCase() == timer.projectName.toLowerCase())[0];
+                                if (!project) {
+                                    return;
+                                }
+
+                                // save user selection into localstorage
+                                const originalProjectNameForIssue = originalTimer.projectName;
+                                const mappedProjectId = project.projectId;
+                                this.saveProjectIntoLocalStorage(activeAccountId, originalProjectNameForIssue, mappedProjectId);
+                            });
                         }
 
                         showPopup = true;
@@ -967,5 +994,40 @@ class ExtensionBase {
 
             senderResponse(null);
         });
+    }
+
+    private saveProjectIntoLocalStorage(accountId: number, projectName: string, projectId: number) {
+        const state = { [projectName]: projectId };
+
+        const storage = localStorage.getItem(this._accountToProjectKey);
+        if (!storage) {
+            localStorage.setItem(this._accountToProjectKey, JSON.stringify({ [accountId]: state }));
+            return;
+        }
+
+        const oldState = JSON.parse(storage)[accountId];
+        if (!oldState) {
+            let _storage = JSON.parse(storage);
+            let _newStorage = Object.assign({}, _storage, { [accountId]: state });
+            localStorage.setItem(this._accountToProjectKey, JSON.stringify(_newStorage));
+            return;
+        }
+
+        const newState = Object.assign({}, oldState, { [projectName]: projectId });
+        localStorage.setItem(this._accountToProjectKey, JSON.stringify({ [accountId]: newState }));
+    }
+
+    private getMappedProjectFromLocalStorage(accountId: number, projectName: string): number {
+        const storage = localStorage.getItem(this._accountToProjectKey);
+        if (!storage) {
+            return;
+        }
+
+        const state = JSON.parse(storage)[accountId];
+        if (!state) {
+            return;
+        }
+
+        return state[projectName];
     }
 }
