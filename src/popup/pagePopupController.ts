@@ -13,27 +13,6 @@
         this.hidePopupAction();
     }
 
-    /**
-     * @override
-     */
-    getDefaultProjectSelectionOption(issue: WebToolIssueTimer, canCreateProjects: boolean, accountToProjectMap: Models.IMap): number {
-
-        if (issue.projectName) {
-            if (accountToProjectMap) {
-                let mappedProjectId = accountToProjectMap[issue.projectName];
-                if (mappedProjectId) {
-                    return mappedProjectId;
-                }
-            }
-
-            if (canCreateProjects) {
-                return this.createNewProjectOption.id;
-            }
-        }
-
-        return this.selectProjectOption.id;
-    }
-
     private initFrame() {
 
         let style = document.createElement('style');

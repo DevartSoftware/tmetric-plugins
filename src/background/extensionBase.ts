@@ -138,8 +138,6 @@ class ExtensionBase {
 
     private defaultApplicationUrl = 'https://app.tmetric.com/';
 
-    private _accountToProjectMap = '_accountToProjectMap';
-
     constructor() {
 
         this.serviceUrl = this.getTestValue('tmetric.url') || this.defaultApplicationUrl;
@@ -226,8 +224,8 @@ class ExtensionBase {
             this.sendToTabs({ action: 'hidePopup' });
             return Promise.resolve(null);
         });
-        this.listenPopupAction<{ projectName: string, projectId: number }, void>('saveAccountToProjectMap', ({ projectName, projectId }) => {
-            this.saveProjectIntoLocalStorage(this._userProfile.activeAccountId, projectName, projectId);
+        this.listenPopupAction<{ projectName: string, projectId: number }, void>('saveProjectMap', ({ projectName, projectId }) => {
+            this.setProjectMap(this._userProfile.activeAccountId, projectName, projectId);
             return Promise.resolve(null);
         });
 
@@ -731,7 +729,9 @@ class ExtensionBase {
                 let isAdmin = (userRole == Models.ServiceRole.Admin || userRole == Models.ServiceRole.Owner);
 
                 let defaultWorkType = this.getDefaultWorkType();
-                let newIssue = this._newPopupIssue || { // _newPopupIssue is null if called from toolbar popup
+                let newIssue = this._newPopupIssue || <WebToolIssueTimer>{ // _newPopupIssue is null if called from toolbar popup
+                    isStarted: true,
+                    issueName: title,
                     description: title,
                     tagNames: defaultWorkType ? [defaultWorkType.tagName] : []
                 };
@@ -740,13 +740,17 @@ class ExtensionBase {
                     .filter(project => project.projectStatus == Models.ProjectStatus.Open)
                     .sort((a, b) => a.projectName.localeCompare(b.projectName, [], { sensitivity: 'base' }));
 
-                // Remove mapped project from localstorage if project was deleted
-                const mappedProjects = this.getAccountToProjectMapFromLocalStorage(activeAccountId);
-                if (mappedProjects && this._newPopupIssue) {
-                    const mappedProjectId = mappedProjects[this._newPopupIssue.projectName];
-                    const isProjectExists = filteredProjects.filter(_ => _.projectId == mappedProjectId).length > 0;
-                    if (!isProjectExists) {
-                        this.removeMappedProjectFromLocalStorage(activeAccountId, this._newPopupIssue.projectName);
+                const projectMap = this.getProjectMap(activeAccountId);
+
+                // Determine default project
+                let defaultProjectId = <number>null;
+                if (projectMap && newIssue.projectName) {
+                    defaultProjectId = projectMap[newIssue.projectName];
+
+                    // Remove mapped project from localstorage if project was deleted
+                    if (defaultProjectId && filteredProjects.every(_ => _.projectId != defaultProjectId)) {
+                        this.setProjectMap(activeAccountId, newIssue.projectName, null);
+                        defaultProjectId = null;
                     }
                 }
 
@@ -761,7 +765,7 @@ class ExtensionBase {
                     canCreateProjects: isAdmin || canMembersManagePublicProjects,
                     canCreateTags,
                     constants: this._constants,
-                    accountToProjectMap: this.getAccountToProjectMapFromLocalStorage(activeAccountId)
+                    defaultProjectId
                 });
             });
         });
@@ -989,45 +993,35 @@ class ExtensionBase {
         });
     }
 
-    private saveProjectIntoLocalStorage(accountId: number, projectName: string, projectId: number) {
-        const state = { [projectName]: projectId };
+    accountToProjectMap: {
+        [accountId: number]: {
+            [key: string]: number
+        }
+    };
 
-        const storage = localStorage.getItem(this._accountToProjectMap);
-        if (!storage) {
-            localStorage.setItem(this._accountToProjectMap, JSON.stringify({ [accountId]: state }));
-            return;
+    accountToProjectMapKey = 'accountToProjectMap';
+
+    private setProjectMap(accountId: number, projectName: string, projectId: number) {
+
+        let map = this.getProjectMap(accountId);
+        if (projectId) {
+            map = map || {};
+            map[projectName] = projectId;
+            this.accountToProjectMap[accountId] = map;
+        } else if (map) {
+            delete map[projectName];
         }
 
-        let storageState = JSON.parse(storage);
-
-        const oldState = storageState[accountId];
-        storageState[accountId] = Object.assign({}, oldState, state); // set new state
-
-        localStorage.setItem(this._accountToProjectMap, JSON.stringify(storageState));
+        localStorage.setItem(this.accountToProjectMapKey, JSON.stringify(this.accountToProjectMap));
     }
 
-    private getAccountToProjectMapFromLocalStorage(accountId: number): Models.IMap {
-        const storage = localStorage.getItem(this._accountToProjectMap);
-        if (!storage) {
-            return;
+    private getProjectMap(accountId: number) {
+
+        if (!this.accountToProjectMap) {
+            const obj = localStorage.getItem(this.accountToProjectMapKey);
+            this.accountToProjectMap = obj ? JSON.parse(obj) : {};
         }
 
-        const state = JSON.parse(storage)[accountId];
-        if (!state) {
-            return;
-        }
-
-        return state;
-    }
-
-    private removeMappedProjectFromLocalStorage(accountId: number, projectName: string) {
-        const storage = localStorage.getItem(this._accountToProjectMap);
-        if (!storage) {
-            return;
-        }
-
-        let storageState = JSON.parse(storage);
-        delete storageState[accountId][projectName];
-        localStorage.setItem(this._accountToProjectMap, JSON.stringify(storageState));
+        return this.accountToProjectMap[accountId];
     }
 }

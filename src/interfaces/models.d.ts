@@ -189,8 +189,4 @@ declare module Models {
         isWorkType: boolean;
         workTypeProjects: number[];
     }
-
-    export interface IMap {
-        [key: string]: number;
-    }
 }

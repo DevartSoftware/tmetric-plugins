@@ -46,5 +46,5 @@ interface IPopupInitData {
     constants: Models.Constants;
     canCreateProjects: boolean;
     canCreateTags: boolean;
-    accountToProjectMap: Models.IMap;
+    defaultProjectId: number;
 }
