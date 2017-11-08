@@ -16,8 +16,8 @@
     /**
      * @override
      */
-    getDefaultProjectSelectionOption(): number {
-        return this.newIssue.projectName
+    getDefaultProjectSelectionOption(issue: WebToolIssueTimer, canCreateProjects: boolean): number {
+        return canCreateProjects && issue.projectName
             ? this.createNewProjectOption.id
             : this.selectProjectOption.id;
     }

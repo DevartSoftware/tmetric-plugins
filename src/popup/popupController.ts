@@ -38,8 +38,7 @@
     private _constants: Models.Constants;
     private _canCreateProjects: boolean;
     private _canCreateTags: boolean;
-
-    protected newIssue: WebToolIssueTimer;
+    private _newIssue: WebToolIssueTimer;
 
     callBackground(request: IPopupRequest): Promise<IPopupResponse> {
         return new Promise((resolve, reject) => {
@@ -56,7 +55,7 @@
     setData(data: IPopupInitData) {
         if (data.timer) {
             this._activeTimer = data.timer;
-            this.newIssue = data.newIssue;
+            this._newIssue = data.newIssue;
             this._timeFormat = data.timeFormat;
             this._projects = data.projects;
             this._tags = data.tags.filter(tag => !!tag).sort((a, b) => this.compareTags(a, b));
@@ -204,11 +203,11 @@
 
         let taskInput = $(this._forms.create + ' .task .input');
         taskInput.attr('maxlength', Models.Limits.maxTask);
-        taskInput.val(this.newIssue.description || this.newIssue.issueName).focus().select();
+        taskInput.val(this._newIssue.description || this._newIssue.issueName).focus().select();
 
         setTimeout(() => {
             // Firefox does not allow to focus elements on popup (TE-117)
-            if (this.newIssue.issueUrl) {
+            if (this._newIssue.issueUrl) {
                 // focusing on select2 dropdown
                 $(this._forms.create + ' .project .input').select2('open').select2('close');
             }
@@ -399,8 +398,8 @@
             isWorkTypeMap[tag.tagName.toLowerCase()] = tag.isWorkType;
         });
 
-        if (this._canCreateTags && this.newIssue.tagNames) {
-            this.newIssue.tagNames.forEach(name => {
+        if (this._canCreateTags && this._newIssue.tagNames) {
+            this._newIssue.tagNames.forEach(name => {
                 let isWorkType = isWorkTypeMap[name.toLowerCase()]
                 if (!existingItems[name.toLowerCase()]) {
                     items.push(this.makeTagItem(name, isWorkType));
@@ -412,10 +411,10 @@
     }
 
     makeTagSelectedItems() {
-        return this.newIssue.tagNames || [];
+        return this._newIssue.tagNames || [];
     }
 
-    getDefaultProjectSelectionOption(): number {
+    getDefaultProjectSelectionOption(issue: WebToolIssueTimer, canCreateProjects: boolean): number {
         return this.selectProjectOption.id;
     }
 
@@ -424,7 +423,7 @@
             data: items,
             templateSelection: (options) => this.formatSelectedProject(options),
             templateResult: (options) => this.formatProjectItem(options)
-        }).val(this.getDefaultProjectSelectionOption().toString()).trigger('change');
+        }).val(this.getDefaultProjectSelectionOption(this._newIssue, this._canCreateProjects).toString()).trigger('change');
         (<Select2SelectionObject>$(this._forms.create + ' .project .input').select2('data')[0]).selected = true;
     }
 
@@ -576,7 +575,7 @@
 
         return function () {
             if ($(this).val() == -1) { // create new project option
-                let issueProjectName = (self.newIssue.projectName) || '';
+                let issueProjectName = (self._newIssue.projectName) || '';
                 $inputNewProject.val(issueProjectName);
                 $divNewProject.css('display', 'block');
             } else {
@@ -616,7 +615,7 @@
     private onStartClick() {
 
         // Clone issue
-        let timer = Object.assign({}, this.newIssue);
+        let timer = Object.assign({}, this._newIssue);
 
         // Set project
         let selectedProject = <Select2SelectionObject>$(this._forms.create + ' .project .input').select2('data')[0];
@@ -634,7 +633,7 @@
         timer.tagNames = $(this._forms.create + ' .tags .input').select().val() || [];
 
         // Put timer
-        this.putTimer(timer, Object.assign({}, this.newIssue));
+        this.putTimer(timer, Object.assign({}, this._newIssue));
     }
 
     private onStopClick() {
