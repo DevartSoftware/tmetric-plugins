@@ -401,11 +401,25 @@ class ExtensionBase {
 
                     return tagsPromise.then(() => {
 
+                        // Check that mapped project exists for original project.
+                        // If not then remove that from localstorage.
+                        let copyTimer = Object.assign({}, timer);
+                        const mappedProject = this.getMappedProjectFromLocalStorage(activeAccountId, copyTimer.projectName);
+                        let isProjectExists = false;
+                        if (mappedProject) {
+                            let project = this._projects.filter(_ => _.projectId == mappedProject[copyTimer.projectName])[0];
+                            isProjectExists = !!project;
+                            isProjectExists
+                                ? copyTimer.projectName = project.projectName
+                                : this.removeMappedProjectFromLocalStorage(activeAccountId, copyTimer.projectName);
+                        }
+
                         if (!tabId ||
                             !timer.isStarted ||
-                            (timer.projectName && this._projects.filter(_ => _.projectName.toLowerCase() == timer.projectName.toLowerCase()).length)) {
+                            (timer.projectName && this._projects.filter(_ => _.projectName.toLowerCase() == timer.projectName.toLowerCase()).length) ||
+                            isProjectExists) {
 
-                            return this.connection.putExternalTimer(timer).then(() => {
+                            return this.connection.putExternalTimer(copyTimer).then(() => {
 
                                 // Try save user selection into localstorage.
                                 // Creat account to project map.
@@ -426,7 +440,7 @@ class ExtensionBase {
                                     return;
                                 }
 
-                                // save user selection into localstorage
+                                // save user selection into localstorage as account to project map
                                 const originalProjectNameForIssue = originalTimer.projectName;
                                 const mappedProjectId = project.projectId;
                                 this.saveProjectIntoLocalStorage(activeAccountId, originalProjectNameForIssue, mappedProjectId);
@@ -1017,17 +1031,36 @@ class ExtensionBase {
         localStorage.setItem(this._accountToProjectKey, JSON.stringify({ [accountId]: newState }));
     }
 
-    private getMappedProjectFromLocalStorage(accountId: number, projectName: string): number {
+    private getMappedProjectFromLocalStorage(accountId: number, projectName: string): Models.IMap {
         const storage = localStorage.getItem(this._accountToProjectKey);
         if (!storage) {
             return;
         }
 
         const state = JSON.parse(storage)[accountId];
-        if (!state) {
+        if (!state || !state[projectName]) {
             return;
         }
 
-        return state[projectName];
+        return <Models.IMap>{ [projectName]: state[projectName] };
+    }
+
+    private removeMappedProjectFromLocalStorage(accountId: number, projectName: string) {
+        const storage = localStorage.getItem(this._accountToProjectKey);
+        if (!storage) {
+            return;
+        }
+
+        const oldState = JSON.parse(storage)[accountId];
+        if (!oldState) {
+            return;
+        }
+
+        if (oldState[projectName]) {
+            delete oldState[projectName];
+        }
+
+        const newState = Object.assign({}, oldState);
+        localStorage.setItem(this._accountToProjectKey, JSON.stringify({ [accountId]: newState }));
     }
 }
