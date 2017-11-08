@@ -419,7 +419,7 @@
     initProjectSelector(selector: string, items: IdTextPair[], defaultProjectId: number) {
 
         if (!defaultProjectId) {
-            defaultProjectId = this._canCreateProjects ? this.createProjectOption.id : this.noProjectOption;
+            defaultProjectId = this._canCreateProjects ? this.createProjectOption.id : this.noProjectOption.id;
         }
 
         let select2 = $(selector)
@@ -636,7 +636,7 @@
         } else if (<any>selectedProject.id > 0) {
             timer.projectName = selectedProject.text; // Existing project
         } else {
-            timer.projectName = $.trim($(this._forms.create + ' .new-project .input').val()); // New project
+            timer.projectName = $.trim($(this._forms.create + ' .new-project .indefaultput').val()); // New project
         }
 
         // Set description and tags
@@ -647,7 +647,7 @@
         // Put timer
         this.putTimer(timer).then(() => {
             let projectName = this._newIssue.projectName;
-            if (projectName && timer.projectName != timer.projectName) {
+            if (projectName && timer.projectName != projectName) {
                 let project = this._projects.find(_ => _.projectName == timer.projectName);
                 if (project) {
                     this.saveProjectMapAction({ projectName, projectId: project.projectId });
