@@ -747,7 +747,7 @@ class ExtensionBase {
                 if (projectMap && newIssue.projectName) {
                     defaultProjectId = projectMap[newIssue.projectName];
 
-                    // Remove mapped project from localstorage if project was deleted
+                    // Remove mapped project from localstorage if project was deleted/closed
                     if (defaultProjectId && filteredProjects.every(_ => _.projectId != defaultProjectId)) {
                         this.setProjectMap(activeAccountId, newIssue.projectName, null);
                         defaultProjectId = null;

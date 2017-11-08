@@ -362,9 +362,9 @@
         return container;
     }
 
-    protected noProjectOption: IdTextPair = { id: 0, text: 'No project' };
+    private noProjectOption: IdTextPair = { id: 0, text: 'No project' };
 
-    protected createProjectOption: IdTextPair = { id: -1, text: 'New project' };
+    private createProjectOption: IdTextPair = { id: -1, text: 'New project' };
 
     makeProjectItems() {
         let projects = <IdTextPair[]>[];
@@ -416,22 +416,6 @@
         return this._newIssue.tagNames || [];
     }
 
-    getDefaultProjectSelectionOption(issue: WebToolIssueTimer, canCreateProjects: boolean, fallbackProjectId: number): number {
-
-        if (issue.projectName) {
-
-            if (fallbackProjectId) {
-                return fallbackProjectId;
-            }
-
-            if (canCreateProjects) {
-                return this.createProjectOption.id;
-            }
-        }
-
-        return this.noProjectOption.id;
-    }
-
     initProjectSelector(selector: string, items: IdTextPair[], defaultProjectId: number) {
 
         if (!defaultProjectId) {
@@ -447,7 +431,12 @@
             .val(defaultProjectId.toString())
             .trigger('change');
 
-        (<Select2SelectionObject>$(this._forms.create + ' .project .input').select2('data')[0]).selected = true;
+        let data: Select2SelectionObject[] = $(selector).select2('data');
+        let selectedIndex = items.findIndex(item => item.id == defaultProjectId);
+        let selectedItem = data[selectedIndex];
+        if (selectedItem) {
+            selectedItem.selected = true;
+        }
     }
 
     private formatProjectItem(data: Select2SelectionObject) {
