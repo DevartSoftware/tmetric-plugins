@@ -138,7 +138,8 @@ class ExtensionBase {
 
     private defaultApplicationUrl = 'https://app.tmetric.com/';
 
-    private _accountToProjectKey = 'accountToProject';
+    private _accountToProjectMap = '_accountToProjectMap';
+
     constructor() {
 
         this.serviceUrl = this.getTestValue('tmetric.url') || this.defaultApplicationUrl;
@@ -991,9 +992,9 @@ class ExtensionBase {
     private saveProjectIntoLocalStorage(accountId: number, projectName: string, projectId: number) {
         const state = { [projectName]: projectId };
 
-        const storage = localStorage.getItem(this._accountToProjectKey);
+        const storage = localStorage.getItem(this._accountToProjectMap);
         if (!storage) {
-            localStorage.setItem(this._accountToProjectKey, JSON.stringify({ [accountId]: state }));
+            localStorage.setItem(this._accountToProjectMap, JSON.stringify({ [accountId]: state }));
             return;
         }
 
@@ -1002,11 +1003,11 @@ class ExtensionBase {
         const oldState = storageState[accountId];
         storageState[accountId] = Object.assign({}, oldState, state); // set new state
 
-        localStorage.setItem(this._accountToProjectKey, JSON.stringify(storageState));
+        localStorage.setItem(this._accountToProjectMap, JSON.stringify(storageState));
     }
 
     private getAccountToProjectMapFromLocalStorage(accountId: number): Models.IMap {
-        const storage = localStorage.getItem(this._accountToProjectKey);
+        const storage = localStorage.getItem(this._accountToProjectMap);
         if (!storage) {
             return;
         }
@@ -1020,13 +1021,13 @@ class ExtensionBase {
     }
 
     private removeMappedProjectFromLocalStorage(accountId: number, projectName: string) {
-        const storage = localStorage.getItem(this._accountToProjectKey);
+        const storage = localStorage.getItem(this._accountToProjectMap);
         if (!storage) {
             return;
         }
 
         let storageState = JSON.parse(storage);
         delete storageState[accountId][projectName];
-        localStorage.setItem(this._accountToProjectKey, JSON.stringify(storageState));
+        localStorage.setItem(this._accountToProjectMap, JSON.stringify(storageState));
     }
 }
