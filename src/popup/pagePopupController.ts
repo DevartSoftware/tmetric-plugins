@@ -16,20 +16,23 @@
     /**
      * @override
      */
-    getDefaultProjectSelectionOption(issue: WebToolIssueTimer, canCreateProjects: boolean): number {
-        return canCreateProjects && issue.projectName
-            ? this.createNewProjectOption.id
-            : this.selectProjectOption.id;
-    }
+    getDefaultProjectSelectionOption(issue: WebToolIssueTimer, canCreateProjects: boolean, accountToProjectMap: Models.IMap): number {
+        if (!canCreateProjects) {
+            return this.selectProjectOption.id;
+        }
 
-    /**
-     * @override
-     * @param timer
-     * @param originalTimer
-     */
-    putTimer(timer: WebToolIssueTimer, originalTimer?: WebToolIssueTimer) {
-        this.putTimerAction([timer, originalTimer]);
-        this.close();
+        if (issue.projectName) {
+            if (accountToProjectMap) {
+                let mappedProjectId = accountToProjectMap[issue.projectName];
+                if (mappedProjectId) {
+                    return mappedProjectId;
+                }
+            }
+
+            return this.createNewProjectOption.id;
+        }
+
+        return this.selectProjectOption.id;
     }
 
     private initFrame() {

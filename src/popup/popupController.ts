@@ -13,10 +13,10 @@
                     this.switchState(this._states.fixing);
                 } else if (!suppressViewState && data.timer && data.timer.isStarted) {
                     this.fillViewForm(data.timer);
-                    this.fillCreateForm();
+                    this.fillCreateForm(data.accountToProjectMap);
                     this.switchState(this._states.viewing);
                 } else {
-                    this.fillCreateForm();
+                    this.fillCreateForm(data.accountToProjectMap);
                     this.switchState(this._states.creating);
                 }
             })
@@ -67,9 +67,10 @@
         }
     }
 
-    putTimer(timer: WebToolIssueTimer, originalTimer?: WebToolIssueTimer) {
-        this.putTimerAction([timer]);
-        this.close();
+    putTimer(timer: WebToolIssueTimer) {
+        return this.putTimerAction(timer).then(() => {
+            this.close();
+        });
     }
 
     private compareTags(t1: Models.Tag, t2: Models.Tag) {
@@ -114,7 +115,8 @@
     isConnectionRetryEnabledAction = this.wrapBackgroundAction<void, boolean>('isConnectionRetryEnabled');
     retryAction = this.wrapBackgroundAction<void, void>('retry');
     fixTimerAction = this.wrapBackgroundAction<void, void>('fixTimer');
-    putTimerAction = this.wrapBackgroundAction<WebToolIssueTimer[], void>('putTimer');
+    putTimerAction = this.wrapBackgroundAction<WebToolIssueTimer, void>('putTimer');
+    saveAccountToProjectMapAction = this.wrapBackgroundAction<{ projectName: string, projectId: number }, void>('saveAccountToProjectMap')
 
     // ui mutations
 
@@ -192,10 +194,10 @@
         }
     }
 
-    fillCreateForm() {
+    fillCreateForm(accountToProjectMap: Models.IMap) {
         // force focus on current window (for Firefox)
         $(window).focus();
-        this.initProjectSelector(this._forms.create + ' .project .input', this.makeProjectItems());
+        this.initProjectSelector(this._forms.create + ' .project .input', this.makeProjectItems(), accountToProjectMap);
         $(this._forms.create + ' .new-project .input').attr('maxlength', Models.Limits.maxProjectName);
 
         this.initTagSelector(this._forms.create + ' #tag-selector', this.makeTagItems(), this.makeTagSelectedItems(), this._canCreateTags);
@@ -414,16 +416,16 @@
         return this._newIssue.tagNames || [];
     }
 
-    getDefaultProjectSelectionOption(issue: WebToolIssueTimer, canCreateProjects: boolean): number {
+    getDefaultProjectSelectionOption(issue: WebToolIssueTimer, canCreateProjects: boolean, accountToProjectMap: Models.IMap): number {
         return this.selectProjectOption.id;
     }
 
-    initProjectSelector(selector: string, items: IdTextPair[]) {
+    initProjectSelector(selector: string, items: IdTextPair[], accountToProjectMap: Models.IMap) {
         let select2 = $(selector).select2({
             data: items,
             templateSelection: (options) => this.formatSelectedProject(options),
             templateResult: (options) => this.formatProjectItem(options)
-        }).val(this.getDefaultProjectSelectionOption(this._newIssue, this._canCreateProjects).toString()).trigger('change');
+        }).val(this.getDefaultProjectSelectionOption(this._newIssue, this._canCreateProjects, accountToProjectMap).toString()).trigger('change');
         (<Select2SelectionObject>$(this._forms.create + ' .project .input').select2('data')[0]).selected = true;
     }
 
@@ -633,7 +635,16 @@
         timer.tagNames = $(this._forms.create + ' .tags .input').select().val() || [];
 
         // Put timer
-        this.putTimer(timer, Object.assign({}, this._newIssue));
+        this.putTimer(timer).then(() => {
+            let projectName = this._newIssue.projectName;
+            if (!projectName || !timer.projectName) {
+                return;
+            }
+
+            let projectId = this._projects.filter(_ => _.projectName == timer.projectName)[0].projectId;
+
+            this.saveAccountToProjectMapAction({ projectName, projectId });
+        });
     }
 
     private onStopClick() {
