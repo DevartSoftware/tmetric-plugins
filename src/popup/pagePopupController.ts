@@ -17,9 +17,6 @@
      * @override
      */
     getDefaultProjectSelectionOption(issue: WebToolIssueTimer, canCreateProjects: boolean, accountToProjectMap: Models.IMap): number {
-        if (!canCreateProjects) {
-            return this.selectProjectOption.id;
-        }
 
         if (issue.projectName) {
             if (accountToProjectMap) {
@@ -29,7 +26,9 @@
                 }
             }
 
-            return this.createNewProjectOption.id;
+            if (canCreateProjects) {
+                return this.createNewProjectOption.id;
+            }
         }
 
         return this.selectProjectOption.id;
