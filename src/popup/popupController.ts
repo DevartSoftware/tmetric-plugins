@@ -633,10 +633,10 @@
         let selectedProject = <Select2SelectionObject>$(this._forms.create + ' .project .input').select2('data')[0];
         if (!selectedProject || !selectedProject.selected || !Number(selectedProject.id)) {
             timer.projectName = ''; // No project
-        } else if (<any>selectedProject.id > 0) {
+        } else if (Number(selectedProject.id) > 0) {
             timer.projectName = selectedProject.text; // Existing project
         } else {
-            timer.projectName = $.trim($(this._forms.create + ' .new-project .indefaultput').val()); // New project
+            timer.projectName = $.trim($(this._forms.create + ' .new-project .input').val()); // New project
         }
 
         // Set description and tags
