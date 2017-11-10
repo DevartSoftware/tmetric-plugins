@@ -261,6 +261,10 @@ class ExtensionBase {
                 this.putExternalTimer(message.data, tabId);
                 break;
 
+            case 'forcePutTimer':
+                this.putExternalTimer(this._newPopupIssue, null, true);
+                break;
+
             case 'getIssuesDurations':
                 this.getIssuesDurations(message.data).then(durations => {
 
@@ -368,7 +372,7 @@ class ExtensionBase {
         });
     }
 
-    private putExternalTimer(timer: WebToolIssueTimer, tabId?: number) {
+    private putExternalTimer(timer: WebToolIssueTimer, tabId?: number, mutePopup = false) {
 
         let showPopup = false;
         let status: Models.IntegratedProjectStatus;
@@ -405,6 +409,7 @@ class ExtensionBase {
 
                         if (!tabId ||
                             !timer.isStarted ||
+                            mutePopup ||
                             (timer.projectName && this._projects.filter(_ => _.projectName.toLowerCase() == timer.projectName.toLowerCase()).length)) {
 
                             return this.connection.putExternalTimer(timer);
