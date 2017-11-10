@@ -33,12 +33,7 @@
             display: 'block'
         });
 
-        // iframe does not work in frameset.
-        if (document.body.nodeName == 'FRAMESET') {
-            sendBackgroundMessage({ action: 'forcePutTimer' });
-        } else {
-            document.body.appendChild(iframe);
-        }
+        document.body.appendChild(iframe);
     }
 
     const hidePopup = () => {

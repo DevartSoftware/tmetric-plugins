@@ -262,7 +262,7 @@ class ExtensionBase {
                 break;
 
             case 'forcePutTimer':
-                this.putExternalTimer(this._newPopupIssue, null, true);
+                this.putExternalTimer(message.data, tabId, true);
                 break;
 
             case 'getIssuesDurations':
