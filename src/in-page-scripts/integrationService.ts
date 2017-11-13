@@ -243,7 +243,7 @@
         newLink.href = '#';
         newLink.title = 'Track spent time via TMetric service';
         newLink.onclick = function () {
-            window.frameElement ?
+            window.frameElement.tagName == 'FRAME' ?
                 sendBackgroundMessage({ action: 'forcePutTimer', data: newIssueTimer }) :
                 sendBackgroundMessage({ action: 'putTimer', data: newIssueTimer });
             return false;
