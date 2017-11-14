@@ -421,16 +421,11 @@
     initProjectSelector(selector: string, items: IdTextPair[], defaultProjectId: number) {
 
         if (!defaultProjectId) {
-            if (this._canCreateProjects) {
-                defaultProjectId = this._newIssue.projectName ? this.createProjectOption.id : this.noProjectOption.id;
-            } else {
-                defaultProjectId = this.noProjectOption.id;
-            }
-        }
-
-        // No project by default for toolbar popup
-        if (!this.isPagePopup) {
             defaultProjectId = this.noProjectOption.id;
+
+            if (this.isPagePopup && this._canCreateProjects && this._newIssue.projectName) {
+                defaultProjectId = this.createProjectOption.id;
+            }
         }
 
         $(selector)
