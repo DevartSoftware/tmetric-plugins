@@ -433,7 +433,7 @@
             defaultProjectId = this.noProjectOption.id;
         }
 
-        let select2 = $(selector)
+        $(selector)
             .select2({
                 data: items,
                 templateSelection: (options) => this.formatSelectedProject(options),
@@ -443,8 +443,7 @@
             .trigger('change');
 
         let data: Select2SelectionObject[] = $(selector).select2('data');
-        let selectedIndex = items.findIndex(item => item.id == defaultProjectId);
-        let selectedItem = data[selectedIndex];
+        let selectedItem = data[0];
         if (selectedItem) {
             selectedItem.selected = true;
         }
