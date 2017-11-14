@@ -421,9 +421,16 @@
     initProjectSelector(selector: string, items: IdTextPair[], defaultProjectId: number) {
 
         if (!defaultProjectId) {
-            this.isPagePopup ?
-                defaultProjectId = this._canCreateProjects ? this.createProjectOption.id : this.noProjectOption.id :
+            if (this._canCreateProjects) {
+                defaultProjectId = this._newIssue.projectName ? this.createProjectOption.id : this.noProjectOption.id;
+            } else {
                 defaultProjectId = this.noProjectOption.id;
+            }
+        }
+
+        // No project by default for toolbar popup
+        if (!this.isPagePopup) {
+            defaultProjectId = this.noProjectOption.id;
         }
 
         let select2 = $(selector)
