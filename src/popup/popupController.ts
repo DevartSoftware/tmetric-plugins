@@ -40,6 +40,8 @@
     private _canCreateTags: boolean;
     private _newIssue: WebToolIssueTimer;
 
+    protected isPagePopup = false;
+
     callBackground(request: IPopupRequest): Promise<IPopupResponse> {
         return new Promise((resolve, reject) => {
             chrome.runtime.sendMessage(request, (response: IPopupResponse) => {
@@ -419,7 +421,9 @@
     initProjectSelector(selector: string, items: IdTextPair[], defaultProjectId: number) {
 
         if (!defaultProjectId) {
-            defaultProjectId = this._canCreateProjects ? this.createProjectOption.id : this.noProjectOption.id;
+            this.isPagePopup ?
+                defaultProjectId = this._canCreateProjects ? this.createProjectOption.id : this.noProjectOption.id :
+                defaultProjectId = this.noProjectOption.id;
         }
 
         let select2 = $(selector)
