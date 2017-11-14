@@ -25,8 +25,13 @@
         var issueName = $$.try('.subject').textContent;
 
         var issueId = $$.try('#ticket-display-id').textContent;
+        if (issueId) {
+            issueId = issueId.replace('#', '');
+        }
+
+        var issueUrl = '/a/tickets/' + issueId;
+
         var serviceUrl = source.protocol + source.host;
-        var issueUrl = '/a/tickets/' + issueId.replace('#', '');
 
         var projectName = $$.try('.default_product .select2-chosen').textContent;
 
