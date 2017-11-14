@@ -437,6 +437,8 @@
             .val(defaultProjectId.toString())
             .trigger('change');
 
+        // Force set selected flag in true value for default project.
+        // Because select2 does not do it itself.
         let data: Select2SelectionObject[] = $(selector).select2('data');
         let selectedItem = data[0];
         if (selectedItem) {
