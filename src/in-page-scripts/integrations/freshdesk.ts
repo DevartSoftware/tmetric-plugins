@@ -8,12 +8,12 @@
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
-        var host = $$('.ticket-actions > ul');
+        let host = $$('.ticket-actions > ul');
         if (host) {
 
             linkElement.classList.add('btn');
 
-            var container = $$.create('li', 'ticket-btns');
+            let container = $$.create('li', 'ticket-btns');
             container.appendChild(linkElement);
             host.appendChild(container);
         }
@@ -21,22 +21,21 @@
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        //https://company.freshdesk.com/helpdesk/tickets/1
-        var issueName = $$.try('.subject').textContent;
+        // https://company.freshdesk.com/helpdesk/tickets/1
+        let issueName = $$.try('.subject').textContent;
+        let issueUrl: string;
 
-        var issueId = $$.try('#ticket-display-id').textContent;
+        let issueId = $$.try('#ticket-display-id').textContent;
         if (issueId) {
             issueId = issueId.replace('#', '');
+            issueUrl = '/a/tickets/' + issueId;
         }
 
-        var issueUrl = '/a/tickets/' + issueId;
+        let serviceUrl = source.protocol + source.host;
 
-        var serviceUrl = source.protocol + source.host;
-
-        var projectName = $$.try('.default_product .select2-chosen').textContent;
-
+        let projectName = $$.try('.default_product .select2-chosen').textContent;
         if (projectName === '...') {
-            projectName = "";
+            projectName = '';
         }
 
         return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Freshdesk' };
@@ -53,7 +52,7 @@ class NewFreshdesk implements WebToolIntegration {
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
-        var host = $$('.page-actions__left');
+        let host = $$('.page-actions__left');
         if (host) {
             let container = $$.create('button',
                 'app-icon-btn', 'app-icon-btn--text', 'devart-timer-link-freshdesk'
@@ -65,8 +64,8 @@ class NewFreshdesk implements WebToolIntegration {
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        //https://company.freshdesk.com/a/tickets/1
-        var issueName = $$.try('.description-subject').textContent;
+        // https://company.freshdesk.com/a/tickets/1
+        let issueName = $$.try('.description-subject').textContent;
 
         let issueId: string;
         let issueUrl: string;
@@ -77,7 +76,7 @@ class NewFreshdesk implements WebToolIntegration {
             issueId = matches[1];
         }
 
-        var serviceUrl = source.protocol + source.host;
+        let serviceUrl = source.protocol + source.host;
 
         let projectName: string;
 
