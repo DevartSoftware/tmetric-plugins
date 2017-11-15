@@ -54,11 +54,9 @@ class NewFreshdesk implements WebToolIntegration {
 
         let host = $$('.page-actions__left');
         if (host) {
-            let container = $$.create('button',
-                'app-icon-btn', 'app-icon-btn--text', 'devart-timer-link-freshdesk'
-            );
-            container.appendChild(linkElement);
-            host.appendChild(container);
+            // Not to wrape in button tag, because new freshdesk listen all elements on the page
+            // and does not allow to trigger link element click.
+            host.appendChild(linkElement);
         }
     }
 
