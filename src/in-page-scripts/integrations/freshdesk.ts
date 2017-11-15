@@ -55,9 +55,12 @@ class NewFreshdesk implements WebToolIntegration {
         let host = $$('.page-actions__left');
         if (host) {
             linkElement.classList.add('app-icon-btn', 'app-icon-btn--text', 'devart-timer-link-freshdesk');
-            (<HTMLElement>linkElement.children[0]).style.display = (<HTMLElement>linkElement.children[1]).style.display = 'table-cell';
-            (<HTMLElement>linkElement.children[0]).style.verticalAlign = (<HTMLElement>linkElement.children[1]).style.verticalAlign = 'middle';
             linkElement.style.display = 'inline-table';
+            for (let i = 0; i < linkElement.children.length; i++) {
+                let style = (<HTMLElement>linkElement.children[i]).style;
+                style.display = 'table-cell';
+                style.verticalAlign = 'middle';
+            }
             host.appendChild(linkElement);
         }
     }
