@@ -54,9 +54,10 @@ class NewFreshdesk implements WebToolIntegration {
 
         let host = $$('.page-actions__left');
         if (host) {
-            // Only in Firefox.
-            // Not to wrape in button tag, because new freshdesk listen all elements on the page
-            // and does not trigger link element click.
+            linkElement.classList.add('app-icon-btn', 'app-icon-btn--text', 'devart-timer-link-freshdesk');
+            (<HTMLElement>linkElement.children[0]).style.display = (<HTMLElement>linkElement.children[1]).style.display = 'table-cell';
+            (<HTMLElement>linkElement.children[0]).style.verticalAlign = (<HTMLElement>linkElement.children[1]).style.verticalAlign = 'middle';
+            linkElement.style.display = 'inline-table';
             host.appendChild(linkElement);
         }
     }
