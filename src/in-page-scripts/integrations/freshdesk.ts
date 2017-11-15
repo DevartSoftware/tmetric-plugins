@@ -54,8 +54,9 @@ class NewFreshdesk implements WebToolIntegration {
 
         let host = $$('.page-actions__left');
         if (host) {
+            // Only in Firefox.
             // Not to wrape in button tag, because new freshdesk listen all elements on the page
-            // and does not allow to trigger link element click.
+            // and does not trigger link element click.
             host.appendChild(linkElement);
         }
     }
