@@ -58,12 +58,10 @@
         } else if (issueType == 'pull-requests') {
             issueId = '!' + issueNumber;
 
-            // <div class="pull-request-title">
-            //      <h1>
-            //          PULL_REQUEST_NAME
-            //      </h1>
-            // </div>
-            issueName = $$.try('.pull-request-title h1').textContent;
+            // <span class="pull-request-title">
+            //      PULL_REQUEST_NAME
+            // </span>
+            issueName = $$.try('.pull-request-title').textContent;
         }
 
         if (!issueName) {
@@ -74,7 +72,7 @@
         //   <a href="/account/user/almtoolsteam/projects/CR" > Code Review< /a>
         // </li>
         var projectName = $$.try(
-            '.aui-page-panel .aui-nav-selected a',
+            '.aui-nav-selected a',
             null,
             el => /.+\/projects\/.+/.test(el.getAttribute('href'))
         ).textContent;

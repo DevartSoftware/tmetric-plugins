@@ -224,6 +224,10 @@ class ExtensionBase {
             this.sendToTabs({ action: 'hidePopup' });
             return Promise.resolve(null);
         });
+        this.listenPopupAction<{ projectName: string, projectId: number }, void>('saveProjectMap', ({ projectName, projectId }) => {
+            this.setProjectMap(this._userProfile.activeAccountId, projectName, projectId);
+            return Promise.resolve(null);
+        });
 
         this.registerTabsUpdateListener();
         this.registerTabsRemoveListener();
@@ -255,6 +259,10 @@ class ExtensionBase {
 
             case 'putTimer':
                 this.putExternalTimer(message.data, tabId);
+                break;
+
+            case 'forcePutTimer':
+                this.putExternalTimer(message.data, tabId, true);
                 break;
 
             case 'getIssuesDurations':
@@ -364,7 +372,7 @@ class ExtensionBase {
         });
     }
 
-    private putExternalTimer(timer: WebToolIssueTimer, tabId?: number) {
+    private putExternalTimer(timer: WebToolIssueTimer, tabId?: number, mutePopup = false) {
 
         let showPopup = false;
         let status: Models.IntegratedProjectStatus;
@@ -401,6 +409,7 @@ class ExtensionBase {
 
                         if (!tabId ||
                             !timer.isStarted ||
+                            mutePopup ||
                             (timer.projectName && this._projects.filter(_ => _.projectName.toLowerCase() == timer.projectName.toLowerCase()).length)) {
 
                             return this.connection.putExternalTimer(timer);
@@ -725,23 +734,43 @@ class ExtensionBase {
                 let isAdmin = (userRole == Models.ServiceRole.Admin || userRole == Models.ServiceRole.Owner);
 
                 let defaultWorkType = this.getDefaultWorkType();
-                let newIssue = this._newPopupIssue || {
+                let newIssue = this._newPopupIssue || <WebToolIssueTimer>{ // _newPopupIssue is null if called from toolbar popup
+                    isStarted: true,
+                    issueName: title,
                     description: title,
                     tagNames: defaultWorkType ? [defaultWorkType.tagName] : []
                 };
+
+                let filteredProjects = this._projects
+                    .filter(project => project.projectStatus == Models.ProjectStatus.Open)
+                    .sort((a, b) => a.projectName.localeCompare(b.projectName, [], { sensitivity: 'base' }));
+
+                const projectMap = this.getProjectMap(activeAccountId);
+
+                // Determine default project
+                let defaultProjectId = <number>null;
+                if (projectMap && newIssue.projectName) {
+                    defaultProjectId = projectMap[newIssue.projectName];
+
+                    // Remove mapped project from localstorage if project was deleted/closed
+                    if (defaultProjectId && filteredProjects.every(_ => _.projectId != defaultProjectId)) {
+                        this.setProjectMap(activeAccountId, newIssue.projectName, null);
+                        defaultProjectId = null;
+                    }
+                }
+
                 this._newPopupIssue = null;
 
                 resolve(<IPopupInitData>{
                     timer: this._timer,
                     newIssue,
                     timeFormat: this._userProfile && this._userProfile.timeFormat,
-                    projects: this._projects
-                        .filter(project => project.projectStatus == Models.ProjectStatus.Open)
-                        .sort((a, b) => a.projectName.localeCompare(b.projectName, [], { sensitivity: 'base' })),
+                    projects: filteredProjects,
                     tags: this._tags,
                     canCreateProjects: isAdmin || canMembersManagePublicProjects,
                     canCreateTags,
-                    constants: this._constants
+                    constants: this._constants,
+                    defaultProjectId
                 });
             });
         });
@@ -967,5 +996,37 @@ class ExtensionBase {
 
             senderResponse(null);
         });
+    }
+
+    accountToProjectMap: {
+        [accountId: number]: {
+            [key: string]: number
+        }
+    };
+
+    accountToProjectMapKey = 'accountToProjectMap';
+
+    private setProjectMap(accountId: number, projectName: string, projectId: number) {
+
+        let map = this.getProjectMap(accountId);
+        if (projectId) {
+            map = map || {};
+            map[projectName] = projectId;
+            this.accountToProjectMap[accountId] = map;
+        } else if (map) {
+            delete map[projectName];
+        }
+
+        localStorage.setItem(this.accountToProjectMapKey, JSON.stringify(this.accountToProjectMap));
+    }
+
+    private getProjectMap(accountId: number) {
+
+        if (!this.accountToProjectMap) {
+            const obj = localStorage.getItem(this.accountToProjectMapKey);
+            this.accountToProjectMap = obj ? JSON.parse(obj) : {};
+        }
+
+        return this.accountToProjectMap[accountId];
     }
 }

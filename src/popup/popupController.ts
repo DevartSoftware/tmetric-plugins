@@ -13,10 +13,10 @@
                     this.switchState(this._states.fixing);
                 } else if (!suppressViewState && data.timer && data.timer.isStarted) {
                     this.fillViewForm(data.timer);
-                    this.fillCreateForm();
+                    this.fillCreateForm(data.defaultProjectId);
                     this.switchState(this._states.viewing);
                 } else {
-                    this.fillCreateForm();
+                    this.fillCreateForm(data.defaultProjectId);
                     this.switchState(this._states.creating);
                 }
             })
@@ -32,13 +32,15 @@
     }
 
     private _activeTimer: Models.Timer;
-    private _newIssue: WebToolIssueTimer;
     private _timeFormat: string;
     private _projects: Models.ProjectLite[];
     private _tags: Models.Tag[];
     private _constants: Models.Constants;
     private _canCreateProjects: boolean;
     private _canCreateTags: boolean;
+    private _newIssue: WebToolIssueTimer;
+
+    protected isPagePopup = false;
 
     callBackground(request: IPopupRequest): Promise<IPopupResponse> {
         return new Promise((resolve, reject) => {
@@ -68,8 +70,9 @@
     }
 
     putTimer(timer: WebToolIssueTimer) {
-        this.putTimerAction(timer);
-        this.close();
+        return this.putTimerAction(timer).then(() => {
+            this.close();
+        });
     }
 
     private compareTags(t1: Models.Tag, t2: Models.Tag) {
@@ -115,6 +118,7 @@
     retryAction = this.wrapBackgroundAction<void, void>('retry');
     fixTimerAction = this.wrapBackgroundAction<void, void>('fixTimer');
     putTimerAction = this.wrapBackgroundAction<WebToolIssueTimer, void>('putTimer');
+    saveProjectMapAction = this.wrapBackgroundAction<{ projectName: string, projectId: number }, void>('saveProjectMap')
 
     // ui mutations
 
@@ -192,10 +196,10 @@
         }
     }
 
-    fillCreateForm() {
+    fillCreateForm(defaultProjectId: number) {
         // force focus on current window (for Firefox)
         $(window).focus();
-        this.initProjectSelector(this._forms.create + ' .project .input', this.makeProjectItems());
+        this.initProjectSelector(this._forms.create + ' .project .input', this.makeProjectItems(), defaultProjectId);
         $(this._forms.create + ' .new-project .input').attr('maxlength', Models.Limits.maxProjectName);
 
         this.initTagSelector(this._forms.create + ' #tag-selector', this.makeTagItems(), this.makeTagSelectedItems(), this._canCreateTags);
@@ -360,16 +364,16 @@
         return container;
     }
 
-    private _selectProjectOption: IdTextPair = { id: 0, text: 'No project' };
+    private noProjectOption: IdTextPair = { id: 0, text: 'No project' };
 
-    private _createNewProjectOption: IdTextPair = { id: -1, text: 'New project' };
+    private createProjectOption: IdTextPair = { id: -1, text: 'New project' };
 
     makeProjectItems() {
         let projects = <IdTextPair[]>[];
         if (this._canCreateProjects) {
-            projects.push(this._createNewProjectOption);
+            projects.push(this.createProjectOption);
         }
-        projects.push(this._selectProjectOption);
+        projects.push(this.noProjectOption);
         return projects.concat(this._projects.map(project => {
             return <IdTextPair>{ id: project.projectId, text: project.projectName };
         }));
@@ -414,12 +418,32 @@
         return this._newIssue.tagNames || [];
     }
 
-    initProjectSelector(selector: string, items: IdTextPair[]) {
-        $(selector).select2({
-            data: items,
-            templateSelection: (options) => this.formatSelectedProject(options),
-            templateResult: (options) => this.formatProjectItem(options)
-        }).val(this._selectProjectOption.id).trigger('change');
+    initProjectSelector(selector: string, items: IdTextPair[], defaultProjectId: number) {
+
+        if (!defaultProjectId) {
+            defaultProjectId = this.noProjectOption.id;
+
+            if (this.isPagePopup && this._canCreateProjects && this._newIssue.projectName) {
+                defaultProjectId = this.createProjectOption.id;
+            }
+        }
+
+        $(selector)
+            .select2({
+                data: items,
+                templateSelection: (options) => this.formatSelectedProject(options),
+                templateResult: (options) => this.formatProjectItem(options)
+            })
+            .val(defaultProjectId.toString())
+            .trigger('change');
+
+        // Force set selected flag in true value for default project.
+        // Because select2 does not do it itself.
+        let data: Select2SelectionObject[] = $(selector).select2('data');
+        let selectedItem = data[0];
+        if (selectedItem) {
+            selectedItem.selected = true;
+        }
     }
 
     private formatProjectItem(data: Select2SelectionObject) {
@@ -614,9 +638,9 @@
 
         // Set project
         let selectedProject = <Select2SelectionObject>$(this._forms.create + ' .project .input').select2('data')[0];
-        if (!selectedProject || !selectedProject.selected || !selectedProject.id) {
+        if (!selectedProject || !selectedProject.selected || !Number(selectedProject.id)) {
             timer.projectName = ''; // No project
-        } else if (<any>selectedProject.id > 0) {
+        } else if (Number(selectedProject.id) > 0) {
             timer.projectName = selectedProject.text; // Existing project
         } else {
             timer.projectName = $.trim($(this._forms.create + ' .new-project .input').val()); // New project
@@ -628,7 +652,15 @@
         timer.tagNames = $(this._forms.create + ' .tags .input').select().val() || [];
 
         // Put timer
-        this.putTimer(timer);
+        this.putTimer(timer).then(() => {
+            let projectName = this._newIssue.projectName;
+            if (projectName && timer.projectName != projectName) {
+                let project = this._projects.find(_ => _.projectName == timer.projectName);
+                if (project) {
+                    this.saveProjectMapAction({ projectName, projectId: project.projectId });
+                }
+            }
+        });
     }
 
     private onStopClick() {

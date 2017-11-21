@@ -39,10 +39,8 @@
         })[0];
         var projectNameField = projectNameCell && $$('.field', projectNameCell);
         if (projectNameField) {
-            var projectNameSelect = <HTMLSelectElement>$$('select', projectNameField);
-            var projectName = projectNameSelect ?
-                (projectNameSelect.options[projectNameSelect.selectedIndex] || <Element>{}).textContent : // edit form
-                projectNameField.textContent; // view form
+            var projectName = $$.try<HTMLInputElement>('input', projectNameField).value // edit form
+                || projectNameField.textContent; // view form
         }
 
         var serviceType = 'Axosoft';

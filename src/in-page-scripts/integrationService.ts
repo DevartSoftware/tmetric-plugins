@@ -243,7 +243,9 @@
         newLink.href = '#';
         newLink.title = 'Track spent time via TMetric service';
         newLink.onclick = function () {
-            sendBackgroundMessage({ action: 'putTimer', data: newIssueTimer });
+            window.frameElement && window.frameElement.tagName == 'FRAME' ?
+                sendBackgroundMessage({ action: 'forcePutTimer', data: newIssueTimer }) :
+                sendBackgroundMessage({ action: 'putTimer', data: newIssueTimer });
             return false;
         };
         let spanWithIcon = document.createElement('span');

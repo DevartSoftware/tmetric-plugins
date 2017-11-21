@@ -46,4 +46,5 @@ interface IPopupInitData {
     constants: Models.Constants;
     canCreateProjects: boolean;
     canCreateTags: boolean;
+    defaultProjectId: number;
 }

@@ -8,12 +8,12 @@
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
-        var host = $$('.ticket-actions > ul');
+        let host = $$('.ticket-actions > ul');
         if (host) {
 
             linkElement.classList.add('btn');
 
-            var container = $$.create('li', 'ticket-btns');
+            let container = $$.create('li', 'ticket-btns');
             container.appendChild(linkElement);
             host.appendChild(container);
         }
@@ -21,20 +21,24 @@
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        //https://company.freshdesk.com/helpdesk/tickets/1
-        var issueName = $$.try('.subject').textContent;
+        // https://company.freshdesk.com/helpdesk/tickets/1
+        let issueName = $$.try('.subject').textContent;
+        let issueUrl: string;
 
-        var issueId = $$.try('#ticket-display-id').textContent;
-        var serviceUrl = source.protocol + source.host;
-        var issueUrl = source.path;
-
-        var projectName = $$.try('.default_product .select2-chosen').textContent;
-
-        if (projectName === '...') {
-            projectName = "";
+        let issueId = $$.try('#ticket-display-id').textContent;
+        if (issueId) {
+            issueId = issueId.replace('#', '');
+            issueUrl = '/a/tickets/' + issueId;
         }
 
-        return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'OldFreshdesk' };
+        let serviceUrl = source.protocol + source.host;
+
+        let projectName = $$.try('.default_product .select2-chosen').textContent;
+        if (projectName === '...') {
+            projectName = '';
+        }
+
+        return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Freshdesk' };
     }
 }
 
@@ -48,20 +52,23 @@ class NewFreshdesk implements WebToolIntegration {
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
-        var host = $$('.page-actions__left');
+        let host = $$('.page-actions__left');
         if (host) {
-            let container = $$.create('button',
-                'app-icon-btn', 'app-icon-btn--text', 'devart-timer-link-freshdesk'
-            );
-            container.appendChild(linkElement);
-            host.appendChild(container);
+            linkElement.classList.add('app-icon-btn', 'app-icon-btn--text', 'devart-timer-link-freshdesk');
+            linkElement.style.display = 'inline-table';
+            for (let i = 0; i < linkElement.children.length; i++) {
+                let style = (<HTMLElement>linkElement.children[i]).style;
+                style.display = 'table-cell';
+                style.verticalAlign = 'middle';
+            }
+            host.appendChild(linkElement);
         }
     }
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        //https://company.freshdesk.com/a/tickets/1
-        var issueName = $$.try('.description-subject').textContent;
+        // https://company.freshdesk.com/a/tickets/1
+        let issueName = $$.try('.description-subject').textContent;
 
         let issueId: string;
         let issueUrl: string;
@@ -72,7 +79,7 @@ class NewFreshdesk implements WebToolIntegration {
             issueId = matches[1];
         }
 
-        var serviceUrl = source.protocol + source.host;
+        let serviceUrl = source.protocol + source.host;
 
         let projectName: string;
 
@@ -86,7 +93,7 @@ class NewFreshdesk implements WebToolIntegration {
             projectName = '';
         }
 
-        return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'NewFreshdesk' };
+        return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Freshdesk' };
     }
 }
 
