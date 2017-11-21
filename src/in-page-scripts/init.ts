@@ -1,3 +1,3 @@
-﻿if (typeof document != 'undefined' && typeof window.initPage == 'function') {
+﻿if (typeof window != 'undefined' && window.initPage) {
     window.initPage();
 }
