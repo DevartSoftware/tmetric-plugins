@@ -1,4 +1,4 @@
 @echo off
 cd /d %~dp0
 
-call gulp version --version=2.3.1
+call gulp version --version=2.3.2

@@ -7,12 +7,15 @@
         "removeComments": true
     },
     "files": [
+        "typings/chrome/index.d.ts",
+        "typings/filesystem/index.d.ts",
+        "typings/filewriter/index.d.ts",
+        "typings/jquery/index.d.ts",
+        "typings/select2/index.d.ts",
+        "typings/signalr/index.d.ts",
         "interfaces/models.d.ts",
         "interfaces/integrations.d.ts",
-        "interfaces/browser.d.ts",
-        "interfaces/notification.d.ts",
         "interfaces/safari.d.ts",
-        "typings/tsd.d.ts",
         "background/chromeExtension.ts",
         "background/edgeExtension.ts",
         "background/extensionBase.ts",
