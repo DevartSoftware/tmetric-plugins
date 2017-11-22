@@ -1,11 +1,11 @@
 {
+    "compileOnSave": true,
     "compilerOptions": {
         "target": "es2015",
         "module": "none",
         "sourceMap": true,
         "noEmitOnError": true,
-        "removeComments": true,
-        "compileOnSave": false
+        "removeComments": true
     },
     "files": [
         "typings/chrome/index.d.ts",
