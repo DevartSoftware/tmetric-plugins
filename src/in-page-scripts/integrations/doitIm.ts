@@ -32,20 +32,9 @@
         let serviceUrl = matches[1];
         let issueUrl = matches[2];
         let issueId = matches[3];
-        let projectName: string;
 
-        // if task have no goal or project then items with selectors below will be available, but hidden
-        // and all of them will contain #false, @false or ''
-        if (
-            $$.all('.task-attr .goal, .task-attr .context, .task-attr .project')
-                .every(_ => ['#false', '@false'].indexOf(_.textContent) >= 0 || _.textContent == '')
-        ) {
-            projectName = '';
-        } else {
-            projectName = $$.try('.task-attr .goal').textContent ||
-                // returning textContent or '' below because of sometimes textContent is undefined
-                ($$.try('.task-attr .project').textContent || '').substring(1); // using substring because project name contains '#' as first letter
-        }
+        let projectElement = $$.visible('.task-attr .project, .task-attr .goal');
+        let projectName = projectElement && projectElement.textContent.replace(/^[#@]/, '');
 
         return { issueId, issueName, issueUrl, serviceUrl, projectName, serviceType: 'Doit.im' };
     }
