@@ -4,7 +4,8 @@
         "module": "none",
         "sourceMap": true,
         "noEmitOnError": true,
-        "removeComments": true
+        "removeComments": true,
+        "compileOnSave": false
     },
     "files": [
         "typings/chrome/index.d.ts",
@@ -30,6 +31,7 @@
         "in-page-scripts/integrations/bitbucket.ts",
         "in-page-scripts/integrations/bitrix24.ts",
         "in-page-scripts/integrations/bugzilla.ts",
+        "in-page-scripts/integrations/doitIm.ts",
         "in-page-scripts/integrations/freshdesk.ts",
         "in-page-scripts/integrations/gitHub.ts",
         "in-page-scripts/integrations/gitLab.ts",
