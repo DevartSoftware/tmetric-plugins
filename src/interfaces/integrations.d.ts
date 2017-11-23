@@ -44,7 +44,6 @@ interface WebToolIssue extends WebToolIssueIdentifier {
 interface WebToolIssueTimer extends WebToolIssue {
     isStarted: boolean;
     showIssueId?: boolean;
-    tagsIdentifiers?: number[]; // Legacy API
 }
 
 interface WebToolParsedIssue {
