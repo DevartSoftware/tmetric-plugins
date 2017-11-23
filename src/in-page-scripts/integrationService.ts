@@ -292,8 +292,8 @@
             return url;
         }
 
-        function normalizeName(issue: WebToolIssue) {
-            return (issue.issueName || '').trim();
+        function normalize(text: string) {
+            return (text || '').trim();
         }
 
         if (oldIssue === newIssue) {
@@ -302,7 +302,8 @@
 
         return oldIssue &&
             oldIssue.issueId == newIssue.issueId &&
-            normalizeName(oldIssue) == normalizeName(newIssue) &&
+            normalize(oldIssue.issueName) == normalize(newIssue.issueName) &&
+            normalize(oldIssue.description) == normalize(newIssue.description) &&
             normalizeServiceUrl(oldIssue) == normalizeServiceUrl(newIssue);
     }
 
@@ -397,6 +398,11 @@
             startedIssue = {
                 issueName: timer.details.description
             }
+        }
+
+        // Check description only in subtasks
+        if (issue.description) {
+            startedIssue.description = timer.details.description;
         }
 
         return this.isSameIssue(startedIssue, issue);

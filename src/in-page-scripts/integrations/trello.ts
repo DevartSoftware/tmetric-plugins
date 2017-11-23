@@ -4,9 +4,16 @@
 
     matchUrl = '*://trello.com/c/*';
 
+    issueElementSelector = [
+        '.js-plugin-buttons ~ .window-module > div',
+        '.checklist-item-details'
+    ];
+
+    observeMutations = true;
+
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        var host = $$('.js-plugin-buttons ~ .window-module > div');
-        if (host) {
+
+        if (issueElement.matches(this.issueElementSelector[0])) {
             // cut 'timer' so that time can be visible if we have time
             let text = linkElement.lastElementChild.textContent;
             if (/[0-9]/.test(text)) {
@@ -14,7 +21,10 @@
             }
             linkElement.classList.add('trello');
             linkElement.classList.add('button-link');
-            host.insertBefore(linkElement, host.firstElementChild);
+            issueElement.insertBefore(linkElement, issueElement.firstElementChild);
+        } else if (issueElement.matches(this.issueElementSelector[1])) { // for checklist
+            linkElement.classList.add('devart-timer-link-minimal', 'devart-timer-link-trello');
+            issueElement.insertBefore(linkElement, issueElement.nextElementSibling);
         }
     }
 
@@ -47,15 +57,19 @@
         //  </a>
         var projectName = $$.try('.board-header-btn-name > .board-header-btn-text').textContent;
 
-        var serviceType = 'Trello';
-
         var serviceUrl = source.protocol + source.host;
 
         var issueUrl = '/c/' + match[1];
 
         var tagNames = $$.all('.js-card-detail-labels-list .card-label').map(label => label.textContent);
 
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
+        let description: string;
+
+        if (issueElement.matches(this.issueElementSelector[1])) {
+            description = $$.try('.checklist-item-details-text', issueElement).textContent;
+        }
+
+        return { issueId, issueName, projectName, serviceType: 'Trello', serviceUrl, issueUrl, tagNames, description };
     }
 }
 

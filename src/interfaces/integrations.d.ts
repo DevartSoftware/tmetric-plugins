@@ -33,8 +33,9 @@ interface WebToolIssueDuration extends WebToolIssueIdentifier {
 }
 
 interface WebToolIssue extends WebToolIssueIdentifier {
-    issueName: string;
     issueId?: string;
+    issueName: string;
+    description?: string;
     serviceType?: string;
     projectName?: string;
     tagNames?: string[];
@@ -43,7 +44,6 @@ interface WebToolIssue extends WebToolIssueIdentifier {
 interface WebToolIssueTimer extends WebToolIssue {
     isStarted: boolean;
     showIssueId?: boolean;
-    description?: string;
     tagsIdentifiers?: number[]; // Legacy API
 }
 

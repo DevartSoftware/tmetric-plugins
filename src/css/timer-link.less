@@ -188,6 +188,21 @@
     float: right;
 }
 
+.devart-timer-link-trello {
+    margin-top: 5px;
+    opacity: 0;
+
+    .checklist-item:hover &:hover {
+        opacity: 1;
+        color: red;
+    }
+
+    .checklist-item:hover &:not(:hover) {
+        opacity: .54;
+        color: red;
+    }
+}
+
 .devart-timer-link-wunderlist-detail {
     .devart-timer-link-icon {
         border: 8px solid transparent;
