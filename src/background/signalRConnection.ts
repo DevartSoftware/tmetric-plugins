@@ -51,22 +51,21 @@
 
         this.waitAllRejects = (promises: Promise<any>[]) => new Promise((resolve, reject) => {
 
-            let error;
+            let error = null;
             let pendingCounter = promises.length;
 
-            const callback = err => {
-                if (err == null) {
-                    err = err;
-                }
-                pendingCounter--;
-                if (!pendingCounter && err != null) {
-                    reject(err);
-                }
-            }
-
             promises.forEach(p => p
-                .then(() => callback(null))
-                .catch((e) => callback(e != null ? e : "failed")));
+                .catch((e) => {
+                    if (error == null) {
+                        error = e != null ? e : 'failed';
+                    }
+                })
+                .then(() => {
+                    pendingCounter--;
+                    if (!pendingCounter && error != null) {
+                        reject(error);
+                    }
+                }));
 
             Promise.all(promises)
                 .then(r => resolve(r))
