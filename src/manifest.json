@@ -111,6 +111,7 @@
                 "in-page-scripts/integrations/taiga.js",
                 "in-page-scripts/integrations/teamweek.js",
                 "in-page-scripts/integrations/teamwork.js",
+                "in-page-scripts/integrations/testRail.js",
                 "in-page-scripts/integrations/tfs.js",
                 "in-page-scripts/integrations/todoist.js",
                 "in-page-scripts/integrations/trac.js",

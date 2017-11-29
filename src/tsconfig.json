@@ -5,7 +5,8 @@
         "module": "none",
         "sourceMap": true,
         "noEmitOnError": true,
-        "removeComments": true
+        "removeComments": true,
+        "experimentalDecorators": true
     },
     "files": [
         "typings/chrome/index.d.ts",
@@ -50,6 +51,7 @@
         "in-page-scripts/integrations/teamweek.ts",
         "in-page-scripts/integrations/teamwork.ts",
         "in-page-scripts/integrations/testLink.ts",
+        "in-page-scripts/integrations/testRail.ts",
         "in-page-scripts/integrations/tfs.ts",
         "in-page-scripts/integrations/todoist.ts",
         "in-page-scripts/integrations/trac.ts",
