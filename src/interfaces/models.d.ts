@@ -111,6 +111,7 @@ declare module Models {
 
     const enum ServiceRole {
         Member = 0,
+        Client = 1,
         Admin = 2,
         Owner = 3
     }
