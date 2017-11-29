@@ -5,8 +5,7 @@
         "module": "none",
         "sourceMap": true,
         "noEmitOnError": true,
-        "removeComments": true,
-        "experimentalDecorators": true
+        "removeComments": true
     },
     "files": [
         "typings/chrome/index.d.ts",
