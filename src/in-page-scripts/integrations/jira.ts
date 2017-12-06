@@ -60,26 +60,42 @@ class Jira extends JiraBase implements WebToolIntegration {
         // PROTOCOL = http://
         // HOST = devart.atlassian.net
         // PATH = /browse/TT-1
-        var issueName = $$.try('#summary-val').textContent;
+        let issueName = $$.try('#summary-val').textContent;
         if (!issueName) {
             return;
         }
 
-        var issueLink = $$('#key-val');
+        let issueLink = $$('#key-val');
         if (issueLink) {
             var issueId = issueLink.getAttribute('data-issue-key');
             var issueHref = issueLink.getAttribute('href');
         }
 
-        var projectName =
+        let projectName =
             $$.try('#project-name-val').textContent || // separate task view (/browse/... URL)
             $$.try('.project-title > a').textContent || // service desk
             $$.try('.sd-notify-header').textContent || // service desk form https://issues.apache.org/jira/servicedesk/agent/all
             $$.try('#navigation-app span[role="menuitem"] > span:nth-child(2) > span > span').textContent // for new design separate task view (/browse/... URL);
 
-        var { serviceUrl, issueUrl } = this.getUrls(source, issueHref);
+        if (!projectName) { // separate task view with side bar (TE-206)
 
-        var tagNames = $$.all('.labels .lozenge').map(label => label.textContent);
+            // Find avatar element
+            let avatarElement = $$(
+                '#navigation-app span[role="img"]',
+                null,
+                el => (el.style.backgroundImage || '').indexOf('projectavatar') >= 0);
+
+            // Find avatar container
+            let avatarContainer = avatarElement && $$.closest('span', avatarElement, el => !!el.nextElementSibling);
+
+            // Find text node in avatar container sibling
+            let projectNode = avatarContainer && $$.findNode('span', Node.TEXT_NODE, avatarContainer.nextElementSibling);
+            projectName = projectNode && projectNode.textContent;
+        }
+
+        let { serviceUrl, issueUrl } = this.getUrls(source, issueHref);
+
+        let tagNames = $$.all('.labels .lozenge').map(label => label.textContent);
 
         return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Jira', tagNames };
     }
