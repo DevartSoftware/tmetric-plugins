@@ -130,12 +130,15 @@ $$.getRelativeUrl = function (baseUrl: string, url: string) {
 };
 
 $$.findNode = (selector: string, nodeType: number, element?: NodeSelector) => {
-    let childNodes = $$.try(selector, element).childNodes;
-    if (childNodes) {
-        for (let i = 0; i < childNodes.length; i++) {
-            let node = childNodes[i];
-            if (node.nodeType == nodeType) {
-                return node;
+    let elements = $$.all(selector, element);
+    for (let el of elements) {
+        let childNodes = el.childNodes;
+        if (childNodes) {
+            for (let i = 0; i < childNodes.length; i++) {
+                let node = childNodes[i];
+                if (node.nodeType == nodeType) {
+                    return node;
+                }
             }
         }
     }
@@ -143,12 +146,15 @@ $$.findNode = (selector: string, nodeType: number, element?: NodeSelector) => {
 
 $$.findAllNodes = (selector: string, nodeType: number, element?: NodeSelector) => {
     let result = <Node[]>[];
-    let childNodes = $$.try(selector, element).childNodes;
-    if (childNodes) {
-        for (let i = 0; i < childNodes.length; i++) {
-            let node = childNodes[i];
-            if (nodeType == null || node.nodeType === nodeType) {
-                result.push(node);
+    let elements = $$.all(selector, element);
+    for (let el of elements) {
+        let childNodes = el.childNodes;
+        if (childNodes) {
+            for (let i = 0; i < childNodes.length; i++) {
+                let node = childNodes[i];
+                if (nodeType == null || node.nodeType === nodeType) {
+                    result.push(node);
+                }
             }
         }
     }
