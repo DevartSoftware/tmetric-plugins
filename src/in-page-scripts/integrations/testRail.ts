@@ -4,7 +4,7 @@
 
     observeMutations = true;
 
-    matchUrl = '*://*.testrail.io/index.php?/runs/view/*';
+    matchUrl = '*://*/index.php?/runs/view/*';
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
