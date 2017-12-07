@@ -72,7 +72,9 @@
         let serviceUrl = source.protocol + source.host;
         let issueUrl = 'showTask?id=' + issueNumber;
 
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+        let tagNames = $$.all('.labels_holder .label:not(.label_sep)', issueElement).map(label => label.textContent);
+
+        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
     }
 }
 
