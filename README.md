@@ -10,6 +10,7 @@ Web browsers are **Chrome**, **Firefox**, **Edge**, and **Opera**.
 * [Bitbucket](https://bitbucket.org)
 * [Bitrix24](https://www.bitrix24.com)
 * [Bugzilla](https://www.bugzilla.org)
+* [Doit.im](https://doit.im/)
 * [Freshdesk](https://freshdesk.com)
 * [G Suite](https://gsuite.google.com)
 * [GitHub](https://github.com)
@@ -26,10 +27,11 @@ Web browsers are **Chrome**, **Firefox**, **Edge**, and **Opera**.
 * [Teamweek](https://teamweek.com)
 * [Teamwork](https://www.teamwork.com)
 * [TestLink](http://testlink.org)
+* [TestRail](http://www.gurock.com/testrail/)
 * [Todoist](https://todoist.com)
 * [Trac](https://trac.edgewall.org)
 * [Trello](https://trello.com)
-* [UserEcho](http://userecho.com)
+* [UserEcho](https://userecho.com)
 * [UserVoice](https://www.uservoice.com)
 * [Visual Studio Online](https://www.visualstudio.com)
 * [Waffle](https://waffle.io)
@@ -50,7 +52,7 @@ Web browsers are **Chrome**, **Firefox**, **Edge**, and **Opera**.
  - [Node.js](https://nodejs.org) - JavaScript runtime built on Chrome's V8 JavaScript engine.
  - [Git](https://git-scm.com) - free and open source distributed version control system
 
-Project is using [gulp](http://gulpjs.com/) as a build system.
+Project is using [gulp](https://gulpjs.com/) as a build system.
 
 To build extensions from sources you need:
 1. Install required `npm` packages.
