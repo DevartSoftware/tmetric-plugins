@@ -1,3 +1,6 @@
+///<reference path="../../interfaces/integrations.d.ts"/>
+///<reference path="../integrationService.ts"/>
+///<reference path="../utils.ts"/>
 class Pipedrive implements WebToolIntegration {
     showIssueId: boolean;
 
@@ -23,7 +26,7 @@ class Pipedrive implements WebToolIntegration {
      */
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
         var issueId = source.path;
-        var issueName = document.title;
+        var issueName = this.parseTitle(document.title) + " [" + this.parseId(source.path) + "]";
         var serviceUrl = source.protocol + source.host;
         var issueUrl = source.path;
         var projectName = 'sales';
@@ -34,7 +37,7 @@ class Pipedrive implements WebToolIntegration {
             issueUrl,
             projectName,
             serviceUrl,
-            serviceType: 'Pipedrive'
+            serviceType: 'pipedrive'
         };
     }
 
@@ -48,6 +51,16 @@ class Pipedrive implements WebToolIntegration {
             container.appendChild(linkElement);
             host.appendChild(container);
         }
+    }
+
+    parseTitle(string) {
+        var pos = string.lastIndexOf(" - ");
+        return string.substring(0, pos);
+    }
+
+    parseId(string) {
+        var pos = string.lastIndexOf("/");
+        return string.substr(pos + 1);
     }
 }
 
