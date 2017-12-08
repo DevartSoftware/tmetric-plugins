@@ -1,4 +1,5 @@
 {
+    "compileOnSave": true,
     "compilerOptions": {
         "target": "es2015",
         "module": "none",
@@ -30,6 +31,7 @@
         "in-page-scripts/integrations/bitbucket.ts",
         "in-page-scripts/integrations/bitrix24.ts",
         "in-page-scripts/integrations/bugzilla.ts",
+        "in-page-scripts/integrations/doitIm.ts",
         "in-page-scripts/integrations/freshdesk.ts",
         "in-page-scripts/integrations/gitHub.ts",
         "in-page-scripts/integrations/gitLab.ts",
@@ -49,6 +51,7 @@
         "in-page-scripts/integrations/teamweek.ts",
         "in-page-scripts/integrations/teamwork.ts",
         "in-page-scripts/integrations/testLink.ts",
+        "in-page-scripts/integrations/testRail.ts",
         "in-page-scripts/integrations/tfs.ts",
         "in-page-scripts/integrations/todoist.ts",
         "in-page-scripts/integrations/trac.ts",

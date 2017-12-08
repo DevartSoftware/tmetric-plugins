@@ -5,7 +5,7 @@
     "short_name": "TMetric",
     "description": "Simple time tracking extension which helps you be more productive, complete projects in time and bill your clients correctly.",
     "author": "Devart",
-    "version": "2.3.2.1",
+    "version": "2.4.0",
 
     "icons": {
         "16": "images/icon16.png",
@@ -93,6 +93,7 @@
                 "in-page-scripts/integrations/basecamp.js",
                 "in-page-scripts/integrations/bitbucket.js",
                 "in-page-scripts/integrations/bugzilla.js",
+                "in-page-scripts/integrations/doitIm.js",
                 "in-page-scripts/integrations/freshdesk.js",
                 "in-page-scripts/integrations/gitHub.js",
                 "in-page-scripts/integrations/gitLab.js",
@@ -111,6 +112,7 @@
                 "in-page-scripts/integrations/taiga.js",
                 "in-page-scripts/integrations/teamweek.js",
                 "in-page-scripts/integrations/teamwork.js",
+                "in-page-scripts/integrations/testRail.js",
                 "in-page-scripts/integrations/tfs.js",
                 "in-page-scripts/integrations/todoist.js",
                 "in-page-scripts/integrations/trac.js",

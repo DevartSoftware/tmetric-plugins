@@ -56,11 +56,18 @@ $$.all = function (selector: string, element?: NodeSelector) {
 
 $$.visible = function (selector: string, element?: NodeSelector) {
     return $$(selector, element, el => {
+
+        // Check display
+        if (!el.offsetWidth && !el.offsetHeight && !el.getClientRects().length) {
+            return false;
+        }
+
+        // Check visibility
         while (el) {
             if (el === document.body) {
                 return true;
             }
-            if (!el || el.style.display === 'none' || el.style.visibility === 'hidden') {
+            if (el.style.visibility === 'hidden' || el.style.visibility === 'collapse') {
                 return false;
             }
             el = el.parentElement;
