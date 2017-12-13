@@ -118,12 +118,11 @@
             if (issues.length) {
                 this._possibleIntegrations = [integration];
 
-                // render links with cached durations to prevent flicker on trackers which observe mutations
-                IntegrationService.updateIssues(integration, parsedIssues, IntegrationService._issueDurationsCache);
+                // render links now to prevent flicker on task services which observe mutations
+                IntegrationService.updateIssues(integration, parsedIssues, []);
 
                 // render links with actual durations later
                 this.getIssuesDurations(issues).then(durations => {
-                    IntegrationService._issueDurationsCache = durations;
                     IntegrationService.updateIssues(integration, parsedIssues, durations);
                 });
 
@@ -140,8 +139,6 @@
             this.updateLink(element, integration, issue, duration);
         });
     }
-
-    private static _issueDurationsCache: WebToolIssueDuration[] = [];
 
     private static _issuesDurationsResolver = <(value: WebToolIssueDuration[]) => void>null;
 
@@ -193,7 +190,7 @@
         return sign + hours + (minutes < 10 ? ':0' : ':') + minutes;
     }
 
-    static updateLink(element: HTMLElement, integration: WebToolIntegration, newIssue: WebToolIssue, issueDuration: WebToolIssueDuration) {
+    static updateLink(element: HTMLElement, integration: WebToolIntegration, newIssue: WebToolIssue, issueDuration?: WebToolIssueDuration) {
 
         const MIN = 60 * 1000;
         const HOUR = 60 * MIN;
@@ -205,13 +202,14 @@
             return;
         }
 
-        let isNewIssueStarted = this.isIssueStarted(newIssue);
+        let isIssueStarted = this.isIssueStarted(newIssue);
+        let isIssueDurationResolved = !!issueDuration;
 
         let newIssueTimer = <WebToolIssueTimer & WebToolIssueDuration>{};
-        newIssueTimer.isStarted = !isNewIssueStarted;
+        newIssueTimer.isStarted = !isIssueStarted;
         newIssueTimer.showIssueId = integration.showIssueId;
-        newIssueTimer.duration = issueDuration && issueDuration.duration || 0;
-        if (isNewIssueStarted && newIssue.issueUrl) {
+        newIssueTimer.duration = isIssueDurationResolved ? issueDuration.duration : 0;
+        if (isIssueStarted && newIssue.issueUrl) {
 
             // Show zero duration if client clock is late (TMET-947)
             let timerDuration = Math.max(0, Date.now() - Date.parse(this._timer.startTime));
@@ -221,6 +219,7 @@
             }
         }
         newIssueTimer.duration = Math.floor(newIssueTimer.duration / MIN) * MIN;
+
         for (let i in newIssue) {
             newIssueTimer[i] = newIssue[i];
         }
@@ -232,8 +231,12 @@
             oldSession = parseInt(oldLink.getAttribute('data-session'));
         }
 
+        if (!isIssueDurationResolved && oldIssueTimer) {
+            newIssueTimer.duration = oldIssueTimer.duration;
+        }
+
         if (this.isSameIssue(oldIssueTimer, newIssueTimer) &&
-            oldIssueTimer.duration == newIssueTimer.duration &&
+            newIssueTimer.duration == oldIssueTimer.duration &&
             newIssueTimer.isStarted == oldIssueTimer.isStarted &&
             newIssueTimer.projectName == oldIssueTimer.projectName &&
             this.areSetsEqual(newIssueTimer.tagNames, oldIssueTimer.tagNames) &&
@@ -248,7 +251,7 @@
         // Create new timer link
         let newLink = document.createElement('a');
         newLink.classList.add(this.affix);
-        newLink.classList.add(this.affix + (newIssueTimer.isStarted ? '-start' : '-stop'));
+        newLink.classList.add(this.affix + (isIssueStarted ? '-stop' : '-start'));
         newLink.setAttribute('data-' + this.affix, JSON.stringify(newIssueTimer));
         newLink.setAttribute('data-session', this.session.toString());
         newLink.href = '#';
@@ -263,8 +266,8 @@
         spanWithIcon.classList.add(this.affix + '-icon');
         newLink.appendChild(spanWithIcon);
         let span = document.createElement('span');
-        span.textContent = newIssueTimer.isStarted ? 'Start timer' : 'Stop timer';
-        if (newIssue.issueUrl && (newIssueTimer.duration || !newIssueTimer.isStarted)) {
+        span.textContent = isIssueStarted ? 'Stop timer' : 'Start timer';
+        if (newIssue.issueUrl && (newIssueTimer.duration || isIssueStarted)) {
             span.textContent += ' (' + this.durationToString(newIssueTimer.duration) + ')';
         }
         newLink.appendChild(span);
