@@ -118,11 +118,13 @@
             if (issues.length) {
                 this._possibleIntegrations = [integration];
 
+                // render links with cached durations to prevent flicker on trackers which observe mutations
+                IntegrationService.updateIssues(integration, parsedIssues, IntegrationService._issueDurationsCache);
+
+                // render links with actual durations later
                 this.getIssuesDurations(issues).then(durations => {
-                    parsedIssues.forEach(({ element, issue }) => {
-                        let duration = this.getIssueDuration(durations, issue);
-                        this.updateLink(element, integration, issue, duration);
-                    });
+                    IntegrationService._issueDurationsCache = durations;
+                    IntegrationService.updateIssues(integration, parsedIssues, durations);
                 });
 
                 return true;
@@ -131,6 +133,15 @@
 
         return { issues, observeMutations: this._possibleIntegrations.some(i => i.observeMutations) };
     }
+
+    static updateIssues(integration: WebToolIntegration, issues: WebToolParsedIssue[], durations: WebToolIssueDuration[]) {
+        issues.forEach(({ element, issue }) => {
+            let duration = this.getIssueDuration(durations, issue);
+            this.updateLink(element, integration, issue, duration);
+        });
+    }
+
+    private static _issueDurationsCache: WebToolIssueDuration[] = [];
 
     private static _issuesDurationsResolver = <(value: WebToolIssueDuration[]) => void>null;
 
