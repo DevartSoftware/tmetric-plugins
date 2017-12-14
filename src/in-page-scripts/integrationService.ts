@@ -119,11 +119,10 @@
                 this._possibleIntegrations = [integration];
 
                 // render links now to prevent flicker on task services which observe mutations
-                IntegrationService.updateIssues(integration, parsedIssues, IntegrationService._issueDurationsCache);
+                IntegrationService.updateIssues(integration, parsedIssues);
 
                 // render links with actual durations later
                 this.getIssuesDurations(issues).then(durations => {
-                    IntegrationService._issueDurationsCache = durations;
                     IntegrationService.updateIssues(integration, parsedIssues, durations);
                 });
 
@@ -134,11 +133,40 @@
         return { issues, observeMutations: this._possibleIntegrations.some(i => i.observeMutations) };
     }
 
-    static updateIssues(integration: WebToolIntegration, issues: WebToolParsedIssue[], durations: WebToolIssueDuration[]) {
+    static updateIssues(integration: WebToolIntegration, issues: WebToolParsedIssue[], durations?: WebToolIssueDuration[]) {
+
+        const MIN = 60 * 1000;
+        const HOUR = 60 * MIN;
+
+        let durationsCache = IntegrationService._issueDurationsCache;
+
         issues.forEach(({ element, issue }) => {
-            let duration = this.getIssueDuration(durations, issue);
+
+            let isIssueStarted = this.isIssueStarted(issue);
+
+            let issueDuration = this.getIssueDuration(durations || durationsCache, issue);
+            let duration = issueDuration && issueDuration.duration || 0;
+
+            if (durations && isIssueStarted && issue.issueUrl) {
+                // Show zero duration if client clock is late (TMET-947)
+                let timerDuration = Math.max(0, Date.now() - Date.parse(this._timer.startTime));
+                if (timerDuration <= this._constants.maxTimerHours * HOUR) { // add current timer duration if timer is not long running
+                    duration += timerDuration;
+                }
+            }
+
+            duration = Math.floor(duration / MIN) * MIN;
+
+            if (issueDuration) {
+                issueDuration.duration = duration;
+            }
+
             this.updateLink(element, integration, issue, duration);
         });
+
+        if (durations) {
+            IntegrationService._issueDurationsCache = durations;
+        }
     }
 
     private static _issueDurationsCache: WebToolIssueDuration[] = [];
@@ -193,10 +221,7 @@
         return sign + hours + (minutes < 10 ? ':0' : ':') + minutes;
     }
 
-    static updateLink(element: HTMLElement, integration: WebToolIntegration, newIssue: WebToolIssue, issueDuration?: WebToolIssueDuration) {
-
-        const MIN = 60 * 1000;
-        const HOUR = 60 * MIN;
+    static updateLink(element: HTMLElement, integration: WebToolIntegration, newIssue: WebToolIssue, newIssueDuration: number) {
 
         let oldLink = $$('a.' + this.affix, element);
 
@@ -206,22 +231,11 @@
         }
 
         let isIssueStarted = this.isIssueStarted(newIssue);
-        let isIssueDurationResolved = !!issueDuration;
 
         let newIssueTimer = <WebToolIssueTimer & WebToolIssueDuration>{};
         newIssueTimer.isStarted = !isIssueStarted;
         newIssueTimer.showIssueId = integration.showIssueId;
-        newIssueTimer.duration = isIssueDurationResolved ? issueDuration.duration : 0;
-        if (isIssueStarted && newIssue.issueUrl) {
-
-            // Show zero duration if client clock is late (TMET-947)
-            let timerDuration = Math.max(0, Date.now() - Date.parse(this._timer.startTime));
-
-            if (timerDuration <= this._constants.maxTimerHours * HOUR) { // add current timer duration if timer is not long running
-                newIssueTimer.duration += timerDuration;
-            }
-        }
-        newIssueTimer.duration = Math.floor(newIssueTimer.duration / MIN) * MIN;
+        newIssueTimer.duration = newIssueDuration;
 
         for (let i in newIssue) {
             newIssueTimer[i] = newIssue[i];
@@ -232,10 +246,6 @@
         if (oldLink) {
             oldIssueTimer = <WebToolIssueTimer & WebToolIssueDuration>JSON.parse(oldLink.getAttribute('data-' + this.affix));
             oldSession = parseInt(oldLink.getAttribute('data-session'));
-        }
-
-        if (!isIssueDurationResolved && oldIssueTimer) {
-            newIssueTimer.duration = oldIssueTimer.duration;
         }
 
         if (this.isSameIssue(oldIssueTimer, newIssueTimer) &&
