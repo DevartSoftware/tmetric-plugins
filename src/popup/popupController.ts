@@ -653,12 +653,15 @@
 
         // Put timer
         this.putTimer(timer).then(() => {
-            let projectName = this._newIssue.projectName;
-            if (projectName && timer.projectName != projectName) {
-                let project = this._projects.find(_ => _.projectName == timer.projectName);
-                if (project) {
-                    this.saveProjectMapAction({ projectName, projectId: project.projectId });
-                }
+
+            // Save project map
+            let projectName = this._newIssue.projectName || '';
+            let newProjectName = timer.projectName || '';
+            let newProject = this._projects.find(_ => _.projectName == newProjectName);
+            if (newProjectName == projectName) {
+                this.saveProjectMapAction({ projectName, projectId: null });
+            } else if (newProject) {
+                this.saveProjectMapAction({ projectName, projectId: newProject.projectId });
             }
         });
     }

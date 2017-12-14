@@ -749,8 +749,8 @@ class ExtensionBase {
 
                 // Determine default project
                 let defaultProjectId = <number>null;
-                if (projectMap && newIssue.projectName) {
-                    defaultProjectId = projectMap[newIssue.projectName];
+                if (projectMap) {
+                    defaultProjectId = projectMap[newIssue.projectName || ''];
 
                     // Remove mapped project from localstorage if project was deleted/closed
                     if (defaultProjectId && filteredProjects.every(_ => _.projectId != defaultProjectId)) {
