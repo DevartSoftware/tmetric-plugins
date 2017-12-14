@@ -119,10 +119,11 @@
                 this._possibleIntegrations = [integration];
 
                 // render links now to prevent flicker on task services which observe mutations
-                IntegrationService.updateIssues(integration, parsedIssues, []);
+                IntegrationService.updateIssues(integration, parsedIssues, IntegrationService._issueDurationsCache);
 
                 // render links with actual durations later
                 this.getIssuesDurations(issues).then(durations => {
+                    IntegrationService._issueDurationsCache = durations;
                     IntegrationService.updateIssues(integration, parsedIssues, durations);
                 });
 
@@ -139,6 +140,8 @@
             this.updateLink(element, integration, issue, duration);
         });
     }
+
+    private static _issueDurationsCache: WebToolIssueDuration[] = [];
 
     private static _issuesDurationsResolver = <(value: WebToolIssueDuration[]) => void>null;
 
