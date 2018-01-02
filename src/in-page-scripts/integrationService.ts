@@ -122,8 +122,9 @@
             } else {
                 this._possibleIntegrations = [integration];
 
-                // render links now to prevent flicker on task services which observe mutations
-                IntegrationService.updateIssues(integration, parsedIssues);
+                // render new links now to prevent flicker on task services which observe mutations
+                let newParsedIssues = parsedIssues.filter(issue => !$$('a.' + this.affix, issue.element));
+                IntegrationService.updateIssues(integration, newParsedIssues);
                 this.onIssueLinksUpdated();
 
                 // render links with actual durations later
