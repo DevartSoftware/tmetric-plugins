@@ -8,6 +8,8 @@
         this._allIntegrations.push(...integrations);
     }
 
+    static onIssueLinksUpdated: () => void;
+
     static isUrlMatched(integration: WebToolIntegration, url: string) {
         function convertPatternToRegExp(matchPattern: string) {
             let regexp = IntegrationService._matchPatternCache[matchPattern];
@@ -115,15 +117,19 @@
                 }
             });
 
-            if (issues.length) {
+            if (!issues.length) {
+                this.onIssueLinksUpdated();
+            } else {
                 this._possibleIntegrations = [integration];
 
                 // render links now to prevent flicker on task services which observe mutations
                 IntegrationService.updateIssues(integration, parsedIssues);
+                this.onIssueLinksUpdated();
 
                 // render links with actual durations later
                 this.getIssuesDurations(issues).then(durations => {
                     IntegrationService.updateIssues(integration, parsedIssues, durations);
+                    this.onIssueLinksUpdated();
                 });
 
                 return true;
