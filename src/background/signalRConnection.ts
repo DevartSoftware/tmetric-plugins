@@ -49,7 +49,7 @@
 
     constructor() {
 
-        this.waitAllRejects = (promises: Promise<any>[]) => new Promise((resolve, reject) => {
+        this.waitAllRejects = <any>((promises: Promise<any>[]) => new Promise((resolve, reject) => {
 
             let error = null;
             let pendingCounter = promises.length;
@@ -70,7 +70,7 @@
             Promise.all(promises)
                 .then(r => resolve(r))
                 .catch(() => { });
-        });
+        }));
     }
 
     init(url: string): Promise<void> {

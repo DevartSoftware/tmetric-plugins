@@ -33,29 +33,29 @@ var $$ = <Utils>function (selector: string, element?: NodeSelector, condition?: 
     return null;
 };
 
-$$.try = function (selector: string, element?: NodeSelector, condition?: (el: Element) => boolean) {
-    return $$(selector, element, condition) || <HTMLElement>{};
+$$.try = function <TElement extends HTMLElement>(selector: string, element?: NodeSelector, condition?: (el: TElement) => boolean) {
+    return $$(selector, element, condition) || <TElement>{};
 };
 
-$$.create = function (tagName, ...classNames: string[]) {
-    let element = <HTMLElement>document.createElement(tagName);
+$$.create = function <TElement extends HTMLElement>(tagName, ...classNames: string[]) {
+    let element = <TElement>document.createElement(tagName);
     classNames.push(IntegrationService.affix + '-' + tagName.toLowerCase());
     element.classList.add(...classNames);
     return element;
 };
 
-$$.all = function (selector: string, element?: NodeSelector) {
+$$.all = function <TElement extends HTMLElement>(selector: string, element?: NodeSelector) {
     element = element || document;
     let nodeList = element.querySelectorAll(selector);
-    let result = <Element[]>[];
+    let result = <TElement[]>[];
     for (let i = nodeList.length - 1; i >= 0; i--) {
-        result[i] = nodeList[i];
+        result[i] = <TElement>nodeList[i];
     }
     return result;
 };
 
-$$.visible = function (selector: string, element?: NodeSelector) {
-    return $$(selector, element, el => {
+$$.visible = function <TElement extends HTMLElement>(selector: string, element?: NodeSelector) {
+    return $$<TElement>(selector, element, el => {
 
         // Check display
         if (!el.offsetWidth && !el.offsetHeight && !el.getClientRects().length) {
@@ -70,34 +70,34 @@ $$.visible = function (selector: string, element?: NodeSelector) {
             if (el.style.visibility === 'hidden' || el.style.visibility === 'collapse') {
                 return false;
             }
-            el = el.parentElement;
+            el = <TElement>el.parentElement;
         }
         return false;
     });
 };
 
-$$.closest = function (selector: string, element: HTMLElement, condition: (el: HTMLElement) => boolean) {
+$$.closest = function <TElement extends HTMLElement>(selector: string, element: HTMLElement, condition: (el: TElement) => boolean) {
     while (element) {
-        if (element.matches(selector) && (!condition || condition(element))) {
-            return element;
+        if (element.matches(selector) && (!condition || condition(<TElement>element))) {
+            return <TElement>element;
         }
         element = element.parentElement;
     }
 };
 
-$$.prev = function (selector: string, element: HTMLElement) {
+$$.prev = function <TElement extends HTMLElement>(selector: string, element: HTMLElement) {
     while (element) {
         if (element.matches(selector)) {
-            return element;
+            return <TElement>element;
         }
         element = <HTMLElement>element.previousElementSibling;
     }
 };
 
-$$.next = function (selector: string, element: HTMLElement) {
+$$.next = function <TElement extends HTMLElement>(selector: string, element: HTMLElement) {
     while (element) {
         if (element.matches(selector)) {
-            return element;
+            return <TElement>element;
         }
         element = <HTMLElement>element.nextElementSibling;
     }

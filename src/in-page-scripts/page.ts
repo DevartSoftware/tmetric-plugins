@@ -158,17 +158,18 @@ if (typeof document != 'undefined') {
 
             let { issues, observeMutations } = IntegrationService.updateLinks(checkAllIntegrations);
 
-            if (mutationObserver) {
-                // clear queue to prevent observer reentering
-                mutationObserver.takeRecords();
-            }
-
             if (!isFinalized && observeMutations && !mutationObserver) {
                 mutationObserver = new MutationObserver(parsePage);
                 mutationObserver.observe(document, { childList: true, subtree: true });
             }
         }
 
+        IntegrationService.onIssueLinksUpdated = () => {
+            // clear queue to prevent observer reentering (TE-209)
+            if (mutationObserver) {
+                mutationObserver.takeRecords();
+            }
+        }
         window.parsePage = parsePage;
 
         let oldUrl = '';
