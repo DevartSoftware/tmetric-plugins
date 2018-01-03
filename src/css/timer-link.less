@@ -120,6 +120,21 @@
     margin: 0 1em;
 }
 
+.devart-timer-link-producteev-minimal {
+    position: absolute;
+    top: 5px;
+    right: 14px;
+    opacity: 0;
+
+    .subtasks-list li:hover &:hover {
+        opacity: 1;
+    }
+
+    .subtasks-list li:hover &:not(:hover) {
+        opacity: .5;
+    }
+}
+
 .devart-timer-link-sprintly {
     > a {
         display: block;

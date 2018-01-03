@@ -6,13 +6,18 @@
 
     matchUrl = '*://www.producteev.com/workspace/t/*';
 
-    issueElementSelector = '#task-details';
+    issueElementSelector = [
+        '.td-content > .title',
+        '.td-attributes ul.subtasks-list li'
+    ];
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        var host = $$('.td-attributes', issueElement);
-        if (host) {
+        if (issueElement.matches(this.issueElementSelector[0])) {
             linkElement.classList.add('devart-timer-link-producteev');
-            host.insertBefore(linkElement, host.firstElementChild);
+            issueElement.appendChild(linkElement);
+        } else if (issueElement.matches(this.issueElementSelector[1])) {
+            linkElement.classList.add('devart-timer-link-minimal', 'devart-timer-link-producteev-minimal');
+            issueElement.insertBefore(linkElement, issueElement.querySelector('.close'))
         }
     }
 
@@ -32,9 +37,11 @@
             return;
         }
 
-        var issueName = $$.try('.title-header .title', issueElement).textContent;
-        if (!issueName) {
-            return;
+        let issueName: string;
+        if (issueElement.matches(this.issueElementSelector[0])) {
+            issueName = $$.try('.title', issueElement.closest('.td-content').querySelector('.title-header')).textContent;
+        } else if (issueElement.matches(this.issueElementSelector[1])) {
+            issueName = $$.try('.title', issueElement).textContent;
         }
 
         var projectName = $$.try('.dropdown-project .title').textContent;
