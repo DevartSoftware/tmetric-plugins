@@ -129,7 +129,8 @@
 
                 // render links with actual durations later
                 this.getIssuesDurations(issues).then(durations => {
-                    IntegrationService.updateIssues(integration, parsedIssues, durations);
+                    IntegrationService._issueDurationsCache = durations;
+                    IntegrationService.updateIssues(integration, parsedIssues);
                     this.onIssueLinksUpdated();
                 });
 
@@ -140,40 +141,27 @@
         return { issues, observeMutations: this._possibleIntegrations.some(i => i.observeMutations) };
     }
 
-    static updateIssues(integration: WebToolIntegration, issues: WebToolParsedIssue[], durations?: WebToolIssueDuration[]) {
+    static updateIssues(integration: WebToolIntegration, issues: WebToolParsedIssue[]) {
 
         const MIN = 60 * 1000;
         const HOUR = 60 * MIN;
 
-        let durationsCache = IntegrationService._issueDurationsCache;
-
         issues.forEach(({ element, issue }) => {
 
-            let isIssueStarted = this.isIssueStarted(issue);
+            let duration = this.getIssueDuration(issue) || 0;
 
-            let issueDuration = this.getIssueDuration(durations || durationsCache, issue);
-            let duration = issueDuration && issueDuration.duration || 0;
-
-            if (durations && isIssueStarted && issue.issueUrl) {
+            if (issue.issueUrl && this.isIssueStarted(issue)) {
                 // Show zero duration if client clock is late (TMET-947)
                 let timerDuration = Math.max(0, Date.now() - Date.parse(this._timer.startTime));
-                if (timerDuration <= this._constants.maxTimerHours * HOUR) { // add current timer duration if timer is not long running
+                if (timerDuration <= this._constants.maxTimerHours * HOUR) {
+                    // Add current timer duration if timer is not long running
                     duration += timerDuration;
                 }
             }
 
             duration = Math.floor(duration / MIN) * MIN;
-
-            if (issueDuration) {
-                issueDuration.duration = duration;
-            }
-
             this.updateLink(element, integration, issue, duration);
         });
-
-        if (durations) {
-            IntegrationService._issueDurationsCache = durations;
-        }
     }
 
     private static _issueDurationsCache: WebToolIssueDuration[] = [];
@@ -194,10 +182,10 @@
         });
     }
 
-    static getIssueDuration(durations: WebToolIssueDuration[], issue: WebToolIssueIdentifier) {
-        for (let duration of durations) {
+    static getIssueDuration(issue: WebToolIssueIdentifier) {
+        for (let duration of IntegrationService._issueDurationsCache) {
             if (duration.issueUrl == issue.issueUrl && duration.serviceUrl == issue.serviceUrl) {
-                return duration;
+                return duration.duration;
             }
         }
     }
