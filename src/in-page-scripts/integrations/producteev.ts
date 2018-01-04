@@ -27,32 +27,29 @@
         // https://www.producteev.com/workspace/t/TASK_ID
         // https://www.producteev.com/workspace/t/TASK_ID/calendar
         // https://www.producteev.com/workspace/t/TASK_ID/activity
-        var match = /^\/workspace\/t\/(\w+)(\/calendar|\/activity)?$/.exec(source.path);
+        let match = /^\/workspace\/t\/(\w+)(\/calendar|\/activity)?$/.exec(source.path);
         if (!match) {
             return;
         }
 
-        var issueId = match[1];
-        if (!issueId) {
+        let contentElement = issueElement.closest('.td-content');
+        if (!contentElement) {
             return;
         }
 
-        let issueName: string;
-        if (issueElement.matches(this.issueElementSelector[0])) {
-            issueName = $$.try('.title', issueElement.closest('.td-content').querySelector('.title-header')).textContent;
-        } else if (issueElement.matches(this.issueElementSelector[1])) {
-            issueName = $$.try('.title', issueElement).textContent;
+        let issueId = match[1];
+        let issueName = $$.try('.title-header .title', contentElement).textContent;
+        let projectName = $$.try('.dropdown-project .title').textContent;
+        let serviceType = 'Producteev';
+        let serviceUrl = source.protocol + source.host;
+        let issueUrl = '/workspace/t/' + issueId;
+
+        let description: string;
+        if (issueElement.matches(this.issueElementSelector[1])) {
+            description = $$.try('.title', issueElement).textContent;
         }
 
-        var projectName = $$.try('.dropdown-project .title').textContent;
-
-        var serviceType = 'Producteev';
-
-        var serviceUrl = source.protocol + source.host;
-
-        var issueUrl = '/workspace/t/' + match[1];
-
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+        return { issueId, issueName, description, projectName, serviceType, serviceUrl, issueUrl };
     }
 }
 
