@@ -38,7 +38,7 @@
         this._constants = constants;
     }
 
-    static setTimer(timer: Models.Timer) {
+    static setTimer(timer: Models.TimerEx) {
         this._timer = timer;
     }
 
@@ -325,6 +325,7 @@
         return oldIssue &&
             oldIssue.issueId == newIssue.issueId &&
             normalize(oldIssue.issueName) == normalize(newIssue.issueName) &&
+            (oldIssue.issueName || oldIssue.projectName == newIssue.projectName) &&
             normalize(oldIssue.description) == normalize(newIssue.description) &&
             normalizeServiceUrl(oldIssue) == normalizeServiceUrl(newIssue);
     }
@@ -335,7 +336,7 @@
 
     private static _constants: Models.Constants;
 
-    private static _timer: Models.Timer;
+    private static _timer: Models.TimerEx;
 
     private static _matchPatternCache: { [pattern: string]: RegExp } = {};
 
@@ -425,6 +426,10 @@
         // Check description only in subtasks
         if (issue.description) {
             startedIssue.description = timer.details.description;
+        }
+
+        if (issue.projectName) {
+            startedIssue.projectName = timer.projectName;
         }
 
         return this.isSameIssue(startedIssue, issue);

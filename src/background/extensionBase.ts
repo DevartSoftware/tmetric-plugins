@@ -122,7 +122,7 @@ class ExtensionBase {
 
     private _actionOnConnect: () => void;
 
-    private _timer: Models.Timer;
+    private _timer: Models.TimerEx;
 
     private _newPopupIssue: WebToolIssueTimer;
 
@@ -163,6 +163,17 @@ class ExtensionBase {
             }
 
             this._timer = timer;
+
+            if (timer && timer.details) {
+                let project = this._projects.find(_ => {
+                    if (_) {
+                        return _.projectId == timer.details.projectId;
+                    }
+                });
+
+                timer.projectName = project && project.projectName;
+            }
+
             this.updateState();
             this.sendToTabs({ action: 'setTimer', data: timer });
 

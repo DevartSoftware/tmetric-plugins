@@ -32,7 +32,10 @@
             issueId = matches[1];
         }
 
-        let projectName = $$.try('.reference .title').textContent.trim()
+        let projectName = $$.try('.reference .title').textContent;
+        if (projectName) {
+            projectName = projectName.trim();
+        }
 
         var serviceUrl = source.protocol + source.host;
 
@@ -67,6 +70,11 @@ class PodioTaskList implements WebToolIntegration {
             return;
         }
 
+        let projectName = $$.try('.edit-task-title + .linked-item', issueElement).textContent;
+        if (projectName) {
+            projectName = projectName.trim();
+        }
+
         let issueUrl: string;
         let issueId: string;
 
@@ -76,8 +84,6 @@ class PodioTaskList implements WebToolIntegration {
             issueUrl = matches[0];
             issueId = matches[1];
         }
-
-        let projectName = $$.try('.reference-list .bd').textContent.trim();
 
         let serviceUrl = source.protocol + source.host;
 

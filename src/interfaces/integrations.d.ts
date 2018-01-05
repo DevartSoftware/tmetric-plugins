@@ -34,7 +34,7 @@ interface WebToolIssueDuration extends WebToolIssueIdentifier {
 
 interface WebToolIssue extends WebToolIssueIdentifier {
     issueId?: string;
-    issueName: string;
+    issueName?: string;
     description?: string;
     serviceType?: string;
     projectName?: string;

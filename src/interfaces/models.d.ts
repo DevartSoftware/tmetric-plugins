@@ -157,6 +157,10 @@ declare module Models {
         isBillable: boolean;
     }
 
+    interface TimerEx extends Timer {
+        projectName: string;
+    }
+
     interface TimeEntry {
         details: TimeEntryDetail;
         startTime: string;

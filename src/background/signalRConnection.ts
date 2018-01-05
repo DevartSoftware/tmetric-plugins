@@ -32,7 +32,7 @@
 
     onRemoveExternalIssuesDurations = SimpleEvent.create<WebToolIssueIdentifier[]>();
 
-    onUpdateTimer = SimpleEvent.create<Models.Timer>();
+    onUpdateTimer = SimpleEvent.create<Models.TimerEx>();
 
     onUpdateTracker = SimpleEvent.create<Models.TimeEntry[]>();
 
@@ -376,7 +376,7 @@
             var userProfileId = profile.userProfileId;
 
             var url = this.getTimerUrl(accountId);
-            var timer = this.get<Models.Timer>(url).then(timer => {
+            var timer = this.get<Models.TimerEx>(url).then(timer => {
                 this.onUpdateTimer.emit(timer);
                 return timer;
             });
