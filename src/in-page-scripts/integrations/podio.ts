@@ -32,9 +32,11 @@
             issueId = matches[1];
         }
 
+        let projectName = $$.try('.reference .title').textContent.trim()
+
         var serviceUrl = source.protocol + source.host;
 
-        return { issueId, issueName, issueUrl, serviceUrl, serviceType: 'Podio' };
+        return { issueId, issueName, issueUrl, serviceUrl, projectName, serviceType: 'Podio' };
     }
 }
 
@@ -75,9 +77,11 @@ class PodioTaskList implements WebToolIntegration {
             issueId = matches[1];
         }
 
+        let projectName = $$.try('.reference-list .bd').textContent.trim();
+
         let serviceUrl = source.protocol + source.host;
 
-        return { issueId, issueName, issueUrl, serviceUrl, serviceType: 'Podio' };
+        return { issueId, issueName, issueUrl, serviceUrl, projectName, serviceType: 'Podio' };
     }
 }
 
@@ -102,8 +106,8 @@ class PodioAppItem implements WebToolIntegration {
     }
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-        let issueName = $$.try('.breadcrumb .item-title', issueElement).textContent;
-        return { issueName };
+        let projectName = $$.try('.breadcrumb .item-title', issueElement).textContent;
+        return { projectName };
     }
 }
 

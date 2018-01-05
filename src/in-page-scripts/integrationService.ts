@@ -80,7 +80,7 @@
 
             elements.forEach(element => {
                 let issue = integration.getIssue(element, source);
-                if (!issue || !issue.issueName) {
+                if (!issue || !issue.issueName && !issue.projectName) {
                     // Remove link when issue can not be parsed after DOM changes
                     this.updateLink(element, null, null, null);
                 } else {
