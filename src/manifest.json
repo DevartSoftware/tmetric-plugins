@@ -103,6 +103,7 @@
                 "in-page-scripts/integrations/google-keep.js",
                 "in-page-scripts/integrations/google-mail.js",
                 "in-page-scripts/integrations/jira.js",
+                "in-page-scripts/integrations/openProject.js",
                 "in-page-scripts/integrations/pivotalTracker.js",
                 "in-page-scripts/integrations/podio.js",
                 "in-page-scripts/integrations/producteev.js",
