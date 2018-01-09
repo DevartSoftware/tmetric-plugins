@@ -33,11 +33,7 @@
         }
 
         let projectName = $$.try('.reference .title').textContent;
-        if (projectName) {
-            projectName = projectName.trim();
-        }
-
-        var serviceUrl = source.protocol + source.host;
+        let serviceUrl = source.protocol + source.host;
 
         return { issueId, issueName, issueUrl, serviceUrl, projectName, serviceType: 'Podio' };
     }
@@ -71,9 +67,6 @@ class PodioTaskList implements WebToolIntegration {
         }
 
         let projectName = $$.try('.edit-task-title + .linked-item', issueElement).textContent;
-        if (projectName) {
-            projectName = projectName.trim();
-        }
 
         let issueUrl: string;
         let issueId: string;

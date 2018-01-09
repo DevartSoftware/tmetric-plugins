@@ -423,13 +423,12 @@
             }
         }
 
+        // TE-211 - compare issue project with timer project
+        startedIssue.projectName = timer.projectName
+
         // Check description only in subtasks
         if (issue.description) {
             startedIssue.description = timer.details.description;
-        }
-
-        if (issue.projectName) {
-            startedIssue.projectName = timer.projectName;
         }
 
         return this.isSameIssue(startedIssue, issue);

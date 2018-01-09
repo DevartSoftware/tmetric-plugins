@@ -165,12 +165,7 @@ class ExtensionBase {
             this._timer = timer;
 
             if (timer && timer.details) {
-                let project = this._projects.find(_ => {
-                    if (_) {
-                        return _.projectId == timer.details.projectId;
-                    }
-                });
-
+                let project = this._projects.find(_ => _ && _.projectId == timer.details.projectId);
                 timer.projectName = project && project.projectName;
             }
 
