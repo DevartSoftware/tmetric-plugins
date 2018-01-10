@@ -23,8 +23,10 @@
         // Set background-color as important to override inline style.
         // It needs to prevent flickering popup.
         let css = `
-body {
+html {
     background-color: rgba(0, 0, 0, .5) !important;
+}
+body {
     position: fixed;
     top: 0;
     left: 0;
