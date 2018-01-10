@@ -416,7 +416,7 @@ class ExtensionBase {
                         if (!tabId ||
                             !timer.isStarted ||
                             mutePopup ||
-                            (timer.projectName && this._projects.filter(_ => _.projectName.toLowerCase() == timer.projectName.toLowerCase()).length)) {
+                            (timer.issueName && timer.projectName && this._projects.filter(_ => _.projectName.toLowerCase() == timer.projectName.toLowerCase()).length)) {
 
                             return this.connection.putExternalTimer(timer);
                         }

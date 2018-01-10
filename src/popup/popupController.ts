@@ -211,7 +211,7 @@
 
         setTimeout(() => {
             // Firefox does not allow to focus elements on popup (TE-117)
-            if (this._newIssue.issueUrl) {
+            if (this._newIssue.issueName) {
                 // focusing on select2 dropdown
                 $(this._forms.create + ' .project .input').select2('open').select2('close');
             }
@@ -421,9 +421,13 @@
     initProjectSelector(selector: string, items: IdTextPair[], defaultProjectId: number) {
 
         if (!defaultProjectId) {
-            defaultProjectId = this.noProjectOption.id;
 
-            if (this.isPagePopup && this._canCreateProjects && this._newIssue.projectName) {
+            defaultProjectId = this.noProjectOption.id;
+            let existingProject = items.find(item => item.id > 0 && item.text.toLowerCase() == this._newIssue.projectName.toLowerCase());
+
+            if (existingProject) {
+                defaultProjectId = existingProject.id;
+            } else if (this.isPagePopup && this._canCreateProjects && this._newIssue.projectName) {
                 defaultProjectId = this.createProjectOption.id;
             }
         }
