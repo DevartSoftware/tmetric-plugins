@@ -423,12 +423,16 @@
         if (!defaultProjectId) {
 
             defaultProjectId = this.noProjectOption.id;
-            let existingProject = items.find(item => item.id > 0 && item.text.toLowerCase() == this._newIssue.projectName.toLowerCase());
+
+            // Find project if it is specified in new issue (TE-219)
+            let newProjectName = this._newIssue && this._newIssue.projectName;
+            let existingProject = newProjectName && items.find(item =>
+                item.id > 0 && item.text.toLowerCase() == newProjectName.toLowerCase());
 
             if (existingProject) {
-                defaultProjectId = existingProject.id;
-            } else if (this.isPagePopup && this._canCreateProjects && this._newIssue.projectName) {
-                defaultProjectId = this.createProjectOption.id;
+                defaultProjectId = existingProject.id; // Select existing project (TE-215)
+            } else if (this.isPagePopup && this._canCreateProjects && newProjectName) {
+                defaultProjectId = this.createProjectOption.id; // Select new project
             }
         }
 
