@@ -41,6 +41,7 @@
         "in-page-scripts/integrations/google-keep.ts",
         "in-page-scripts/integrations/google-mail.ts",
         "in-page-scripts/integrations/jira.ts",
+        "in-page-scripts/integrations/openProject.ts",
         "in-page-scripts/integrations/pivotalTracker.ts",
         "in-page-scripts/integrations/podio.ts",
         "in-page-scripts/integrations/producteev.ts",
