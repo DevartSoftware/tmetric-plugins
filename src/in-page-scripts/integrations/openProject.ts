@@ -2,10 +2,7 @@ class OpenProject implements WebToolIntegration {
 
     showIssueId = true;
 
-    matchUrl = [
-        '*://*.openproject.com/projects/*/work_packages/*',
-        '*://*.openproject.com/work_packages/*'
-    ];
+    matchUrl = /(https:\/\/.+\.openproject\.com).*(\/work_packages\/(\d+))/;
 
     match(source: Source): boolean {
         return $$.getAttribute('body', 'ng-app') == 'openproject';
@@ -23,16 +20,17 @@ class OpenProject implements WebToolIntegration {
     }
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-        let issueId = $$.try('.work-packages--info-row span')[0].textContent;
-        let issueName = $$.try('span.subject').textContent;
-        let serviceUrl = source.protocol + source.host;
-        let issueUrl = source.path;
-        let projectName =
-            $$.try('#projects-menu .button--dropdown-text').textContent ||
-            $$.try('.-project-context span a').textContent;
-        let tagNames = $$.all('.labels').map(label => label.textContent);
 
-        return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'OpenProject', tagNames };
+        let match = source.fullUrl.match(this.matchUrl)
+        let serviceUrl = match[0];
+        let issueUrl = match[1];
+        let issueId = '#' + match[2];
+        let issueName = $$.try('span.subject').textContent;
+        let projectName =
+            $$.try('#projects-menu').textContent ||
+            $$.try('.-project-context span a').textContent;
+
+        return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'OpenProject' };
     }
 }
 
