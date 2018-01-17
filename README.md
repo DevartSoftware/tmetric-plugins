@@ -17,6 +17,7 @@ Web browsers are **Chrome**, **Firefox**, **Edge**, and **Opera**.
 * [GitLab](https://gitlab.com)
 * [JIRA](https://www.atlassian.com/software/jira)
 * [JIRA Service Desk](https://www.atlassian.com/software/jira/service-desk)
+* [OpenProject](https://www.openproject.org/)
 * [Pivotal Tracker](https://www.pivotaltracker.com)
 * [Podio](https://podio.com)
 * [Producteev](https://www.producteev.com)
