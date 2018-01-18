@@ -188,7 +188,7 @@ gulp.task('lib', ['clean:sources'], function () {
         .src('node_modules/jquery/dist/jquery.min.js')
         .pipe(gulp.dest(lib));
     var signalr = gulp
-        .src('node_modules/ms-signalr-client/jquery.signalr-2.2.1.min.js')
+        .src('node_modules/ms-signalr-client/jquery.signalR-2.2.1.min.js')
         .pipe(rename('jquery.signalr.min.js'))
         .pipe(gulp.dest(lib));
     var select2 = gulp
