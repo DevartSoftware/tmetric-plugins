@@ -22,7 +22,7 @@
         }
 
         // New design
-        let issueButton = $$.visible('.issuable-actions .btn-grouped', header);
+        let issueButton = $$.visible('.js-issuable-actions', header);
         if (issueButton) {
             linkElement.classList.add('btn-grouped');
             issueButton.parentElement.insertBefore(linkElement, issueButton);
