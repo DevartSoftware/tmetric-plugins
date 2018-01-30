@@ -76,10 +76,10 @@
 
         // match[1] is a 'https://gitlab.com/NAMESPACE/PROJECT' from path
         // cut '/NAMESPACE/PROJECT' from path
-        let servicePath = match[1].split('/').slice(0, -2).join('/');
+        let servicePath = match[1].split('/').slice(0, -2).filter(_ => !!_.length).join('/');
         servicePath = (servicePath) ? '/' + servicePath : '';
 
-        let serviceUrl = source.protocol + source.host + servicePath;
+        let serviceUrl = source.protocol + source.host;
 
         let issueUrl = $$.getRelativeUrl(serviceUrl, source.path);
 
