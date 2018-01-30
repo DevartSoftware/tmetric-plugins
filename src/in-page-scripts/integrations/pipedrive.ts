@@ -1,40 +1,33 @@
 class Pipedrive implements WebToolIntegration {
 
-    showIssueId: boolean;
+    showIssueId = false;
 
     matchUrl = [
+        '*://*.pipedrive.com/deal/\d+',
         '*://*.pipedrive.com/deal/*'
     ];
 
     observeMutations = true;
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-        var issueId = source.path;
-        var issueName = this.parseTitle(document.title) + " [" + this.parseId(source.path) + "]";
-        var serviceUrl = source.protocol + source.host;
-        var issueUrl = source.path;
-        var projectName = 'sales';
-
-        return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Pipedrive' };
-    }
-
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        var host = $$('.mainmenu');
+        let host = $$('.dealDetails .actionsContent .stateActions');
         if (host) {
-            var container = $$.create('li');
+            let container = $$.create('span');
+            container.classList.add('input', 'spinWrapper', 'lost');
+            linkElement.classList.add('devart-timer-link-pipedrive');
             container.appendChild(linkElement);
             host.appendChild(container);
         }
     }
 
-    parseTitle(string) {
-        var pos = string.lastIndexOf(" - ");
-        return string.substring(0, pos);
-    }
+    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+        let issueId = source.path;
+        let issueName = $$.try('.dealDetails .descriptionHead .title').textContent;
+        let serviceUrl = source.protocol + source.host;
+        let issueUrl = source.path;
+        let projectName = 'sales';
 
-    parseId(string) {
-        var pos = string.lastIndexOf("/");
-        return string.substr(pos + 1);
+        return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Pipedrive' };
     }
 }
 
