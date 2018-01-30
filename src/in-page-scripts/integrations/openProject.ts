@@ -2,7 +2,7 @@ class OpenProject implements WebToolIntegration {
 
     showIssueId = true;
 
-    matchUrl = /(.+\.openproject\.com)(.*\/work_packages\/.*(\d+)).*/;
+    matchUrl = /(https:\/\/.+\.openproject\.com).*\/work_packages\/\D*(\d+)/;
 
     match(source: Source): boolean {
         return $$.getAttribute('body', 'ng-app') == 'openproject';
@@ -24,8 +24,8 @@ class OpenProject implements WebToolIntegration {
 
         let match = source.fullUrl.match(this.matchUrl)
         let serviceUrl = match[1];
-        let issueUrl = match[2];
-        let issueId = '#' + match[3];
+        let issueUrl = '/work_packages/' + match[2];
+        let issueId = '#' + match[2];
         let issueName = $$.try('.work-packages--subject-type-row span.subject').textContent;
         let projectName =
             $$.try('#projects-menu').textContent ||
