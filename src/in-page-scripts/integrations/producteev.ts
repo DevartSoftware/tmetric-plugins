@@ -4,7 +4,10 @@
 
     observeMutations = true;
 
-    matchUrl = '*://www.producteev.com/workspace/t/*';
+    matchUrl = [
+        '*://www.producteev.com/workspace/t/*',
+        '*://producteev.com/workspace/t/*'
+    ];
 
     issueElementSelector = [
         '.td-content > .title',
