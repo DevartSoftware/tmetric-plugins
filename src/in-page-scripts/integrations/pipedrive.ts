@@ -2,10 +2,7 @@ class Pipedrive implements WebToolIntegration {
 
     showIssueId = false;
 
-    matchUrl = [
-        '*://*.pipedrive.com/deal/\d+',
-        '*://*.pipedrive.com/deal/*'
-    ];
+    matchUrl = /.*:\/\/.*.pipedrive.com(\/deal\/\d+)/;
 
     observeMutations = true;
 
@@ -21,11 +18,16 @@ class Pipedrive implements WebToolIntegration {
     }
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-        let issueId = source.path;
+        let issueId = source.path.match(/\d+/)[0];
         let issueName = $$.try('.dealDetails .descriptionHead .title').textContent;
         let serviceUrl = source.protocol + source.host;
-        let issueUrl = source.path;
-        let projectName = 'sales';
+        let issueUrl: string;
+        let matches = source.fullUrl.match(this.matchUrl);
+        if (matches) {
+            issueUrl = matches[1];
+        }
+
+        let projectName = '';
 
         return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Pipedrive' };
     }
