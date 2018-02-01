@@ -74,9 +74,12 @@
 
         let serviceType = 'GitLab';
 
-        let serviceUrl = (<HTMLAnchorElement>$$('a#logo')).href || source.protocol + source.host + '/';
+        let serviceUrl = (<HTMLAnchorElement>$$('a#logo')).href;
+        if (!serviceUrl || !source.fullUrl.startsWith(serviceUrl)) {
+            serviceUrl = source.protocol + source.host;
+        }
 
-        let issueUrl = $$.getRelativeUrl(serviceUrl, source.path);
+        let issueUrl = $$.getRelativeUrl(serviceUrl, source.fullUrl);
 
         var tagNames = $$.all('.labels .label').map(label => label.textContent);
 
@@ -114,12 +117,6 @@ class GitLabSidebar implements WebToolIntegration {
             return;
         }
 
-        let match = /(^.+)(\/[^\/]+\/[^\/]+\/)boards/.exec(source.fullUrl);
-
-        if (!match) {
-            return;
-        }
-
         let issueId = $$.try('.issuable-header-text > span').textContent.trim();
         let issueIdInt = issueId.replace('#', '');
 
@@ -129,9 +126,16 @@ class GitLabSidebar implements WebToolIntegration {
 
         let serviceType = 'GitLab';
 
-        let serviceUrl = match[1];
+        let serviceUrl = (<HTMLAnchorElement>$$('a#logo')).href;
+        if (!serviceUrl || !source.fullUrl.startsWith(serviceUrl)) {
+            serviceUrl = source.protocol + source.host;
+        }
 
-        let issueUrl = match[2] + 'issues/' + issueIdInt;
+        let issueUrl = $$.getRelativeUrl(serviceUrl, source.fullUrl);
+
+        if (/(.*)\/boards/.test(issueUrl)) {
+            issueUrl = issueUrl.match(/(.*)\/boards/)[1] + `/issues/${issueIdInt}`;
+        }
 
         let tagNames = $$.all('.issuable-show-labels > a span').map(label => label.textContent);
 
