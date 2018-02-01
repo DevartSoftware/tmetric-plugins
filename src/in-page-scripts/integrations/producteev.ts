@@ -5,8 +5,7 @@
     observeMutations = true;
 
     matchUrl = [
-        '*://www.producteev.com/workspace/t/*',
-        '*://producteev.com/workspace/t/*'
+        '*://*producteev.com/workspace/t/*'
     ];
 
     issueElementSelector = [
