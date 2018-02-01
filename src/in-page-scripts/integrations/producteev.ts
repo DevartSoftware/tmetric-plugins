@@ -43,14 +43,14 @@
         let issueName = $$.try('.title-header .title', contentElement).textContent;
         let projectName = $$.try('.dropdown-project .title').textContent;
         let serviceType = 'Producteev';
-        let serviceUrl = source.protocol + source.host;
+        let serviceUrl = source.protocol + 'www.producteev.com';
         let issueUrl = '/workspace/t/' + issueId;
 
         let description: string;
         if (issueElement.matches(this.issueElementSelector[1])) {
             description = $$.try('.title', issueElement).textContent;
         }
-
+        console.log({ issueId, issueName, description, projectName, serviceType, serviceUrl, issueUrl })
         return { issueId, issueName, description, projectName, serviceType, serviceUrl, issueUrl };
     }
 }
