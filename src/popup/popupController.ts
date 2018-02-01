@@ -8,7 +8,7 @@
             .then(data => {
                 this.setData(data);
 
-                if (this.isLongRunning(data.timer.startTime)) {
+                if (data.timer.isStarted && this.isLongRunning(data.timer.startTime)) {
                     this.fillFixForm(data.timer);
                     this.switchState(this._states.fixing);
                 } else if (!suppressViewState && data.timer && data.timer.isStarted) {
