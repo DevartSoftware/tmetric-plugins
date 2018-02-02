@@ -2,7 +2,7 @@ class Pipedrive implements WebToolIntegration {
 
     showIssueId = false;
 
-    matchUrl = /.*:\/\/.*.pipedrive.com(\/deal\/\d+)/;
+    matchUrl = /.*:\/\/.*.pipedrive.com(\/deal\/(\d+))/;
 
     observeMutations = true;
 
@@ -11,22 +11,22 @@ class Pipedrive implements WebToolIntegration {
         if (host) {
             let container = $$.create('span');
             container.classList.add('input', 'spinWrapper', 'lost');
-            linkElement.classList.add('devart-timer-link-pipedrive');
-            container.appendChild(linkElement);
+
+            let span = $$.create('span');
+            span.classList.add('devart-timer-link-pipedrive', 'button');
+            span.appendChild(linkElement);
+
+            container.appendChild(span);
+
             host.appendChild(container);
         }
     }
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-        let issueId = source.path.match(/\d+/)[0];
+        let issueId = source.fullUrl.match(this.matchUrl)[2];
         let issueName = $$.try('.dealDetails .descriptionHead .title').textContent;
         let serviceUrl = source.protocol + source.host;
-        let issueUrl: string;
-        let matches = source.fullUrl.match(this.matchUrl);
-        if (matches) {
-            issueUrl = matches[1];
-        }
-
+        let issueUrl = source.fullUrl.match(this.matchUrl)[1];
         let projectName = '';
 
         return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Pipedrive' };
