@@ -10,26 +10,26 @@ class Pipedrive implements WebToolIntegration {
         let host = $$('.dealDetails .actionsContent .stateActions');
         if (host) {
             let container = $$.create('span');
-            container.classList.add('input', 'spinWrapper', 'lost');
+            container.classList.add('content', 'relatedItems');
 
             let span = $$.create('span');
-            span.classList.add('devart-timer-link-pipedrive', 'button');
+            span.classList.add('relatedItem', 'devart-timer-link-pipedrive');
             span.appendChild(linkElement);
 
             container.appendChild(span);
 
-            host.appendChild(container);
+            host.insertBefore(container, host.firstElementChild);
         }
     }
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-        let issueId = source.fullUrl.match(this.matchUrl)[2];
+        let matches = source.fullUrl.match(this.matchUrl);
+        let issueId = matches[2];
         let issueName = $$.try('.dealDetails .descriptionHead .title').textContent;
         let serviceUrl = source.protocol + source.host;
-        let issueUrl = source.fullUrl.match(this.matchUrl)[1];
-        let projectName = '';
+        let issueUrl = matches[1];
 
-        return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Pipedrive' };
+        return { issueId, issueName, issueUrl, serviceUrl, serviceType: 'Pipedrive' };
     }
 }
 
