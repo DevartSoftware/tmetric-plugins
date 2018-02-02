@@ -50,7 +50,7 @@
         if (issueElement.matches(this.issueElementSelector[1])) {
             description = $$.try('.title', issueElement).textContent;
         }
-        console.log({ issueId, issueName, description, projectName, serviceType, serviceUrl, issueUrl })
+
         return { issueId, issueName, description, projectName, serviceType, serviceUrl, issueUrl };
     }
 }
