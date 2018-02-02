@@ -91,7 +91,7 @@ class GitLabSidebar implements WebToolIntegration {
 
     showIssueId = true;
 
-    matchUrl = '*://*/boards';
+    matchUrl = /(.*)\/boards/;
 
     observeMutations = true;
 
@@ -133,8 +133,8 @@ class GitLabSidebar implements WebToolIntegration {
 
         let issueUrl = $$.getRelativeUrl(serviceUrl, source.fullUrl);
 
-        if (/(.*)\/boards/.test(issueUrl)) {
-            issueUrl = issueUrl.match(/(.*)\/boards/)[1] + `/issues/${issueIdInt}`;
+        if (this.matchUrl.test(issueUrl)) {
+            issueUrl = issueUrl.match(this.matchUrl)[1] + `/issues/${issueIdInt}`;
         }
 
         let tagNames = $$.all('.issuable-show-labels > a span').map(label => label.textContent);
