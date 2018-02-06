@@ -7,7 +7,7 @@ class Pipedrive implements WebToolIntegration {
     observeMutations = true;
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        let host = $$('.dealDetails .actionsContent .stateActions');
+        let host = $$.visible('.dealDetails .actionsContent .stateActions');
         if (host) {
             let container = $$.create('span');
             container.classList.add('content', 'relatedItems');
@@ -25,7 +25,12 @@ class Pipedrive implements WebToolIntegration {
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
         let matches = source.fullUrl.match(this.matchUrl);
         let issueId = matches[2];
-        let issueName = $$.try('.dealDetails .descriptionHead .title').textContent;
+        let issueName: string;
+        let title = $$.visible('.dealDetails .descriptionHead .title');
+        if (title) {
+            issueName = title.textContent;
+        }
+
         let serviceUrl = source.protocol + source.host;
         let issueUrl = matches[1];
 
