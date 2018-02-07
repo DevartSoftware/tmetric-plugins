@@ -10,52 +10,43 @@ class Teamwork implements WebToolIntegration {
     matchUrl = new RegExp('.*:\/\/.*\.' + hosts + '\/.*');
 
     issueElementSelector() {
-        return $$.all('#Task > .titleHolder').concat($$.all('.taskInner'));
+        return $$.all('.row-content-holder');
     }
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        if (issueElement.parentElement.id == 'Task') {
-            // single task view
-            let host = $$('.options', issueElement);
-            if (host) {
-                let linkContainer = $$.create('li');
-                linkContainer.appendChild(linkElement);
-                linkElement.classList.add('btn', 'btn-default');
-                host.insertBefore(linkContainer, host.firstElementChild);
-            }
-        } else {
-            // task list view
-            let host = $$('.taskUsedOps', issueElement);
-            if (host) {
-                let linkContainer = $$.create('span', 'devart-timer-link-teamwork');
-                linkContainer.appendChild(linkElement);
-                host.parentElement.insertBefore(linkContainer, host.nextElementSibling);
-            }
+        let host = $$('.task-options', issueElement);
+        if (host) {
+            let container = $$.create('span');
+            linkElement.classList.add('option');
+            container.classList.add('devart-timer-link-teamwork');
+            container.appendChild(linkElement);
+            host.insertBefore(container, host.querySelector('.task-options > a:not(.active)'));
         }
     }
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        var issueName =
-            $$.try('.taskName', issueElement).textContent || // tasks from list
-            $$.try('#Task .taskDetailsName').textContent; // top task in single view
+        let issueName = $$.try('.task-name > span', issueElement).textContent;
         if (!issueName) {
             return;
         }
 
         // get identifier from href or from top task in single view
-        var issueHref = $$.getAttribute('.taskRHSText .ql.tipped', 'href', issueElement);
-        var issueHrefMatch = /^.*tasks\/(\d+)$/.exec(issueHref);
-        var issueIdNumber = issueHrefMatch ? issueHrefMatch[1] : $$.getAttribute('#Task .commentForm input[name=objectId]', 'value');
+        let issueId: string;
+        let issueUrl: string;
+        let issueHref = $$.getAttribute('.task-name a[href*="tasks"]', 'href', issueElement);
 
-        if (issueIdNumber) {
-            var issueId = '#' + issueIdNumber;
+        let matches = issueHref.match(/^.*tasks\/(\d+)$/);
+        if (matches) {
+            issueId = '#' + matches[1];
+            issueUrl = 'tasks/' + matches[1];
         }
 
         // single project tasks view
-        var projectNameElement = $$('#projectName');
+        let projectName: string;
+        let projectNameElement = $$('#projectName');
         if (projectNameElement) {
-            var projectName = projectNameElement.firstChild.textContent;
+            projectName = projectNameElement.firstChild.textContent;
         }
 
         // multi project tasks view
@@ -67,11 +58,9 @@ class Teamwork implements WebToolIntegration {
             }
         }
 
-        var serviceType = 'Teamwork';
+        let serviceType = 'Teamwork';
 
-        var serviceUrl = source.protocol + source.host;
-
-        var issueUrl = 'tasks/' + issueIdNumber;
+        let serviceUrl = source.protocol + source.host;
 
         return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
     }
