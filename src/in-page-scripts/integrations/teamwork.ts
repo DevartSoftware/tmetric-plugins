@@ -117,7 +117,11 @@ class TeamworkDesk implements WebToolIntegration {
             issueIdNumber = issueHrefMatch && issueHrefMatch[1];
             issueId = '#' + issueIdNumber;
             issueUrlPrefix = 'tasks/';
-            projectName = $$.try('ul.task-meta.list-inline a', issueElement).textContent;
+            projectName = $$.try(
+                'ul.task-meta.list-inline a',
+                issueElement,
+                el => /\/projects\/\d+/.test(el.getAttribute('href'))
+            ).textContent;
         }
 
         if (!issueName) {
