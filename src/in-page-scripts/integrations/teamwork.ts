@@ -55,6 +55,8 @@ class Teamwork implements WebToolIntegration {
             let parentRowElement = $$.closest('tr', issueElement);
             if (parentRowElement) {
                 projectName = $$.try('.prjName', parentRowElement).textContent;
+            } else {
+                projectName = $$.try('#top-left-header h3').textContent;
             }
         }
 
