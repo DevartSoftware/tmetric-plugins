@@ -8,13 +8,24 @@
         '*://app.asana.com/*/*',
     ];
 
+    issueElementSelector = [
+        '.SingleTaskPane',          // task
+        '.SubtaskTaskRow'           // sub-task
+    ]
+
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        var host = $$('.SingleTaskTitleRow', issueElement) || // side view
-            $$('.sticky-view-placeholder', issueElement); // card view
-        if (host) {
-            var linkContainer = $$.create('div', 'devart-timer-link-asana');
+
+        if (issueElement.matches(this.issueElementSelector[0])) {
+            let linkContainer = $$.create('div', 'devart-timer-link-asana');
             linkContainer.appendChild(linkElement);
-            host.parentElement.insertBefore(linkContainer, host.nextElementSibling);
+            $$('.SingleTaskTitleRow, .sticky-view-placeholder', issueElement)
+                .insertAdjacentElement('afterend', linkContainer);
+        }
+
+        if (issueElement.matches(this.issueElementSelector[1])) {
+            let container = $$('.ItemRow-right', issueElement);
+            linkElement.classList.add('devart-timer-link-minimal');
+            container.insertBefore(linkElement, container.firstElementChild);
         }
     }
 
@@ -34,6 +45,24 @@
 
         var issueName = $$.try<HTMLTextAreaElement>('.SingleTaskTitleRow .simpleTextarea', issueElement).value || // new layout
             $$.try<HTMLTextAreaElement>('#details_property_sheet_title', issueElement).value; // old layout
+
+        var description: string;
+
+        if (issueElement.matches(this.issueElementSelector[1])) {
+            // get for subtask same to main task issue name
+            issueName = $$.try<HTMLTextAreaElement>('.SingleTaskTitleRow .simpleTextarea',
+                issueElement.closest(this.issueElementSelector[0])).value || // new layout
+                $$.try<HTMLTextAreaElement>('#details_property_sheet_title',
+                    issueElement.closest(this.issueElementSelector[0])).value; // old layout
+
+            description = $$.try<HTMLTextAreaElement>('.SubtaskTaskRow textarea', issueElement).value;
+
+            // prevent adding timer button to the empty sub-task (empty sub-task has no description)
+            if (!description) {
+                return;
+            }
+        }
+
         if (!issueName) {
             return;
         }
@@ -50,7 +79,7 @@
 
         var tagNames = $$.all('.TaskTags .Token').map(label => label.textContent);
 
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
+        return { issueId, issueName, projectName, serviceType, description, serviceUrl, issueUrl, tagNames };
     }
 }
 
