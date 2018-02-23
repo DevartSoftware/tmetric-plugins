@@ -4,9 +4,7 @@
 
     observeMutations = true;
 
-    matchUrl = [
-        '*://app.asana.com/*/*',
-    ];
+    matchUrl = '*://app.asana.com/*/*';
 
     issueElementSelector = [
         '.SingleTaskPane',          // task
@@ -31,28 +29,36 @@
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
+        let issueId: string;
+        let issueUrl: string;
+
         // Project url:
         // https://app.asana.com/0/PROJECT_ID
         // Project task url:
         // https://app.asana.com/0/PROJECT_ID/TASK_ID
         // Project search url:
         // https://app.asana.com/0/search/PROJECT_ID/TASK_ID
-        var match = /^\/(\w+)(\/search)?\/(\d+)\/(\d+)(\/f)?$/.exec(source.path);
+        let match = /^\/(\w+)(\/search)?\/(\d+)\/(\d+)(\/f)?$/.exec(source.path);
         if (match) {
-            var issueId = '#' + match[4];
-            var issueUrl = '/0/0/' + match[4];
+            issueId = '#' + match[4];
+            issueUrl = '/0/0/' + match[4];
         }
 
-        var issueName = $$.try<HTMLTextAreaElement>('.SingleTaskTitleRow .simpleTextarea', issueElement).value || // new layout
-            $$.try<HTMLTextAreaElement>('#details_property_sheet_title', issueElement).value; // old layout
+        let rootIssueElement = issueElement.closest(this.issueElementSelector[0]);
+        if (!rootIssueElement) {
+            return;
+        }
 
-        var description: string;
+        let issueName = $$.try<HTMLTextAreaElement>('.SingleTaskTitleRow .simpleTextarea', rootIssueElement).value || // new layout
+            $$.try<HTMLTextAreaElement>('#details_property_sheet_title', rootIssueElement).value; // old layout
+
+        if (!issueName) {
+            return;
+        }
+
+        let description: string;
 
         if (issueElement.matches(this.issueElementSelector[1])) {
-            let rootIssueSelector = issueElement.closest(this.issueElementSelector[0]);
-            // get for subtask same to main task issue name
-            issueName = $$.try<HTMLTextAreaElement>('.SingleTaskTitleRow .simpleTextarea', rootIssueSelector).value || // new layout
-                $$.try<HTMLTextAreaElement>('#details_property_sheet_title', rootIssueSelector).value; // old layout
 
             description = $$.try<HTMLTextAreaElement>('.SubtaskTaskRow textarea', issueElement).value;
 
@@ -62,21 +68,17 @@
             }
         }
 
-        if (!issueName) {
-            return;
-        }
-
-        var projectName =
+        let projectName =
             $$.try('.TaskProjectToken-projectName').textContent || // new layout task project token
             $$.try('.TaskProjectPill-projectName').textContent || // new layout task project pill
             $$.try('.TaskAncestry-ancestorProject').textContent || // new layout subtask project
             $$.try('.tokens-container .token_name').textContent || // old layout task project
             $$.try('.ancestor-projects .token').textContent; // old layout subtask project
 
-        var serviceType = 'Asana';
-        var serviceUrl = source.protocol + source.host;
+        let serviceType = 'Asana';
+        let serviceUrl = source.protocol + source.host;
 
-        var tagNames = $$.all('.TaskTags .Token').map(label => label.textContent);
+        let tagNames = $$.all('.TaskTags .Token').map(label => label.textContent);
 
         return { issueId, issueName, projectName, serviceType, description, serviceUrl, issueUrl, tagNames };
     }
