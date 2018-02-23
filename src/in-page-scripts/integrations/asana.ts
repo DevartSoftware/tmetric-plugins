@@ -49,11 +49,10 @@
         var description: string;
 
         if (issueElement.matches(this.issueElementSelector[1])) {
+            let rootIssueSelector = issueElement.closest(this.issueElementSelector[0]);
             // get for subtask same to main task issue name
-            issueName = $$.try<HTMLTextAreaElement>('.SingleTaskTitleRow .simpleTextarea',
-                issueElement.closest(this.issueElementSelector[0])).value || // new layout
-                $$.try<HTMLTextAreaElement>('#details_property_sheet_title',
-                    issueElement.closest(this.issueElementSelector[0])).value; // old layout
+            issueName = $$.try<HTMLTextAreaElement>('.SingleTaskTitleRow .simpleTextarea', rootIssueSelector).value || // new layout
+                $$.try<HTMLTextAreaElement>('#details_property_sheet_title', rootIssueSelector).value; // old layout
 
             description = $$.try<HTMLTextAreaElement>('.SubtaskTaskRow textarea', issueElement).value;
 
