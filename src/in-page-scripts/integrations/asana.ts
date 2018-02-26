@@ -29,8 +29,40 @@
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        let issueId: string;
-        let issueUrl: string;
+        let issueName: string;
+        let issuePath: string;
+        let description: string;
+
+        if (issueElement.matches(this.issueElementSelector[0])) {
+            issueName = $$.try<HTMLTextAreaElement>('.SingleTaskTitleRow .simpleTextarea', issueElement).value;
+            issuePath = source.path;
+        } else {
+
+            // Subtask
+            description = $$.try<HTMLTextAreaElement>('.SubtaskTaskRow textarea', issueElement).value;
+
+            // Do not add link to empty sub-task
+            if (!description) {
+                return;
+            }
+
+            // Find root task
+            let rootTaskPane = $$.closest('.SingleTaskPane', issueElement);
+            if (!rootTaskPane) {
+                return;
+            }
+            let rootTask = <HTMLAnchorElement>$$('.TaskAncestry-ancestor a', rootTaskPane);
+            if (!rootTask || !rootTask.textContent) {
+                return;
+            }
+
+            // Get issue name and path
+            issueName = rootTask.textContent;
+            let match = /:\/\/[^\/]+(\/[^\?#]+)/.exec(rootTask.href);
+            if (match) {
+                issuePath = match[1];
+            }
+        }
 
         // Project url:
         // https://app.asana.com/0/PROJECT_ID
@@ -38,42 +70,18 @@
         // https://app.asana.com/0/PROJECT_ID/TASK_ID
         // Project search url:
         // https://app.asana.com/0/search/PROJECT_ID/TASK_ID
-        let match = /^\/(\w+)(\/search)?\/(\d+)\/(\d+)(\/f)?$/.exec(source.path);
+        let issueId: string;
+        let issueUrl: string;
+        let match = /^\/\w+(?:\/search)?\/\d+\/(\d+)/.exec(issuePath);
         if (match) {
-            issueId = '#' + match[4];
-            issueUrl = '/0/0/' + match[4];
-        }
-
-        let rootIssueElement = issueElement.closest(this.issueElementSelector[0]);
-        if (!rootIssueElement) {
-            return;
-        }
-
-        let issueName = $$.try<HTMLTextAreaElement>('.SingleTaskTitleRow .simpleTextarea', rootIssueElement).value || // new layout
-            $$.try<HTMLTextAreaElement>('#details_property_sheet_title', rootIssueElement).value; // old layout
-
-        if (!issueName) {
-            return;
-        }
-
-        let description: string;
-
-        if (issueElement.matches(this.issueElementSelector[1])) {
-
-            description = $$.try<HTMLTextAreaElement>('.SubtaskTaskRow textarea', issueElement).value;
-
-            // prevent adding timer button to the empty sub-task (empty sub-task has no description)
-            if (!description) {
-                return;
-            }
+            issueId = '#' + match[1];
+            issueUrl = '/0/0/' + match[1];
         }
 
         let projectName =
-            $$.try('.TaskProjectToken-projectName').textContent || // new layout task project token
-            $$.try('.TaskProjectPill-projectName').textContent || // new layout task project pill
-            $$.try('.TaskAncestry-ancestorProject').textContent || // new layout subtask project
-            $$.try('.tokens-container .token_name').textContent || // old layout task project
-            $$.try('.ancestor-projects .token').textContent; // old layout subtask project
+            $$.try('.TaskProjectToken-projectName').textContent || // task project token
+            $$.try('.TaskProjectPill-projectName').textContent || // task project pill
+            $$.try('.TaskAncestry-ancestorProject').textContent; // subtask project
 
         let serviceType = 'Asana';
         let serviceUrl = source.protocol + source.host;
