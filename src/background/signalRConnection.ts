@@ -2,9 +2,9 @@
 
     url: string;
 
-    hub: HubConnection;
+    hub: SignalR.Hub.Connection;
 
-    hubProxy: HubProxy;
+    hubProxy: SignalR.Hub.Proxy;
 
     hubConnected: boolean;
 
@@ -243,7 +243,7 @@
                 .then(([version, profile]) => {
                     this.waitAllRejects([this.getAccount(), this.getProjects(), this.getTags()])
                         .then(() => {
-                            this.hub.start()
+                            this.hub.start({ pingInterval: null })
                                 .then(() => {
                                     //this.hub['disconnectTimeout'] = 1000; // for dev
                                     this.hubConnected = true;
