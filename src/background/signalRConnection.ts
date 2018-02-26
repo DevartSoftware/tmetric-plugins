@@ -49,6 +49,15 @@
 
     constructor() {
 
+        let signalRInternal = (<any>$.signalR).fn;
+        Object.defineProperty(signalRInternal, 'reconnectDelay', {
+            configurable: true,
+            get: () => {
+                let delay = 2000 * (1 + Math.random()); // 2..4 seconds
+                return delay | 0; // Cast to int
+            }
+        });
+
         this.waitAllRejects = <any>((promises: Promise<any>[]) => new Promise((resolve, reject) => {
 
             let error = null;
