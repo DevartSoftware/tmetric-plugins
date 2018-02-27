@@ -53,8 +53,8 @@
         Object.defineProperty(signalRInternal, 'reconnectDelay', {
             configurable: true,
             get: () => {
-                let delay = 2000 * (1 + Math.random()); // 2..4 seconds
-                return delay | 0; // Cast to int
+                let delay = 3 + 24 * Math.random(); // 3..27 seconds
+                return (delay * 1000) | 0; // Convert to integer milliseconds
             }
         });
 
