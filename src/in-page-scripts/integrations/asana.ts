@@ -4,9 +4,7 @@
 
     observeMutations = true;
 
-    matchUrl = [
-        '*://app.asana.com/*/*',
-    ];
+    matchUrl = '*://app.asana.com/*/*';
 
     issueElementSelector = [
         '.SingleTaskPane',          // task
@@ -31,52 +29,61 @@
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
+        let description: string;
+
+        // Find root task
+        let rootTaskPane = $$.closest('.SingleTaskPane', issueElement);
+        if (!rootTaskPane) {
+            return;
+        }
+
+        let issueName = $$.try<HTMLTextAreaElement>('.SingleTaskTitleRow .simpleTextarea', rootTaskPane).value;
+        let issuePath = source.path;
+
+        // Sub-tasks
+        if (issueElement.matches(this.issueElementSelector[1])) {
+
+            // Do not add link to empty sub-task
+            description = $$.try<HTMLTextAreaElement>('.SubtaskTaskRow textarea', issueElement).value;
+            if (!description) {
+                return;
+            }
+
+            // Get root task for sub-sub-tasks
+            let rootTask = <HTMLAnchorElement>$$('.TaskAncestry-ancestor a', rootTaskPane);
+            if (rootTask) {
+                // Get issue name and path
+                issueName = rootTask.textContent;
+                let match = /:\/\/[^\/]+(\/[^\?#]+)/.exec(rootTask.href);
+                if (match) {
+                    issuePath = match[1];
+                }
+            }
+        }
+
         // Project url:
         // https://app.asana.com/0/PROJECT_ID
         // Project task url:
         // https://app.asana.com/0/PROJECT_ID/TASK_ID
         // Project search url:
         // https://app.asana.com/0/search/PROJECT_ID/TASK_ID
-        var match = /^\/(\w+)(\/search)?\/(\d+)\/(\d+)(\/f)?$/.exec(source.path);
+        let issueId: string;
+        let issueUrl: string;
+        let match = /^\/\w+(?:\/search)?\/\d+\/(\d+)/.exec(issuePath);
         if (match) {
-            var issueId = '#' + match[4];
-            var issueUrl = '/0/0/' + match[4];
+            issueId = '#' + match[1];
+            issueUrl = '/0/0/' + match[1];
         }
 
-        var issueName = $$.try<HTMLTextAreaElement>('.SingleTaskTitleRow .simpleTextarea', issueElement).value || // new layout
-            $$.try<HTMLTextAreaElement>('#details_property_sheet_title', issueElement).value; // old layout
+        let projectName =
+            $$.try('.TaskProjectToken-projectName').textContent || // task project token
+            $$.try('.TaskProjectPill-projectName').textContent || // task project pill
+            $$.try('.TaskAncestry-ancestorProject').textContent; // subtask project
 
-        var description: string;
+        let serviceType = 'Asana';
+        let serviceUrl = source.protocol + source.host;
 
-        if (issueElement.matches(this.issueElementSelector[1])) {
-            let rootIssueSelector = issueElement.closest(this.issueElementSelector[0]);
-            // get for subtask same to main task issue name
-            issueName = $$.try<HTMLTextAreaElement>('.SingleTaskTitleRow .simpleTextarea', rootIssueSelector).value || // new layout
-                $$.try<HTMLTextAreaElement>('#details_property_sheet_title', rootIssueSelector).value; // old layout
-
-            description = $$.try<HTMLTextAreaElement>('.SubtaskTaskRow textarea', issueElement).value;
-
-            // prevent adding timer button to the empty sub-task (empty sub-task has no description)
-            if (!description) {
-                return;
-            }
-        }
-
-        if (!issueName) {
-            return;
-        }
-
-        var projectName =
-            $$.try('.TaskProjectToken-projectName').textContent || // new layout task project token
-            $$.try('.TaskProjectPill-projectName').textContent || // new layout task project pill
-            $$.try('.TaskAncestry-ancestorProject').textContent || // new layout subtask project
-            $$.try('.tokens-container .token_name').textContent || // old layout task project
-            $$.try('.ancestor-projects .token').textContent; // old layout subtask project
-
-        var serviceType = 'Asana';
-        var serviceUrl = source.protocol + source.host;
-
-        var tagNames = $$.all('.TaskTags .Token').map(label => label.textContent);
+        let tagNames = $$.all('.TaskTags .Token').map(label => label.textContent);
 
         return { issueId, issueName, projectName, serviceType, description, serviceUrl, issueUrl, tagNames };
     }
