@@ -38,6 +38,20 @@
     margin: 1em 30px 0 30px;
 }
 
+.devart-timer-link-asana-subtask {
+    &.devart-timer-link-minimal {
+        opacity: 0;
+
+        .ItemRow:hover &:hover {
+            opacity: 1;
+        }
+
+        .ItemRow:hover &:not(:hover) {
+            opacity: .54;
+        }
+    }
+}
+
 .devart-timer-link-assembla {
     margin-top: 1em !important;
 }
