@@ -29,38 +29,35 @@
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        let issueName: string;
-        let issuePath: string;
         let description: string;
 
-        if (issueElement.matches(this.issueElementSelector[0])) {
-            issueName = $$.try<HTMLTextAreaElement>('.SingleTaskTitleRow .simpleTextarea', issueElement).value;
-            issuePath = source.path;
-        } else {
+        // Find root task
+        let rootTaskPane = $$.closest('.SingleTaskPane', issueElement);
+        if (!rootTaskPane) {
+            return;
+        }
 
-            // Subtask
-            description = $$.try<HTMLTextAreaElement>('.SubtaskTaskRow textarea', issueElement).value;
+        let issueName = $$.try<HTMLTextAreaElement>('.SingleTaskTitleRow .simpleTextarea', rootTaskPane).value;
+        let issuePath = source.path;
+
+        // Sub-tasks
+        if (issueElement.matches(this.issueElementSelector[1])) {
 
             // Do not add link to empty sub-task
+            description = $$.try<HTMLTextAreaElement>('.SubtaskTaskRow textarea', issueElement).value;
             if (!description) {
                 return;
             }
 
-            // Find root task
-            let rootTaskPane = $$.closest('.SingleTaskPane', issueElement);
-            if (!rootTaskPane) {
-                return;
-            }
+            // Get root task for sub-sub-tasks
             let rootTask = <HTMLAnchorElement>$$('.TaskAncestry-ancestor a', rootTaskPane);
-            if (!rootTask || !rootTask.textContent) {
-                return;
-            }
-
-            // Get issue name and path
-            issueName = rootTask.textContent;
-            let match = /:\/\/[^\/]+(\/[^\?#]+)/.exec(rootTask.href);
-            if (match) {
-                issuePath = match[1];
+            if (rootTask) {
+                // Get issue name and path
+                issueName = rootTask.textContent;
+                let match = /:\/\/[^\/]+(\/[^\?#]+)/.exec(rootTask.href);
+                if (match) {
+                    issuePath = match[1];
+                }
             }
         }
 
