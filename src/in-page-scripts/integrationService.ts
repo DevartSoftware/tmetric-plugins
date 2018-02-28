@@ -264,7 +264,9 @@
         newLink.setAttribute('data-session', this.session.toString());
         newLink.href = '#';
         newLink.title = 'Track spent time via TMetric service';
-        newLink.onclick = function () {
+        newLink.onclick = function (e) {
+            e.stopPropagation();
+
             window.frameElement && window.frameElement.tagName == 'FRAME' ?
                 sendBackgroundMessage({ action: 'forcePutTimer', data: newIssueTimer }) :
                 sendBackgroundMessage({ action: 'putTimer', data: newIssueTimer });
