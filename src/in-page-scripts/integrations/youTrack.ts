@@ -6,7 +6,10 @@
 
     matchUrl = '*://*/issue/*';
 
-    issueElementSelector = '.content_fsi .toolbar_fsi';
+    issueElementSelector = [
+        '.content_fsi .toolbar_fsi', // old interface
+        '.yt-issue-body__summary'    // new interface
+    ];
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
         issueElement.appendChild(linkElement);
