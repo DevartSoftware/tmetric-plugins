@@ -40,8 +40,6 @@
             return;
         }
 
-        issueName = issueName.trim();
-
         var projectName = $$.try('.fsi-properties .fsi-property .attribute.bold').textContent;
 
         var serviceType = 'YouTrack';
