@@ -4,13 +4,14 @@
 
     observeMutations = true;
 
-    matchUrl = '*://www.wrike.com/workspace.htm#*';
+    matchUrl = '*://www.wrike.com/workspace.htm*';
 
     issueElementSelector = '.wspace-task-view';
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
         let host = $$('.wrike-panel-header-toolbar', issueElement);
         if (host) {
+            linkElement.classList.add('devart-timer-link-wrike');
             host.insertBefore(linkElement, host.firstElementChild);
         }
     }
