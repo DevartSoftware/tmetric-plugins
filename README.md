@@ -33,6 +33,7 @@ Web browsers are **Chrome**, **Firefox**, **Edge**, and **Opera**.
 * [Todoist](https://todoist.com)
 * [Trac](https://trac.edgewall.org)
 * [Trello](https://trello.com)
+* [UseDesk](https://usedesk.com/)
 * [UserEcho](https://userecho.com)
 * [UserVoice](https://www.uservoice.com)
 * [Visual Studio Online](https://www.visualstudio.com)
