@@ -122,17 +122,42 @@
             } else {
                 this._possibleIntegrations = [integration];
 
-                // render new links now to prevent flicker on task services which observe mutations
+                // render new links immediately to prevent flickering on task services which observe mutations
                 let newParsedIssues = parsedIssues.filter(issue => !$$('a.' + this.affix, issue.element));
-                IntegrationService.updateIssues(integration, newParsedIssues);
+                let issuesUpdated = IntegrationService.updateIssues(integration, newParsedIssues);
                 this.onIssueLinksUpdated();
 
-                // render links with actual durations later
-                this.getIssuesDurations(issues).then(durations => {
-                    IntegrationService._issueDurationsCache = durations;
-                    IntegrationService.updateIssues(integration, parsedIssues);
-                    this.onIssueLinksUpdated();
-                });
+                // render links with actual durations later only when issues changed (TE-256)
+                if (issuesUpdated) {
+
+                    // get identifiers
+                    const compareTexts = (a: string, b: string) =>
+                        a > b ? 1 : (a < b ? -1 : 0);
+                    const compareIssues = (a: WebToolIssueIdentifier, b: WebToolIssueIdentifier) =>
+                        compareTexts(a.serviceUrl, b.serviceUrl) || compareTexts(a.issueUrl, b.issueUrl);
+                    let identifiers = issues
+                        .filter(_ => !!_.serviceUrl)
+                        .map(_ => <WebToolIssueIdentifier>{ serviceUrl: _.serviceUrl, issueUrl: _.issueUrl })
+                        .sort(compareIssues);
+
+                    if (identifiers.length) {
+
+                        // remove duplicates
+                        for (let i = 1; i < identifiers.length; i++) {
+                            if (!compareIssues(identifiers[i - 1], identifiers[i])) {
+                                identifiers.splice(i, 1);
+                                i--;
+                            }
+                        }
+
+                        // get actual durations
+                        this.getIssuesDurations(identifiers).then(durations => {
+                            IntegrationService._issueDurationsCache = durations;
+                            IntegrationService.updateIssues(integration, parsedIssues);
+                            this.onIssueLinksUpdated();
+                        });
+                    }
+                }
 
                 return true;
             }
@@ -145,6 +170,8 @@
 
         const MIN = 60 * 1000;
         const HOUR = 60 * MIN;
+
+        let issuesUpdated = false;
 
         issues.forEach(({ element, issue }) => {
 
@@ -160,8 +187,12 @@
             }
 
             duration = Math.floor(duration / MIN) * MIN;
-            this.updateLink(element, integration, issue, duration);
+            if (this.updateLink(element, integration, issue, duration)) {
+                issuesUpdated = true;
+            }
         });
+
+        return issuesUpdated;
     }
 
     private static _issueDurationsCache: WebToolIssueDuration[] = [];
@@ -283,6 +314,8 @@
         newLink.appendChild(span);
 
         integration.render(element, newLink);
+
+        return true;
     }
 
     static clearPage() {
