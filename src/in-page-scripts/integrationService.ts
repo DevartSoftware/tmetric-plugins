@@ -46,7 +46,7 @@
         // Find 'Stop' link or 'Start' link associated with current timer.
         // If it is found we should refresh links on a page.
         return $$.all('a.' + this.affix).some(link => {
-            let linkTimer = <WebToolIssueTimer>JSON.parse(link.getAttribute('data-' + this.affix));
+            let linkTimer = this.parseLinkTimer(link);
             this.checkTimerExternalTask(linkTimer);
             return !linkTimer.isStarted || this.isIssueStarted(linkTimer);
         });
@@ -122,41 +122,50 @@
             } else {
                 this._possibleIntegrations = [integration];
 
+                const compareTexts = (a: string, b: string) =>
+                    a > b ? 1 : (a < b ? -1 : 0);
+                const compareIdentifiers = (a: WebToolIssueIdentifier, b: WebToolIssueIdentifier) =>
+                    compareTexts(a.serviceUrl, b.serviceUrl) || compareTexts(a.issueUrl, b.issueUrl);
+                const removeDuplicates = (identifiers: WebToolIssueIdentifier[]) => {
+                    identifiers.sort(compareIdentifiers);
+                    for (let i = 1; i < identifiers.length; i++) {
+                        if (!compareIdentifiers(identifiers[i - 1], identifiers[i])) {
+                            identifiers.splice(i, 1);
+                            i--;
+                        }
+                    }
+                }
+
+                // get old identifiers
+                let oldIdentifiers = $$.all('a.' + this.affix)
+                    .map(oldLink => this.parseLinkTimer(oldLink))
+                    .map(issue => <WebToolIssueIdentifier>{ serviceUrl: issue.serviceUrl, issueUrl: issue.issueUrl });
+
                 // render new links immediately to prevent flickering on task services which observe mutations
                 let newParsedIssues = parsedIssues.filter(issue => !$$('a.' + this.affix, issue.element));
-                let issuesUpdated = IntegrationService.updateIssues(integration, newParsedIssues);
+                IntegrationService.updateIssues(integration, newParsedIssues);
                 this.onIssueLinksUpdated();
 
-                // render links with actual durations later only when issues changed (TE-256)
-                if (issuesUpdated) {
+                // get new identifiers, excluding those that are not rendered
+                let newIdentifiers = parsedIssues
+                    .filter(_ => !!(_.issue.serviceUrl && $$('a.' + this.affix, _.element)))
+                    .map(_ => <WebToolIssueIdentifier>{ serviceUrl: _.issue.serviceUrl, issueUrl: _.issue.issueUrl });
+                removeDuplicates(newIdentifiers);
 
-                    // get identifiers
-                    const compareTexts = (a: string, b: string) =>
-                        a > b ? 1 : (a < b ? -1 : 0);
-                    const compareIssues = (a: WebToolIssueIdentifier, b: WebToolIssueIdentifier) =>
-                        compareTexts(a.serviceUrl, b.serviceUrl) || compareTexts(a.issueUrl, b.issueUrl);
-                    let identifiers = issues
-                        .filter(_ => !!_.serviceUrl)
-                        .map(_ => <WebToolIssueIdentifier>{ serviceUrl: _.serviceUrl, issueUrl: _.issueUrl })
-                        .sort(compareIssues);
+                // get all (new + old) identifiers
+                let allIdentifiers = oldIdentifiers.concat(newIdentifiers);
+                removeDuplicates(allIdentifiers);
 
-                    if (identifiers.length) {
+                // render links with actual durations later only when new issues found (TE-256)
+                if (allIdentifiers.length > oldIdentifiers.length ||
+                    allIdentifiers.some((identifier, i) => !!compareIdentifiers(identifier, oldIdentifiers[i]))) {
 
-                        // remove duplicates
-                        for (let i = 1; i < identifiers.length; i++) {
-                            if (!compareIssues(identifiers[i - 1], identifiers[i])) {
-                                identifiers.splice(i, 1);
-                                i--;
-                            }
-                        }
-
-                        // get actual durations
-                        this.getIssuesDurations(identifiers).then(durations => {
-                            IntegrationService._issueDurationsCache = durations;
-                            IntegrationService.updateIssues(integration, parsedIssues);
-                            this.onIssueLinksUpdated();
-                        });
-                    }
+                    // get actual durations
+                    this.getIssuesDurations(newIdentifiers).then(durations => {
+                        IntegrationService._issueDurationsCache = durations;
+                        IntegrationService.updateIssues(integration, parsedIssues);
+                        this.onIssueLinksUpdated();
+                    });
                 }
 
                 return true;
@@ -170,8 +179,6 @@
 
         const MIN = 60 * 1000;
         const HOUR = 60 * MIN;
-
-        let issuesUpdated = false;
 
         issues.forEach(({ element, issue }) => {
 
@@ -187,12 +194,8 @@
             }
 
             duration = Math.floor(duration / MIN) * MIN;
-            if (this.updateLink(element, integration, issue, duration)) {
-                issuesUpdated = true;
-            }
+            this.updateLink(element, integration, issue, duration);
         });
-
-        return issuesUpdated;
     }
 
     private static _issueDurationsCache: WebToolIssueDuration[] = [];
@@ -247,6 +250,12 @@
         return sign + hours + (minutes < 10 ? ':0' : ':') + minutes;
     }
 
+    private static parseLinkTimer(link: HTMLElement) {
+        if (link) {
+            return <WebToolIssueTimer & WebToolIssueDuration>JSON.parse(link.getAttribute('data-' + this.affix));
+        }
+    }
+
     static updateLink(element: HTMLElement, integration: WebToolIntegration, newIssue: WebToolIssue, newIssueDuration: number) {
 
         let oldLink = $$('a.' + this.affix, element);
@@ -270,7 +279,7 @@
         let oldIssueTimer: WebToolIssueTimer & WebToolIssueDuration;
         let oldSession: number;
         if (oldLink) {
-            oldIssueTimer = <WebToolIssueTimer & WebToolIssueDuration>JSON.parse(oldLink.getAttribute('data-' + this.affix));
+            oldIssueTimer = this.parseLinkTimer(oldLink);
             oldSession = parseInt(oldLink.getAttribute('data-session'));
         }
 
@@ -314,8 +323,6 @@
         newLink.appendChild(span);
 
         integration.render(element, newLink);
-
-        return true;
     }
 
     static clearPage() {
