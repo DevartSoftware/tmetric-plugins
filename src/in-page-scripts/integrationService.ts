@@ -136,23 +136,34 @@
                     }
                 }
 
-                // get old identifiers
-                let oldIdentifiers = $$.all('a.' + this.affix)
-                    .map(oldLink => this.parseLinkTimer(oldLink))
-                    .map(issue => <WebToolIssueIdentifier>{ serviceUrl: issue.serviceUrl, issueUrl: issue.issueUrl });
+                // separate old and new issues
+                let oldParsedIssues: WebToolParsedIssue[] = [];
+                let newParsedIssues: WebToolParsedIssue[] = [];
+                let oldIdentifiers: WebToolIssueIdentifier[] = [];
+                let newIdentifiers: WebToolIssueIdentifier[] = [];
+                parsedIssues.forEach(pair => {
+                    let issue = pair.issue;
+                    let oldLink = $$('a.' + this.affix, pair.element);
+                    let isNew = !oldLink || this.parseLinkSession(oldLink) != this.session;
+                    (isNew ? newParsedIssues : oldParsedIssues).push(pair);
+
+                    // get identifiers from issues with url
+                    if (!isNew) {
+                        issue = this.parseLinkTimer(oldLink);
+                    }
+                    if (issue.serviceUrl) {
+                        (isNew ? newIdentifiers : oldIdentifiers).push({
+                            serviceUrl: issue.serviceUrl,
+                            issueUrl: issue.issueUrl
+                        });
+                    }
+                });
 
                 // render new links immediately to prevent flickering on task services which observe mutations
-                let newParsedIssues = parsedIssues.filter(issue => !$$('a.' + this.affix, issue.element));
                 IntegrationService.updateIssues(integration, newParsedIssues);
-                this.onIssueLinksUpdated();
-
-                // get new identifiers, excluding those that are not rendered
-                let newIdentifiers = parsedIssues
-                    .filter(_ => !!(_.issue.serviceUrl && $$('a.' + this.affix, _.element)))
-                    .map(_ => <WebToolIssueIdentifier>{ serviceUrl: _.issue.serviceUrl, issueUrl: _.issue.issueUrl });
-                removeDuplicates(newIdentifiers);
 
                 // get all (new + old) identifiers
+                removeDuplicates(newIdentifiers);
                 let allIdentifiers = oldIdentifiers.concat(newIdentifiers);
                 removeDuplicates(allIdentifiers);
 
@@ -166,7 +177,12 @@
                         IntegrationService.updateIssues(integration, parsedIssues);
                         this.onIssueLinksUpdated();
                     });
+                } else {
+                    // update old issues immediately (TE-257)
+                    this.updateIssues(integration, oldParsedIssues);
                 }
+
+                this.onIssueLinksUpdated();
 
                 return true;
             }
@@ -256,6 +272,12 @@
         }
     }
 
+    private static parseLinkSession(link: HTMLElement) {
+        if (link) {
+            return parseInt(link.getAttribute('data-session'));
+        }
+    }
+
     static updateLink(element: HTMLElement, integration: WebToolIntegration, newIssue: WebToolIssue, newIssueDuration: number) {
 
         let oldLink = $$('a.' + this.affix, element);
@@ -280,7 +302,7 @@
         let oldSession: number;
         if (oldLink) {
             oldIssueTimer = this.parseLinkTimer(oldLink);
-            oldSession = parseInt(oldLink.getAttribute('data-session'));
+            oldSession = this.parseLinkSession(oldLink);
         }
 
         if (this.isSameIssue(oldIssueTimer, newIssueTimer) &&
