@@ -14,8 +14,9 @@
             <nav class="navbar">
                 <span class="logo">
                     <a id="site-link" href="#">
-                        <img src="../images/logo.png" />
+                        <img src="../images/icon.png" />
                     </a>
+                    <span class="logo-text"></span>
                 </span>
             </nav>
         </header>
@@ -48,17 +49,33 @@
                 </div>
             </div>
             <div id="view-form">
+                <!--
                 <div class="row title">
                     <span>Active Task&nbsp;</span><span class="time"></span>
                 </div>
-                <div class="row project">
-                    <span class="name"></span>
+                    -->
+                <div class="row-flex task">
+                    <label>Task</label>
+                    <span class="form-control">
+                        <span class="id">
+                            <a id="task-link" class="link"></a>
+                        </span>
+                        <span class="name"></span>
+                    </span>
                 </div>
-                <div class="row task">
-                    <span class="id"><a id="task-link" class="link"></a></span><span class="name"></span>
+                <div class="row-flex notes">
+                    <label>Notes</label>
+                    <span class="form-control">
+                        None
+                    </span>
                 </div>
-                <div class="row tags">
-                    <span class="items"></span>
+                <div class="row-flex project">
+                    <label>Project</label>
+                    <span class="name form-control"></span>
+                </div>
+                <div class="row-flex tags">
+                    <label>Tags</label>
+                    <span class="items form-control"></span>
                 </div>
                 <div class="row actions">
                     <button id="stop" class="btn btn-danger">Stop</button>
@@ -67,19 +84,23 @@
                 </div>
             </div>
             <div id="create-form">
-                <div class="row title">
-                    <span>Start Timer</span>
-                </div>
-                <div class="row task">
+                <div class="row-flex task">
+                    <label>Task</label>
                     <input type="text" class="input form-control" placeholder="Enter description" />
                 </div>
-                <div class="row project">
+                <div class="row-flex notes">
+                    <label>Notes</label>
+                    <input type="text" placeholder="Describe your activity" class="input form-control" />
+                </div>
+                <div class="row-flex project">
+                    <label>Project</label>
                     <select class="input form-control"></select>
                 </div>
-                <div class="row new-project">
+                <div class="row-flex new-project">
                     <input type="text" placeholder="Enter new project" class="input form-control" />
                 </div>
-                <div class="row tags">
+                <div class="row-flex tags">
+                    <label>Tags</label>
                     <select id="tag-selector" class="input" placeholder="Select tags" data-placeholder="Select tags" multiple="multiple"></select>
                 </div>
                 <div class="row actions">

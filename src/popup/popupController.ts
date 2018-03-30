@@ -13,11 +13,13 @@
                     this.switchState(this._states.fixing);
                 } else if (!suppressViewState && data.timer && data.timer.isStarted) {
                     this.fillViewForm(data.timer);
-                    this.fillCreateForm(data.defaultProjectId);
+                    this.fillCreateForm(data.timer, data.defaultProjectId);
                     this.switchState(this._states.viewing);
+                    $('.logo-text').text(this.toDurationString(data.timer.startTime));
                 } else {
-                    this.fillCreateForm(data.defaultProjectId);
+                    this.fillCreateForm(data.timer, data.defaultProjectId);
                     this.switchState(this._states.creating);
+                    $('.logo-text').text('Start Time');
                 }
             })
             .catch(error => {
@@ -35,6 +37,7 @@
     private _timeFormat: string;
     private _projects: Models.ProjectLite[];
     private _tags: Models.Tag[];
+    private _recentTasks: Models.RecentWorkTask[];
     private _constants: Models.Constants;
     private _canCreateProjects: boolean;
     private _canCreateTags: boolean;
@@ -61,6 +64,7 @@
             this._timeFormat = data.timeFormat;
             this._projects = data.projects;
             this._tags = data.tags.filter(tag => !!tag).sort((a, b) => this.compareTags(a, b));
+            this._recentTasks = data.recentTasks;
             this._constants = data.constants;
             this._canCreateProjects = data.canCreateProjects;
             this._canCreateTags = data.canCreateTags;
@@ -177,6 +181,7 @@
             }
         } else {
             $(this._forms.view + ' .task .id').hide();
+            $(this._forms.view + ' .notes').hide();
         }
 
         $(this._forms.view + ' .task .name').text(this.toDescription(details.description));
@@ -192,11 +197,23 @@
         if (timer.tagsIdentifiers && timer.tagsIdentifiers.length) {
             $(this._forms.view + ' .tags .items').append(this.makeTimerTagsElement(timer.tagsIdentifiers)).show();
         } else {
-            $(this._forms.view + ' .tags').hide();
+            $(this._forms.view + ' .tags .items').text('None');
         }
     }
 
-    fillCreateForm(defaultProjectId: number) {
+    fillCreateForm(timer: Models.Timer, defaultProjectId: number) {
+
+        let details = timer && timer.details;
+        let url: string;
+
+        if (details) {
+            url = this.getTaskUrl(details);
+        }
+
+        if (!url || !details.projectTask || !details.projectTask.externalIssueId) {
+            $(this._forms.create + ' .notes').hide();
+        }
+
         // Force focus on current window (for Firefox)
         $(window).focus();
         this.initProjectSelector(this._forms.create + ' .project .input', this.makeProjectItems(), defaultProjectId);
@@ -208,6 +225,15 @@
         let taskInput = $(this._forms.create + ' .task .input');
         taskInput.attr('maxlength', Models.Limits.maxTask);
         taskInput.val(this._newIssue.description || this._newIssue.issueName).focus().select();
+
+        /*$(this._forms.create + ' .task .input')
+            .select2({
+                data: this.makeRecentTaskItems(),
+                tags: true,
+                maximumInputLength: Models.Limits.maxTask
+            })
+            .val(this._newIssue.description || this._newIssue.issueName)
+            .trigger('change');*/
 
         // Do not focus project in extension popup (TE-117, TE-221)
         if (this.isPagePopup && this._newIssue.issueName) {
@@ -378,6 +404,15 @@
             return <IdTextPair>{ id: project.projectId, text: project.projectName };
         }));
     }
+
+    /*makeRecentTaskItems() {
+        return this._recentTasks.map(recentTask => {
+            return <IdTextPair>{
+                id: recentTask.details.description,
+                text: recentTask.details.description
+            }
+        })
+    }*/
 
     makeTagItem(name: string, isWorkType?: boolean) {
         return <IdTextTagType>{
@@ -656,7 +691,7 @@
 
         // Set description and tags
         timer.isStarted = true;
-        timer.description = $(this._forms.create + ' .task .input').val();
+        timer.description = $(this._forms.create + ' .notes .input').val() || $(this._forms.create + ' .task .input').val();
         timer.tagNames = $(this._forms.create + ' .tags .input').select().val() || [];
 
         // Put timer

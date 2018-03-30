@@ -136,6 +136,16 @@ input, textarea, select, button {
 
     .logo {
         line-height: @navbar-height;
+        font-size: 22px;
+        color: white !important;
+
+        .logo-text {
+            margin-left: 20px;
+        }
+
+        a {
+            text-decoration: none !important;
+        }
     }
 }
 
@@ -295,6 +305,26 @@ input {
         & > *:not(:last-child) {
             margin-right: 9px;
         }
+    }
+}
+
+.row-flex {
+    display: inline-flex;
+    margin-top: 30px;
+    width: 100%;
+
+    label {
+        font-weight: bold;
+        flex: 1 auto;
+        width: 60px;
+        text-align: right;
+        padding-right: 15px;
+    }
+
+    .form-control, .input {
+        flex: 2 auto;
+        height: 28px !important;
+        padding: 0px !important;
     }
 }
 
@@ -464,6 +494,15 @@ content {
         .new-project {
             display: none;
         }
+
+        label {
+            margin-top: 5px !important;
+        }
+
+        .new-project input[type="text"] {
+            width: 276px !important;
+            margin-left: auto !important;
+        }
     }
 }
 
@@ -508,6 +547,24 @@ content.creating {
     #create-form {
         display: block;
     }
+}
+
+.pull-left {
+    float: left !important;
+}
+
+.bold {
+    font-weight: bold !important;
+}
+
+.text-overflow {
+    text-overflow: clip;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.clearfix {
+    clear: both !important;
 }
 
 // ================================================
