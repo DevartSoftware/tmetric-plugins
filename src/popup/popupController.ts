@@ -179,7 +179,12 @@
             $(this._forms.view + ' .task .id').hide();
         }
 
-        $(this._forms.view + ' .task .name').text(this.toDescription(details.description));
+        if (details.projectTask) {
+            $(this._forms.view + ' .task .name').text(details.projectTask.description);
+            $(this._forms.view + ' .notes .description').text(this.toDescription(details.description));
+        } else {
+            $(this._forms.view + ' .task .name').text(this.toDescription(details.description));
+        }
 
         let projectName = this.toProjectName(details.projectId);
 
