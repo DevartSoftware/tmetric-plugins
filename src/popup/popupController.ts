@@ -167,8 +167,6 @@
             return
         }
 
-        $(this._forms.view + ' .time').text(this.toDurationString(timer.startTime));
-
         let url = this.getTaskUrl(details);
         if (url && details.projectTask && details.projectTask.externalIssueId) {
             let a = $(this._forms.view + ' .task .id .link').attr('href', url);
@@ -182,7 +180,14 @@
             $(this._forms.view + ' .notes').hide();
         }
 
-        $(this._forms.view + ' .task .name').text(this.toDescription(details.projectTask.description));
+        if (details.projectTask) {
+            // do not show notes field if description equals to issue name
+            if (timer.details.description != timer.details.projectTask.description) {                $(this._forms.view + ' .notes .description').text(timer.details.description);            } else {                $(this._forms.view + ' .notes').hide();            }
+
+            $(this._forms.view + ' .task .name').text(this.toDescription(details.projectTask.description));
+        } else {
+            $(this._forms.view + ' .task .name').text(timer.details.description);
+        }
 
         let projectName = this.toProjectName(details.projectId);
 
@@ -197,9 +202,6 @@
         } else {
             $(this._forms.view + ' .tags .items').text('None');
         }
-
-        // do not show notes field if description equals to issue name
-        if (timer.details.description != timer.details.projectTask.description) {            $(this._forms.view + ' .notes .description').text(timer.details.description);        } else {            $(this._forms.view + ' .notes').hide();        }
     }
 
     fillCreateForm(timer: Models.Timer, defaultProjectId: number) {
