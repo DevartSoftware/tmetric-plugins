@@ -38,7 +38,7 @@ body {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 380px;
+    width: 460px;
     margin-left: -175px;
     margin-top: -211px;
     background-color: #ffffff;

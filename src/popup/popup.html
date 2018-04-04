@@ -86,23 +86,31 @@
             </div>
             <div id="create-form">
                 <div class="row-flex task">
-                    <label>Task</label>
-                    <input type="text" class="input form-control" placeholder="Enter description" />
+                    <div class="label">Task</div>
+                    <span class="span-container">
+                        <input type="text" class="input form-control" placeholder="Enter description" />
+                    </span>
                 </div>
                 <div class="row-flex notes">
-                    <label>Notes</label>
-                    <input type="text" placeholder="Describe your activity" class="input form-control" />
+                    <div class="label">Notes</div>
+                    <span class="span-container">
+                        <input type="text" placeholder="Describe your activity" class="input form-control" />
+                    </span>
                 </div>
                 <div class="row-flex project">
-                    <label>Project</label>
-                    <select class="input form-control"></select>
+                    <div class="label">Project</div>
+                    <span class="span-container">
+                        <select class="input form-control"></select>
+                    </span>
                 </div>
                 <div class="row-flex new-project">
                     <input type="text" placeholder="Enter new project" class="input form-control" />
                 </div>
                 <div class="row-flex tags">
-                    <label>Tags</label>
-                    <select id="tag-selector" class="input" placeholder="Select tags" data-placeholder="Select tags" multiple="multiple"></select>
+                    <div class="label">Tags</div>
+                    <span class="span-container">
+                        <select id="tag-selector" class="input" placeholder="Select tags" data-placeholder="Select tags" multiple="multiple"></select>
+                    </span>
                 </div>
                 <div class="row actions">
                     <button id="start" class="btn btn-success">Start</button>
