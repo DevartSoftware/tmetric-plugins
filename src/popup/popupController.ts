@@ -15,7 +15,7 @@
                     this.fillViewForm(data.timer);
                     this.fillCreateForm(data.timer, data.defaultProjectId);
                     this.switchState(this._states.viewing);
-                    $('.logo-text').text(this.toDurationString(data.timer.startTime));
+                    $('.logo-text').text('Active Timer');
                 } else {
                     this.fillCreateForm(data.timer, data.defaultProjectId);
                     this.switchState(this._states.creating);
@@ -182,7 +182,7 @@
             $(this._forms.view + ' .notes').hide();
         }
 
-        $(this._forms.view + ' .task .name').text(this.toDescription(details.description));
+        $(this._forms.view + ' .task .name').text(this.toDescription(details.projectTask.description));
 
         let projectName = this.toProjectName(details.projectId);
 
@@ -197,6 +197,9 @@
         } else {
             $(this._forms.view + ' .tags .items').text('None');
         }
+
+        // do not show notes field if description equals to issue name
+        if (timer.details.description != timer.details.projectTask.description) {            $(this._forms.view + ' .notes .description').text(timer.details.description);        } else {            $(this._forms.view + ' .notes').hide();        }
     }
 
     fillCreateForm(timer: Models.Timer, defaultProjectId: number) {

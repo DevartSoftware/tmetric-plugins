@@ -8,6 +8,7 @@
 @padding: 0.5em;
 @padding-double: @padding * 2;
 @padding-large: 20px;
+@row-margin-top: 25px;
 
 @field-min-height: 2.5em;
 @field-line-height: 2.5em;
@@ -29,10 +30,10 @@
 //=============================
 @font-size-base: 14px;
 @font-family: "Open Sans", sans-serif;
-@body-width: 380px;
+@body-width: 460px;
 @body-height: 25em;
 @background-color: #fff;
-@action-margin: 5.5em;
+@action-margin: 3.5em;
 @input-color: @text-color;
 @border-raduis: 4px;
 
@@ -232,7 +233,7 @@ input {
 }
 
 .row {
-    margin-top: 20px;
+    margin-top: @row-margin-top;
     word-wrap: break-word;
 
     > * {
@@ -301,6 +302,7 @@ input {
 
     &.actions {
         margin-top: @action-margin;
+        text-align: center;
 
         & > *:not(:last-child) {
             margin-right: 9px;
@@ -310,21 +312,51 @@ input {
 
 .row-flex {
     display: inline-flex;
-    margin-top: 30px;
+    margin-top: @row-margin-top;
     width: 100%;
 
-    label {
+    &.header {
+        span {
+            font-size: 22px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    }
+
+    &.title {
+        font-size: 22px;
+        font-weight: 300;
+
+        > span {
+            margin-left: 70px;
+        }
+    }
+
+    div.label {
         font-weight: bold;
-        flex: 1 auto;
-        width: 60px;
+        width: 50px;
         text-align: right;
-        padding-right: 15px;
+    }
+
+    .value, .name, .items {
+        width: auto;
+        margin: 0;
     }
 
     .form-control, .input {
-        flex: 2 auto;
         height: 28px !important;
         padding: 0px !important;
+    }
+
+    #task-link {
+        margin-right: 7px;
+        text-decoration: none;
+        color: #178fe5;
+    }
+
+    .span-container {
+        margin-left: 14px;
+        width: 80%;
     }
 }
 
