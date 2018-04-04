@@ -13,13 +13,11 @@
                     this.switchState(this._states.fixing);
                 } else if (!suppressViewState && data.timer && data.timer.isStarted) {
                     this.fillViewForm(data.timer);
-                    this.fillCreateForm(data.timer, data.defaultProjectId);
+                    this.fillCreateForm(data.defaultProjectId);
                     this.switchState(this._states.viewing);
-                    $('.logo-text').text('Active Timer');
                 } else {
-                    this.fillCreateForm(data.timer, data.defaultProjectId);
+                    this.fillCreateForm(data.defaultProjectId);
                     this.switchState(this._states.creating);
-                    $('.logo-text').text('Start Time');
                 }
             })
             .catch(error => {
@@ -167,6 +165,8 @@
             return
         }
 
+        $(this._forms.view + ' .time').text(this.toDurationString(timer.startTime));
+
         let url = this.getTaskUrl(details);
         if (url && details.projectTask && details.projectTask.externalIssueId) {
             let a = $(this._forms.view + ' .task .id .link').attr('href', url);
@@ -177,17 +177,9 @@
             }
         } else {
             $(this._forms.view + ' .task .id').hide();
-            $(this._forms.view + ' .notes').hide();
         }
 
-        if (details.projectTask) {
-            // do not show notes field if description equals to issue name
-            if (timer.details.description != timer.details.projectTask.description) {                $(this._forms.view + ' .notes .description').text(timer.details.description);            } else {                $(this._forms.view + ' .notes').hide();            }
-
-            $(this._forms.view + ' .task .name').text(this.toDescription(details.projectTask.description));
-        } else {
-            $(this._forms.view + ' .task .name').text(timer.details.description);
-        }
+        $(this._forms.view + ' .task .name').text(this.toDescription(details.description));
 
         let projectName = this.toProjectName(details.projectId);
 
@@ -200,43 +192,34 @@
         if (timer.tagsIdentifiers && timer.tagsIdentifiers.length) {
             $(this._forms.view + ' .tags .items').append(this.makeTimerTagsElement(timer.tagsIdentifiers)).show();
         } else {
-            $(this._forms.view + ' .tags .items').text('None');
+            $(this._forms.view + ' .tags').hide();
         }
     }
 
-    fillCreateForm(timer: Models.Timer, defaultProjectId: number) {
+    fillCreateForm(defaultProjectId: number) {
 
-        let details = timer && timer.details;
-        let url: string;
+        let taskInput = $(this._forms.create + ' .task .input');
+        taskInput.attr('maxlength', Models.Limits.maxTask);
 
-        if (details) {
-            url = this.getTaskUrl(details);
-        }
-
-        if (!url || !details.projectTask || !details.projectTask.externalIssueId) {
-            $(this._forms.create + ' .notes').hide();
+        if (this._newIssue.issueId) {
+            $(this._forms.create + ' .task .label').text('Notes');
+            $(this._forms.create + ' .task-description').css('display', 'inline-flex');
+            $(this._forms.create + ' .task-description .issueId').text(this._newIssue.issueId);
+            $(this._forms.create + ' .task-description .description').text(this._newIssue.description || this._newIssue.issueName);
+            taskInput.val('');
+        } else {
+            taskInput.val(this._newIssue.description || this._newIssue.issueName);
         }
 
         // Force focus on current window (for Firefox)
         $(window).focus();
+        taskInput.focus().select();
+
         this.initProjectSelector(this._forms.create + ' .project .input', this.makeProjectItems(), defaultProjectId);
         $(this._forms.create + ' .new-project .input').attr('maxlength', Models.Limits.maxProjectName);
 
         this.initTagSelector(this._forms.create + ' #tag-selector', this.makeTagItems(), this.makeTagSelectedItems(), this._canCreateTags);
         $(this._forms.create + ' .tags .select2-search__field').attr('maxlength', Models.Limits.maxTag);
-
-        let taskInput = $(this._forms.create + ' .task .input');
-        taskInput.attr('maxlength', Models.Limits.maxTask);
-        taskInput.val(this._newIssue.description || this._newIssue.issueName).focus().select();
-
-        /*$(this._forms.create + ' .task .input')
-            .select2({
-                data: this.makeRecentTaskItems(),
-                tags: true,
-                maximumInputLength: Models.Limits.maxTask
-            })
-            .val(this._newIssue.description || this._newIssue.issueName)
-            .trigger('change');*/
 
         // Do not focus project in extension popup (TE-117, TE-221)
         if (this.isPagePopup && this._newIssue.issueName) {
@@ -407,15 +390,6 @@
             return <IdTextPair>{ id: project.projectId, text: project.projectName };
         }));
     }
-
-    /*makeRecentTaskItems() {
-        return this._recentTasks.map(recentTask => {
-            return <IdTextPair>{
-                id: recentTask.details.description,
-                text: recentTask.details.description
-            }
-        })
-    }*/
 
     makeTagItem(name: string, isWorkType?: boolean) {
         return <IdTextTagType>{
@@ -694,7 +668,7 @@
 
         // Set description and tags
         timer.isStarted = true;
-        timer.description = $(this._forms.create + ' .notes .input').val() || $(this._forms.create + ' .task .input').val();
+        timer.description = $(this._forms.create + ' .task .input').val();
         timer.tagNames = $(this._forms.create + ' .tags .input').select().val() || [];
 
         // Put timer
