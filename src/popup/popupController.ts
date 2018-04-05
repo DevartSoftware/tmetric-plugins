@@ -191,7 +191,7 @@
             }
         } else if (details.projectTask) {
             // internal tmetric task
-            let url = 'https://app.tmetric.com/#/tasks/' + accountId + '?id=' + details.projectTask.projectTaskId;
+            let url = `${this._constants.serviceUrl}/#/tasks/${accountId}'?id=${details.projectTask.projectTaskId}`;
             let a = $(this._forms.view + ' .task .id .link').attr('href', url);
             a.addClass('fa fa-external-link');
         } else {

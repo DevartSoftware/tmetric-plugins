@@ -777,7 +777,8 @@ class ExtensionBase {
                 canCreateProjects: isAdmin || canMembersManagePublicProjects,
                 canCreateTags,
                 constants: this._constants,
-                defaultProjectId
+                defaultProjectId,
+                activeAccountId
             };
         });
     }
