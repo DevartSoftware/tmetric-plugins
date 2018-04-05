@@ -15,11 +15,9 @@
                     this.fillViewForm(data.timer, data.activeAccountId);
                     this.fillCreateForm(data.defaultProjectId);
                     this.switchState(this._states.viewing);
-                    $('.logo-text').text('Active Timer');
                 } else {
                     this.fillCreateForm(data.defaultProjectId);
                     this.switchState(this._states.creating);
-                    $('.logo-text').text('Start Timer');
                 }
             })
             .catch(error => {
@@ -151,6 +149,20 @@
         if (name == this._states.creating) {
             this.initCreatingForm();
         }
+
+        let logoText: string;
+
+        switch (name) {
+            case this._states.viewing:
+                logoText = 'Active Timer';
+                break;
+            case this._states.creating:
+            default:
+                logoText = 'Start Timer';
+                break;
+        }
+
+        $('.logo-text').text(logoText);
     }
 
     fillFixForm(timer: Models.Timer) {
