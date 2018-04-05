@@ -15,9 +15,11 @@
                     this.fillViewForm(data.timer);
                     this.fillCreateForm(data.defaultProjectId);
                     this.switchState(this._states.viewing);
+                    $('.logo-text').text('Active Timer');
                 } else {
                     this.fillCreateForm(data.defaultProjectId);
                     this.switchState(this._states.creating);
+                    $('.logo-text').text('Start Timer');
                 }
             })
             .catch(error => {
