@@ -190,6 +190,7 @@
             }
         } else {
             $(this._forms.view + ' .task .name').text(this.toDescription(details.description));
+            $(this._forms.view + ' .notes').hide();
         }
 
         let projectName = this.toProjectName(details.projectId);
