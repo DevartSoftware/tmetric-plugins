@@ -208,6 +208,7 @@
 
         if (this._newIssue.issueId) {
             $(this._forms.create + ' .task .label').text('Notes');
+            $(this._forms.create + ' .task .input').attr('placeholder', 'Describe your activity');
             $(this._forms.create + ' .task-description').css('display', 'inline-flex');
             $(this._forms.create + ' .task-description .issueId').text(this._newIssue.issueId);
             $(this._forms.create + ' .task-description .description').text(this._newIssue.description || this._newIssue.issueName);
