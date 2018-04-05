@@ -12,7 +12,7 @@
                     this.fillFixForm(data.timer);
                     this.switchState(this._states.fixing);
                 } else if (!suppressViewState && data.timer && data.timer.isStarted) {
-                    this.fillViewForm(data.timer);
+                    this.fillViewForm(data.timer, data.activeAccountId);
                     this.fillCreateForm(data.defaultProjectId);
                     this.switchState(this._states.viewing);
                     $('.logo-text').text('Active Timer');
@@ -160,7 +160,7 @@
         }
     }
 
-    fillViewForm(timer: Models.Timer) {
+    fillViewForm(timer: Models.Timer, accountId: number) {
 
         let details = timer && timer.details;
         if (!details) {
@@ -177,6 +177,11 @@
             } else {
                 a.addClass('fa fa-external-link');
             }
+        } else if (details.projectTask) {
+            // internal tmetric task
+            let url = 'https://app.tmetric.com/#/tasks/' + accountId + '?id=' + details.projectTask.projectTaskId;
+            let a = $(this._forms.view + ' .task .id .link').attr('href', url);
+            a.addClass('fa fa-external-link');
         } else {
             $(this._forms.view + ' .task .id').hide();
         }

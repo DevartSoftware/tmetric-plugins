@@ -100,4 +100,5 @@ interface IPopupInitData {
     canCreateProjects: boolean;
     canCreateTags: boolean;
     defaultProjectId: number;
+    activeAccountId: number;
 }
