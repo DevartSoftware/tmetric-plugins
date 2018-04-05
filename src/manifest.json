@@ -5,7 +5,7 @@
     "short_name": "TMetric",
     "description": "Simple time tracking extension which helps you be more productive, complete projects in time and bill your clients correctly.",
     "author": "Devart",
-    "version": "2.7.1",
+    "version": "2.7.2",
 
     "icons": {
         "16": "images/icon16.png",
@@ -103,7 +103,6 @@
                 "in-page-scripts/integrations/google-keep.js",
                 "in-page-scripts/integrations/google-mail.js",
                 "in-page-scripts/integrations/jira.js",
-				"in-page-scripts/integrations/megaplan.js",
                 "in-page-scripts/integrations/openProject.js",
                 "in-page-scripts/integrations/pipedrive.js",
                 "in-page-scripts/integrations/pivotalTracker.js",

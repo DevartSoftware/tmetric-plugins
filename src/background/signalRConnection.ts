@@ -2,9 +2,9 @@
 
     url: string;
 
-    hub: HubConnection;
+    hub: SignalR.Hub.Connection;
 
-    hubProxy: HubProxy;
+    hubProxy: SignalR.Hub.Proxy;
 
     hubConnected: boolean;
 
@@ -48,6 +48,15 @@
     waitAllRejects = Promise.all;
 
     constructor() {
+
+        let signalRInternal = (<any>$.signalR).fn;
+        Object.defineProperty(signalRInternal, 'reconnectDelay', {
+            configurable: true,
+            get: () => {
+                let delay = 3 + 24 * Math.random(); // 3..27 seconds
+                return (delay * 1000) | 0; // Convert to integer milliseconds
+            }
+        });
 
         this.waitAllRejects = <any>((promises: Promise<any>[]) => new Promise((resolve, reject) => {
 
@@ -234,7 +243,7 @@
                 .then(([version, profile]) => {
                     this.waitAllRejects([this.getAccount(), this.getProjects(), this.getTags()])
                         .then(() => {
-                            this.hub.start()
+                            this.hub.start({ pingInterval: null })
                                 .then(() => {
                                     //this.hub['disconnectTimeout'] = 1000; // for dev
                                     this.hubConnected = true;

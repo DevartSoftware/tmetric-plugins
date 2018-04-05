@@ -4,21 +4,62 @@
 
     observeMutations = true;
 
-    matchUrl = [
-        '*://app.asana.com/*/*',
-    ];
+    matchUrl = '*://app.asana.com/*/*';
+
+    issueElementSelector = [
+        '.SingleTaskPane',          // task
+        '.SubtaskTaskRow'           // sub-task
+    ]
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        var host = $$('.SingleTaskTitleRow', issueElement) || // side view
-            $$('.sticky-view-placeholder', issueElement); // card view
-        if (host) {
-            var linkContainer = $$.create('div', 'devart-timer-link-asana');
+
+        if (issueElement.matches(this.issueElementSelector[0])) {
+            let linkContainer = $$.create('div', 'devart-timer-link-asana');
             linkContainer.appendChild(linkElement);
-            host.parentElement.insertBefore(linkContainer, host.nextElementSibling);
+            $$('.SingleTaskTitleRow, .sticky-view-placeholder', issueElement)
+                .insertAdjacentElement('afterend', linkContainer);
+        }
+
+        if (issueElement.matches(this.issueElementSelector[1])) {
+            let container = $$('.ItemRow-right', issueElement);
+            linkElement.classList.add('devart-timer-link-minimal', 'devart-timer-link-asana-subtask');
+            container.insertBefore(linkElement, container.firstElementChild);
         }
     }
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+
+        let description: string;
+
+        // Find root task
+        let rootTaskPane = $$.closest('.SingleTaskPane', issueElement);
+        if (!rootTaskPane) {
+            return;
+        }
+
+        let issueName = $$.try<HTMLTextAreaElement>('.SingleTaskTitleRow .simpleTextarea', rootTaskPane).value;
+        let issuePath = source.path;
+
+        // Sub-tasks
+        if (issueElement.matches(this.issueElementSelector[1])) {
+
+            // Do not add link to empty sub-task
+            description = $$.try<HTMLTextAreaElement>('.SubtaskTaskRow textarea', issueElement).value;
+            if (!description) {
+                return;
+            }
+
+            // Get root task for sub-sub-tasks
+            let rootTask = <HTMLAnchorElement>$$('.TaskAncestry-ancestor a', rootTaskPane);
+            if (rootTask) {
+                // Get issue name and path
+                issueName = rootTask.textContent;
+                let match = /:\/\/[^\/]+(\/[^\?#]+)/.exec(rootTask.href);
+                if (match) {
+                    issuePath = match[1];
+                }
+            }
+        }
 
         // Project url:
         // https://app.asana.com/0/PROJECT_ID
@@ -26,31 +67,25 @@
         // https://app.asana.com/0/PROJECT_ID/TASK_ID
         // Project search url:
         // https://app.asana.com/0/search/PROJECT_ID/TASK_ID
-        var match = /^\/(\w+)(\/search)?\/(\d+)\/(\d+)(\/f)?$/.exec(source.path);
+        let issueId: string;
+        let issueUrl: string;
+        let match = /^\/\w+(?:\/search)?\/\d+\/(\d+)/.exec(issuePath);
         if (match) {
-            var issueId = '#' + match[4];
-            var issueUrl = '/0/0/' + match[4];
+            issueId = '#' + match[1];
+            issueUrl = '/0/0/' + match[1];
         }
 
-        var issueName = $$.try<HTMLTextAreaElement>('.SingleTaskTitleRow .simpleTextarea', issueElement).value || // new layout
-            $$.try<HTMLTextAreaElement>('#details_property_sheet_title', issueElement).value; // old layout
-        if (!issueName) {
-            return;
-        }
+        let projectName =
+            $$.try('.TaskProjectToken-projectName').textContent || // task project token
+            $$.try('.TaskProjectPill-projectName').textContent || // task project pill
+            $$.try('.TaskAncestry-ancestorProject').textContent; // subtask project
 
-        var projectName =
-            $$.try('.TaskProjectToken-projectName').textContent || // new layout task project token
-            $$.try('.TaskProjectPill-projectName').textContent || // new layout task project pill
-            $$.try('.TaskAncestry-ancestorProject').textContent || // new layout subtask project
-            $$.try('.tokens-container .token_name').textContent || // old layout task project
-            $$.try('.ancestor-projects .token').textContent; // old layout subtask project
+        let serviceType = 'Asana';
+        let serviceUrl = source.protocol + source.host;
 
-        var serviceType = 'Asana';
-        var serviceUrl = source.protocol + source.host;
+        let tagNames = $$.all('.TaskTags .Token').map(label => label.textContent);
 
-        var tagNames = $$.all('.TaskTags .Token').map(label => label.textContent);
-
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
+        return { issueId, issueName, projectName, serviceType, description, serviceUrl, issueUrl, tagNames };
     }
 }
 

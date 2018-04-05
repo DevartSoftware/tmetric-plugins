@@ -6,9 +6,16 @@
 
     matchUrl = '*://*/issue/*';
 
-    issueElementSelector = '.content_fsi .toolbar_fsi';
+    issueElementSelector = [
+        '.content_fsi .toolbar_fsi', // old interface
+        '.yt-issue-body__summary'    // new interface
+    ];
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
+        if (issueElement.matches(this.issueElementSelector[1])) {
+            linkElement.classList.add('devart-timer-link-youtrack')
+        }
+
         issueElement.appendChild(linkElement);
     }
 
@@ -21,12 +28,14 @@
             return;
         }
 
-        var issueId = $$.try('.issueId', issueElement).textContent;
+        var issueId = $$.try('.issueId', issueElement).textContent ||
+            $$('.js-issue-id', issueElement.closest('.yt-issue-view')).textContent;
         if (!issueId) {
             return;
         }
 
-        var issueName = $$.try('.issue-summary', issueElement).textContent;
+        var issueName = $$.try('.issue-summary', issueElement).textContent ||
+            $$.try('.yt-issue-body__summary').textContent;
         if (!issueName) {
             return;
         }
