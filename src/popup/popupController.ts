@@ -181,7 +181,13 @@
 
         if (details.projectTask) {
             $(this._forms.view + ' .task .name').text(details.projectTask.description);
-            $(this._forms.view + ' .notes .description').text(this.toDescription(details.description));
+
+            // not show custom description if equals to default task description
+            if (details.projectTask.description == details.description) {
+                $(this._forms.view + ' .notes').hide();
+            } else {
+                $(this._forms.view + ' .notes .description').text(this.toDescription(details.description));
+            }
         } else {
             $(this._forms.view + ' .task .name').text(this.toDescription(details.description));
         }
