@@ -41,7 +41,7 @@
         "in-page-scripts/integrations/google-keep.ts",
         "in-page-scripts/integrations/google-mail.ts",
         "in-page-scripts/integrations/jira.ts",
-		"in-page-scripts/integrations/megaplan.ts",
+        "in-page-scripts/integrations/megaplan.ts",
         "in-page-scripts/integrations/openProject.ts",
         "in-page-scripts/integrations/pipedrive.ts",
         "in-page-scripts/integrations/pivotalTracker.ts",
