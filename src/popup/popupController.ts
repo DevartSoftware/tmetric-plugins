@@ -153,12 +153,23 @@
         let logoText: string;
 
         switch (name) {
+            case this._states.retrying:
+                logoText = 'Error';
+                break;
             case this._states.viewing:
                 logoText = 'Active Timer';
                 break;
             case this._states.creating:
-            default:
                 logoText = 'Start Timer';
+                break;
+            case this._states.fixing:
+                logoText = 'Fix Timer';
+                break;
+            case this._states.authenticating:
+                logoText = 'Not Connected';
+                break;
+            default:
+                logoText = '';
                 break;
         }
 
