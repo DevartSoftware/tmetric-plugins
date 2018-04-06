@@ -78,6 +78,8 @@
         "popup/popupActivator.ts",
         "safari-api-bridges/backgroundScriptsAPIBridge.ts",
         "safari-api-bridges/contentScriptsAPIBridge.ts",
-        "safari-api-bridges/popupScriptsAPIBridge.ts"
+        "safari-api-bridges/popupScriptsAPIBridge.ts",
+        "settings/settingsController.ts",
+        "settings/settingsActivator.ts"
     ]
 }

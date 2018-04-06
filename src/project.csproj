@@ -9,6 +9,10 @@
   <ItemGroup>
     <Compile Remove="wwwroot;node_modules\**\*;bower_components" />
     <EmbeddedResource Remove="wwwroot;node_modules\**\*;bower_components" />
+    <None Remove="settings\settingsActivator.ts" />
+    <None Remove="settings\settingsController.ts" />
+    <TypeScriptCompile Include="settings\settingsActivator.ts" />
+    <TypeScriptCompile Include="settings\settingsController.ts" />
     <None Update="node_modules\**\*;bower_components;**.xproj;**.user;**.vspscc">
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
     </None>
