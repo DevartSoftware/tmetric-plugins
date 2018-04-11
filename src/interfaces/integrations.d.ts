@@ -102,3 +102,12 @@ interface IPopupInitData {
     defaultProjectId: number;
     activeAccountId: number;
 }
+
+interface IExtensionSettings {
+    showPopup: Models.ShowPopupOption
+}
+
+interface IExtensionSettingsMessage {
+    action: string;
+    data?: any;
+}

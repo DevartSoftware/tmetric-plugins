@@ -26,7 +26,8 @@
         "tabs",
         "notifications",
         "http://*/*",
-        "https://*/*"
+        "https://*/*",
+        "storage"
     ],
     "background": {
         "scripts": [

@@ -24,6 +24,12 @@ declare module Models {
         Ceil
     }
 
+    export const enum ShowPopupOption {
+        Always,
+        WhenProjectIsNotSpecified,
+        Never
+    }
+
     interface Constants {
         maxTimerHours: number;
         extensionName: string;
