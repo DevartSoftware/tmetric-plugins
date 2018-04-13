@@ -139,7 +139,6 @@ class ExtensionBase {
     private defaultApplicationUrl = 'https://app.tmetric.com/';
 
     constructor() {
-
         this.serviceUrl = this.getTestValue('tmetric.url') || this.defaultApplicationUrl;
         if (this.serviceUrl[this.serviceUrl.length - 1] != '/') {
             this.serviceUrl += '/';
@@ -253,7 +252,6 @@ class ExtensionBase {
 
         switch (message.action) {
             case 'saveExtensionSettings':
-                console.log('on save', message)
                 this.saveExtensionSettings(message.data);
                 break;
             case 'loadExtensionSettings':
@@ -404,67 +402,78 @@ class ExtensionBase {
     }
 
     private putExternalTimer(timer: WebToolIssueTimer, tabId?: number, mutePopup = false) {
-
         let showPopup = false;
         let status: Models.IntegratedProjectStatus;
 
-        this.putData(timer,
-            timer => {
+        chrome.storage.sync.get(null, (settings: IExtensionSettings) => {
+            this.putData(timer,
+                timer => {
 
-                let statusPromise = this.getIntegrationStatus(timer);
-                statusPromise.catch(() => {
-                    this.connection.checkProfileChange(); // TMET-179
-                });
+                    let statusPromise = this.getIntegrationStatus(timer);
+                    statusPromise.catch(() => {
+                        this.connection.checkProfileChange(); // TMET-179
+                    });
 
-                return statusPromise.then(receivedStatus => {
+                    return statusPromise.then(receivedStatus => {
 
-                    status = receivedStatus;
-                    let activeAccountId = this._userProfile.activeAccountId;
+                        status = receivedStatus;
+                        let activeAccountId = this._userProfile.activeAccountId;
 
-                    // Start task in account where integration/project exist (TE-173)
-                    if (tabId &&
-                        status.accountId != activeAccountId &&
-                        status.serviceRole != null &&
-                        status.integrationType &&
-                        status.projectRole != null &&
-                        status.projectStatus == Models.ProjectStatus.Open) {
+                        // Start task in account where integration/project exist (TE-173)
+                        if (tabId &&
+                            status.accountId != activeAccountId &&
+                            status.serviceRole != null &&
+                            status.integrationType &&
+                            status.projectRole != null &&
+                            status.projectStatus == Models.ProjectStatus.Open) {
 
-                        return this.validateTimerTags(timer, status.accountId)
-                            .then(() => this.putTimerWithIntegration(timer, status, false));
-                    }
-
-                    // Do not validate tags in timer passed from popup
-                    let tagsPromise = tabId ? this.validateTimerTags(timer, activeAccountId) : Promise.resolve();
-
-                    return tagsPromise.then(() => {
-
-                        if (!tabId ||
-                            !timer.isStarted ||
-                            mutePopup ||
-                            (timer.issueName && timer.projectName && this._projects.filter(_ => _.projectName.toLowerCase() == timer.projectName.toLowerCase()).length)) {
-
-                            return this.connection.putExternalTimer(timer);
+                            return this.validateTimerTags(timer, status.accountId)
+                                .then(() => this.putTimerWithIntegration(timer, status, false));
                         }
 
-                        showPopup = true;
+                        // Do not validate tags in timer passed from popup
+                        let tagsPromise = tabId ? this.validateTimerTags(timer, activeAccountId) : Promise.resolve();
 
-                        // This timer will be send when popup ask for initial data
-                        this._newPopupIssue = timer;
+                        let alwaysShowPopup = !settings.showPopup ||
+                            (settings.showPopup == <any>Models.ShowPopupOption.Always);
 
-                        return this.connection.connect().then(() => {
-                            this.sendToTabs({ action: 'showPopup' }, tabId);
+                        let neverShowPopup = settings.showPopup &&
+                            (settings.showPopup == <any>Models.ShowPopupOption.Never);
+
+                        return tagsPromise.then(() => {
+
+                            if (neverShowPopup ||
+                                !tabId ||
+                                !timer.isStarted ||
+                                mutePopup ||
+                                (!alwaysShowPopup && (
+                                    timer.issueName &&
+                                    timer.projectName &&
+                                    this._projects.filter(_ => _.projectName.toLowerCase() == timer.projectName.toLowerCase()).length)
+                                )) {
+                                return this.connection.putExternalTimer(timer);
+                            }
+
+                            showPopup = true;
+
+                            // This timer will be send when popup ask for initial data
+                            this._newPopupIssue = timer;
+
+                            return this.connection.connect().then(() => {
+                                this.sendToTabs({ action: 'showPopup' }, tabId);
+                            });
+
                         });
-
                     });
+                },
+                timer => {
+                    // Show error and exit when timer has no integration
+                    if (!showPopup && (timer.serviceUrl || timer.projectName)) {
+                        let statusPromise = status ? Promise.resolve(status) : this.getIntegrationStatus(timer); // TMET-178
+                        return statusPromise.then(status => this.putTimerWithIntegration(timer, status, true));
+                    }
                 });
-            },
-            timer => {
-                // Show error and exit when timer has no integration
-                if (!showPopup && (timer.serviceUrl || timer.projectName)) {
-                    let statusPromise = status ? Promise.resolve(status) : this.getIntegrationStatus(timer); // TMET-178
-                    return statusPromise.then(status => this.putTimerWithIntegration(timer, status, true));
-                }
-            });
+        })
     }
 
     private putData<T>(data: T, action: (data: T) => Promise<any>, retryAction?: (data: T) => Promise<any>) {
