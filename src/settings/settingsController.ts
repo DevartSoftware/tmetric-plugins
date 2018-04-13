@@ -14,13 +14,10 @@
         let items = this.settings.map((item, key) => $('<option />').text(item).val(key.toString()));
         $('.settings-container select.input').append(items);
 
-        let selected = this.sendBackgroundMessage({
-            action: 'loadExtensionSettings'
-        }, (response) => {
-            let selectedOption = response.data && <any>response.data.showPopup;
+        chrome.storage.sync.get(null, (settings: IExtensionSettings) => {
+            let selectedOption = <any>settings.showPopup;
             $('.settings-container select.input').val(selectedOption || Models.ShowPopupOption.Always);
-            console.log($('.settings-container select.input').val())
-        });
+        })
     }
 
     initSettings() {
@@ -35,13 +32,9 @@
     private sendBackgroundMessage: (message: ITabMessage, callback?: (response: any) => void) => void;
 
     initControls() {
-
         $('#show-popup-settings').on('change', () => {
-            this.sendBackgroundMessage({
-                action: 'saveExtensionSettings',
-                data: <IExtensionSettings>{
-                    showPopup: $('#show-popup-settings :selected').val()
-                }
+            chrome.storage.sync.set(<IExtensionSettings>{
+                showPopup: $('#show-popup-settings :selected').val()
             });
         })
     }

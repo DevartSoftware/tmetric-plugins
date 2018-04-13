@@ -247,30 +247,6 @@ class ExtensionBase {
         setUpdateTimeout();
     }
 
-    /** Handles messages from extension settings page */
-    private onExtensionSettingsMessage(message: IExtensionSettingsMessage, callback: (response: IExtensionSettingsMessage) => void) {
-
-        switch (message.action) {
-            case 'saveExtensionSettings':
-                this.saveExtensionSettings(message.data);
-                break;
-            case 'loadExtensionSettings':
-                chrome.storage.sync.get(null, (settings: IExtensionSettings) => {
-                    this._extensionSettings = settings;
-                    callback({
-                        action: message.action,
-                        data: settings
-                    })
-                })
-                return;
-        }
-
-        callback({
-            action: message.action,
-            data: message.data
-        })
-    }
-
     /** Handles messages from in-page scripts */
     private onTabMessage(message: ITabMessage, tabId: number) {
 
@@ -1019,12 +995,6 @@ class ExtensionBase {
             message: ITabMessage | IPopupRequest | IExtensionSettingsMessage,
             sender: chrome.runtime.MessageSender, senderResponse: (IPopupResponse) => void) => {
 
-            // Extension settings page requests
-            if (sender.url.match(/^chrome-extension:\/\/.*\/settings.html$/)) {
-                this.onExtensionSettingsMessage(message, senderResponse);
-                return !!senderResponse;
-            }
-
             // Popup requests
             if (!sender.url || sender.url.startsWith(this._constants.browserSchema)) {
                 this.onPopupRequest(message, senderResponse);
@@ -1080,9 +1050,4 @@ class ExtensionBase {
         return this.accountToProjectMap[accountId];
     }
 
-    private _extensionSettings: IExtensionSettings;
-
-    private saveExtensionSettings(settings: IExtensionSettings) {
-        chrome.storage.sync.set(settings);
-    }
 }
