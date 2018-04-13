@@ -636,6 +636,8 @@
         $(this._forms.create + ' .project .input').change(this.onProjectSelectChange());
         $('.cancel-btn').click(() => (this.onCancelClick(), false));
 
+        $('#settings-btn').click(() => chrome.runtime.openOptionsPage())
+
         // close popup when escape key pressed and no selectors are opened
         window.addEventListener('keydown', event => {
             if (event.keyCode == 27) {

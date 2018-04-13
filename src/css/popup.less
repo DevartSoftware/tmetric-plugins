@@ -127,7 +127,7 @@ input, textarea, select, button {
     background-color: @navbar-default-bg;
     position: relative;
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
     padding-left: @padding-double;
     padding-right: @padding-double;
 
@@ -146,6 +146,21 @@ input, textarea, select, button {
 
         a {
             text-decoration: none !important;
+        }
+    }
+
+    #settings-btn {
+        background: transparent;
+        border: none;
+        color: gray;
+        font-size: 24px;
+        outline: 0;
+        height: 34px;
+        margin-top: 18px;
+
+        &:hover {
+            color: white;
+            cursor: pointer;
         }
     }
 }
