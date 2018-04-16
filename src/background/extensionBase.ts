@@ -411,10 +411,9 @@ class ExtensionBase {
                         let tagsPromise = tabId ? this.validateTimerTags(timer, activeAccountId) : Promise.resolve();
 
                         let alwaysShowPopup = !settings.showPopup ||
-                            (settings.showPopup == <any>Models.ShowPopupOption.Always);
+                            (settings.showPopup == Models.ShowPopupOption.Always);
 
-                        let neverShowPopup = settings.showPopup &&
-                            (settings.showPopup == <any>Models.ShowPopupOption.Never);
+                        let neverShowPopup = settings.showPopup == Models.ShowPopupOption.Never;
 
                         return tagsPromise.then(() => {
 
