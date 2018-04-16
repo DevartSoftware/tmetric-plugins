@@ -42,6 +42,8 @@
 
     onUpdateProjects = SimpleEvent.create<Models.ProjectLite[]>();
 
+    onUpdateClients = SimpleEvent.create<Models.Client[]>();
+
     onUpdateTags = SimpleEvent.create<Models.Tag[]>();
 
     /** Like promise.all but reject is called after all promises are settled */
@@ -139,6 +141,12 @@
         this.hubProxy.on('updateProjects', (accountId: number) => {
             if (this.userProfile && this.userProfile.activeAccountId == accountId) {
                 this.getProjects();
+            }
+        });
+
+        this.hubProxy.on('updateClients', (accountId: number) => {
+            if (this.userProfile && this.userProfile.activeAccountId == accountId) {
+                this.getClients();
             }
         });
 
@@ -241,7 +249,7 @@
 
             this.waitAllRejects([this.getVersion(), this.getProfile()])
                 .then(([version, profile]) => {
-                    this.waitAllRejects([this.getAccount(), this.getProjects(), this.getTags()])
+                    this.waitAllRejects([this.getAccount(), this.getProjects(), this.getTags(), this.getClients()])
                         .then(() => {
                             this.hub.start({ pingInterval: null })
                                 .then(() => {
@@ -421,6 +429,16 @@
             return this.get<Models.ProjectLite[]>(url).then(projects => {
                 this.onUpdateProjects.emit(projects);
                 return projects;
+            });
+        });
+    }
+
+    getClients() {
+        return this.checkProfile().then(profile => {
+            var url = 'api/accounts/' + profile.activeAccountId + '/clients';
+            return this.get<Models.Client[]>(url).then(clients => {
+                this.onUpdateClients.emit(clients);
+                return clients;
             });
         });
     }

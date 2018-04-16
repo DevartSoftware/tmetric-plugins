@@ -200,4 +200,20 @@ declare module Models {
         isWorkType: boolean;
         workTypeProjects: number[];
     }
+
+    interface Client {
+        clientId: number;
+        accountId: number;
+        clientName: string;
+        avatar: string;
+        activeProjectsCount: number;
+        totalProjectsCount: number;
+        defaultBillableRate: Money;
+        contactMembers: number[];
+    }
+
+    interface Money {
+        amount: number;
+        currency: string;
+    }
 }

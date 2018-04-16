@@ -863,3 +863,34 @@ content.creating {
         color: @input-color-placeholder !important;
     }
 }
+
+@text-color: #525252;
+@text-muted: fade(@text-color, 50%);
+
+.text-muted {
+    color: @text-muted;
+}
+
+.flex-container {
+    display: flex !important;
+    flex-flow: row nowrap;
+    align-items: center;
+}
+
+.flex-container-with-overflow {
+    &:extend(.flex-container);
+
+    > .avatar-image {
+        margin-right: 3px !important;
+    }
+
+    > * {
+        flex-grow: 0;
+        flex-shrink: 0;
+    }
+
+    > .text-overflow {
+        flex-grow: 1;
+        flex-shrink: 1;
+    }
+}

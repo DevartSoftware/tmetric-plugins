@@ -134,6 +134,8 @@ class ExtensionBase {
 
     private _projects: Models.ProjectLite[];
 
+    private _clients: Models.Client[];
+
     private _tags: Models.Tag[];
 
     private defaultApplicationUrl = 'https://app.tmetric.com/';
@@ -196,6 +198,10 @@ class ExtensionBase {
 
         this.connection.onUpdateProjects(projects => {
             this._projects = projects;
+        });
+
+        this.connection.onUpdateClients(clients => {
+            this._clients = clients;
         });
 
         this.connection.onUpdateTags(tags => {
@@ -783,6 +789,7 @@ class ExtensionBase {
                 newIssue,
                 timeFormat: this._userProfile && this._userProfile.timeFormat,
                 projects: filteredProjects,
+                clients: this._clients,
                 tags: this._tags,
                 canCreateProjects: isAdmin || canMembersManagePublicProjects,
                 canCreateTags,

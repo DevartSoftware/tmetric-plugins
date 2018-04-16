@@ -35,6 +35,7 @@
     private _timeFormat: string;
     private _projects: Models.ProjectLite[];
     private _tags: Models.Tag[];
+    private _clients: Models.Client[];
     private _constants: Models.Constants;
     private _canCreateProjects: boolean;
     private _canCreateTags: boolean;
@@ -60,6 +61,7 @@
             this._newIssue = data.newIssue;
             this._timeFormat = data.timeFormat;
             this._projects = data.projects;
+            this._clients = data.clients;
             this._tags = data.tags.filter(tag => !!tag).sort((a, b) => this.compareTags(a, b));
             this._constants = data.constants;
             this._canCreateProjects = data.canCreateProjects;
@@ -388,6 +390,16 @@
         return project;
     }
 
+    getClient(id: number): Models.Client {
+        if (this._clients) {
+            let clients = this._clients.filter(client => client.clientId === id);
+            if (clients.length) {
+                return clients[0];
+            }
+        }
+        return null;
+    }
+
     getTag(id: number): Models.Tag {
         if (this._tags) {
             let tags = this._tags.filter(tag => tag.tagId === id);
@@ -430,7 +442,9 @@
         }
         projects.push(this.noProjectOption);
         return projects.concat(this._projects.map(project => {
-            return <IdTextPair>{ id: project.projectId, text: project.projectName };
+            let projectCode = project.projectCode ? ` [${project.projectCode}]` : '';
+            let projectClient = project.clientId ? ` / ${this.getClient(project.clientId).clientName}` : '';
+            return <IdTextPair>{ id: project.projectId, text: project.projectName + projectCode + projectClient };
         }));
     }
 
@@ -547,22 +561,51 @@
 
     private formatExistingProject(data: Select2SelectionObject) {
 
-        let result = $('<span>');
+        let result = $('<span class="flex-container-with-overflow" />');
+        let namesElement = $('<span class="text-overflow" />');
 
         // Find project
         let projectId = parseInt(data.id)
         let project = this.getProject(projectId);
         let projectName = project ? project.projectName : data.text;
+
+        let projectCode: string;
+        let projectClient: string;
+        if (project) {
+            projectCode = project.projectCode ? ` [${project.projectCode}]` : '';
+            projectClient = project.clientId ? ` / ${this.getClient(project.clientId).clientName}` : '';
+        }
+
         let projectAvatar = project && project.avatar || 'Content/Avatars/project.svg';
+
+        // Add project name
+        let projectNameElement = $('<span class="text-overflow">').text(projectName);
+
+        namesElement.append(projectNameElement);
 
         // Add avatar
         let avatarPath = `${this._constants.serviceUrl}/${projectAvatar}`
         let avatarElement = $(`<img src="${avatarPath}" />`).addClass('project-avatar-image');
-        result.append(avatarElement);
 
-        // Add project name
-        let projectNameElement = $('<span>').text(projectName);
-        return result.append(projectNameElement);
+        let title = project.projectName;
+
+        if (projectCode) {
+            let projectCodeElement = $('<span />').text(projectCode);
+            namesElement.append(projectCodeElement);
+            title += projectCode;
+        }
+
+        if (projectClient) {
+            let projectClientElement = $('<span class="text-muted" />').text(projectClient);
+            namesElement.append(projectClientElement);
+            title += projectClient;
+        }
+
+        $(namesElement).attr('title', title);
+        result.append(avatarElement);
+        result.append(namesElement);
+
+        return result;
     }
 
     initTagSelector(selector: string, items: IdTextPair[], selectedItems: string[], allowNewItems?: boolean) {
