@@ -9,7 +9,7 @@
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
         let host = $$.visible('#ticket-buttons');
         if (host) {
-            linkElement.classList.add('btn', 'btn-default', 'tmetrik-link');
+            linkElement.classList.add('btn', 'btn-default');
             host.appendChild(linkElement);
         }
     }
