@@ -15,23 +15,27 @@
     }
 
     getIssue(issueElement:HTMLElement, source:Source):WebToolIssue {
-        var issueName = $$.try('#editable_subject').textContent;
+        let issueName = $$.try('#editable_subject').textContent;
+
         if (!issueName) {
             return;
         }
 
-        var projectName = $$.try('#ticket-channel-name').textContent;
+        let projectName = $$.try('#ticket-channel-name').textContent;
+
+        let issueId: string;
+        let serviceUrl: string;
+        let issueUrl: string;
 
         // https://*.usedesk.ru/tickets/TICKET_ID
-        var match = /^\/tickets\/(\d+)$/.exec(source.path);
+        let match = /^\/tickets\/(\d+)$/.exec(source.path);
         if (match) {
-            var issueId = match[1];
-            var serviceType = 'UseDesk';
-            var serviceUrl = source.protocol + source.host;
-            var issueUrl = source.path;
+            issueId = match[1];
+            serviceUrl = source.protocol + source.host;
+            issueUrl = source.path;
         }
 
-        return {issueId, issueName, projectName, serviceType, serviceUrl, issueUrl};
+        return { issueId, issueName, projectName, serviceType: 'UseDesk', serviceUrl, issueUrl };
     }
 }
 
