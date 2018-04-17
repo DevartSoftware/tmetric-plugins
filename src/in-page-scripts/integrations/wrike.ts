@@ -23,8 +23,14 @@
             return;
         }
 
+        let isModal = !!$$.closest('.x-plain', issueElement);
+
         let params = $$.searchParams(document.location.hash);
-        let issueId = params['t'] || params['ot'];
+        let issueId = params['t']                 // folder, My Work,
+            || params['ot']                       // modal
+            // modals in Inbox did not translate issue id to url hash
+            || (isModal ? null : params['ei']);   // Inbox
+
         let issueUrl: string;
         if (issueId) {
             issueUrl = '/open.htm?id=' + issueId;
