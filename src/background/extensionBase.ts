@@ -727,58 +727,58 @@ class ExtensionBase {
 
     // popup actions
 
-    private getPopupData(): Promise<IPopupInitData> {
-        return new Promise<IPopupInitData>((resolve, reject) => {
-            this.getActiveTabTitle().then((title) => {
-                let activeAccountId = this._userProfile.activeAccountId;
-                let userRole = this._userProfile.accountMembership
-                    .find(_ => _.account.accountId == activeAccountId)
-                    .role;
+    private getPopupData() {
 
-                let canMembersManagePublicProjects = this._account.canMembersManagePublicProjects;
-                let canCreateTags = this._account.canMembersCreateTags;
-                let isAdmin = (userRole == Models.ServiceRole.Admin || userRole == Models.ServiceRole.Owner);
+        return this.getActiveTabTitle().then(title => {
 
-                let defaultWorkType = this.getDefaultWorkType();
-                let newIssue = this._newPopupIssue || <WebToolIssueTimer>{ // _newPopupIssue is null if called from toolbar popup
-                    isStarted: true,
-                    issueName: title,
-                    description: title,
-                    tagNames: defaultWorkType ? [defaultWorkType.tagName] : []
-                };
+            let activeAccountId = this._userProfile.activeAccountId;
+            let userRole = this._userProfile.accountMembership
+                .find(_ => _.account.accountId == activeAccountId)
+                .role;
 
-                let filteredProjects = this._projects
-                    .filter(project => project.projectStatus == Models.ProjectStatus.Open)
-                    .sort((a, b) => a.projectName.localeCompare(b.projectName, [], { sensitivity: 'base' }));
+            let canMembersManagePublicProjects = this._account.canMembersManagePublicProjects;
+            let canCreateTags = this._account.canMembersCreateTags;
+            let isAdmin = (userRole == Models.ServiceRole.Admin || userRole == Models.ServiceRole.Owner);
 
-                const projectMap = this.getProjectMap(activeAccountId);
+            let defaultWorkType = this.getDefaultWorkType();
+            let newIssue = this._newPopupIssue || <WebToolIssueTimer>{ // _newPopupIssue is null if called from toolbar popup
+                isStarted: true,
+                issueName: title,
+                description: title,
+                tagNames: defaultWorkType ? [defaultWorkType.tagName] : []
+            };
 
-                // Determine default project
-                let defaultProjectId = <number>null;
-                if (projectMap) {
-                    defaultProjectId = projectMap[newIssue.projectName || ''];
+            let filteredProjects = this._projects
+                .filter(project => project.projectStatus == Models.ProjectStatus.Open)
+                .sort((a, b) => a.projectName.localeCompare(b.projectName, [], { sensitivity: 'base' }));
 
-                    // Remove mapped project from localstorage if project was deleted/closed
-                    if (defaultProjectId && filteredProjects.every(_ => _.projectId != defaultProjectId)) {
-                        this.setProjectMap(activeAccountId, newIssue.projectName, null);
-                        defaultProjectId = null;
-                    }
+            const projectMap = this.getProjectMap(activeAccountId);
+
+            // Determine default project
+            let defaultProjectId = <number>null;
+            if (projectMap) {
+                defaultProjectId = projectMap[newIssue.projectName || ''];
+
+                // Remove mapped project from localstorage if project was deleted/closed
+                if (defaultProjectId && filteredProjects.every(_ => _.projectId != defaultProjectId)) {
+                    this.setProjectMap(activeAccountId, newIssue.projectName, null);
+                    defaultProjectId = null;
                 }
+            }
 
-                this._newPopupIssue = null;
+            this._newPopupIssue = null;
 
-                resolve(<IPopupInitData>{
-                    timer: this._timer,
-                    newIssue,
-                    timeFormat: this._userProfile && this._userProfile.timeFormat,
-                    projects: filteredProjects,
-                    tags: this._tags,
-                    canCreateProjects: isAdmin || canMembersManagePublicProjects,
-                    canCreateTags,
-                    constants: this._constants,
-                    defaultProjectId
-                });
-            });
+            return <IPopupInitData>{
+                timer: this._timer,
+                newIssue,
+                timeFormat: this._userProfile && this._userProfile.timeFormat,
+                projects: filteredProjects,
+                tags: this._tags,
+                canCreateProjects: isAdmin || canMembersManagePublicProjects,
+                canCreateTags,
+                constants: this._constants,
+                defaultProjectId
+            };
         });
     }
 
