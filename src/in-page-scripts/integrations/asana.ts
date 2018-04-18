@@ -16,7 +16,7 @@
         if (issueElement.matches(this.issueElementSelector[0])) {
             let linkContainer = $$.create('div', 'devart-timer-link-asana');
             linkContainer.appendChild(linkElement);
-            $$('.SingleTaskTitleRow, .sticky-view-placeholder', issueElement)
+            $$('.SingleTaskTitleRow, .sticky-view-placeholder, .SingleTaskPane-titleRow', issueElement)
                 .insertAdjacentElement('afterend', linkContainer);
         }
 
@@ -37,7 +37,8 @@
             return;
         }
 
-        let issueName = $$.try<HTMLTextAreaElement>('.SingleTaskTitleRow .simpleTextarea', rootTaskPane).value;
+        let issueName = $$.try<HTMLTextAreaElement>(
+            '.SingleTaskTitleRow .simpleTextarea, .SingleTaskPane-titleRow .simpleTextarea', rootTaskPane).value;
         let issuePath = source.path;
 
         // Sub-tasks
