@@ -2,7 +2,7 @@ class Megaplan implements WebToolIntegration {
 
     showIssueId = false;
     observeMutations = true;
-    matchUrl = '*.megaplan.ru/task/*/card';
+    matchUrl = '*.megaplan.*/task/*/card';
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
