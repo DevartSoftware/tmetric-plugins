@@ -239,6 +239,10 @@ class ExtensionBase {
             this.setProjectMap(this._userProfile.activeAccountId, projectName, projectId);
             return Promise.resolve(null);
         });
+        this.listenPopupAction<{ taskName: string, description: string }, void>('saveDescriptionMap', ({ taskName, description }) => {
+            this.setDescriptionMap(taskName, description);
+            return Promise.resolve(null);
+        })
 
         this.registerTabsUpdateListener();
         this.registerTabsRemoveListener();
@@ -782,6 +786,12 @@ class ExtensionBase {
                 }
             }
 
+            const descriptionMap = this.getDescriptionMap();
+
+            if (descriptionMap) {
+                newIssue.description = descriptionMap[this._newPopupIssue.issueName];
+            }
+
             this._newPopupIssue = null;
 
             return <IPopupInitData>{
@@ -1054,6 +1064,34 @@ class ExtensionBase {
         }
 
         return this.accountToProjectMap[accountId];
+    }
+
+    accountToDescriptionMap: {
+        [key: string]: string
+    };
+
+    accountToDescriptionMapKey = 'accountToDescriptionMap';
+
+    setDescriptionMap(taskName: string, description: string) {
+        let map = this.getDescriptionMap();
+        if (description) {
+            map = map || {};
+            map[taskName] = description;
+            this.accountToDescriptionMap = map;
+        } else if (map) {
+            delete map[taskName];
+        }
+
+        localStorage.setItem(this.accountToDescriptionMapKey, JSON.stringify(this.accountToDescriptionMap))
+    }
+
+    getDescriptionMap() {
+        if (!this.accountToDescriptionMap) {
+            const obj = localStorage.getItem(this.accountToDescriptionMapKey);
+            this.accountToDescriptionMap = obj ? JSON.parse(obj) : {};
+        }
+
+        return this.accountToDescriptionMap;
     }
 
 }

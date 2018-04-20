@@ -120,7 +120,8 @@
     retryAction = this.wrapBackgroundAction<void, void>('retry');
     fixTimerAction = this.wrapBackgroundAction<void, void>('fixTimer');
     putTimerAction = this.wrapBackgroundAction<WebToolIssueTimer, void>('putTimer');
-    saveProjectMapAction = this.wrapBackgroundAction<{ projectName: string, projectId: number }, void>('saveProjectMap')
+    saveProjectMapAction = this.wrapBackgroundAction<{ projectName: string, projectId: number }, void>('saveProjectMap');
+    saveDescriptionMapAction = this.wrapBackgroundAction<{ taskName: string, description: string }, void>('saveDescriptionMap');
 
     // ui mutations
 
@@ -247,11 +248,11 @@
 
         if (this._newIssue.issueId) {
             $(this._forms.create + ' .task .label').text('Notes');
-            $(this._forms.create + ' .task .input').attr('placeholder', 'Describe your activity');
+            taskInput.attr('placeholder', 'Describe your activity');
             $(this._forms.create + ' .task-description').css('display', 'inline-flex');
             $(this._forms.create + ' .task-description .issueId').text(this._newIssue.issueId);
-            $(this._forms.create + ' .task-description .description').text(this._newIssue.description || this._newIssue.issueName);
-            taskInput.val('');
+            $(this._forms.create + ' .task-description .description').text(this._newIssue.issueName);
+            taskInput.val(this._newIssue.description);
         } else {
             taskInput.val(this._newIssue.description || this._newIssue.issueName);
         }
@@ -771,6 +772,14 @@
             } else if (newProject) {
                 this.saveProjectMapAction({ projectName, projectId: newProject.projectId });
             }
+
+            // Save description map
+            this.saveDescriptionMapAction({
+                taskName: this._newIssue.issueName,
+                description: timer.description
+            });
+            
+
         });
     }
 
