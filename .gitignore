@@ -17,4 +17,5 @@ Thumbs.db
 /src/safari-api-bridges/*.js
 /src/popup/*.js
 /src/popup/*.css
+/src/settings/*.js
 /package-lock.json
