@@ -788,8 +788,8 @@ class ExtensionBase {
 
             const descriptionMap = this.getDescriptionMap();
 
-            if (descriptionMap) {
-                newIssue.description = descriptionMap[this._newPopupIssue.issueName];
+            if (descriptionMap && newIssue.issueId) {
+                newIssue.description = descriptionMap[newIssue.issueName];
             }
 
             this._newPopupIssue = null;
@@ -1066,32 +1066,32 @@ class ExtensionBase {
         return this.accountToProjectMap[accountId];
     }
 
-    accountToDescriptionMap: {
+    taskNameToDescriptionMap: {
         [key: string]: string
     };
 
-    accountToDescriptionMapKey = 'accountToDescriptionMap';
+    taskNameToDescriptionMapKey = 'accountToDescriptionMap';
 
     setDescriptionMap(taskName: string, description: string) {
         let map = this.getDescriptionMap();
-        if (description) {
+        if (description != taskName) {
             map = map || {};
             map[taskName] = description;
-            this.accountToDescriptionMap = map;
-        } else if (map) {
+            this.taskNameToDescriptionMap = map;
+        } else {
             delete map[taskName];
         }
 
-        localStorage.setItem(this.accountToDescriptionMapKey, JSON.stringify(this.accountToDescriptionMap))
+        localStorage.setItem(this.taskNameToDescriptionMapKey, JSON.stringify(this.taskNameToDescriptionMap))
     }
 
     getDescriptionMap() {
-        if (!this.accountToDescriptionMap) {
-            const obj = localStorage.getItem(this.accountToDescriptionMapKey);
-            this.accountToDescriptionMap = obj ? JSON.parse(obj) : {};
+        if (!this.taskNameToDescriptionMap) {
+            const obj = localStorage.getItem(this.taskNameToDescriptionMapKey);
+            this.taskNameToDescriptionMap = obj ? JSON.parse(obj) : {};
         }
 
-        return this.accountToDescriptionMap;
+        return this.taskNameToDescriptionMap;
     }
 
 }

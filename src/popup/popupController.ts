@@ -773,11 +773,13 @@
                 this.saveProjectMapAction({ projectName, projectId: newProject.projectId });
             }
 
-            // Save description map
-            this.saveDescriptionMapAction({
-                taskName: this._newIssue.issueName,
-                description: timer.description
-            });
+            if (timer.issueId) {
+                // Save description map
+                this.saveDescriptionMapAction({
+                    taskName: this._newIssue.issueName,
+                    description: timer.description
+                });
+            }
             
 
         });
