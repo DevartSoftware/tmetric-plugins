@@ -1070,11 +1070,11 @@ class ExtensionBase {
         [key: string]: string
     };
 
-    taskNameToDescriptionMapKey = 'accountToDescriptionMap';
+    taskNameToDescriptionMapKey = 'taskNameToDescriptionMap';
 
     setDescriptionMap(taskName: string, description: string) {
         let map = this.getDescriptionMap();
-        if (description != taskName) {
+        if (description && description != taskName) {
             map = map || {};
             map[taskName] = description;
             this.taskNameToDescriptionMap = map;
