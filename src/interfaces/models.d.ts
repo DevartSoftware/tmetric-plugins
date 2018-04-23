@@ -212,6 +212,20 @@ declare module Models {
         contactMembers: number[];
     }
 
+    interface AccountScope {
+        members: AccountMember[];
+        groups: any[];
+        projects: ProjectLite[];
+        clients: Client[];
+        tags: Tag[];
+        managedProjects: number[];
+        trackedProjects: number[];
+        managedGroups: any[];
+        managedUsers: any[];
+        account: Account;
+        features: any;
+    }
+
     interface Money {
         amount: number;
         currency: string;

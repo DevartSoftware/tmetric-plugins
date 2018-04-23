@@ -26,9 +26,9 @@
 
     serverApiVersion: number;
 
-    tags: Models.Tag[];
-
     onUpdateActiveAccount = SimpleEvent.create<number>();
+
+    onInvalidateAccountScopeCache = SimpleEvent.create<number>();
 
     onRemoveExternalIssuesDurations = SimpleEvent.create<WebToolIssueIdentifier[]>();
 
@@ -126,34 +126,44 @@
         });
 
         this.hubProxy.on('updateActiveAccount', (accountId: number) => {
+            console.log('updateActiveAccount', accountId);
             this.onUpdateActiveAccount.emit(accountId);
             if (!this.userProfile || accountId != this.userProfile.activeAccountId) {
                 this.reconnect();
             }
+            this.onInvalidateAccountScopeCache.emit(accountId);
         });
 
         this.hubProxy.on('updateAccount', (accountId: number) => {
+            console.log('updateAccount', accountId);
             if (this.userProfile && this.userProfile.activeAccountId == accountId) {
                 this.getAccount();
             }
+            this.onInvalidateAccountScopeCache.emit(accountId);
         });
 
         this.hubProxy.on('updateProjects', (accountId: number) => {
+            console.log('updateProjects', accountId);
             if (this.userProfile && this.userProfile.activeAccountId == accountId) {
                 this.getProjects();
             }
+            this.onInvalidateAccountScopeCache.emit(accountId);
         });
 
         this.hubProxy.on('updateClients', (accountId: number) => {
+            console.log('updateClients', accountId);
             if (this.userProfile && this.userProfile.activeAccountId == accountId) {
                 this.getClients();
             }
+            this.onInvalidateAccountScopeCache.emit(accountId);
         });
 
         this.hubProxy.on('updateTags', (accountId: number) => {
+            console.log('updateTags', accountId);
             if (this.userProfile && this.userProfile.activeAccountId == accountId) {
                 this.getTags();
             }
+            this.onInvalidateAccountScopeCache.emit(accountId);
         });
 
         this.hubProxy.on('updateExternalIssuesDurations', (accountId: number, identifiers: WebToolIssueIdentifier[]) => {
@@ -328,10 +338,10 @@
         });
     }
 
-    getIntegration(identifier: Models.IntegratedProjectIdentifier) {
+    getIntegration(identifier: Models.IntegratedProjectIdentifier, accountId?: number) {
         return this.checkProfile().then(profile =>
             this.get<Models.IntegratedProjectStatus>(
-                this.getIntegrationProjectUrl(profile.activeAccountId) + '?' + $.param(identifier, true)));
+                this.getIntegrationProjectUrl(accountId || profile.activeAccountId) + '?' + $.param(identifier, true)));
     }
 
     postIntegration(identifier: Models.IntegratedProjectIdentifier) {
@@ -414,13 +424,22 @@
     }
 
     getAccount() {
-        return this.checkProfile()
-            .then(profile =>
-                this.get<Models.Account>('api/accounts/' + profile.activeAccountId))
-            .then(account => {
-                this.onUpdateAccount.emit(account);
-                return account;
-            });
+        return this.checkProfile().then(profile =>
+            this.get<Models.Account>('api/accounts/' + profile.activeAccountId)
+        ).then(account => {
+            this.onUpdateAccount.emit(account);
+            return account;
+        });
+    }
+
+    getAccountScope(accountId: number) {
+        return this.checkProfile().then(profile => {
+            if (!accountId) {
+                accountId = profile.activeAccountId;
+            }
+            var url = 'api/accounts/' + accountId + '/scope';
+            return this.get<Models.AccountScope>(url);
+        });
     }
 
     getProjects() {
@@ -452,7 +471,6 @@
         return this.checkProfile().then(profile => {
             var url = 'api/accounts/' + profile.activeAccountId + '/tags';
             return this.get<Models.Tag[]>(url).then(tags => {
-                this.tags = tags;
                 this.onUpdateTags.emit(tags);
                 return tags;
             });

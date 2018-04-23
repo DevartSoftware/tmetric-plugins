@@ -1,7 +1,7 @@
 ﻿class PagePopupController extends PopupController {
 
     constructor() {
-        super(true);
+        super();
 
         this.initFrame();
     }
