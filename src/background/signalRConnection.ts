@@ -40,12 +40,6 @@
 
     onUpdateAccount = SimpleEvent.create<Models.Account>();
 
-    onUpdateProjects = SimpleEvent.create<Models.ProjectLite[]>();
-
-    onUpdateClients = SimpleEvent.create<Models.Client[]>();
-
-    onUpdateTags = SimpleEvent.create<Models.Tag[]>();
-
     /** Like promise.all but reject is called after all promises are settled */
     waitAllRejects = Promise.all;
 
@@ -126,7 +120,6 @@
         });
 
         this.hubProxy.on('updateActiveAccount', (accountId: number) => {
-            console.log('updateActiveAccount', accountId);
             this.onUpdateActiveAccount.emit(accountId);
             if (!this.userProfile || accountId != this.userProfile.activeAccountId) {
                 this.reconnect();
@@ -135,7 +128,6 @@
         });
 
         this.hubProxy.on('updateAccount', (accountId: number) => {
-            console.log('updateAccount', accountId);
             if (this.userProfile && this.userProfile.activeAccountId == accountId) {
                 this.getAccount();
             }
@@ -143,26 +135,14 @@
         });
 
         this.hubProxy.on('updateProjects', (accountId: number) => {
-            console.log('updateProjects', accountId);
-            if (this.userProfile && this.userProfile.activeAccountId == accountId) {
-                this.getProjects();
-            }
             this.onInvalidateAccountScopeCache.emit(accountId);
         });
 
         this.hubProxy.on('updateClients', (accountId: number) => {
-            console.log('updateClients', accountId);
-            if (this.userProfile && this.userProfile.activeAccountId == accountId) {
-                this.getClients();
-            }
             this.onInvalidateAccountScopeCache.emit(accountId);
         });
 
         this.hubProxy.on('updateTags', (accountId: number) => {
-            console.log('updateTags', accountId);
-            if (this.userProfile && this.userProfile.activeAccountId == accountId) {
-                this.getTags();
-            }
             this.onInvalidateAccountScopeCache.emit(accountId);
         });
 
@@ -259,7 +239,7 @@
 
             this.waitAllRejects([this.getVersion(), this.getProfile()])
                 .then(([version, profile]) => {
-                    this.waitAllRejects([this.getAccount(), this.getProjects(), this.getTags(), this.getClients()])
+                    this.waitAllRejects([this.getAccount(), this.getAccountScope()])
                         .then(() => {
                             this.hub.start({ pingInterval: null })
                                 .then(() => {
@@ -432,48 +412,13 @@
         });
     }
 
-    getAccountScope(accountId: number) {
+    getAccountScope(accountId?: number) {
         return this.checkProfile().then(profile => {
             if (!accountId) {
                 accountId = profile.activeAccountId;
             }
             var url = 'api/accounts/' + accountId + '/scope';
             return this.get<Models.AccountScope>(url);
-        });
-    }
-
-    getProjects() {
-        return this.checkProfile().then(profile => {
-            var url = 'api/accounts/' + profile.activeAccountId + '/projects?onlyTracked=true';
-            return this.get<Models.ProjectLite[]>(url).then(projects => {
-                this.onUpdateProjects.emit(projects);
-                return projects;
-            });
-        });
-    }
-
-    getClients() {
-        return this.checkProfile().then(profile => {
-            var url = 'api/accounts/' + profile.activeAccountId + '/clients';
-            return this.get<Models.Client[]>(url).then(clients => {
-                this.onUpdateClients.emit(clients);
-                return clients;
-            });
-        });
-    }
-
-    getTagsFromAccount(accountId: number) {
-        var url = 'api/accounts/' + accountId + '/tags';
-        return this.get<Models.Tag[]>(url);
-    }
-
-    getTags() {
-        return this.checkProfile().then(profile => {
-            var url = 'api/accounts/' + profile.activeAccountId + '/tags';
-            return this.get<Models.Tag[]>(url).then(tags => {
-                this.onUpdateTags.emit(tags);
-                return tags;
-            });
         });
     }
 

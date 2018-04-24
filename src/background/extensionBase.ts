@@ -132,14 +132,6 @@ class ExtensionBase {
 
     private _account: Models.Account;
 
-    private _projects: Models.ProjectLite[];
-
-    private _clients: Models.Client[];
-
-    private _tags: Models.Tag[];
-
-    private _scopes: Models.AccountScope[];
-
     private defaultApplicationUrl = 'https://app.tmetric.com/';
 
     constructor() {
@@ -168,7 +160,7 @@ class ExtensionBase {
             this._timer = timer;
 
             if (timer && timer.details) {
-                let project = this._projects.find(_ => _ && _.projectId == timer.details.projectId);
+                let project = this.getProject(timer.details.projectId);
                 timer.projectName = project && project.projectName;
             }
 
@@ -196,18 +188,6 @@ class ExtensionBase {
 
         this.connection.onUpdateAccount(account => {
             this._account = account;
-        });
-
-        this.connection.onUpdateProjects(projects => {
-            this._projects = projects;
-        });
-
-        this.connection.onUpdateClients(clients => {
-            this._clients = clients;
-        });
-
-        this.connection.onUpdateTags(tags => {
-            this._tags = tags;
         });
 
         this.connection.onUpdateActiveAccount(acountId => {
@@ -317,6 +297,24 @@ class ExtensionBase {
         return new Promise<IExtensionSettings>((resolve, reject) => {
             chrome.storage.sync.get(null, resolve);
         });
+    }
+
+    private getProject(projectId: number, accountId?: number) {
+        accountId = accountId || this._userProfile.activeAccountId;
+
+        let scope = this._accountScopeCache[accountId];
+        if (scope) {
+            return scope.projects.find(_ => _.projectId == projectId);
+        }
+    }
+
+    private getTag(tagId: number, accountId?: number) {
+        accountId = accountId || this._userProfile.activeAccountId;
+
+        let scope = this._accountScopeCache[accountId];
+        if (scope) {
+            return scope.tags.find(_ => _.tagId == tagId);
+        }
     }
 
     private openTrackerPage() {
@@ -647,60 +645,54 @@ class ExtensionBase {
         return 'Connection to the server failed or was aborted.';
     }
 
-    private validateTimerTags(timer: WebToolIssueTimer, accountId?: number) {
+    private async validateTimerTags(timer: WebToolIssueTimer, accountId?: number) {
 
-        let activeAccountId = this._userProfile.activeAccountId;
-        accountId = accountId || activeAccountId;
+        accountId = accountId || this._userProfile.activeAccountId;
 
-        return (accountId == activeAccountId ? Promise.resolve(this._tags) : this.connection.getTagsFromAccount(accountId))
-            .then(tags => {
+        let scope = await this.getAccountScope(accountId);
 
-                let hasWorkType = false;
-                let tagByName: { [name: string]: Models.Tag } = {};
-                this._tags.forEach(tag => {
-                    tagByName[tag.tagName.toLowerCase()] = tag;
-                });
+        let hasWorkType = false;
+        let tagByName: { [name: string]: Models.Tag } = {};
+        scope.tags.forEach(tag => {
+            tagByName[tag.tagName.toLowerCase()] = tag;
+        });
 
-                timer.tagNames = (timer.tagNames || [])
-                    .map(name => {
+        timer.tagNames = (timer.tagNames || [])
+            .map(name => {
 
-                        let tag = tagByName[name.toLowerCase()];
+                let tag = tagByName[name.toLowerCase()];
 
-                        if (!tag) {
-                            return name; // new tag
-                        }
-
-                        if (tag.isWorkType) {
-                            if (hasWorkType) {
-                                return null; // accept only first work type
-                            }
-                            hasWorkType = true;
-                        }
-
-                        return tag.tagName; // old tag (character case can be different)
-                    })
-                    .filter(name => !!name);
-
-                if (!hasWorkType) {
-                    let defaultWorkType = this.getDefaultWorkType(accountId, tags);
-                    if (defaultWorkType) {
-                        timer.tagNames.push(defaultWorkType.tagName);
-                    }
+                if (!tag) {
+                    return name; // new tag
                 }
-            });
+
+                if (tag.isWorkType) {
+                    if (hasWorkType) {
+                        return null; // accept only first work type
+                    }
+                    hasWorkType = true;
+                }
+
+                return tag.tagName; // old tag (character case can be different)
+            })
+            .filter(name => !!name);
+
+        if (!hasWorkType) {
+            let defaultWorkType = await this.getDefaultWorkType(accountId);
+            if (defaultWorkType) {
+                timer.tagNames.push(defaultWorkType.tagName);
+            }
+        }
     }
 
-    private getDefaultWorkType(accountId?: number, tags?: Models.Tag[]) {
+    private async getDefaultWorkType(accountId?: number) {
 
-        if (!accountId) {
-            accountId = this._userProfile.activeAccountId;
-        }
-        if (accountId == this._userProfile.activeAccountId) {
-            tags = this._tags;
-        }
+        accountId = accountId || this._userProfile.activeAccountId;
 
+        let scope = await this.getAccountScope(accountId);
         let member = this._userProfile.accountMembership.find(_ => _.account.accountId == accountId);
-        return tags.find(tag => tag.tagId == member.defaultWorkTypeId);
+
+        return scope.tags.find(tag => tag.tagId == member.defaultWorkTypeId);
     }
 
     // issues durations cache
@@ -810,13 +802,17 @@ class ExtensionBase {
 
     // popup actions
 
-    private getPopupData(accountId: number) {
+    private async getPopupData(accountId: number) {
 
         if (!this._userProfile.accountMembership.some(_ => _.account.accountId == accountId)) {
             accountId = this._userProfile.activeAccountId;
         }
 
-        return Promise.all([this.getActiveTabTitle(), this.getAccountScope(accountId)]).then(([title, scope]) => {
+        return Promise.all([
+            this.getActiveTabTitle(),
+            this.getAccountScope(accountId),
+            this.getDefaultWorkType(accountId)
+        ]).then(([title, scope, defaultWorkType]) => {
 
             let userRole = this._userProfile.accountMembership
                 .find(_ => _.account.accountId == accountId)
@@ -826,7 +822,6 @@ class ExtensionBase {
             let canCreateTags = this._account.canMembersCreateTags;
             let isAdmin = (userRole == Models.ServiceRole.Admin || userRole == Models.ServiceRole.Owner);
 
-            let defaultWorkType = this.getDefaultWorkType();
             let newIssue = this._newPopupIssue || <WebToolIssueTimer>{ // _newPopupIssue is null if called from toolbar popup
                 isStarted: true,
                 issueName: title,
