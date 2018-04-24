@@ -313,6 +313,12 @@ class ExtensionBase {
         }
     }
 
+    private getSettings() {
+        return new Promise<IExtensionSettings>((resolve, reject) => {
+            chrome.storage.sync.get(null, resolve);
+        });
+    }
+
     private openTrackerPage() {
         let url = this.serviceUrl;
         if (this._userProfile && this._userProfile.activeAccountId) {
@@ -394,69 +400,68 @@ class ExtensionBase {
         }, accountId);
     }
 
-    private putExternalTimer(timer: WebToolIssueTimer, tabId: number, mutePopup = false) {
+    private async putExternalTimer(timer: WebToolIssueTimer, tabId: number, mutePopup = false) {
+
+        var settings = await this.getSettings();
+
+        if (timer.isStarted &&
+            !mutePopup &&
+            (
+                !settings.showPopup ||
+                settings.showPopup == Models.ShowPopupOption.Always ||
+                (
+                    settings.showPopup == Models.ShowPopupOption.WhenProjectIsNotSpecified &&
+                    !timer.projectName
+                )
+            )
+        ) {
+            // This timer will be send when popup ask for initial data
+            this._newPopupIssue = timer;
+
+            return this.connection.connect().then(() => {
+                this.sendToTabs({ action: 'showPopup' }, tabId);
+            });
+        }
 
         let status: Models.IntegratedProjectStatus;
 
-        chrome.storage.sync.get(null, (settings: IExtensionSettings) => {
+        this.putData(timer,
+            timer => {
 
-            if (timer.isStarted &&
-                !mutePopup &&
-                (
-                    !settings.showPopup ||
-                    settings.showPopup == Models.ShowPopupOption.Always ||
-                    (
-                        settings.showPopup == Models.ShowPopupOption.WhenProjectIsNotSpecified &&
-                        !timer.projectName
-                    )
-                )
-            ) {
-                // This timer will be send when popup ask for initial data
-                this._newPopupIssue = timer;
-
-                return this.connection.connect().then(() => {
-                    this.sendToTabs({ action: 'showPopup' }, tabId);
+                let statusPromise = this.getIntegrationStatus(timer);
+                statusPromise.catch(() => {
+                    this.connection.checkProfileChange(); // TMET-179
                 });
-            }
 
-            this.putData(timer,
-                timer => {
+                return statusPromise.then(receivedStatus => {
 
-                    let statusPromise = this.getIntegrationStatus(timer);
-                    statusPromise.catch(() => {
-                        this.connection.checkProfileChange(); // TMET-179
-                    });
+                    status = receivedStatus;
 
-                    return statusPromise.then(receivedStatus => {
+                    let activeAccountId = this._userProfile.activeAccountId;
 
-                        status = receivedStatus;
-
-                        let activeAccountId = this._userProfile.activeAccountId;
-
-                        // Start task in account where integration/project exist (TE-173)
-                        if (status.accountId != activeAccountId &&
-                            status.serviceRole != null &&
-                            status.integrationType &&
-                            status.projectRole != null &&
-                            status.projectStatus == Models.ProjectStatus.Open
-                        ) {
-                            return this.validateTimerTags(timer, status.accountId)
-                                .then(() => this.putTimerWithIntegration(timer, status, false));
-                        }
-
-                        return this.validateTimerTags(timer, activeAccountId)
-                            .then(() => this.connection.putExternalTimer(timer));
-                    });
-                },
-                timer => {
-                    // Try to create integration
-                    // Show error and exit when timer has no integration
-                    if (timer.serviceUrl || timer.projectName) {
-                        let statusPromise = status ? Promise.resolve(status) : this.getIntegrationStatus(timer); // TE-178
-                        return statusPromise.then(status => this.putTimerWithIntegration(timer, status, true));
+                    // Start task in account where integration/project exist (TE-173)
+                    if (status.accountId != activeAccountId &&
+                        status.serviceRole != null &&
+                        status.integrationType &&
+                        status.projectRole != null &&
+                        status.projectStatus == Models.ProjectStatus.Open
+                    ) {
+                        return this.validateTimerTags(timer, status.accountId)
+                            .then(() => this.putTimerWithIntegration(timer, status, false));
                     }
+
+                    return this.validateTimerTags(timer, activeAccountId)
+                        .then(() => this.connection.putExternalTimer(timer));
                 });
-        });
+            },
+            timer => {
+                // Try to create integration
+                // Show error and exit when timer has no integration
+                if (timer.serviceUrl || timer.projectName) {
+                    let statusPromise = status ? Promise.resolve(status) : this.getIntegrationStatus(timer); // TE-178
+                    return statusPromise.then(status => this.putTimerWithIntegration(timer, status, true));
+                }
+            });
     }
 
     private putExternalTimerFromPopup(timer: WebToolIssueTimer, accountId: number) {
