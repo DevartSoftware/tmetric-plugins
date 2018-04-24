@@ -235,7 +235,7 @@ class ExtensionBase {
         this.listenPopupAction<void, void>('fixTimer', this.fixTimerPopupAction);
         this.listenPopupAction<IPopupTimerData, void>('putTimer', data => {
             this._newPopupIssue = null;
-            this.putExternalTimerFromPopup(data.accountId, data.timer);
+            this.putExternalTimerFromPopup(data.timer, data.accountId);
             return Promise.resolve();
         });
         this.listenPopupAction<void, void>('hideAllPopups', () => {
@@ -459,7 +459,7 @@ class ExtensionBase {
         });
     }
 
-    private putExternalTimerFromPopup(accountId: number, timer: WebToolIssueTimer) {
+    private putExternalTimerFromPopup(timer: WebToolIssueTimer, accountId: number) {
 
         let status: Models.IntegratedProjectStatus;
 
