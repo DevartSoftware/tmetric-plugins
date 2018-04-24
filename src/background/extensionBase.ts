@@ -645,7 +645,7 @@ class ExtensionBase {
 
     private _issuesDurationsCache: { [key: string]: WebToolIssueDuration } = {};
 
-    private makeIssueDurationKey(identifier: WebToolIssueIdentifier): string {
+    private makeIssueDurationKey(identifier: WebToolIssueIdentifier) {
         return identifier.serviceUrl + '/' + identifier.issueUrl;
     }
 
