@@ -209,7 +209,7 @@ class ExtensionBase {
         this.listenPopupAction<void, void>('fixTimer', this.fixTimerPopupAction);
         this.listenPopupAction<IPopupTimerData, void>('putTimer', data => {
             this._newPopupIssue = null;
-            this.putExternalTimerFromPopup(data.timer, data.accountId);
+            this.putExternalTimer(data.timer, null, null, data.accountId);
             return Promise.resolve();
         });
         this.listenPopupAction<void, void>('hideAllPopups', () => {
@@ -383,78 +383,15 @@ class ExtensionBase {
         }, accountId);
     }
 
-    private async putExternalTimer(timer: WebToolIssueTimer, tabId: number, mutePopup = false) {
-
-        var settings = await this.getSettings();
-
-        if (timer.isStarted &&
-            !mutePopup &&
-            (
-                !settings.showPopup ||
-                settings.showPopup == Models.ShowPopupOption.Always ||
-                (
-                    settings.showPopup == Models.ShowPopupOption.WhenProjectIsNotSpecified &&
-                    !timer.projectName
-                )
-            )
-        ) {
-            // This timer will be send when popup ask for initial data
-            this._newPopupIssue = timer;
-
-            return this.connection.connect().then(() => {
-                this.sendToTabs({ action: 'showPopup' }, tabId);
-            });
-        }
+    private async putExternalTimer(timer: WebToolIssueTimer, tabId: number, mutePopup = false, accountIdToPut: number = null) {
 
         let status: Models.IntegratedProjectStatus;
+        let settings = await this.getSettings();
 
         this.putData(timer,
             timer => {
 
-                let statusPromise = this.getIntegrationStatus(timer);
-                statusPromise.catch(() => {
-                    this.connection.checkProfileChange(); // TMET-179
-                });
-
-                return statusPromise.then(receivedStatus => {
-
-                    status = receivedStatus;
-
-                    let activeAccountId = this._userProfile.activeAccountId;
-
-                    // Start task in account where integration/project exist (TE-173)
-                    if (status.accountId != activeAccountId &&
-                        status.serviceRole != null &&
-                        status.integrationType &&
-                        status.projectRole != null &&
-                        status.projectStatus == Models.ProjectStatus.Open
-                    ) {
-                        return this.validateTimerTags(timer, status.accountId)
-                            .then(() => this.putTimerWithIntegration(timer, status, false));
-                    }
-
-                    return this.validateTimerTags(timer, activeAccountId)
-                        .then(() => this.connection.putExternalTimer(timer));
-                });
-            },
-            timer => {
-                // Try to create integration
-                // Show error and exit when timer has no integration
-                if (timer.serviceUrl || timer.projectName) {
-                    let statusPromise = status ? Promise.resolve(status) : this.getIntegrationStatus(timer); // TE-178
-                    return statusPromise.then(status => this.putTimerWithIntegration(timer, status, true));
-                }
-            });
-    }
-
-    private putExternalTimerFromPopup(timer: WebToolIssueTimer, accountId: number) {
-
-        let status: Models.IntegratedProjectStatus;
-
-        this.putData(timer,
-            timer => {
-
-                let statusPromise = this.getIntegrationStatus(timer, accountId);
+                let statusPromise = this.getIntegrationStatus(timer, accountIdToPut);
                 statusPromise.catch(() => {
                     this.connection.checkProfileChange(); // TE-179
                 });
@@ -463,24 +400,68 @@ class ExtensionBase {
 
                     status = receivedStatus;
 
-                    if (status.accountId == accountId &&
-                        status.serviceRole != null &&
-                        status.integrationType &&
-                        status.projectRole != null &&
-                        status.projectStatus == Models.ProjectStatus.Open
-                    ) {
-                        return this.putTimerWithIntegration(timer, status, false);
+                    if (accountIdToPut) {
+
+                        let accountId = accountIdToPut;
+
+                        if (status.accountId == accountId &&
+                            status.serviceRole != null &&
+                            status.integrationType &&
+                            status.projectRole != null &&
+                            status.projectStatus == Models.ProjectStatus.Open
+                        ) {
+                            return this.putTimerWithIntegration(timer, status, false);
+                        }
+
+                        return this.connection.setAccountToPost(accountId)
+                            .then(() => this.connection.putExternalTimer(timer));
+
+                    } else {
+
+                        if (timer.isStarted &&
+                            !mutePopup &&
+                            (
+                                !settings.showPopup ||
+                                settings.showPopup == Models.ShowPopupOption.Always ||
+                                (
+                                    settings.showPopup == Models.ShowPopupOption.WhenProjectIsNotSpecified &&
+                                    !timer.projectName
+                                )
+                            )
+                        ) {
+                            // This timer will be send when popup ask for initial data
+                            this._newPopupIssue = timer;
+
+                            return this.connection.connect().then(() => {
+                                this.sendToTabs({ action: 'showPopup' }, tabId);
+                            });
+                        }
+
+                        let accountId = this._userProfile.activeAccountId;
+
+                        let validation = this.validateTimerTags(timer, status.accountId);
+
+                        // Start task in account where integration/project exist (TE-173)
+                        if (status.accountId != accountId &&
+                            status.serviceRole != null &&
+                            status.integrationType &&
+                            status.projectRole != null &&
+                            status.projectStatus == Models.ProjectStatus.Open
+                        ) {
+                            return validation.then(() => this.putTimerWithIntegration(timer, status, false));
+                        }
+
+                        return validation.then(() => this.connection.putExternalTimer(timer));
+
                     }
 
-                    return this.connection.setAccountToPost(accountId)
-                        .then(() => this.connection.putExternalTimer(timer));
                 });
             },
             timer => {
                 // Try to create integration
                 // Show error and exit when timer has no integration
                 if (timer.serviceUrl || timer.projectName) {
-                    let statusPromise = status ? Promise.resolve(status) : this.getIntegrationStatus(timer, accountId); // TE-178
+                    let statusPromise = status ? Promise.resolve(status) : this.getIntegrationStatus(timer, accountIdToPut); // TE-178
                     return statusPromise.then(status => this.putTimerWithIntegration(timer, status, true));
                 }
             });
