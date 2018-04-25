@@ -148,7 +148,7 @@ class ExtensionBase {
             this.extraHours = 0;
         }
 
-        this.connection.onUpdateTimer(timer => {
+        this.connection.onUpdateTimer(async timer => {
 
             // looks like disconnect
             if (timer == null) {
@@ -158,7 +158,7 @@ class ExtensionBase {
             this._timer = timer;
 
             if (timer && timer.details) {
-                let project = this.getProject(timer.details.projectId);
+                let project = await this.getProject(timer.details.projectId);
                 timer.projectName = project && project.projectName;
             }
 
@@ -293,21 +293,12 @@ class ExtensionBase {
         });
     }
 
-    private getProject(projectId: number, accountId?: number) {
+    private async getProject(projectId: number, accountId?: number) {
         accountId = accountId || this._userProfile.activeAccountId;
 
-        let scope = this._accountScopeCache[accountId];
+        let scope = await this.getAccountScope(accountId);
         if (scope) {
             return scope.projects.find(_ => _.projectId == projectId);
-        }
-    }
-
-    private getTag(tagId: number, accountId?: number) {
-        accountId = accountId || this._userProfile.activeAccountId;
-
-        let scope = this._accountScopeCache[accountId];
-        if (scope) {
-            return scope.tags.find(_ => _.tagId == tagId);
         }
     }
 
@@ -753,23 +744,18 @@ class ExtensionBase {
 
     // account scope cache
 
-    private _accountScopeCache: { [key: number]: Models.AccountScope } = {};
+    private _accountScopeCache: { [key: number]: Promise<Models.AccountScope> } = {};
 
     private invalidateAccountScopeCache(accountId: number) {
         delete this._accountScopeCache[accountId];
     }
 
     private getAccountScope(accountId: number) {
-
         let scope = this._accountScopeCache[accountId];
-        if (scope) {
-            return Promise.resolve(scope);
+        if (!scope) {
+            scope = this._accountScopeCache[accountId] = this.connection.getAccountScope(accountId);
         }
-
-        return this.connection.getAccountScope(accountId).then(scope => {
-            this._accountScopeCache[scope.account.accountId] = scope;
-            return scope;
-        });
+        return scope;
     }
 
     // popup action listeners
