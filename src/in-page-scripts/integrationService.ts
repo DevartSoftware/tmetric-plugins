@@ -171,14 +171,14 @@
     private static _pendingIssuesDurations = <{
         identifiers: WebToolIssueIdentifier[],
         resolve: (data: WebToolIssueDuration[]) => void,
-        reject: (reason?: any) => void,
-        promise: Promise<WebToolIssueDuration[]>
+        reject: (reason?: any) => void
     }>null;
 
     static setIssuesDurations(durations) {
         if (this._pendingIssuesDurations) {
-            this._pendingIssuesDurations.resolve(durations);
+            let resolve = this._pendingIssuesDurations.resolve;
             this._pendingIssuesDurations = null;
+            resolve(durations);
         }
     }
 
@@ -194,40 +194,49 @@
             return Promise.resolve([]);
         }
 
-        let isNewPending = true;
+        let newIdentifiers: WebToolIssueIdentifier[] = [];
+        let oldIdentifiers: { [name: string]: boolean } = {};
+
         let pendingDurations = this._pendingIssuesDurations;
 
         if (pendingDurations) {
 
-            // Try to find some new identifier
-            let oldIdentifiers: { [name: string]: boolean } = {};
             pendingDurations.identifiers.forEach(id => oldIdentifiers[this.makeIssueDurationKey(id)] = true);
-            isNewPending = identifiers.some(id => !oldIdentifiers[this.makeIssueDurationKey(id)]);
 
             // Reject previous promise
             pendingDurations.reject();
         } else {
-            pendingDurations = <any>{};
+            pendingDurations = <typeof pendingDurations>{
+                identifiers: []
+            };
         }
 
+        // Find new identifiers
+        identifiers.forEach(id => {
+            if (!oldIdentifiers[this.makeIssueDurationKey(id)]) {
+                newIdentifiers.push(id);
+            }
+        });
+
         // Do not change pending identifiers when they are superset of new ones.
-        if (isNewPending) {
+        if (newIdentifiers.length) {
+            identifiers = pendingDurations.identifiers.concat(newIdentifiers);
             pendingDurations.identifiers = identifiers;
         }
 
         // Create new promise
-        pendingDurations.promise = new Promise((resolve, reject) => {
+        let promise = new Promise<WebToolIssueDuration[]>((resolve, reject) => {
             pendingDurations.resolve = resolve;
             pendingDurations.reject = reject;
         });
 
         // Skip duplicated requests (TE-256, TE-277)
-        if (isNewPending) {
+        if (newIdentifiers.length) {
             sendBackgroundMessage({ action: 'getIssuesDurations', data: identifiers });
         }
 
         this._pendingIssuesDurations = pendingDurations;
-        return pendingDurations.promise;
+        return promise;
     }
 
     static getIssueDuration(issue: WebToolIssueIdentifier) {
