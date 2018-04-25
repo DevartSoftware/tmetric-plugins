@@ -126,6 +126,8 @@ class ExtensionBase {
 
     private _newPopupIssue: WebToolIssueTimer;
 
+    private _newPopupIntegratedProjectStatus: Models.IntegratedProjectStatus;
+
     private _timeEntries: Models.TimeEntry[];
 
     private _userProfile: Models.UserProfile;
@@ -209,6 +211,7 @@ class ExtensionBase {
         this.listenPopupAction<void, void>('fixTimer', this.fixTimerPopupAction);
         this.listenPopupAction<IPopupTimerData, void>('putTimer', data => {
             this._newPopupIssue = null;
+            this._newPopupIntegratedProjectStatus = null;
             this.putExternalTimer(data.timer, null, null, data.accountId);
             return Promise.resolve();
         });
@@ -415,7 +418,6 @@ class ExtensionBase {
 
                         return this.connection.setAccountToPost(accountId)
                             .then(() => this.connection.putExternalTimer(timer));
-
                     } else {
 
                         if (timer.isStarted &&
@@ -431,6 +433,8 @@ class ExtensionBase {
                         ) {
                             // This timer will be send when popup ask for initial data
                             this._newPopupIssue = timer;
+                            // This status will be used to prepare initial data for popup
+                            this._newPopupIntegratedProjectStatus = status;
 
                             return this.connection.connect().then(() => {
                                 this.sendToTabs({ action: 'showPopup' }, tabId);
@@ -452,9 +456,7 @@ class ExtensionBase {
                         }
 
                         return validation.then(() => this.connection.putExternalTimer(timer));
-
                     }
-
                 });
             },
             timer => {
@@ -765,6 +767,12 @@ class ExtensionBase {
 
     private async getPopupData(accountId: number) {
 
+        // get popup default data from account where project exist
+        if (!accountId && this._newPopupIntegratedProjectStatus) {
+            accountId = this._newPopupIntegratedProjectStatus.accountId;
+        }
+
+        // get default data from active account
         if (!this._userProfile.accountMembership.some(_ => _.account.accountId == accountId)) {
             accountId = this._userProfile.activeAccountId;
         }
