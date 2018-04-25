@@ -130,8 +130,6 @@ class ExtensionBase {
 
     private _userProfile: Models.UserProfile;
 
-    private _account: Models.Account;
-
     private defaultApplicationUrl = 'https://app.tmetric.com/';
 
     constructor() {
@@ -184,10 +182,6 @@ class ExtensionBase {
 
         this.connection.onUpdateProfile(profile => {
             this._userProfile = profile;
-        });
-
-        this.connection.onUpdateAccount(account => {
-            this._account = account;
         });
 
         this.connection.onUpdateActiveAccount(acountId => {
@@ -818,8 +812,8 @@ class ExtensionBase {
                 .find(_ => _.account.accountId == accountId)
                 .role;
 
-            let canMembersManagePublicProjects = this._account.canMembersManagePublicProjects;
-            let canCreateTags = this._account.canMembersCreateTags;
+            let canMembersManagePublicProjects = scope.account.canMembersManagePublicProjects;
+            let canCreateTags = scope.account.canMembersCreateTags;
             let isAdmin = (userRole == Models.ServiceRole.Admin || userRole == Models.ServiceRole.Owner);
 
             let newIssue = this._newPopupIssue || <WebToolIssueTimer>{ // _newPopupIssue is null if called from toolbar popup

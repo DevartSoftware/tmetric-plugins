@@ -38,8 +38,6 @@
 
     onUpdateProfile = SimpleEvent.create<Models.UserProfile>();
 
-    onUpdateAccount = SimpleEvent.create<Models.Account>();
-
     /** Like promise.all but reject is called after all promises are settled */
     waitAllRejects = Promise.all;
 
@@ -128,9 +126,6 @@
         });
 
         this.hubProxy.on('updateAccount', (accountId: number) => {
-            if (this.userProfile && this.userProfile.activeAccountId == accountId) {
-                this.getAccount();
-            }
             this.onInvalidateAccountScopeCache.emit(accountId);
         });
 
@@ -239,7 +234,7 @@
 
             this.waitAllRejects([this.getVersion(), this.getProfile()])
                 .then(([version, profile]) => {
-                    this.waitAllRejects([this.getAccount(), this.getAccountScope()])
+                    this.waitAllRejects([this.getAccountScope()])
                         .then(() => {
                             this.hub.start({ pingInterval: null })
                                 .then(() => {
@@ -400,15 +395,6 @@
             var all = Promise.all([timer, tracker]).then(() => <void>undefined);
             all.catch(() => this.disconnect());
             return all;
-        });
-    }
-
-    getAccount() {
-        return this.checkProfile().then(profile =>
-            this.get<Models.Account>('api/accounts/' + profile.activeAccountId)
-        ).then(account => {
-            this.onUpdateAccount.emit(account);
-            return account;
         });
     }
 
