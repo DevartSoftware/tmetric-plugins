@@ -410,8 +410,10 @@ class ExtensionBase {
                                 !settings.showPopup ||
                                 settings.showPopup == Models.ShowPopupOption.Always ||
                                 (
-                                    settings.showPopup == Models.ShowPopupOption.WhenProjectIsNotSpecified &&
-                                    !timer.projectName
+                                    settings.showPopup == Models.ShowPopupOption.WhenProjectIsNotSpecified && (
+                                        !timer.projectName ||
+                                        status.projectStatus > Models.ProjectStatus.Open
+                                    )
                                 )
                             )
                         ) {
