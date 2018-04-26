@@ -126,7 +126,7 @@ class ExtensionBase {
 
     private _newPopupIssue: WebToolIssueTimer;
 
-    private _newPopupIntegratedProjectStatus: Models.IntegratedProjectStatus;
+    private _newPopupAccountId: number;
 
     private _timeEntries: Models.TimeEntry[];
 
@@ -211,7 +211,7 @@ class ExtensionBase {
         this.listenPopupAction<void, void>('fixTimer', this.fixTimerPopupAction);
         this.listenPopupAction<IPopupTimerData, void>('putTimer', data => {
             this._newPopupIssue = null;
-            this._newPopupIntegratedProjectStatus = null;
+            this._newPopupAccountId = null;
             this.putExternalTimer(data.timer, null, null, data.accountId);
             return Promise.resolve();
         });
@@ -417,8 +417,8 @@ class ExtensionBase {
                         ) {
                             // This timer will be send when popup ask for initial data
                             this._newPopupIssue = timer;
-                            // This status will be used to prepare initial data for popup
-                            this._newPopupIntegratedProjectStatus = status;
+                            // This account id will be used to prepare initial data for popup
+                            this._newPopupAccountId = status.accountId;
 
                             return this.connection.connect().then(() => {
                                 this.sendToTabs({ action: 'showPopup' }, tabId);
@@ -731,8 +731,8 @@ class ExtensionBase {
     private async getPopupData(accountId: number) {
 
         // get popup default data from account where project exist
-        if (!accountId && this._newPopupIntegratedProjectStatus) {
-            accountId = this._newPopupIntegratedProjectStatus.accountId;
+        if (!accountId && this._newPopupAccountId) {
+            accountId = this._newPopupAccountId;
         }
 
         // get default data from active account
