@@ -55,7 +55,7 @@ var files = {
         'src/in-page-scripts/integrations/*.js',
         'src/in-page-scripts/integrationService.js',
         'src/in-page-scripts/page.js',
-		'src/in-page-scripts/init.js',
+        'src/in-page-scripts/init.js',
         'src/in-page-scripts/topmostPage.js',
         'src/in-page-scripts/version.js',
         'src/in-page-scripts/utils.js',
@@ -65,6 +65,8 @@ var files = {
         'src/popup/popupController.js',
         'src/popup/pagePopupController.js',
         'src/popup/popupActivator.js',
+        'src/settings/settings.html',
+        'src/settings/settingsController.js',
         'src/background/extensionBase.js',
         'src/background/simpleEvent.js',
         'src/manifest.json'
@@ -170,7 +172,8 @@ gulp.task('clean:sources', () => {
         'css/*.css',
         'in-page-scripts/**/*.js',
         'lib/*',
-        'popup/*.js'
+        'popup/*.js',
+        'settings/*.js'
     ]);
 });
 
