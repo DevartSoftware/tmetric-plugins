@@ -388,7 +388,6 @@ class ExtensionBase {
 
     private async putExternalTimer(timer: WebToolIssueTimer, tabId: number, mutePopup = false, accountIdToPut: number = null) {
 
-        let status: Models.IntegratedProjectStatus;
         let settings = await this.getSettings();
 
         this.putData(timer,
@@ -399,25 +398,10 @@ class ExtensionBase {
                     this.connection.checkProfileChange(); // TE-179
                 });
 
-                return statusPromise.then(receivedStatus => {
-
-                    status = receivedStatus;
+                return statusPromise.then(status => {
 
                     if (accountIdToPut) {
-
-                        let accountId = accountIdToPut;
-
-                        if (status.accountId == accountId &&
-                            status.serviceRole != null &&
-                            status.integrationType &&
-                            status.projectRole != null &&
-                            status.projectStatus == Models.ProjectStatus.Open
-                        ) {
-                            return this.putTimerWithIntegration(timer, status, false);
-                        }
-
-                        return this.connection.setAccountToPost(accountId)
-                            .then(() => this.connection.putExternalTimer(timer));
+                        return this.putTimerWithIntegration(timer, status, false);
                     } else {
 
                         if (timer.isStarted &&
@@ -441,31 +425,10 @@ class ExtensionBase {
                             });
                         }
 
-                        let accountId = this._userProfile.activeAccountId;
-
-                        let validation = this.validateTimerTags(timer, status.accountId);
-
-                        // Start task in account where integration/project exist (TE-173)
-                        if (status.accountId != accountId &&
-                            status.serviceRole != null &&
-                            status.integrationType &&
-                            status.projectRole != null &&
-                            status.projectStatus == Models.ProjectStatus.Open
-                        ) {
-                            return validation.then(() => this.putTimerWithIntegration(timer, status, false));
-                        }
-
-                        return validation.then(() => this.connection.putExternalTimer(timer));
+                        return this.validateTimerTags(timer, status.accountId)
+                            .then(() => this.putTimerWithIntegration(timer, status, true));
                     }
                 });
-            },
-            timer => {
-                // Try to create integration
-                // Show error and exit when timer has no integration
-                if (timer.serviceUrl || timer.projectName) {
-                    let statusPromise = status ? Promise.resolve(status) : this.getIntegrationStatus(timer, accountIdToPut); // TE-178
-                    return statusPromise.then(status => this.putTimerWithIntegration(timer, status, true));
-                }
             });
     }
 
