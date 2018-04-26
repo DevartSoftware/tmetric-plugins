@@ -90,17 +90,39 @@
                 </div>
             </div>
             <div id="create-form">
-                <div class="row-flex task-description">
-                    <div class="label">Task</div>
-                    <span class="span-container">
-                        <span class="issueId"></span>
-                        <span class="description"></span>
-                    </span>
+                <div class="row-flex task-recent">
+                    <div id="recent-task-selector" class="dropdown">
+                        <button class="btn btn-default dropdown-toggle">
+                            <span>
+                                <span class="dropdown-toggle-text text-overflow">
+                                    Select Recent Task
+                                </span>
+                                <i class="fa fa-angle-down"></i>
+                            </span>
+                        </button>
+                        <div class="dropdown-menu">
+                            <button class="dropdown-menu-item"></button>
+                        </div>
+                    </div>
+                    <span>or <button id="clear-recent-task" class="btn btn-link">enter a new one</button>.</span>
                 </div>
                 <div class="row-flex task">
                     <div class="label">Task</div>
                     <span class="span-container">
-                        <input type="text" class="input form-control" placeholder="Enter description" />
+                        <span class="id"></span>
+                        <span class="name"></span>
+                    </span>
+                </div>
+                <div class="row-flex description">
+                    <div class="label"
+                         data-label-task="Task"
+                         data-label-notes="Notes">Task</div>
+                    <span class="span-container">
+                        <input type="text"
+                               class="input form-control"
+                               placeholder="Enter description"
+                               data-placeholder-task="Enter description"
+                               data-placeholder-notes="Describe your activity" />
                     </span>
                 </div>
                 <div class="row-flex project">

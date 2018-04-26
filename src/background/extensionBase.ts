@@ -202,7 +202,7 @@ class ExtensionBase {
             .init(this.serviceUrl)
             .then(() => this.connection.getVersion());
 
-        this.listenPopupAction<number, IPopupInitData>('initialize', this.initializePopupAction);
+        this.listenPopupAction<IPopupParams, IPopupInitData>('initialize', this.initializePopupAction);
         this.listenPopupAction<void, void>('openTracker', this.openTrackerPagePopupAction);
         this.listenPopupAction<string, void>('openPage', this.openPagePopupAction);
         this.listenPopupAction<void, boolean>('isConnectionRetryEnabled', this.isConnectionRetryEnabledPopupAction);
@@ -628,6 +628,10 @@ class ExtensionBase {
         return scope.tags.find(tag => tag.tagId == member.defaultWorkTypeId);
     }
 
+    private async getRecentTasks(accountId?: number) {
+        return await this.connection.getRecentWorkTasks(accountId || this._userProfile.activeAccountId);
+    }
+
     // issues durations cache
 
     private _issuesDurationsCache: { [key: string]: WebToolIssueDuration } = {};
@@ -730,7 +734,9 @@ class ExtensionBase {
 
     // popup actions
 
-    private async getPopupData(accountId: number) {
+    private async getPopupData(params: IPopupParams) {
+
+        let accountId = params.accountId;
 
         // get popup default data from account where project exist
         if (!accountId && this._newPopupAccountId) {
@@ -745,8 +751,9 @@ class ExtensionBase {
         return Promise.all([
             this.getActiveTabTitle(),
             this.getAccountScope(accountId),
-            this.getDefaultWorkType(accountId)
-        ]).then(([title, scope, defaultWorkType]) => {
+            this.getDefaultWorkType(accountId),
+            params.includeRecentTasks ? this.getRecentTasks(accountId) : null
+        ]).then(([title, scope, defaultWorkType, recentTasks]) => {
 
             let userRole = this._userProfile.accountMembership
                 .find(_ => _.account.accountId == accountId)
@@ -799,17 +806,18 @@ class ExtensionBase {
                 canCreateProjects: isAdmin || canMembersManagePublicProjects,
                 canCreateTags,
                 constants: this._constants,
-                defaultProjectId
+                defaultProjectId,
+                recentTasks
             };
         });
     }
 
-    private initializePopupAction(accountId: number): Promise<IPopupInitData> {
+    private initializePopupAction(params: IPopupParams): Promise<IPopupInitData> {
         return new Promise((resolve, reject) => {
             // Forget about old action when user open popup again
             this._actionOnConnect = null;
             if (this._timer) {
-                resolve(this.getPopupData(accountId));
+                resolve(this.getPopupData(params));
             } else {
                 reject('Not connected');
             }
