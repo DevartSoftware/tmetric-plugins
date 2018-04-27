@@ -212,7 +212,7 @@ class ExtensionBase {
         this.listenPopupAction<IPopupTimerData, void>('putTimer', data => {
             this._newPopupIssue = null;
             this._newPopupAccountId = null;
-            this.putExternalTimer(data.timer, null, null, data.accountId);
+            this.putExternalTimer(data.timer, null, data.accountId);
             return Promise.resolve();
         });
         this.listenPopupAction<void, void>('hideAllPopups', () => {
@@ -258,10 +258,6 @@ class ExtensionBase {
 
             case 'putTimer':
                 this.putExternalTimer(message.data, tabId);
-                break;
-
-            case 'forcePutTimer':
-                this.putExternalTimer(message.data, tabId, true);
                 break;
 
             case 'getIssuesDurations':
@@ -386,7 +382,7 @@ class ExtensionBase {
         }, accountId);
     }
 
-    private async putExternalTimer(timer: WebToolIssueTimer, tabId: number, mutePopup = false, accountIdToPut: number = null) {
+    private async putExternalTimer(timer: WebToolIssueTimer, tabId: number, accountIdToPut: number = null) {
 
         let settings = await this.getSettings();
 
@@ -405,7 +401,6 @@ class ExtensionBase {
                     } else {
 
                         if (timer.isStarted &&
-                            !mutePopup &&
                             (
                                 !settings.showPopup ||
                                 settings.showPopup == Models.ShowPopupOption.Always ||
