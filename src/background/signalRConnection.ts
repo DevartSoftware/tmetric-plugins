@@ -26,9 +26,9 @@
 
     serverApiVersion: number;
 
-    tags: Models.Tag[];
-
     onUpdateActiveAccount = SimpleEvent.create<number>();
+
+    onInvalidateAccountScopeCache = SimpleEvent.create<number>();
 
     onRemoveExternalIssuesDurations = SimpleEvent.create<WebToolIssueIdentifier[]>();
 
@@ -37,14 +37,6 @@
     onUpdateTracker = SimpleEvent.create<Models.TimeEntry[]>();
 
     onUpdateProfile = SimpleEvent.create<Models.UserProfile>();
-
-    onUpdateAccount = SimpleEvent.create<Models.Account>();
-
-    onUpdateProjects = SimpleEvent.create<Models.ProjectLite[]>();
-
-    onUpdateClients = SimpleEvent.create<Models.Client[]>();
-
-    onUpdateTags = SimpleEvent.create<Models.Tag[]>();
 
     /** Like promise.all but reject is called after all promises are settled */
     waitAllRejects = Promise.all;
@@ -130,30 +122,23 @@
             if (!this.userProfile || accountId != this.userProfile.activeAccountId) {
                 this.reconnect();
             }
+            this.onInvalidateAccountScopeCache.emit(accountId);
         });
 
         this.hubProxy.on('updateAccount', (accountId: number) => {
-            if (this.userProfile && this.userProfile.activeAccountId == accountId) {
-                this.getAccount();
-            }
+            this.onInvalidateAccountScopeCache.emit(accountId);
         });
 
         this.hubProxy.on('updateProjects', (accountId: number) => {
-            if (this.userProfile && this.userProfile.activeAccountId == accountId) {
-                this.getProjects();
-            }
+            this.onInvalidateAccountScopeCache.emit(accountId);
         });
 
         this.hubProxy.on('updateClients', (accountId: number) => {
-            if (this.userProfile && this.userProfile.activeAccountId == accountId) {
-                this.getClients();
-            }
+            this.onInvalidateAccountScopeCache.emit(accountId);
         });
 
         this.hubProxy.on('updateTags', (accountId: number) => {
-            if (this.userProfile && this.userProfile.activeAccountId == accountId) {
-                this.getTags();
-            }
+            this.onInvalidateAccountScopeCache.emit(accountId);
         });
 
         this.hubProxy.on('updateExternalIssuesDurations', (accountId: number, identifiers: WebToolIssueIdentifier[]) => {
@@ -249,7 +234,7 @@
 
             this.waitAllRejects([this.getVersion(), this.getProfile()])
                 .then(([version, profile]) => {
-                    this.waitAllRejects([this.getAccount(), this.getProjects(), this.getTags(), this.getClients()])
+                    this.waitAllRejects([this.getAccountScope()])
                         .then(() => {
                             this.hub.start({ pingInterval: null })
                                 .then(() => {
@@ -328,10 +313,10 @@
         });
     }
 
-    getIntegration(identifier: Models.IntegratedProjectIdentifier) {
+    getIntegration(identifier: Models.IntegratedProjectIdentifier, accountId?: number) {
         return this.checkProfile().then(profile =>
             this.get<Models.IntegratedProjectStatus>(
-                this.getIntegrationProjectUrl(profile.activeAccountId) + '?' + $.param(identifier, true)));
+                this.getIntegrationProjectUrl(accountId || profile.activeAccountId) + '?' + $.param(identifier, true)));
     }
 
     postIntegration(identifier: Models.IntegratedProjectIdentifier) {
@@ -413,49 +398,13 @@
         });
     }
 
-    getAccount() {
-        return this.checkProfile()
-            .then(profile =>
-                this.get<Models.Account>('api/accounts/' + profile.activeAccountId))
-            .then(account => {
-                this.onUpdateAccount.emit(account);
-                return account;
-            });
-    }
-
-    getProjects() {
+    getAccountScope(accountId?: number) {
         return this.checkProfile().then(profile => {
-            var url = 'api/accounts/' + profile.activeAccountId + '/projects?onlyTracked=true';
-            return this.get<Models.ProjectLite[]>(url).then(projects => {
-                this.onUpdateProjects.emit(projects);
-                return projects;
-            });
-        });
-    }
-
-    getClients() {
-        return this.checkProfile().then(profile => {
-            var url = 'api/accounts/' + profile.activeAccountId + '/clients';
-            return this.get<Models.Client[]>(url).then(clients => {
-                this.onUpdateClients.emit(clients);
-                return clients;
-            });
-        });
-    }
-
-    getTagsFromAccount(accountId: number) {
-        var url = 'api/accounts/' + accountId + '/tags';
-        return this.get<Models.Tag[]>(url);
-    }
-
-    getTags() {
-        return this.checkProfile().then(profile => {
-            var url = 'api/accounts/' + profile.activeAccountId + '/tags';
-            return this.get<Models.Tag[]>(url).then(tags => {
-                this.tags = tags;
-                this.onUpdateTags.emit(tags);
-                return tags;
-            });
+            if (!accountId) {
+                accountId = profile.activeAccountId;
+            }
+            var url = 'api/accounts/' + accountId + '/scope';
+            return this.get<Models.AccountScope>(url);
         });
     }
 

@@ -13,33 +13,62 @@
 
     const popupId = 'tmetric-popup';
 
+    let framesetRows: string;
+    let framesetCols: string;
+
     const showPopup = () => {
 
         if (document.querySelector('#' + popupId)) {
             return;
         }
 
-        let iframe = document.createElement('iframe');
-        iframe.id = popupId;
-        iframe.src = `${constants.browserSchema}://${constants.extensionUUID}/popup/popup.html?integration`;
+        let body = document.body;
+        let isFrameSet = body.tagName == 'FRAMESET';
+        let refChild = <Node>null;
+        let frame = document.createElement(isFrameSet ? 'frame' : 'iframe');
 
-        Object.assign(iframe.style, {
-            position: 'fixed',
-            zIndex: 999999,
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            display: 'block'
-        });
+        frame.id = popupId;
+        frame.src = `${constants.browserSchema}://${constants.extensionUUID}/popup/popup.html?integration`;
 
-        document.body.appendChild(iframe);
+        if (isFrameSet) {
+
+            // Hide all other frames in frameset (TE-278)
+            framesetRows = body.getAttribute('rows');
+            framesetCols = body.getAttribute('cols');
+            body.removeAttribute('cols');
+            body.setAttribute('rows', '*');
+            refChild = body.firstChild;
+        } else {
+
+            // Show iframe at front of content
+            Object.assign(frame.style, {
+                position: 'fixed',
+                zIndex: 999999,
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                display: 'block'
+            });
+        }
+
+        body.insertBefore(frame, refChild);
     }
 
     const hidePopup = () => {
-        let popup = document.querySelector('#' + popupId);
-        if (popup) {
-            popup.remove();
+        let popupFrame = document.querySelector('#' + popupId);
+        if (popupFrame) {
+            popupFrame.remove();
+
+            // Restore frames in frameset
+            if (framesetRows != null) {
+                document.body.setAttribute('rows', framesetRows)
+            } else {
+                document.body.removeAttribute('rows');
+            }
+            if (framesetCols != null) {
+                document.body.setAttribute('cols', framesetCols)
+            }
         }
     }
 

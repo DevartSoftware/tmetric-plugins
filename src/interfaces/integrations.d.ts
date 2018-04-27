@@ -93,7 +93,8 @@ interface ITaskInfo {
 interface IPopupInitData {
     timer: Models.Timer;
     newIssue: WebToolIssueTimer;
-    timeFormat: string;
+    profile: Models.UserProfile;
+    accountId: number;
     projects: Models.ProjectLite[];
     clients: Models.Client[];
     tags: Models.Tag[];
@@ -101,7 +102,11 @@ interface IPopupInitData {
     canCreateProjects: boolean;
     canCreateTags: boolean;
     defaultProjectId: number;
-    activeAccountId: number;
+}
+
+interface IPopupTimerData {
+    timer: WebToolIssueTimer,
+    accountId?: number;
 }
 
 interface IExtensionSettings {

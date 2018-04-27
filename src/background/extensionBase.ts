@@ -126,17 +126,11 @@ class ExtensionBase {
 
     private _newPopupIssue: WebToolIssueTimer;
 
+    private _newPopupAccountId: number;
+
     private _timeEntries: Models.TimeEntry[];
 
     private _userProfile: Models.UserProfile;
-
-    private _account: Models.Account;
-
-    private _projects: Models.ProjectLite[];
-
-    private _clients: Models.Client[];
-
-    private _tags: Models.Tag[];
 
     private defaultApplicationUrl = 'https://app.tmetric.com/';
 
@@ -156,7 +150,7 @@ class ExtensionBase {
             this.extraHours = 0;
         }
 
-        this.connection.onUpdateTimer(timer => {
+        this.connection.onUpdateTimer(async timer => {
 
             // looks like disconnect
             if (timer == null) {
@@ -166,7 +160,7 @@ class ExtensionBase {
             this._timer = timer;
 
             if (timer && timer.details) {
-                let project = this._projects.find(_ => _ && _.projectId == timer.details.projectId);
+                let project = await this.getProject(timer.details.projectId);
                 timer.projectName = project && project.projectName;
             }
 
@@ -192,24 +186,12 @@ class ExtensionBase {
             this._userProfile = profile;
         });
 
-        this.connection.onUpdateAccount(account => {
-            this._account = account;
-        });
-
-        this.connection.onUpdateProjects(projects => {
-            this._projects = projects;
-        });
-
-        this.connection.onUpdateClients(clients => {
-            this._clients = clients;
-        });
-
-        this.connection.onUpdateTags(tags => {
-            this._tags = tags;
-        });
-
         this.connection.onUpdateActiveAccount(acountId => {
             this.clearIssuesDurationsCache();
+        });
+
+        this.connection.onInvalidateAccountScopeCache(accountId => {
+            this.invalidateAccountScopeCache(accountId);
         });
 
         this.connection.onRemoveExternalIssuesDurations(identifiers => {
@@ -220,15 +202,17 @@ class ExtensionBase {
             .init(this.serviceUrl)
             .then(() => this.connection.getVersion());
 
-        this.listenPopupAction<void, IPopupInitData>('initialize', this.initializePopupAction);
+        this.listenPopupAction<number, IPopupInitData>('initialize', this.initializePopupAction);
         this.listenPopupAction<void, void>('openTracker', this.openTrackerPagePopupAction);
         this.listenPopupAction<string, void>('openPage', this.openPagePopupAction);
         this.listenPopupAction<void, boolean>('isConnectionRetryEnabled', this.isConnectionRetryEnabledPopupAction);
         this.listenPopupAction<void, void>('retry', this.retryConnectionPopupAction);
         this.listenPopupAction<void, void>('login', this.loginPopupAction);
         this.listenPopupAction<void, void>('fixTimer', this.fixTimerPopupAction);
-        this.listenPopupAction<WebToolIssueTimer, void>('putTimer', data => {
-            this.putExternalTimer(data);
+        this.listenPopupAction<IPopupTimerData, void>('putTimer', data => {
+            this._newPopupIssue = null;
+            this._newPopupAccountId = null;
+            this.putExternalTimer(data.timer, null, data.accountId);
             return Promise.resolve();
         });
         this.listenPopupAction<void, void>('hideAllPopups', () => {
@@ -276,10 +260,6 @@ class ExtensionBase {
                 this.putExternalTimer(message.data, tabId);
                 break;
 
-            case 'forcePutTimer':
-                this.putExternalTimer(message.data, tabId, true);
-                break;
-
             case 'getIssuesDurations':
                 this.getIssuesDurations(message.data).then(durations => {
 
@@ -303,6 +283,21 @@ class ExtensionBase {
                     this.sendToTabs({ action: 'setIssuesDurations', data: durations }, tabId);
                 });
                 break;
+        }
+    }
+
+    private getSettings() {
+        return new Promise<IExtensionSettings>((resolve, reject) => {
+            chrome.storage.sync.get(null, resolve);
+        });
+    }
+
+    private async getProject(projectId: number, accountId?: number) {
+        accountId = accountId || this._userProfile.activeAccountId;
+
+        let scope = await this.getAccountScope(accountId);
+        if (scope) {
+            return scope.projects.find(_ => _.projectId == projectId);
         }
     }
 
@@ -378,87 +373,60 @@ class ExtensionBase {
         return promise;
     }
 
-    private getIntegrationStatus(timer: WebToolIssueTimer) {
+    private getIntegrationStatus(timer: WebToolIssueTimer, accountId?: number) {
         return this.connection.getIntegration(<Models.IntegratedProjectIdentifier>{
             serviceUrl: timer.serviceUrl,
             serviceType: timer.serviceType,
             projectName: timer.projectName,
             showIssueId: !!timer.showIssueId
-        });
+        }, accountId);
     }
 
-    private putExternalTimer(timer: WebToolIssueTimer, tabId?: number, mutePopup = false) {
-        let showPopup = false;
-        let status: Models.IntegratedProjectStatus;
+    private async putExternalTimer(timer: WebToolIssueTimer, tabId: number, accountIdToPut: number = null) {
 
-        chrome.storage.sync.get(null, (settings: IExtensionSettings) => {
-            this.putData(timer,
-                timer => {
+        let settings = await this.getSettings();
 
-                    let statusPromise = this.getIntegrationStatus(timer);
-                    statusPromise.catch(() => {
-                        this.connection.checkProfileChange(); // TMET-179
-                    });
+        this.putData(timer,
+            timer => {
 
-                    return statusPromise.then(receivedStatus => {
+                let statusPromise = this.getIntegrationStatus(timer, accountIdToPut);
+                statusPromise.catch(() => {
+                    this.connection.checkProfileChange(); // TE-179
+                });
 
-                        status = receivedStatus;
-                        let activeAccountId = this._userProfile.activeAccountId;
+                return statusPromise.then(status => {
 
-                        // Start task in account where integration/project exist (TE-173)
-                        if (tabId &&
-                            status.accountId != activeAccountId &&
-                            status.serviceRole != null &&
-                            status.integrationType &&
-                            status.projectRole != null &&
-                            status.projectStatus == Models.ProjectStatus.Open) {
+                    if (accountIdToPut) {
+                        return this.putTimerWithIntegration(timer, status, false);
+                    } else {
 
-                            return this.validateTimerTags(timer, status.accountId)
-                                .then(() => this.putTimerWithIntegration(timer, status, false));
-                        }
-
-                        // Do not validate tags in timer passed from popup
-                        let tagsPromise = tabId ? this.validateTimerTags(timer, activeAccountId) : Promise.resolve();
-
-                        let alwaysShowPopup = !settings.showPopup ||
-                            (settings.showPopup == Models.ShowPopupOption.Always);
-
-                        let neverShowPopup = settings.showPopup == Models.ShowPopupOption.Never;
-
-                        return tagsPromise.then(() => {
-
-                            if (neverShowPopup ||
-                                !tabId ||
-                                !timer.isStarted ||
-                                mutePopup ||
-                                (!alwaysShowPopup && (
-                                    timer.issueName &&
-                                    timer.projectName &&
-                                    this._projects.filter(_ => _.projectName.toLowerCase() == timer.projectName.toLowerCase()).length)
-                                )) {
-                                return this.connection.putExternalTimer(timer);
-                            }
-
-                            showPopup = true;
-
+                        if (timer.isStarted &&
+                            (
+                                !settings.showPopup ||
+                                settings.showPopup == Models.ShowPopupOption.Always ||
+                                (
+                                    settings.showPopup == Models.ShowPopupOption.WhenProjectIsNotSpecified && (
+                                        !timer.projectName ||
+                                        status.projectStatus == null
+                                    )
+                                )
+                            )
+                        ) {
                             // This timer will be send when popup ask for initial data
                             this._newPopupIssue = timer;
+                            // This account id will be used to prepare initial data for popup
+                            this._newPopupAccountId = status.accountId;
 
                             return this.connection.connect().then(() => {
                                 this.sendToTabs({ action: 'showPopup' }, tabId);
                             });
+                        }
 
-                        });
-                    });
-                },
-                timer => {
-                    // Show error and exit when timer has no integration
-                    if (!showPopup && (timer.serviceUrl || timer.projectName)) {
-                        let statusPromise = status ? Promise.resolve(status) : this.getIntegrationStatus(timer); // TMET-178
-                        return statusPromise.then(status => this.putTimerWithIntegration(timer, status, true));
+                        return this.validateTimerTags(timer, status.accountId)
+                            .then(() => this.putTimerWithIntegration(timer, status, true));
                     }
                 });
-        })
+            });
     }
 
     private putData<T>(data: T, action: (data: T) => Promise<any>, retryAction?: (data: T) => Promise<any>) {
@@ -477,7 +445,7 @@ class ExtensionBase {
                         this._actionOnConnect = () => onConnect(false);
                         this.showLoginDialog();
                     });
-                };
+                }
             }
             else {
 
@@ -605,67 +573,61 @@ class ExtensionBase {
         return 'Connection to the server failed or was aborted.';
     }
 
-    private validateTimerTags(timer: WebToolIssueTimer, accountId?: number) {
+    private async validateTimerTags(timer: WebToolIssueTimer, accountId?: number) {
 
-        let activeAccountId = this._userProfile.activeAccountId;
-        accountId = accountId || activeAccountId;
+        accountId = accountId || this._userProfile.activeAccountId;
 
-        return (accountId == activeAccountId ? Promise.resolve(this._tags) : this.connection.getTagsFromAccount(accountId))
-            .then(tags => {
+        let scope = await this.getAccountScope(accountId);
 
-                let hasWorkType = false;
-                let tagByName: { [name: string]: Models.Tag } = {};
-                this._tags.forEach(tag => {
-                    tagByName[tag.tagName.toLowerCase()] = tag;
-                });
+        let hasWorkType = false;
+        let tagByName: { [name: string]: Models.Tag } = {};
+        scope.tags.forEach(tag => {
+            tagByName[tag.tagName.toLowerCase()] = tag;
+        });
 
-                timer.tagNames = (timer.tagNames || [])
-                    .map(name => {
+        timer.tagNames = (timer.tagNames || [])
+            .map(name => {
 
-                        let tag = tagByName[name.toLowerCase()];
+                let tag = tagByName[name.toLowerCase()];
 
-                        if (!tag) {
-                            return name; // new tag
-                        }
-
-                        if (tag.isWorkType) {
-                            if (hasWorkType) {
-                                return null; // accept only first work type
-                            }
-                            hasWorkType = true;
-                        }
-
-                        return tag.tagName; // old tag (character case can be different)
-                    })
-                    .filter(name => !!name);
-
-                if (!hasWorkType) {
-                    let defaultWorkType = this.getDefaultWorkType(accountId, tags);
-                    if (defaultWorkType) {
-                        timer.tagNames.push(defaultWorkType.tagName);
-                    }
+                if (!tag) {
+                    return name; // new tag
                 }
-            });
+
+                if (tag.isWorkType) {
+                    if (hasWorkType) {
+                        return null; // accept only first work type
+                    }
+                    hasWorkType = true;
+                }
+
+                return tag.tagName; // old tag (character case can be different)
+            })
+            .filter(name => !!name);
+
+        if (!hasWorkType) {
+            let defaultWorkType = await this.getDefaultWorkType(accountId);
+            if (defaultWorkType) {
+                timer.tagNames.push(defaultWorkType.tagName);
+            }
+        }
     }
 
-    private getDefaultWorkType(accountId?: number, tags?: Models.Tag[]) {
+    private async getDefaultWorkType(accountId?: number) {
 
-        if (!accountId) {
-            accountId = this._userProfile.activeAccountId;
-        }
-        if (accountId == this._userProfile.activeAccountId) {
-            tags = this._tags;
-        }
+        accountId = accountId || this._userProfile.activeAccountId;
 
+        let scope = await this.getAccountScope(accountId);
         let member = this._userProfile.accountMembership.find(_ => _.account.accountId == accountId);
-        return tags.find(tag => tag.tagId == member.defaultWorkTypeId);
+
+        return scope.tags.find(tag => tag.tagId == member.defaultWorkTypeId);
     }
 
     // issues durations cache
 
     private _issuesDurationsCache: { [key: string]: WebToolIssueDuration } = {};
 
-    private makeIssueDurationKey(identifier: WebToolIssueIdentifier): string {
+    private makeIssueDurationKey(identifier: WebToolIssueIdentifier) {
         return identifier.serviceUrl + '/' + identifier.issueUrl;
     }
 
@@ -723,11 +685,27 @@ class ExtensionBase {
         });
     }
 
+    // account scope cache
+
+    private _accountScopeCache: { [key: number]: Promise<Models.AccountScope> } = {};
+
+    private invalidateAccountScopeCache(accountId: number) {
+        delete this._accountScopeCache[accountId];
+    }
+
+    private getAccountScope(accountId: number) {
+        let scope = this._accountScopeCache[accountId];
+        if (!scope) {
+            scope = this._accountScopeCache[accountId] = this.connection.getAccountScope(accountId);
+        }
+        return scope;
+    }
+
     // popup action listeners
 
     private _popupActions = {};
 
-    private listenPopupAction<TParams, TResult>(action: string, handler: (TParams) => Promise<TResult>) {
+    private listenPopupAction<TParams, TResult>(action: string, handler: (data: TParams) => Promise<TResult>) {
         this._popupActions[action] = handler;
     }
 
@@ -747,20 +725,32 @@ class ExtensionBase {
 
     // popup actions
 
-    private getPopupData() {
+    private async getPopupData(accountId: number) {
 
-        return this.getActiveTabTitle().then(title => {
+        // get popup default data from account where project exist
+        if (!accountId && this._newPopupAccountId) {
+            accountId = this._newPopupAccountId;
+        }
 
-            let activeAccountId = this._userProfile.activeAccountId;
+        // get default data from active account
+        if (!this._userProfile.accountMembership.some(_ => _.account.accountId == accountId)) {
+            accountId = this._userProfile.activeAccountId;
+        }
+
+        return Promise.all([
+            this.getActiveTabTitle(),
+            this.getAccountScope(accountId),
+            this.getDefaultWorkType(accountId)
+        ]).then(([title, scope, defaultWorkType]) => {
+
             let userRole = this._userProfile.accountMembership
-                .find(_ => _.account.accountId == activeAccountId)
+                .find(_ => _.account.accountId == accountId)
                 .role;
 
-            let canMembersManagePublicProjects = this._account.canMembersManagePublicProjects;
-            let canCreateTags = this._account.canMembersCreateTags;
+            let canMembersManagePublicProjects = scope.account.canMembersManagePublicProjects;
+            let canCreateTags = scope.account.canMembersCreateTags;
             let isAdmin = (userRole == Models.ServiceRole.Admin || userRole == Models.ServiceRole.Owner);
 
-            let defaultWorkType = this.getDefaultWorkType();
             let newIssue = this._newPopupIssue || <WebToolIssueTimer>{ // _newPopupIssue is null if called from toolbar popup
                 isStarted: true,
                 issueName: title,
@@ -768,11 +758,10 @@ class ExtensionBase {
                 tagNames: defaultWorkType ? [defaultWorkType.tagName] : []
             };
 
-            let filteredProjects = this._projects
-                .filter(project => project.projectStatus == Models.ProjectStatus.Open)
+            let filteredProjects = scope.projects.filter(p => scope.trackedProjects.indexOf(p.projectId) > -1)
                 .sort((a, b) => a.projectName.localeCompare(b.projectName, [], { sensitivity: 'base' }));
 
-            const projectMap = this.getProjectMap(activeAccountId);
+            const projectMap = this.getProjectMap(accountId);
 
             // Determine default project
             let defaultProjectId = <number>null;
@@ -781,7 +770,7 @@ class ExtensionBase {
 
                 // Remove mapped project from localstorage if project was deleted/closed
                 if (defaultProjectId && filteredProjects.every(_ => _.projectId != defaultProjectId)) {
-                    this.setProjectMap(activeAccountId, newIssue.projectName, null);
+                    this.setProjectMap(accountId, newIssue.projectName, null);
                     defaultProjectId = null;
                 }
             }
@@ -792,30 +781,30 @@ class ExtensionBase {
                 newIssue.description = descriptionMap[newIssue.issueName];
             }
 
-            this._newPopupIssue = null;
+            //this._newPopupIssue = null;
 
             return <IPopupInitData>{
                 timer: this._timer,
                 newIssue,
-                timeFormat: this._userProfile && this._userProfile.timeFormat,
+                profile: this._userProfile,
+                accountId,
                 projects: filteredProjects,
-                clients: this._clients,
-                tags: this._tags,
+                clients: scope.clients,
+                tags: scope.tags,
                 canCreateProjects: isAdmin || canMembersManagePublicProjects,
                 canCreateTags,
                 constants: this._constants,
-                defaultProjectId,
-                activeAccountId
+                defaultProjectId
             };
         });
     }
 
-    private initializePopupAction(): Promise<IPopupInitData> {
+    private initializePopupAction(accountId: number): Promise<IPopupInitData> {
         return new Promise((resolve, reject) => {
             // Forget about old action when user open popup again
             this._actionOnConnect = null;
             if (this._timer) {
-                resolve(this.getPopupData());
+                resolve(this.getPopupData(accountId));
             } else {
                 reject('Not connected');
             }
@@ -1093,5 +1082,4 @@ class ExtensionBase {
 
         return this.taskNameToDescriptionMap;
     }
-
 }

@@ -1,47 +1,56 @@
 ﻿class PopupController {
 
-    constructor(suppressViewState?: boolean) {
-
+    constructor() {
         this.initControls();
-        this.switchState(this._states.loading);
-        this.initializeAction()
-            .then(data => {
-                this.setData(data);
-
-                if (data.timer.isStarted && this.isLongRunning(data.timer.startTime)) {
-                    this.fillFixForm(data.timer);
-                    this.switchState(this._states.fixing);
-                } else if (!suppressViewState && data.timer && data.timer.isStarted) {
-                    this.fillViewForm(data.timer, data.activeAccountId);
-                    this.fillCreateForm(data.defaultProjectId);
-                    this.switchState(this._states.viewing);
-                } else {
-                    this.fillCreateForm(data.defaultProjectId);
-                    this.switchState(this._states.creating);
-                }
-            })
-            .catch(error => {
-                this.isConnectionRetryEnabledAction().then(retrying => {
-                    if (retrying) {
-                        this.switchState(this._states.retrying);
-                    } else {
-                        this.switchState(this._states.authenticating);
-                    }
-                });
-            });
+        this.getData(null);
     }
 
     private _activeTimer: Models.Timer;
     private _timeFormat: string;
+    private _profile: Models.UserProfile;
+    private _accountId: number;
     private _projects: Models.ProjectLite[];
-    private _tags: Models.Tag[];
     private _clients: Models.Client[];
+    private _tags: Models.Tag[];
     private _constants: Models.Constants;
     private _canCreateProjects: boolean;
     private _canCreateTags: boolean;
     private _newIssue: WebToolIssueTimer;
 
     protected isPagePopup = false;
+
+    getData(accountId: number) {
+
+        this.switchState(this._states.loading);
+
+        this.initializeAction(accountId).then(data => {
+            this.setData(data);
+
+            if (this._profile.accountMembership.length > 1) {
+                this.fillAccountSelector(data.profile, data.accountId);
+            }
+
+            if (data.timer.isStarted && this.isLongRunning(data.timer.startTime)) {
+                this.fillFixForm(data.timer);
+                this.switchState(this._states.fixing);
+            } else if (!this.isPagePopup && data.timer && data.timer.isStarted) {
+                this.fillViewForm(data.timer, data.accountId);
+                this.fillCreateForm(data.defaultProjectId);
+                this.switchState(this._states.viewing);
+            } else {
+                this.fillCreateForm(data.defaultProjectId);
+                this.switchState(this._states.creating);
+            }
+        }).catch(error => {
+            this.isConnectionRetryEnabledAction().then(retrying => {
+                if (retrying) {
+                    this.switchState(this._states.retrying);
+                } else {
+                    this.switchState(this._states.authenticating);
+                }
+            });
+        });
+    }
 
     callBackground(request: IPopupRequest): Promise<IPopupResponse> {
         return new Promise((resolve, reject) => {
@@ -59,7 +68,10 @@
         if (data.timer) {
             this._activeTimer = data.timer;
             this._newIssue = data.newIssue;
-            this._timeFormat = data.timeFormat;
+            this._accountId = data.accountId;
+            this._profile = data.profile;
+            this._timeFormat = data.profile.timeFormat;
+            this._accountId = data.accountId;
             this._projects = data.projects;
             this._clients = data.clients;
             this._tags = data.tags.filter(tag => !!tag).sort((a, b) => this.compareTags(a, b));
@@ -71,8 +83,8 @@
         }
     }
 
-    putTimer(timer: WebToolIssueTimer) {
-        return this.putTimerAction(timer).then(() => {
+    putTimer(accountId: number, timer: WebToolIssueTimer) {
+        return this.putTimerAction({ accountId, timer }).then(() => {
             this.close();
         });
     }
@@ -112,14 +124,14 @@
         };
     }
 
-    initializeAction = this.wrapBackgroundAction<void, IPopupInitData>('initialize');
+    initializeAction = this.wrapBackgroundAction<number, IPopupInitData>('initialize');
     openTrackerAction = this.wrapBackgroundAction<void, void>('openTracker');
     openPageAction = this.wrapBackgroundAction<string, void>('openPage');
     loginAction = this.wrapBackgroundAction<void, void>('login');
     isConnectionRetryEnabledAction = this.wrapBackgroundAction<void, boolean>('isConnectionRetryEnabled');
     retryAction = this.wrapBackgroundAction<void, void>('retry');
     fixTimerAction = this.wrapBackgroundAction<void, void>('fixTimer');
-    putTimerAction = this.wrapBackgroundAction<WebToolIssueTimer, void>('putTimer');
+    putTimerAction = this.wrapBackgroundAction<IPopupTimerData, void>('putTimer');
     saveProjectMapAction = this.wrapBackgroundAction<{ projectName: string, projectId: number }, void>('saveProjectMap');
     saveDescriptionMapAction = this.wrapBackgroundAction<{ taskName: string, description: string }, void>('saveDescriptionMap');
 
@@ -149,6 +161,7 @@
 
     switchState(name: string) {
         $('content').attr('class', name);
+
         if (name == this._states.creating) {
             this.initCreatingForm();
         }
@@ -177,6 +190,44 @@
         }
 
         $('.logo-text').text(logoText);
+    }
+
+    getAccountMembership(id: number) {
+        return this._profile && this._profile.accountMembership.find(_ => _.account.accountId == id);
+    }
+
+    fillAccountSelector(profile: Models.UserProfile, accountId: number) {
+        if (!profile) {
+            return;
+        }
+
+        let membership = profile.accountMembership;
+        let selectedAccount = membership.find(_ => _.account.accountId == accountId).account;
+
+        let dropdown = $('#account-selector');
+
+        $('.dropdown-toggle-text', dropdown).text(selectedAccount.accountName);
+
+        let menu = $('.dropdown-menu', dropdown);
+        menu.empty();
+
+        let items = membership.map(_ => {
+            let item = $('<button></button>')
+                .addClass('dropdown-menu-item')
+                .toggleClass('selected', _.account.accountId == accountId)
+                .prop('data-value', _.account.accountId)
+                .text(_.account.accountName);
+            return item;
+        });
+
+        menu.append(items);
+
+        dropdown.show();
+    }
+
+    private changeAccount(accountId: number) {
+        console.log(accountId);
+        this.getData(accountId);
     }
 
     fillFixForm(timer: Models.Timer) {
@@ -507,6 +558,7 @@
         }
 
         $(selector)
+            .empty()
             .select2({
                 data: items,
                 templateSelection: (options) => this.formatSelectedProject(options),
@@ -588,7 +640,7 @@
         let avatarPath = `${this._constants.serviceUrl}/${projectAvatar}`
         let avatarElement = $(`<img src="${avatarPath}" />`).addClass('project-avatar-image');
 
-        let title = project.projectName;
+        let title = projectName;
 
         if (projectCode) {
             let projectCodeElement = $('<span />').text(projectCode);
@@ -602,7 +654,7 @@
             title += projectClient;
         }
 
-        $(namesElement).attr('title', title);
+        $(namesElement).attr('title', projectName);
         result.append(avatarElement);
         result.append(namesElement);
 
@@ -610,43 +662,47 @@
     }
 
     initTagSelector(selector: string, items: IdTextPair[], selectedItems: string[], allowNewItems?: boolean) {
-        $(selector).select2({
-            data: items,
-            tags: allowNewItems,
-            matcher: (a: any, b: any) => {
-                let params = <{ term: string }>a;
-                let option = <Select2SelectionObject>b;
+        $(selector)
+            .empty()
+            .select2({
+                data: items,
+                tags: allowNewItems,
+                matcher: (a: any, b: any) => {
+                    let params = <{ term: string }>a;
+                    let option = <Select2SelectionObject>b;
 
-                let term = $.trim(params.term || "").toLowerCase();
-                let text = $(option.element).text().toLowerCase();
+                    let term = $.trim(params.term || "").toLowerCase();
+                    let text = $(option.element).text().toLowerCase();
 
-                let isSelected = !!(option.element && option.element.selected);
-                let isTermIncluded = text.length >= term.length && text.indexOf(term) > -1;
-                let isEqual = text == term;
+                    let isSelected = !!(option.element && option.element.selected);
+                    let isTermIncluded = text.length >= term.length && text.indexOf(term) > -1;
+                    let isEqual = text == term;
 
-                if (
-                    (isSelected && isEqual) || // match selected option to avoid message about not found option during input
-                    (!isSelected && isTermIncluded)
-                ) {
-                    return option;
-                }
-
-                return <any>null;
-            },
-            createTag: (params) => {
-                let name = $.trim(params.term);
-                if (name) {
-                    let foundOptions = $(selector)
-                        .find('option')
-                        .filter((i, option) => $(option).text().toLowerCase() == name.toLowerCase());
-                    if (!foundOptions.length) {
-                        return this.makeTagItem(name);
+                    if (
+                        (isSelected && isEqual) || // match selected option to avoid message about not found option during input
+                        (!isSelected && isTermIncluded)
+                    ) {
+                        return option;
                     }
-                }
-            },
-            templateSelection: (options: ITagSelection) => this.formatTag(options, false),
-            templateResult: (options: ITagSelection) => this.formatTag(options, true)
-        }).val(selectedItems).trigger('change');
+
+                    return <any>null;
+                },
+                createTag: (params) => {
+                    let name = $.trim(params.term);
+                    if (name) {
+                        let foundOptions = $(selector)
+                            .find('option')
+                            .filter((i, option) => $(option).text().toLowerCase() == name.toLowerCase());
+                        if (!foundOptions.length) {
+                            return this.makeTagItem(name);
+                        }
+                    }
+                },
+                templateSelection: (options: ITagSelection) => this.formatTag(options, false),
+                templateResult: (options: ITagSelection) => this.formatTag(options, true)
+            })
+            .val(selectedItems)
+            .trigger('change');
     }
 
     private formatTag(data: ITagSelection, useIndentForTag: boolean) {
@@ -680,7 +736,11 @@
         $(this._forms.create + ' .project .input').change(this.onProjectSelectChange());
         $('.cancel-btn').click(() => (this.onCancelClick(), false));
 
-        $('#settings-btn').click(() => chrome.runtime.openOptionsPage())
+        $('#settings-btn').click(() => chrome.runtime.openOptionsPage());
+
+        this.initDropdown('#account-selector', (accountId) => {
+            this.changeAccount(accountId);
+        });
 
         // close popup when escape key pressed and no selectors are opened
         window.addEventListener('keydown', event => {
@@ -690,6 +750,41 @@
                 }
             }
         }, true);
+    }
+
+    initDropdown(selector: string, onItemClick: (value: any) => void) {
+
+        let dropdown = $(selector);
+        let toggle = $('.dropdown-toggle', dropdown);
+        let toggleText = $('.dropdown-toggle-text', toggle);
+        let toggleIcon = $('.fa', toggle);
+        let menu = $('.dropdown-menu', dropdown);
+
+        function toggleDropdown(open: boolean) {
+            dropdown.toggleClass('open', open);
+            toggleIcon.toggleClass('fa-angle-up', open);
+            toggleIcon.toggleClass('fa-angle-down', !open);
+        }
+
+        $(document.body).click(event => {
+            if (!$(event.target).closest(dropdown).length) {
+                toggleDropdown(false);
+            }
+        });
+
+        toggle.click(() => {
+            let isOpen = dropdown.hasClass('open');
+            toggleDropdown(!isOpen);
+        });
+
+        $(menu).click(event => {
+            if (!$(event.target).hasClass('dropdown-menu-item')) {
+                return;
+            }
+            let value = $(event.target).prop('data-value');
+            onItemClick(value);
+            toggleDropdown(false);
+        });
     }
 
     private onCancelClick() {
@@ -761,7 +856,7 @@
         timer.tagNames = $(this._forms.create + ' .tags .input').select().val() || [];
 
         // Put timer
-        this.putTimer(timer).then(() => {
+        this.putTimer(this._accountId, timer).then(() => {
 
             // Save project map
             let projectName = this._newIssue.projectName || '';
@@ -780,13 +875,11 @@
                     description: timer.description
                 });
             }
-            
-
         });
     }
 
     private onStopClick() {
-        this.putTimer(<WebToolIssueTimer>{ isStarted: false });
+        this.putTimer(this._profile.activeAccountId, { isStarted: false });
     }
 
     private onCreateClick() {

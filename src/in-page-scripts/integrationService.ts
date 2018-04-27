@@ -122,67 +122,19 @@
             } else {
                 this._possibleIntegrations = [integration];
 
-                const compareTexts = (a: string, b: string) =>
-                    a > b ? 1 : (a < b ? -1 : 0);
-                const compareIdentifiers = (a: WebToolIssueIdentifier, b: WebToolIssueIdentifier) =>
-                    compareTexts(a.serviceUrl, b.serviceUrl) || compareTexts(a.issueUrl, b.issueUrl);
-                const removeDuplicates = (identifiers: WebToolIssueIdentifier[]) => {
-                    identifiers.sort(compareIdentifiers);
-                    for (let i = 1; i < identifiers.length; i++) {
-                        if (!compareIdentifiers(identifiers[i - 1], identifiers[i])) {
-                            identifiers.splice(i, 1);
-                            i--;
-                        }
-                    }
-                }
-
-                // separate old and new issues
-                let oldParsedIssues: WebToolParsedIssue[] = [];
-                let newParsedIssues: WebToolParsedIssue[] = [];
-                let oldIdentifiers: WebToolIssueIdentifier[] = [];
-                let newIdentifiers: WebToolIssueIdentifier[] = [];
-                parsedIssues.forEach(pair => {
-                    let issue = pair.issue;
-                    let oldLink = $$('a.' + this.affix, pair.element);
-                    let isNew = !oldLink || this.parseLinkSession(oldLink) != this.session;
-                    (isNew ? newParsedIssues : oldParsedIssues).push(pair);
-
-                    // get identifiers from issues with url
-                    if (!isNew) {
-                        issue = this.parseLinkTimer(oldLink);
-                    }
-                    if (issue.serviceUrl) {
-                        (isNew ? newIdentifiers : oldIdentifiers).push({
-                            serviceUrl: issue.serviceUrl,
-                            issueUrl: issue.issueUrl
-                        });
-                    }
-                });
-
                 // render new links immediately to prevent flickering on task services which observe mutations
+                let newParsedIssues = parsedIssues.filter(issue => !$$('a.' + this.affix, issue.element));
                 IntegrationService.updateIssues(integration, newParsedIssues);
-
-                // get all (new + old) identifiers
-                removeDuplicates(newIdentifiers);
-                let allIdentifiers = oldIdentifiers.concat(newIdentifiers);
-                removeDuplicates(allIdentifiers);
-
-                // render links with actual durations later only when new issues found (TE-256)
-                if (allIdentifiers.length > oldIdentifiers.length ||
-                    allIdentifiers.some((identifier, i) => !!compareIdentifiers(identifier, oldIdentifiers[i]))) {
-
-                    // get actual durations
-                    this.getIssuesDurations(newIdentifiers).then(durations => {
-                        IntegrationService._issueDurationsCache = durations;
-                        IntegrationService.updateIssues(integration, parsedIssues);
-                        this.onIssueLinksUpdated();
-                    });
-                } else {
-                    // update old issues immediately (TE-257)
-                    this.updateIssues(integration, oldParsedIssues);
-                }
-
                 this.onIssueLinksUpdated();
+
+                // render links with actual durations later
+                this.getIssuesDurations(issues).then(durations => {
+                    IntegrationService._issueDurationsCache = durations;
+                    IntegrationService.updateIssues(integration, parsedIssues);
+                    this.onIssueLinksUpdated();
+                }).catch(() => {
+                    console.log('getIssuesDurations rejected');
+                });
 
                 return true;
             }
@@ -216,20 +168,75 @@
 
     private static _issueDurationsCache: WebToolIssueDuration[] = [];
 
-    private static _issuesDurationsResolver = <(value: WebToolIssueDuration[]) => void>null;
+    private static _pendingIssuesDurations = <{
+        identifiers: WebToolIssueIdentifier[],
+        resolve: (data: WebToolIssueDuration[]) => void,
+        reject: (reason?: any) => void
+    }>null;
 
     static setIssuesDurations(durations) {
-        if (this._issuesDurationsResolver) {
-            this._issuesDurationsResolver(durations);
-            this._issuesDurationsResolver = null;
+        if (this._pendingIssuesDurations) {
+            let resolve = this._pendingIssuesDurations.resolve;
+            this._pendingIssuesDurations = null;
+            resolve(durations);
         }
     }
 
-    static getIssuesDurations(issues: WebToolIssueIdentifier[]): Promise<WebToolIssueDuration[]> {
-        return new Promise(resolve => {
-            sendBackgroundMessage({ action: 'getIssuesDurations', data: issues });
-            this._issuesDurationsResolver = resolve;
+    private static makeIssueDurationKey(identifier: WebToolIssueIdentifier) {
+        return identifier.serviceUrl + '/' + identifier.issueUrl;
+    }
+
+    static getIssuesDurations(identifiers: WebToolIssueIdentifier[]): Promise<WebToolIssueDuration[]> {
+
+        if (!identifiers || !identifiers.length) {
+
+            // Rerturn empty result
+            return Promise.resolve([]);
+        }
+
+        let newIdentifiers: WebToolIssueIdentifier[] = [];
+        let oldIdentifiers: { [name: string]: boolean } = {};
+
+        let pendingDurations = this._pendingIssuesDurations;
+
+        if (pendingDurations) {
+
+            pendingDurations.identifiers.forEach(id => oldIdentifiers[this.makeIssueDurationKey(id)] = true);
+
+            // Reject previous promise
+            pendingDurations.reject();
+        } else {
+            pendingDurations = <typeof pendingDurations>{
+                identifiers: []
+            };
+        }
+
+        // Find new identifiers
+        identifiers.forEach(id => {
+            if (!oldIdentifiers[this.makeIssueDurationKey(id)]) {
+                newIdentifiers.push(id);
+            }
         });
+
+        // Do not change pending identifiers when they are superset of new ones.
+        if (newIdentifiers.length) {
+            identifiers = pendingDurations.identifiers.concat(newIdentifiers);
+            pendingDurations.identifiers = identifiers;
+        }
+
+        // Create new promise
+        let promise = new Promise<WebToolIssueDuration[]>((resolve, reject) => {
+            pendingDurations.resolve = resolve;
+            pendingDurations.reject = reject;
+        });
+
+        // Skip duplicated requests (TE-256, TE-277)
+        if (newIdentifiers.length) {
+            sendBackgroundMessage({ action: 'getIssuesDurations', data: identifiers });
+        }
+
+        this._pendingIssuesDurations = pendingDurations;
+        return promise;
     }
 
     static getIssueDuration(issue: WebToolIssueIdentifier) {
@@ -328,10 +335,7 @@
         newLink.title = 'Track spent time via TMetric service';
         newLink.onclick = function (e) {
             e.stopPropagation();
-
-            window.frameElement && window.frameElement.tagName == 'FRAME' ?
-                sendBackgroundMessage({ action: 'forcePutTimer', data: newIssueTimer }) :
-                sendBackgroundMessage({ action: 'putTimer', data: newIssueTimer });
+            sendBackgroundMessage({ action: 'putTimer', data: newIssueTimer });
             return false;
         };
         let spanWithIcon = document.createElement('span');
