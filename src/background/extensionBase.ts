@@ -412,7 +412,7 @@ class ExtensionBase {
                                 (
                                     settings.showPopup == Models.ShowPopupOption.WhenProjectIsNotSpecified && (
                                         !timer.projectName ||
-                                        status.projectStatus > Models.ProjectStatus.Open
+                                        status.projectStatus == null
                                     )
                                 )
                             )
