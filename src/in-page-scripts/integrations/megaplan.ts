@@ -28,7 +28,7 @@ class Megaplan implements WebToolIntegration {
         let projectName = $$.try('._3bCrSGVnXH5AUbZRlD6TbT').textContent;
 
         let serviceUrl = source.protocol + source.host;
-        let issueUrl = 'showTask?id=' + issueNumber;
+        let issueUrl = `task/${issueNumber}/card/`;
         let tagNames = $$.all('[data-element="attachedTag"]', issueElement).map(label => label.textContent);
 
         return { issueId, issueName, projectName, serviceType: 'Megaplan', serviceUrl, issueUrl, tagNames };
