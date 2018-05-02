@@ -158,6 +158,10 @@ input, textarea, select, button {
         margin-right: @margin;
         .dropdown(@navbar-default-bg, @navbar-default-color, @navbar-default-hover-bg, @navbar-default-hover-color, @navbar-default-active-bg, @navbar-default-active-color);
 
+        .dropdown-toggle {
+            padding-left: @margin-double;
+        }
+
         .dropdown-menu {
             box-shadow: @shadow;
         }
@@ -934,10 +938,19 @@ content.creating {
         padding-right: @margin;
         background: transparent;
         cursor: pointer;
+        text-align: left;
 
         > * {
             display: table-cell;
             vertical-align: middle;
+        }
+
+        .dropdown-toggle-text {
+            display: block;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .fa {
@@ -970,10 +983,10 @@ content.creating {
             padding-right: @margin-double;
             background: transparent;
             cursor: pointer;
-            white-space: nowrap;
             text-align: left;
-            text-overflow: ellipsis;
             overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
     }
 
