@@ -356,7 +356,10 @@ gulp.task('prepackage:firefox:modifyManifest', ['prepackage:firefox:copy'], call
             var scripts = manifest['background']['scripts'];
             var index = scripts.indexOf('background/chromeExtension.js');
             scripts[index] = 'background/firefoxExtension.js';
-
+            // Set addon ID (TE-283)
+            manifest['applications'] = {
+              gecko: { id: '@tmetric' }
+            };
             return manifest;
         }))
         .pipe(gulp.dest(firefoxUnpackedDir));

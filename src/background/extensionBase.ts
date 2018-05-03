@@ -227,6 +227,10 @@ class ExtensionBase {
             this.setDescriptionMap(taskName, description);
             return Promise.resolve(null);
         })
+        this.listenPopupAction<void, void>('openOptionsPage', () => {
+            chrome.runtime.openOptionsPage();
+            return Promise.resolve(null);
+        })
 
         this.registerTabsUpdateListener();
         this.registerTabsRemoveListener();
@@ -288,7 +292,9 @@ class ExtensionBase {
 
     private getSettings() {
         return new Promise<IExtensionSettings>((resolve, reject) => {
-            chrome.storage.sync.get(null, resolve);
+            chrome.storage.sync.get(
+                <IExtensionSettings>{ showPopup: Models.ShowPopupOption.Always },
+                resolve);
         });
     }
 
