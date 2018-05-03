@@ -1,48 +1,35 @@
 ﻿class SettingsController {
 
     constructor() {
-        this.initSettings();
-    }
 
-    settings = [
-        'Always',
-        'When project is not specified',
-        'Never'
-    ]
+        chrome.storage.sync.get(
+            <IExtensionSettings>{ showPopup: Models.ShowPopupOption.Always },
+            (settings: IExtensionSettings) => {
 
-    fillSettingsDropdown() {
-        let items = this.settings.map((item, key) => $('<option />').text(item).val(key.toString()));
-        $('.settings-container select.input').append(items);
+                document.body.style.visibility = 'visible'; // Prevent flickering (TE-128)
 
-        chrome.storage.sync.get(null, (settings: IExtensionSettings) => {
-            let selectedOption = <any>settings.showPopup;
-            $('.settings-container select.input').val(selectedOption || Models.ShowPopupOption.Always);
-        })
-    }
+                const showOptions = {
+                    [Models.ShowPopupOption.Always]: 'Always',
+                    [Models.ShowPopupOption.WhenProjectIsNotSpecified]: 'When project is not specified',
+                    [Models.ShowPopupOption.Never]: 'Never'
+                }
+                let items = <JQuery[]>[];
+                for (let option in showOptions) {
+                    items.push($('<option />').text(showOptions[option]).val(option.toString()));
+                }
 
-    initSettings() {
-        this.sendBackgroundMessage = (message: ITabMessage, callback?: (response: any) => void) => {
-            chrome.runtime.sendMessage(message, response => callback && callback(response));
-        }
-
-        this.fillSettingsDropdown();
-        this.initControls();
-    }
-
-    private sendBackgroundMessage: (message: ITabMessage, callback?: (response: any) => void) => void;
-
-    initControls() {
-        $('#show-popup-settings').on('change', () => {
-            chrome.storage.sync.set(<IExtensionSettings>{
-                showPopup: $('#show-popup-settings :selected').val()
+                $('#show-popup-settings')
+                    .append(items)
+                    .val(settings.showPopup.toString())
+                    .on('change', () => {
+                        chrome.storage.sync.set(<IExtensionSettings>{
+                            showPopup: $('#show-popup-settings :selected').val()
+                        });
+                    });
             });
-        })
     }
 }
 
 if (typeof document != undefined) {
-
-    document.body.style.visibility = 'visible'; // Prevent flickering (TE-128)
-
-    new SettingsController()
+    new SettingsController();
 }

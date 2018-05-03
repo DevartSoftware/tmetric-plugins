@@ -134,6 +134,7 @@
     putTimerAction = this.wrapBackgroundAction<IPopupTimerData, void>('putTimer');
     saveProjectMapAction = this.wrapBackgroundAction<{ projectName: string, projectId: number }, void>('saveProjectMap');
     saveDescriptionMapAction = this.wrapBackgroundAction<{ taskName: string, description: string }, void>('saveDescriptionMap');
+    openOptionsPage = this.wrapBackgroundAction<void, void>('openOptionsPage');
 
     // ui mutations
 
@@ -735,8 +736,7 @@
         $('#create').click(() => (this.onCreateClick(), false));
         $(this._forms.create + ' .project .input').change(this.onProjectSelectChange());
         $('.cancel-btn').click(() => (this.onCancelClick(), false));
-
-        $('#settings-btn').click(() => chrome.runtime.openOptionsPage());
+        $('#settings-btn').click(() => (this.onSettingsClick(), false));
 
         this.initDropdown('#account-selector', (accountId) => {
             this.changeAccount(accountId);
@@ -789,6 +789,10 @@
 
     private onCancelClick() {
         this.close();
+    }
+
+    private onSettingsClick() {
+        this.openOptionsPage();
     }
 
     private onProjectSelectChange() {
