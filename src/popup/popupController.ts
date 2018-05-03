@@ -266,15 +266,19 @@
 
         if (details.projectTask) {
             $(this._forms.view + ' .task .name').text(details.projectTask.description);
+            $(this._forms.view + ' .task').attr('title', details.projectTask.description);
 
             // not show custom description if equals to default task description
             if (details.projectTask.description == details.description) {
                 $(this._forms.view + ' .notes').hide();
             } else {
-                $(this._forms.view + ' .notes .description').text(this.toDescription(details.description));
+                let description = this.toDescription(details.description);
+                $(this._forms.view + ' .notes .description').text(description);
+                $(this._forms.view + ' .notes').attr('title', description);
             }
         } else {
             $(this._forms.view + ' .task .name').text(this.toDescription(details.description));
+            $(this._forms.view + ' .task').attr('title', this.toDescription(details.description));
             $(this._forms.view + ' .notes').hide();
         }
 
