@@ -76,6 +76,11 @@
 
 @shadow: 0 2px 3px 0 rgba(47,47,47,.25);
 
+//== Popup
+@label-width: 50px;
+@label-margin-right: 5px;
+@span-container-margin-left: 14px;
+
 body {
     height: auto;
     min-height: initial;
@@ -246,7 +251,7 @@ input, textarea, select, button {
 }
 
 .label {
-    margin-right: 5px;
+    margin-right: @label-margin-right;
 }
 
 .label-default {
@@ -365,7 +370,7 @@ input {
         font-weight: 300;
 
         > .span-container {
-            margin-left: 69px;
+            margin-left: @label-width + @label-margin-right + @span-container-margin-left;
         }
     }
 
@@ -379,7 +384,7 @@ input {
 
     div.label {
         font-weight: bold;
-        width: 50px;
+        width: @label-width;
         text-align: right;
     }
 
@@ -395,7 +400,7 @@ input {
     }
 
     .span-container {
-        margin-left: 14px;
+        margin-left: @span-container-margin-left;
         width: 80%;
         max-height: @line-height-base * @font-size-base * 4;
         overflow: hidden;
