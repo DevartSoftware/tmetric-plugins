@@ -264,20 +264,26 @@
         }
 
         if (details.projectTask) {
-            $(this._forms.view + ' .task .name').text(details.projectTask.description);
-            $(this._forms.view + ' .task').attr('title', details.projectTask.description);
+            $(this._forms.view + ' .task')
+                .attr('title', details.projectTask.description)
+                .find('.name')
+                .text(details.projectTask.description);
 
             // not show custom description if equals to default task description
             if (details.projectTask.description == details.description) {
                 $(this._forms.view + ' .notes').hide();
             } else {
                 let description = this.toDescription(details.description);
-                $(this._forms.view + ' .notes .description').text(description);
-                $(this._forms.view + ' .notes').attr('title', description);
+                $(this._forms.view + ' .notes')
+                    .attr('title', description)
+                    .find('.description')
+                    .text(description);
             }
         } else {
-            $(this._forms.view + ' .task .name').text(this.toDescription(details.description));
-            $(this._forms.view + ' .task').attr('title', this.toDescription(details.description));
+            $(this._forms.view + ' .task')
+                .attr('title', this.toDescription(details.description))
+                .find('.name')
+                .text(this.toDescription(details.description));
             $(this._forms.view + ' .notes').hide();
         }
 
