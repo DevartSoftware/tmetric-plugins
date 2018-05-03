@@ -8,7 +8,7 @@
 @padding: 0.5em;
 @padding-double: @padding * 2;
 @padding-large: 20px;
-@row-margin-top: 25px;
+@row-margin-top: @line-height-base * @font-size-base;
 
 @field-min-height: 2.5em;
 @field-line-height: 2.5em;
@@ -376,10 +376,6 @@ input {
 
     &.task-description {
         display: none;
-    }
-
-    &.task {
-        margin-top: 10px;
     }
 
     div.label {
