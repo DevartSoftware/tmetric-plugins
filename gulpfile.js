@@ -304,6 +304,8 @@ gulp.task('prepackage:edge:modifyManifest', ['prepackage:edge:copy'], function (
 
             // Add persistent property to background
             manifest['background']['persistent'] = true;
+			
+			manifest['options_page'] = 'settings/settings.html';
 
             // Replace chromeExtension.js to edgeExtension.js
             var scripts = manifest['background']['scripts'];
