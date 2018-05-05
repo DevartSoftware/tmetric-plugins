@@ -665,7 +665,7 @@
             title += projectClient;
         }
 
-        $(namesElement).attr('title', projectName);
+        $(namesElement).attr('title', projectName + projectCode + projectClient);
         result.append(avatarElement);
         result.append(namesElement);
 
