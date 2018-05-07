@@ -403,6 +403,11 @@ class ExtensionBase {
                 return statusPromise.then(status => {
 
                     if (accountIdToPut) {
+                        if (accountIdToPut != status.accountId) {
+                            status = <Models.IntegratedProjectStatus>{
+                                accountId: accountIdToPut
+                            };
+                        }
                         return this.putTimerWithIntegration(timer, status, false);
                     } else {
 
