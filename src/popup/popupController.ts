@@ -23,7 +23,7 @@
 
         this.switchState(this._states.loading);
 
-        this.initializeAction(accountId).then(data => {
+        return this.initializeAction(accountId).then(data => {
             this.setData(data);
 
             if (this._profile.accountMembership.length > 1) {
@@ -168,6 +168,7 @@
         }
 
         let logoText: string;
+        let accountSelectorDisabled = true;
 
         switch (name) {
             case this._states.retrying:
@@ -178,6 +179,7 @@
                 break;
             case this._states.creating:
                 logoText = 'Start Timer';
+                accountSelectorDisabled = false;
                 break;
             case this._states.fixing:
                 logoText = 'Fix Timer';
@@ -191,6 +193,7 @@
         }
 
         $('.logo-text').text(logoText);
+        $('#account-selector .dropdown-toggle').prop('disabled', accountSelectorDisabled);
     }
 
     getAccountMembership(id: number) {
@@ -227,8 +230,10 @@
     }
 
     private changeAccount(accountId: number) {
-        console.log(accountId);
-        this.getData(accountId);
+        let state = $('content').attr('class');
+        this.getData(accountId).then(() => {
+            this.switchState(state);
+        });
     }
 
     fillFixForm(timer: Models.Timer) {

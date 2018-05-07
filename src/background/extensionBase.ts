@@ -736,6 +736,7 @@ class ExtensionBase {
         // get popup default data from account where project exist
         if (!accountId && this._newPopupAccountId) {
             accountId = this._newPopupAccountId;
+            this._newPopupAccountId = null;
         }
 
         // get default data from active account
