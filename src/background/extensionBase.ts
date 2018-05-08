@@ -379,13 +379,13 @@ class ExtensionBase {
         return promise;
     }
 
-    private getIntegrationStatus(timer: WebToolIssueTimer, accountId?: number) {
+    private getIntegrationStatus(timer: WebToolIssueTimer, accountId?: number, keepAccount?: boolean) {
         return this.connection.getIntegration(<Models.IntegratedProjectIdentifier>{
             serviceUrl: timer.serviceUrl,
             serviceType: timer.serviceType,
             projectName: timer.projectName,
             showIssueId: !!timer.showIssueId
-        }, accountId);
+        }, accountId, keepAccount);
     }
 
     private async putExternalTimer(timer: WebToolIssueTimer, tabId: number, accountIdToPut: number = null) {
@@ -395,7 +395,7 @@ class ExtensionBase {
         this.putData(timer,
             timer => {
 
-                let statusPromise = this.getIntegrationStatus(timer, accountIdToPut);
+                let statusPromise = this.getIntegrationStatus(timer, accountIdToPut, !!accountIdToPut);
                 statusPromise.catch(() => {
                     this.connection.checkProfileChange(); // TE-179
                 });
@@ -403,11 +403,6 @@ class ExtensionBase {
                 return statusPromise.then(status => {
 
                     if (accountIdToPut) {
-                        if (accountIdToPut != status.accountId) {
-                            status = <Models.IntegratedProjectStatus>{
-                                accountId: accountIdToPut
-                            };
-                        }
                         return this.putTimerWithIntegration(timer, status, false);
                     } else {
 

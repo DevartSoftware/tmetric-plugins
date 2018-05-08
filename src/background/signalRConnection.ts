@@ -313,10 +313,10 @@
         });
     }
 
-    getIntegration(identifier: Models.IntegratedProjectIdentifier, accountId?: number) {
+    getIntegration(identifier: Models.IntegratedProjectIdentifier, accountId?: number, keepAccount?: boolean) {
         return this.checkProfile().then(profile =>
             this.get<Models.IntegratedProjectStatus>(
-                this.getIntegrationProjectUrl(accountId || profile.activeAccountId) + '?' + $.param(identifier, true)));
+                this.getIntegrationProjectUrl(accountId || profile.activeAccountId) + '?' + $.param($.extend({ keepAccount }, identifier), true)));
     }
 
     postIntegration(identifier: Models.IntegratedProjectIdentifier) {
