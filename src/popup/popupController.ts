@@ -344,7 +344,9 @@
     }
 
     initCreatingForm() {
-        $(this._forms.create + ' .task .input').focus().select();
+        setTimeout(() => {
+            $(this._forms.create + ' .task .input').focus().select();
+        }, 100);
     }
 
     getTaskUrl(details: Models.TimeEntryDetail) {
