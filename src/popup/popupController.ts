@@ -67,7 +67,7 @@
     setData(data: IPopupInitData) {
         if (data.timer) {
             this._activeTimer = data.timer;
-            this._newIssue = data.newIssue;
+            this._newIssue = this._newIssue || data.newIssue;
             this._accountId = data.accountId;
             this._profile = data.profile;
             this._timeFormat = data.profile.timeFormat;

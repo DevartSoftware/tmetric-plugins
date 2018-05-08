@@ -210,8 +210,6 @@ class ExtensionBase {
         this.listenPopupAction<void, void>('login', this.loginPopupAction);
         this.listenPopupAction<void, void>('fixTimer', this.fixTimerPopupAction);
         this.listenPopupAction<IPopupTimerData, void>('putTimer', data => {
-            this._newPopupIssue = null;
-            this._newPopupAccountId = null;
             this.putExternalTimer(data.timer, null, data.accountId);
             return Promise.resolve();
         });
@@ -788,7 +786,7 @@ class ExtensionBase {
                 newIssue.description = descriptionMap[newIssue.issueName];
             }
 
-            //this._newPopupIssue = null;
+            this._newPopupIssue = null;
 
             return <IPopupInitData>{
                 timer: this._timer,
