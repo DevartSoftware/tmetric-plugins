@@ -344,6 +344,7 @@
     }
 
     initCreatingForm() {
+        // workaround for Edge: element is not available immediately on css display changing
         setTimeout(() => {
             $(this._forms.create + ' .task .input').focus().select();
         }, 100);
