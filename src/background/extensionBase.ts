@@ -320,11 +320,11 @@ class ExtensionBase {
         this.openTrackerPage();
     }
 
-    private putTimerWithIntegration(timer: WebToolIssueTimer, status: Models.IntegratedProjectStatus, checkProject: boolean) {
+    private putTimerWithIntegration(timer: WebToolIssueTimer, status: Models.IntegratedProjectStatus) {
 
         let notification: string;
 
-        if (checkProject && timer.projectName) {
+        if (timer.projectName) {
             const contactAdmin = 'Please contact the account administrator to fix the problem.';
 
             if (status.projectStatus == null) {
@@ -403,7 +403,7 @@ class ExtensionBase {
                 return statusPromise.then(status => {
 
                     if (accountIdToPut) {
-                        return this.putTimerWithIntegration(timer, status, false);
+                        return this.putTimerWithIntegration(timer, status);
                     } else {
 
                         if (timer.isStarted &&
@@ -429,7 +429,7 @@ class ExtensionBase {
                         }
 
                         return this.validateTimerTags(timer, status.accountId)
-                            .then(() => this.putTimerWithIntegration(timer, status, true));
+                            .then(() => this.putTimerWithIntegration(timer, status));
                     }
                 });
             });
