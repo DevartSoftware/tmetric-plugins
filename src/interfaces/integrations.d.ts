@@ -90,6 +90,11 @@ interface ITaskInfo {
     tagIds: number[];
 }
 
+interface IPopupParams {
+    accountId: number;
+    includeRecentTasks: boolean;
+}
+
 interface IPopupInitData {
     timer: Models.Timer;
     newIssue: WebToolIssueTimer;
@@ -102,6 +107,7 @@ interface IPopupInitData {
     canCreateProjects: boolean;
     canCreateTags: boolean;
     defaultProjectId: number;
+    recentTasks: Models.RecentWorkTask[];
 }
 
 interface IPopupTimerData {

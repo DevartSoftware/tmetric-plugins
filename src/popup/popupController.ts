@@ -1,6 +1,11 @@
 ﻿class PopupController {
 
     constructor() {
+    }
+
+    // Initialization method used because members overriden
+    // in extended classes not accessible in base constructor
+    init() {
         this.initControls();
         this.getData(null);
     }
@@ -12,10 +17,13 @@
     private _projects: Models.ProjectLite[];
     private _clients: Models.Client[];
     private _tags: Models.Tag[];
+    private _recentTasks: Models.RecentWorkTask[];
     private _constants: Models.Constants;
     private _canCreateProjects: boolean;
     private _canCreateTags: boolean;
     private _newIssue: WebToolIssueTimer;
+    private _newIssueInitial: WebToolIssueTimer;
+    private _defaultProjectId: number;
 
     protected isPagePopup = false;
 
@@ -23,7 +31,7 @@
 
         this.switchState(this._states.loading);
 
-        return this.initializeAction(accountId).then(data => {
+        return this.initializeAction({ accountId, includeRecentTasks: !this.isPagePopup }).then(data => {
             this.setData(data);
 
             if (this._profile.accountMembership.length > 1) {
@@ -36,9 +44,11 @@
             } else if (!this.isPagePopup && data.timer && data.timer.isStarted) {
                 this.fillViewForm(data.timer, data.accountId);
                 this.fillCreateForm(data.defaultProjectId);
+                this.fillRecentTaskSelector();
                 this.switchState(this._states.viewing);
             } else {
                 this.fillCreateForm(data.defaultProjectId);
+                this.fillRecentTaskSelector();
                 this.switchState(this._states.creating);
             }
         }).catch(error => {
@@ -68,16 +78,18 @@
         if (data.timer) {
             this._activeTimer = data.timer;
             this._newIssue = this._newIssue || data.newIssue;
+            this._newIssueInitial = JSON.parse(JSON.stringify(this._newIssue));
             this._accountId = data.accountId;
             this._profile = data.profile;
             this._timeFormat = data.profile.timeFormat;
-            this._accountId = data.accountId;
             this._projects = data.projects;
             this._clients = data.clients;
             this._tags = data.tags.filter(tag => !!tag).sort((a, b) => this.compareTags(a, b));
+            this._recentTasks = data.recentTasks;
             this._constants = data.constants;
             this._canCreateProjects = data.canCreateProjects;
             this._canCreateTags = data.canCreateTags;
+            this._defaultProjectId = data.defaultProjectId;
         } else {
             this.close();
         }
@@ -124,7 +136,7 @@
         };
     }
 
-    initializeAction = this.wrapBackgroundAction<number, IPopupInitData>('initialize');
+    initializeAction = this.wrapBackgroundAction<IPopupParams, IPopupInitData>('initialize');
     openTrackerAction = this.wrapBackgroundAction<void, void>('openTracker');
     openPageAction = this.wrapBackgroundAction<string, void>('openPage');
     loginAction = this.wrapBackgroundAction<void, void>('login');
@@ -219,7 +231,7 @@
             let item = $('<button></button>')
                 .addClass('dropdown-menu-item')
                 .toggleClass('selected', _.account.accountId == accountId)
-                .prop('data-value', _.account.accountId)
+                .attr('data-value', _.account.accountId)
                 .text(_.account.accountName);
             return item;
         });
@@ -310,23 +322,32 @@
 
     fillCreateForm(defaultProjectId: number) {
 
-        let taskInput = $(this._forms.create + ' .task .input');
-        taskInput.attr('maxlength', Models.Limits.maxTask);
+        // fill task
+
+        let descriptionInput = $(this._forms.create + ' .description .input');
+        descriptionInput.attr('maxlength', Models.Limits.maxTask);
+
+        let descriptionLabel = $(this._forms.create + ' .description .label');
 
         if (this._newIssue.issueId) {
-            $(this._forms.create + ' .task .label').text('Notes');
-            taskInput.attr('placeholder', 'Describe your activity');
-            $(this._forms.create + ' .task-description').css('display', 'inline-flex');
-            $(this._forms.create + ' .task-description .issueId').text(this._newIssue.issueId);
-            $(this._forms.create + ' .task-description .description').text(this._newIssue.issueName);
-            taskInput.val(this._newIssue.description);
+            $(this._forms.create + ' .task').show();
+            $(this._forms.create + ' .task .id').text(this._newIssue.issueId);
+            $(this._forms.create + ' .task .name').text(this._newIssue.issueName);
+
+            descriptionLabel.text(descriptionLabel.attr('data-label-notes'));
+            descriptionInput.attr('placeholder', descriptionInput.attr('data-placeholder-notes'));
+            descriptionInput.val(this._newIssue.description);
         } else {
-            taskInput.val(this._newIssue.description || this._newIssue.issueName);
+            $(this._forms.create + ' .task').hide();
+
+            descriptionLabel.text(descriptionLabel.attr('data-label-task'));
+            descriptionInput.attr('placeholder', descriptionInput.attr('data-placeholder-task'));
+            descriptionInput.val(this._newIssue.description || this._newIssue.issueName);
         }
 
         // Force focus on current window (for Firefox)
         $(window).focus();
-        taskInput.focus().select();
+        descriptionInput.focus().select();
 
         this.initProjectSelector(this._forms.create + ' .project .input', this.makeProjectItems(), defaultProjectId);
         $(this._forms.create + ' .new-project .input').attr('maxlength', Models.Limits.maxProjectName);
@@ -346,8 +367,104 @@
     initCreatingForm() {
         // workaround for Edge: element is not available immediately on css display changing
         setTimeout(() => {
-            $(this._forms.create + ' .task .input').focus().select();
+            $(this._forms.create + ' .description .input').focus().select();
         }, 100);
+    }
+
+    fillRecentTaskSelector() {
+
+        if (this.isPagePopup) {
+            $(this._forms.create + ' .task-recent').hide();
+            return;
+        }
+
+        let dropdown = $('#recent-task-selector');
+
+        let toggle = $('.dropdown-toggle', dropdown);
+
+        let menu = $('.dropdown-menu', dropdown);
+        menu.empty();
+
+        if (this._recentTasks && this._recentTasks.length) {
+            toggle.prop('disabled', false);
+            let items = this._recentTasks.map((task, index) =>
+                this.formatRecentTaskSelectorItem(task, index));
+            menu.append(items);
+        } else {
+            toggle.prop('disabled', true);
+        }
+
+        $(this._forms.create + ' .task-recent').show();
+    }
+
+    private formatRecentTaskSelectorItem(task: Models.RecentWorkTask, index: number) {
+
+        let item = $('<button></button>')
+            .addClass('dropdown-menu-item')
+            .attr('data-value', index);
+
+        let description = $('<span>').text(task.details.description);
+        item.append(description);
+
+        if (task.details.projectId) {
+            let project = this.formatExistingProjectById(task.details.projectId, '');
+            item.append(project);
+        }
+
+        return item;
+    }
+
+    fillFormWithRecentTask(index: number) {
+
+        if (!this._recentTasks || !this._recentTasks.length) {
+            return;
+        }
+
+        let task = this._recentTasks[index];
+        if (!task) {
+            return;
+        }
+
+        let issue = <WebToolIssueTimer>{};
+
+        issue.description = task.details.description;
+
+        if (task.tagsIdentifiers) {
+            issue.tagNames = task.tagsIdentifiers.map(id => {
+                let tag = this.getTag(id);
+                return tag && tag.tagName;
+            }).filter(_ => !!_);
+        }
+
+        let defaultProjectId = this._defaultProjectId;
+
+        if (task.details) {
+
+            let project = this.getProject(task.details.projectId);
+            if (project) {
+                issue.projectName = project.projectName;
+                defaultProjectId = project.projectId;
+            }
+
+            let projectTask = task.details.projectTask;
+            if (projectTask) {
+                issue.issueId = projectTask.externalIssueId;
+                issue.issueName = projectTask.description;
+                issue.issueUrl = projectTask.relativeIssueUrl;
+                //issue.serviceType =
+                issue.serviceUrl = projectTask.integrationUrl;
+                issue.showIssueId = projectTask.showIssueId;
+            }
+        }
+
+        this._newIssue = issue;
+
+        this.fillCreateForm(defaultProjectId);
+    }
+
+    fillFormWithInitialIssue() {
+        this._newIssue = JSON.parse(JSON.stringify(this._newIssueInitial));
+        this.fillCreateForm(this._defaultProjectId);
     }
 
     getTaskUrl(details: Models.TimeEntryDetail) {
@@ -619,7 +736,7 @@
 
         // No project
         if (!id) {
-            return $('<span class="mute-text">').text('Select project');
+            return $('<span class="text-muted">').text('Select project');
         }
 
         // New Project
@@ -632,14 +749,18 @@
     }
 
     private formatExistingProject(data: Select2SelectionObject) {
+        return this.formatExistingProjectById(parseInt(data.id), data.text);
+    }
+
+    private formatExistingProjectById(id: number, name: string) {
 
         let result = $('<span class="flex-container-with-overflow" />');
         let namesElement = $('<span class="text-overflow" />');
 
         // Find project
-        let projectId = parseInt(data.id)
+        let projectId = id;
         let project = this.getProject(projectId);
-        let projectName = project ? project.projectName : data.text;
+        let projectName = project ? project.projectName : name;
 
         let projectCode: string;
         let projectClient: string;
@@ -760,6 +881,12 @@
             this.changeAccount(accountId);
         });
 
+        this.initDropdown('#recent-task-selector', (index) => {
+            this.fillFormWithRecentTask(index);
+        });
+
+        $('#clear-recent-task').click(() => (this.fillFormWithInitialIssue(), false));
+
         // close popup when escape key pressed and no selectors are opened
         window.addEventListener('keydown', event => {
             if (event.keyCode == 27) {
@@ -791,15 +918,20 @@
         });
 
         toggle.click(() => {
+            if (toggle.prop('disabled')) {
+                return;
+            }
             let isOpen = dropdown.hasClass('open');
             toggleDropdown(!isOpen);
         });
 
         $(menu).click(event => {
-            if (!$(event.target).hasClass('dropdown-menu-item')) {
+            let target = $(event.target);
+            let item = target.hasClass('dropdown-menu-item') ? target : target.closest('.dropdown-menu-item');
+            if (!item.length) {
                 return;
             }
-            let value = $(event.target).prop('data-value');
+            let value = $(item).attr('data-value');
             onItemClick(value);
             toggleDropdown(false);
         });
@@ -874,7 +1006,7 @@
 
         // Set description and tags
         timer.isStarted = true;
-        timer.description = $(this._forms.create + ' .task .input').val();
+        timer.description = $(this._forms.create + ' .description .input').val();
         timer.tagNames = $(this._forms.create + ' .tags .input').select().val() || [];
 
         // Put timer

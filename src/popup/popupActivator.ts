@@ -2,9 +2,9 @@
 
     document.body.style.visibility = 'visible'; // Prevent flickering (TE-128)
 
-    if (location.search == '?integration') {
-        new PagePopupController();
-    } else {
+    let controller = location.search == '?integration' ?
+        new PagePopupController() :
         new PopupController();
-    }
+
+    controller.init();
 }

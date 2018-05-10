@@ -408,6 +408,11 @@
         });
     }
 
+    getRecentWorkTasks(accountId: number) {
+        var url = 'api/accounts/' + accountId + '/timeentries/recent';
+        return this.get<Models.RecentWorkTask[]>(url);
+    }
+
     get<TRes>(url: string): Promise<TRes> {
         return this.ajax(url, 'GET');
     }

@@ -2,7 +2,10 @@
 
     constructor() {
         super();
+    }
 
+    init() {
+        super.init();
         this.initFrame();
     }
 

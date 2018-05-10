@@ -212,6 +212,12 @@ declare module Models {
         contactMembers: number[];
     }
 
+    interface RecentWorkTask {
+        details: TimeEntryDetail;
+        tagsIdentifiers: number[];
+        isBillable: boolean;
+    }
+
     interface AccountScope {
         members: AccountMember[];
         groups: any[];
