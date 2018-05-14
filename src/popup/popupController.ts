@@ -345,14 +345,12 @@
         }
 
         if (hasLink) {
-            //taskSpan.show();
             taskSpan.find('.name').text(issue.issueName);
             descriptionSpan.find('.label').text('Notes');
             descriptionInput.attr('placeholder', 'Describe your activity');
             descriptionInput.val(issue.description);
             $(taskSpan).css('display', 'inline-flex');
         } else {
-            //taskSpan.hide();
             descriptionSpan.find('.label').text('Task');
             descriptionInput.attr('placeholder', 'Enter description');
             descriptionInput.val(issue.description || issue.issueName);
@@ -363,7 +361,7 @@
         $(window).focus();
         descriptionInput.focus().select();
 
-        this.initProjectSelector(this._forms.create + ' .project .input', this.makeProjectItems(), defaultProjectId);
+        this.initProjectSelector(this._forms.create + ' .project .input', defaultProjectId);
         $(this._forms.create + ' .new-project .input').attr('maxlength', Models.Limits.maxProjectName);
 
         this.initTagSelector(this._forms.create + ' #tag-selector', this.makeTagItems(), this.makeTagSelectedItems(), this._canCreateTags);
@@ -533,19 +531,6 @@
 
     private createProjectOption: IdTextPair = { id: -1, text: 'New project' };
 
-    makeProjectItems() {
-        let projects = <IdTextPair[]>[];
-        if (this._canCreateProjects) {
-            projects.push(this.createProjectOption);
-        }
-        projects.push(this.noProjectOption);
-        return projects.concat(this._projects.map(project => {
-            let projectCode = project.projectCode ? ` [${project.projectCode}]` : '';
-            let projectClient = project.clientId ? ` / ${this.getClient(project.clientId).clientName}` : '';
-            return <IdTextPair>{ id: project.projectId, text: project.projectName + projectCode + projectClient };
-        }));
-    }
-
     makeTagItem(name: string, isWorkType?: boolean) {
         return <IdTextTagType>{
             id: name,
@@ -585,21 +570,34 @@
         return this._newIssue.tagNames || [];
     }
 
-    initProjectSelector(selector: string, items: IdTextPair[], defaultProjectId: number) {
+    initProjectSelector(selector: string, defaultProjectId: number) {
 
-        if (!defaultProjectId) {
+        let existingProjectId: number;
+        let newProjectName = this._newIssue && this._newIssue.projectName;
 
-            defaultProjectId = this.noProjectOption.id;
+        let items = <IdTextPair[]>[];
+        if (this._canCreateProjects) {
+            items.push(this.createProjectOption);
+        }
+        items.push(this.noProjectOption);
+        items.push(...this._projects.map(project => {
+            let projectCode = project.projectCode ? ` [${project.projectCode}]` : '';
+            let projectClient = project.clientId ? ` / ${this.getClient(project.clientId).clientName}` : '';
 
             // Find project if it is specified in new issue (TE-219)
-            let newProjectName = this._newIssue && this._newIssue.projectName;
-            let existingProject = newProjectName && items.find(item =>
-                item.id > 0 && item.text.toLowerCase() == newProjectName.toLowerCase());
+            if (newProjectName && project.projectName.toLowerCase() == newProjectName.toLowerCase()) {
+                existingProjectId = project.projectId;
+            }
+            return <IdTextPair>{ id: project.projectId, text: project.projectName + projectCode + projectClient };
+        }));
 
-            if (existingProject) {
-                defaultProjectId = existingProject.id; // Select existing project (TE-215)
+        if (!defaultProjectId) {
+            if (existingProjectId) {
+                defaultProjectId = existingProjectId; // Select existing project (TE-215)
             } else if (this.isPagePopup && this._canCreateProjects && newProjectName) {
                 defaultProjectId = this.createProjectOption.id; // Select new project
+            } else {
+                defaultProjectId = this.noProjectOption.id;
             }
         }
 
@@ -637,7 +635,7 @@
         }
 
         // Existing project
-        return this.formatExistingProject(data);
+        return this.formatExistingProject(data, true);
     }
 
     private formatSelectedProject(data: Select2SelectionObject) {
@@ -655,10 +653,10 @@
         }
 
         // Existing project
-        return this.formatExistingProject(data);
+        return this.formatExistingProject(data, false);
     }
 
-    private formatExistingProject(data: Select2SelectionObject) {
+    private formatExistingProject(data: Select2SelectionObject, includeCodeAndClient: boolean) {
 
         let result = $('<span class="flex-container-with-overflow" />');
         let namesElement = $('<span class="text-overflow" />');
@@ -670,9 +668,13 @@
 
         let projectCode: string;
         let projectClient: string;
-        if (project) {
-            projectCode = project.projectCode ? ` [${project.projectCode}]` : '';
-            projectClient = project.clientId ? ` / ${this.getClient(project.clientId).clientName}` : '';
+        if (project && includeCodeAndClient) {
+            if (project.projectCode) {
+                projectCode = ' [' + project.projectCode + ']';
+            }
+            if (project.clientId) {
+                projectClient = ' / ' + this.getClient(project.clientId).clientName;
+            }
         }
 
         let projectAvatar = project && project.avatar || 'Content/Avatars/project.svg';
@@ -891,10 +893,13 @@
 
         // Set project
         let selectedProject = <Select2SelectionObject>$(this._forms.create + ' .project .input').select2('data')[0];
-        if (!selectedProject || !selectedProject.selected || !Number(selectedProject.id)) {
+        let selectedProjectId = Number(selectedProject.id);
+
+        if (!selectedProject || !selectedProject.selected || !selectedProjectId) {
             timer.projectName = ''; // No project
-        } else if (Number(selectedProject.id) > 0) {
-            timer.projectName = selectedProject.text; // Existing project
+        } else if (selectedProjectId > 0) {
+            let project = this._projects.filter(_ => _.projectId == selectedProjectId)[0];
+            timer.projectName = project && project.projectName; // Existing project
         } else {
             timer.projectName = $.trim($(this._forms.create + ' .new-project .input').val()); // New project
         }
