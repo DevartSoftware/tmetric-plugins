@@ -243,6 +243,35 @@
         }
     }
 
+    fillTaskLink(link: JQuery, task: Models.ProjectTask) {
+
+        let url: string;
+        if (task) {
+            if (!task.integrationUrl) { // Internal task
+                url = `${this._constants.serviceUrl}/#/tasks/${this._accountId}'?id=${task.projectTaskId}`;
+            } else if (task.relativeIssueUrl) { // External task
+                url = task.integrationUrl + task.relativeIssueUrl;
+            }
+        }
+
+        if (!url) {
+            return false;
+        }
+
+        link.attr('href', url);
+        link.attr('target', '_blank');
+
+        const iconClass = 'fa fa-external-link';
+        if (task.integrationUrl && task.showIssueId) {
+            link.text(task.externalIssueId);
+            link.removeClass(iconClass);
+        } else {
+            link.text('');
+            link.addClass(iconClass);
+        }
+        return true
+    }
+
     fillViewForm(timer: Models.Timer, accountId: number) {
 
         let details = timer && timer.details;
@@ -252,24 +281,9 @@
 
         $(this._forms.view + ' .time').text(this.toDurationString(timer.startTime));
 
-        let url = this.getTaskUrl(details);
-        if (url && details.projectTask && details.projectTask.externalIssueId) {
-            let a = $(this._forms.view + ' .task .id .link').attr('href', url);
-            if (details.projectTask.showIssueId) {
-                a.text(details.projectTask.externalIssueId);
-            } else {
-                a.addClass('fa fa-external-link');
-            }
-        } else if (details.projectTask) {
-            // internal tmetric task
-            let url = `${this._constants.serviceUrl}/#/tasks/${accountId}'?id=${details.projectTask.projectTaskId}`;
-            let a = $(this._forms.view + ' .task .id .link').attr('href', url);
-            a.addClass('fa fa-external-link');
-        } else {
-            $(this._forms.view + ' .task .id').hide();
-        }
+        let hasTask = this.fillTaskLink($(this._forms.view + ' .task .id .link'), details.projectTask);
 
-        if (details.projectTask) {
+        if (hasTask) {
             $(this._forms.view + ' .task')
                 .attr('title', details.projectTask.description)
                 .find('.name')
@@ -310,23 +324,44 @@
 
     fillCreateForm(defaultProjectId: number) {
 
-        let taskInput = $(this._forms.create + ' .task .input');
-        taskInput.attr('maxlength', Models.Limits.maxTask);
+        let taskSpan = $(this._forms.create + ' .task');
+        let descriptionSpan = $(this._forms.create + ' .description');
+        let descriptionInput = descriptionSpan.find('.input');
+        descriptionInput.attr('maxlength', Models.Limits.maxTask);
 
-        if (this._newIssue.issueId) {
-            $(this._forms.create + ' .task .label').text('Notes');
-            taskInput.attr('placeholder', 'Describe your activity');
-            $(this._forms.create + ' .task-description').css('display', 'inline-flex');
-            $(this._forms.create + ' .task-description .issueId').text(this._newIssue.issueId);
-            $(this._forms.create + ' .task-description .description').text(this._newIssue.issueName);
-            taskInput.val(this._newIssue.description);
+        let issue = this._newIssue;
+
+        let hasLink = false;
+        if (issue.issueId) {
+
+            let projectTask = <Models.ProjectTask>{
+                showIssueId: issue.showIssueId,
+                externalIssueId: issue.issueId,
+                integrationUrl: issue.serviceUrl,
+                relativeIssueUrl: issue.issueUrl
+            };
+
+            hasLink = this.fillTaskLink(taskSpan.find('.link'), projectTask);
+        }
+
+        if (hasLink) {
+            //taskSpan.show();
+            taskSpan.find('.name').text(issue.issueName);
+            descriptionSpan.find('.label').text('Notes');
+            descriptionInput.attr('placeholder', 'Describe your activity');
+            descriptionInput.val(issue.description);
+            $(taskSpan).css('display', 'inline-flex');
         } else {
-            taskInput.val(this._newIssue.description || this._newIssue.issueName);
+            //taskSpan.hide();
+            descriptionSpan.find('.label').text('Task');
+            descriptionInput.attr('placeholder', 'Enter description');
+            descriptionInput.val(issue.description || issue.issueName);
+            $(taskSpan).css('display', 'none');
         }
 
         // Force focus on current window (for Firefox)
         $(window).focus();
-        taskInput.focus().select();
+        descriptionInput.focus().select();
 
         this.initProjectSelector(this._forms.create + ' .project .input', this.makeProjectItems(), defaultProjectId);
         $(this._forms.create + ' .new-project .input').attr('maxlength', Models.Limits.maxProjectName);
@@ -335,7 +370,7 @@
         $(this._forms.create + ' .tags .select2-search__field').attr('maxlength', Models.Limits.maxTag);
 
         // Do not focus project in extension popup (TE-117, TE-221)
-        if (this.isPagePopup && this._newIssue.issueName) {
+        if (this.isPagePopup && issue.issueName) {
             setTimeout(() => {
                 // Focus select2 dropdown
                 $(this._forms.create + ' .project .input').select2('open').select2('close');
@@ -348,14 +383,6 @@
         setTimeout(() => {
             $(this._forms.create + ' .task .input').focus().select();
         }, 100);
-    }
-
-    getTaskUrl(details: Models.TimeEntryDetail) {
-        let task = details && details.projectTask;
-        if (task && task.integrationUrl && task.relativeIssueUrl) {
-            return task.integrationUrl + task.relativeIssueUrl;
-        }
-        return '';
     }
 
     private _weekdaysShort = 'Sun_Mon_Tue_Wed_Thu_Fri_Sat'.split('_');
@@ -835,7 +862,7 @@
     }
 
     private onTaskLinkClick() {
-        let url = this.getTaskUrl(this._activeTimer.details);
+        let url = $('#task-link').attr('href');
         if (url) {
             this.openPageAction(url);
             this.close();
@@ -874,7 +901,7 @@
 
         // Set description and tags
         timer.isStarted = true;
-        timer.description = $(this._forms.create + ' .task .input').val();
+        timer.description = $(this._forms.create + ' .description .input').val();
         timer.tagNames = $(this._forms.create + ' .tags .input').select().val() || [];
 
         // Put timer
