@@ -50,7 +50,7 @@
                 "https://addons.opera.com/*",
                 "*://*/*lib/execute/execSetResults.php*",
                 "https://*/*portal/*/*.do*",
-                "https://*/*crm/*.do*",
+                "https://*/*crm/*",
                 "https://*/*/tasks*"
             ],
             "js": [
@@ -64,7 +64,7 @@
             "matches": [
                 "*://*/*lib/execute/execSetResults.php*",
                 "https://*/*portal/*/*.do*",
-                "https://*/*crm/*.do*",
+                "https://*/*crm/*",
                 "https://*/*/tasks*"
             ],
             "all_frames": true,
