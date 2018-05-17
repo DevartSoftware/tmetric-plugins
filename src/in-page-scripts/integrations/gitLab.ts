@@ -117,13 +117,8 @@ class GitLabSidebar implements WebToolIntegration {
             return;
         }
 
-        let issueId = $$.try('.issuable-header-text > span').textContent.trim();
-        let issueIdInt = issueId.replace('#', '');
-
         let issueName = $$.try('.issuable-header-text > strong').textContent;
-
         let projectName = $$.try('.sidebar-context-title').textContent;
-
         let serviceType = 'GitLab';
 
         let serviceUrl = (<HTMLAnchorElement>$$('a#logo')).href;
@@ -131,10 +126,34 @@ class GitLabSidebar implements WebToolIntegration {
             serviceUrl = source.protocol + source.host;
         }
 
-        let issueUrl = $$.getRelativeUrl(serviceUrl, source.fullUrl);
+        // #123, MyProject#123
+        let issueFullId = $$.try('.issuable-header-text > span').textContent;
+        let issueUrl: string;
+        let issueId: string;
+        let projectId: string;
 
-        if (this.matchUrl.test(issueUrl)) {
-            issueUrl = issueUrl.match(this.matchUrl)[1] + `/issues/${issueIdInt}`;
+        let idMatch = issueFullId && issueFullId.match(/\s*(.*)#(\d+)\s*/);
+        if (idMatch) {
+
+            projectId = idMatch[1];
+            issueId = idMatch[2];
+
+            // /MyGroup1/MyProject, /groups/MyGroup1/-
+            issueUrl = $$.getRelativeUrl(serviceUrl, source.fullUrl.match(this.matchUrl)[1]);
+            let groupIssueMatch = issueUrl.match(/\/groups\/(.+)\/-/);
+            if (groupIssueMatch) {
+                if (projectId) {
+                    issueUrl = `/${groupIssueMatch[1]}/${projectId}`;
+                } else {
+                    issueId = null; // Unknown group url (TE-304)
+                    issueUrl = null;
+                }
+            }
+
+            if (issueId) {
+                issueUrl += `/issues/${issueId}`;
+                issueId = '#' + issueId;
+            }
         }
 
         let tagNames = $$.all('.issuable-show-labels > a span').map(label => label.textContent);
