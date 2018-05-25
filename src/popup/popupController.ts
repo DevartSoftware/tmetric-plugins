@@ -1,11 +1,6 @@
 ﻿class PopupController {
 
     constructor() {
-    }
-
-    // Initialization method used because members overriden
-    // in extended classes not accessible in base constructor
-    init() {
         this.initControls();
         this.getData(null);
     }
@@ -17,13 +12,10 @@
     private _projects: Models.ProjectLite[];
     private _clients: Models.Client[];
     private _tags: Models.Tag[];
-    private _recentTasks: Models.RecentWorkTask[];
     private _constants: Models.Constants;
     private _canCreateProjects: boolean;
     private _canCreateTags: boolean;
     private _newIssue: WebToolIssueTimer;
-    private _newIssueInitial: WebToolIssueTimer;
-    private _defaultProjectId: number;
 
     protected isPagePopup = false;
 
@@ -31,7 +23,7 @@
 
         this.switchState(this._states.loading);
 
-        return this.initializeAction({ accountId, includeRecentTasks: !this.isPagePopup }).then(data => {
+        return this.initializeAction(accountId).then(data => {
             this.setData(data);
 
             if (this._profile.accountMembership.length > 1) {
@@ -44,11 +36,9 @@
             } else if (!this.isPagePopup && data.timer && data.timer.isStarted) {
                 this.fillViewForm(data.timer, data.accountId);
                 this.fillCreateForm(data.defaultProjectId);
-                this.fillRecentTaskSelector();
                 this.switchState(this._states.viewing);
             } else {
                 this.fillCreateForm(data.defaultProjectId);
-                this.fillRecentTaskSelector();
                 this.switchState(this._states.creating);
             }
         }).catch(error => {
@@ -78,18 +68,16 @@
         if (data.timer) {
             this._activeTimer = data.timer;
             this._newIssue = this._newIssue || data.newIssue;
-            this._newIssueInitial = JSON.parse(JSON.stringify(this._newIssue));
             this._accountId = data.accountId;
             this._profile = data.profile;
             this._timeFormat = data.profile.timeFormat;
+            this._accountId = data.accountId;
             this._projects = data.projects;
             this._clients = data.clients;
             this._tags = data.tags.filter(tag => !!tag).sort((a, b) => this.compareTags(a, b));
-            this._recentTasks = data.recentTasks;
             this._constants = data.constants;
             this._canCreateProjects = data.canCreateProjects;
             this._canCreateTags = data.canCreateTags;
-            this._defaultProjectId = data.defaultProjectId;
         } else {
             this.close();
         }
@@ -136,7 +124,7 @@
         };
     }
 
-    initializeAction = this.wrapBackgroundAction<IPopupParams, IPopupInitData>('initialize');
+    initializeAction = this.wrapBackgroundAction<number, IPopupInitData>('initialize');
     openTrackerAction = this.wrapBackgroundAction<void, void>('openTracker');
     openPageAction = this.wrapBackgroundAction<string, void>('openPage');
     loginAction = this.wrapBackgroundAction<void, void>('login');
@@ -231,7 +219,7 @@
             let item = $('<button></button>')
                 .addClass('dropdown-menu-item')
                 .toggleClass('selected', _.account.accountId == accountId)
-                .attr('data-value', _.account.accountId)
+                .prop('data-value', _.account.accountId)
                 .text(_.account.accountName);
             return item;
         });
@@ -255,6 +243,35 @@
         }
     }
 
+    fillTaskLink(link: JQuery, task: Models.ProjectTask) {
+
+        let url: string;
+        if (task) {
+            if (!task.integrationUrl) { // Internal task
+                url = `${this._constants.serviceUrl}/#/tasks/${this._accountId}'?id=${task.projectTaskId}`;
+            } else if (task.relativeIssueUrl) { // External task
+                url = task.integrationUrl + task.relativeIssueUrl;
+            }
+        }
+
+        if (!url) {
+            return false;
+        }
+
+        link.attr('href', url);
+        link.attr('target', '_blank');
+
+        const iconClass = 'fa fa-external-link';
+        if (task.integrationUrl && task.showIssueId) {
+            link.text(task.externalIssueId);
+            link.removeClass(iconClass);
+        } else {
+            link.text('');
+            link.addClass(iconClass);
+        }
+        return true
+    }
+
     fillViewForm(timer: Models.Timer, accountId: number) {
 
         let details = timer && timer.details;
@@ -264,24 +281,9 @@
 
         $(this._forms.view + ' .time').text(this.toDurationString(timer.startTime));
 
-        let url = this.getTaskUrl(details);
-        if (url && details.projectTask && details.projectTask.externalIssueId) {
-            let a = $(this._forms.view + ' .task .id .link').attr('href', url);
-            if (details.projectTask.showIssueId) {
-                a.text(details.projectTask.externalIssueId);
-            } else {
-                a.addClass('fa fa-external-link');
-            }
-        } else if (details.projectTask) {
-            // internal tmetric task
-            let url = `${this._constants.serviceUrl}/#/tasks/${accountId}'?id=${details.projectTask.projectTaskId}`;
-            let a = $(this._forms.view + ' .task .id .link').attr('href', url);
-            a.addClass('fa fa-external-link');
-        } else {
-            $(this._forms.view + ' .task .id').hide();
-        }
+        let hasTask = this.fillTaskLink($(this._forms.view + ' .task .id .link'), details.projectTask);
 
-        if (details.projectTask) {
+        if (hasTask) {
             $(this._forms.view + ' .task')
                 .attr('title', details.projectTask.description)
                 .find('.name')
@@ -322,41 +324,51 @@
 
     fillCreateForm(defaultProjectId: number) {
 
-        // fill task
-
-        let descriptionInput = $(this._forms.create + ' .description .input');
+        let taskSpan = $(this._forms.create + ' .task');
+        let descriptionSpan = $(this._forms.create + ' .description');
+        let descriptionInput = descriptionSpan.find('.input');
         descriptionInput.attr('maxlength', Models.Limits.maxTask);
 
-        let descriptionLabel = $(this._forms.create + ' .description .label');
+        let issue = this._newIssue;
 
-        if (this._newIssue.issueId) {
-            $(this._forms.create + ' .task').show();
-            $(this._forms.create + ' .task .id').text(this._newIssue.issueId);
-            $(this._forms.create + ' .task .name').text(this._newIssue.issueName);
+        let hasLink = false;
+        if (issue.issueId) {
 
-            descriptionLabel.text(descriptionLabel.attr('data-label-notes'));
-            descriptionInput.attr('placeholder', descriptionInput.attr('data-placeholder-notes'));
-            descriptionInput.val(this._newIssue.description);
+            let projectTask = <Models.ProjectTask>{
+                showIssueId: issue.showIssueId,
+                externalIssueId: issue.issueId,
+                integrationUrl: issue.serviceUrl,
+                relativeIssueUrl: issue.issueUrl
+            };
+
+            hasLink = this.fillTaskLink(taskSpan.find('.link'), projectTask);
+        }
+
+        if (hasLink) {
+            taskSpan.find('.name').text(issue.issueName);
+            descriptionSpan.find('.label').text('Notes');
+            descriptionInput.attr('placeholder', 'Describe your activity');
+            descriptionInput.val(issue.description);
+            $(taskSpan).css('display', 'inline-flex');
         } else {
-            $(this._forms.create + ' .task').hide();
-
-            descriptionLabel.text(descriptionLabel.attr('data-label-task'));
-            descriptionInput.attr('placeholder', descriptionInput.attr('data-placeholder-task'));
-            descriptionInput.val(this._newIssue.description || this._newIssue.issueName);
+            descriptionSpan.find('.label').text('Task');
+            descriptionInput.attr('placeholder', 'Enter description');
+            descriptionInput.val(issue.description || issue.issueName);
+            $(taskSpan).css('display', 'none');
         }
 
         // Force focus on current window (for Firefox)
         $(window).focus();
         descriptionInput.focus().select();
 
-        this.initProjectSelector(this._forms.create + ' .project .input', this.makeProjectItems(), defaultProjectId);
+        this.initProjectSelector(this._forms.create + ' .project .input', defaultProjectId);
         $(this._forms.create + ' .new-project .input').attr('maxlength', Models.Limits.maxProjectName);
 
         this.initTagSelector(this._forms.create + ' #tag-selector', this.makeTagItems(), this.makeTagSelectedItems(), this._canCreateTags);
         $(this._forms.create + ' .tags .select2-search__field').attr('maxlength', Models.Limits.maxTag);
 
         // Do not focus project in extension popup (TE-117, TE-221)
-        if (this.isPagePopup && this._newIssue.issueName) {
+        if (this.isPagePopup && issue.issueName) {
             setTimeout(() => {
                 // Focus select2 dropdown
                 $(this._forms.create + ' .project .input').select2('open').select2('close');
@@ -367,112 +379,8 @@
     initCreatingForm() {
         // workaround for Edge: element is not available immediately on css display changing
         setTimeout(() => {
-            $(this._forms.create + ' .description .input').focus().select();
+            $(this._forms.create + ' .task .input').focus().select();
         }, 100);
-    }
-
-    fillRecentTaskSelector() {
-
-        if (this.isPagePopup) {
-            $(this._forms.create + ' .task-recent').hide();
-            return;
-        }
-
-        let dropdown = $('#recent-task-selector');
-
-        let toggle = $('.dropdown-toggle', dropdown);
-
-        let menu = $('.dropdown-menu', dropdown);
-        menu.empty();
-
-        if (this._recentTasks && this._recentTasks.length) {
-            toggle.prop('disabled', false);
-            let items = this._recentTasks.map((task, index) =>
-                this.formatRecentTaskSelectorItem(task, index));
-            menu.append(items);
-        } else {
-            toggle.prop('disabled', true);
-        }
-
-        $(this._forms.create + ' .task-recent').show();
-    }
-
-    private formatRecentTaskSelectorItem(task: Models.RecentWorkTask, index: number) {
-
-        let item = $('<button></button>')
-            .addClass('dropdown-menu-item')
-            .attr('data-value', index);
-
-        let description = $('<span>').text(task.details.description);
-        item.append(description);
-
-        if (task.details.projectId) {
-            let project = this.formatExistingProjectById(task.details.projectId, '');
-            item.append(project);
-        }
-
-        return item;
-    }
-
-    fillFormWithRecentTask(index: number) {
-
-        if (!this._recentTasks || !this._recentTasks.length) {
-            return;
-        }
-
-        let task = this._recentTasks[index];
-        if (!task) {
-            return;
-        }
-
-        let issue = <WebToolIssueTimer>{};
-
-        issue.description = task.details.description;
-
-        if (task.tagsIdentifiers) {
-            issue.tagNames = task.tagsIdentifiers.map(id => {
-                let tag = this.getTag(id);
-                return tag && tag.tagName;
-            }).filter(_ => !!_);
-        }
-
-        let defaultProjectId = this._defaultProjectId;
-
-        if (task.details) {
-
-            let project = this.getProject(task.details.projectId);
-            if (project) {
-                issue.projectName = project.projectName;
-                defaultProjectId = project.projectId;
-            }
-
-            let projectTask = task.details.projectTask;
-            if (projectTask) {
-                issue.issueId = projectTask.externalIssueId;
-                issue.issueName = projectTask.description;
-                issue.issueUrl = projectTask.relativeIssueUrl;
-                //issue.serviceType =
-                issue.serviceUrl = projectTask.integrationUrl;
-                issue.showIssueId = projectTask.showIssueId;
-            }
-        }
-
-        this._newIssue = issue;
-
-        this.fillCreateForm(defaultProjectId);
-    }
-
-    fillFormWithInitialIssue() {
-        this._newIssue = JSON.parse(JSON.stringify(this._newIssueInitial));
-        this.fillCreateForm(this._defaultProjectId);
-    }
-
-    getTaskUrl(details: Models.TimeEntryDetail) {
-        let task = details && details.projectTask;
-        if (task && task.integrationUrl && task.relativeIssueUrl) {
-            return task.integrationUrl + task.relativeIssueUrl;
-        }
-        return '';
     }
 
     private _weekdaysShort = 'Sun_Mon_Tue_Wed_Thu_Fri_Sat'.split('_');
@@ -623,19 +531,6 @@
 
     private createProjectOption: IdTextPair = { id: -1, text: 'New project' };
 
-    makeProjectItems() {
-        let projects = <IdTextPair[]>[];
-        if (this._canCreateProjects) {
-            projects.push(this.createProjectOption);
-        }
-        projects.push(this.noProjectOption);
-        return projects.concat(this._projects.map(project => {
-            let projectCode = project.projectCode ? ` [${project.projectCode}]` : '';
-            let projectClient = project.clientId ? ` / ${this.getClient(project.clientId).clientName}` : '';
-            return <IdTextPair>{ id: project.projectId, text: project.projectName + projectCode + projectClient };
-        }));
-    }
-
     makeTagItem(name: string, isWorkType?: boolean) {
         return <IdTextTagType>{
             id: name,
@@ -675,21 +570,34 @@
         return this._newIssue.tagNames || [];
     }
 
-    initProjectSelector(selector: string, items: IdTextPair[], defaultProjectId: number) {
+    initProjectSelector(selector: string, defaultProjectId: number) {
 
-        if (!defaultProjectId) {
+        let existingProjectId: number;
+        let newProjectName = this._newIssue && this._newIssue.projectName;
 
-            defaultProjectId = this.noProjectOption.id;
+        let items = <IdTextPair[]>[];
+        if (this._canCreateProjects) {
+            items.push(this.createProjectOption);
+        }
+        items.push(this.noProjectOption);
+        items.push(...this._projects.map(project => {
+            let projectCode = project.projectCode ? ` [${project.projectCode}]` : '';
+            let projectClient = project.clientId ? ` / ${this.getClient(project.clientId).clientName}` : '';
 
             // Find project if it is specified in new issue (TE-219)
-            let newProjectName = this._newIssue && this._newIssue.projectName;
-            let existingProject = newProjectName && items.find(item =>
-                item.id > 0 && item.text.toLowerCase() == newProjectName.toLowerCase());
+            if (newProjectName && project.projectName.toLowerCase() == newProjectName.toLowerCase()) {
+                existingProjectId = project.projectId;
+            }
+            return <IdTextPair>{ id: project.projectId, text: project.projectName + projectCode + projectClient };
+        }));
 
-            if (existingProject) {
-                defaultProjectId = existingProject.id; // Select existing project (TE-215)
+        if (!defaultProjectId) {
+            if (existingProjectId) {
+                defaultProjectId = existingProjectId; // Select existing project (TE-215)
             } else if (this.isPagePopup && this._canCreateProjects && newProjectName) {
                 defaultProjectId = this.createProjectOption.id; // Select new project
+            } else {
+                defaultProjectId = this.noProjectOption.id;
             }
         }
 
@@ -727,7 +635,7 @@
         }
 
         // Existing project
-        return this.formatExistingProject(data);
+        return this.formatExistingProject(data, true);
     }
 
     private formatSelectedProject(data: Select2SelectionObject) {
@@ -736,7 +644,7 @@
 
         // No project
         if (!id) {
-            return $('<span class="text-muted">').text('Select project');
+            return $('<span class="mute-text">').text('Select project');
         }
 
         // New Project
@@ -745,28 +653,28 @@
         }
 
         // Existing project
-        return this.formatExistingProject(data);
+        return this.formatExistingProject(data, false);
     }
 
-    private formatExistingProject(data: Select2SelectionObject) {
-        return this.formatExistingProjectById(parseInt(data.id), data.text);
-    }
-
-    private formatExistingProjectById(id: number, name: string) {
+    private formatExistingProject(data: Select2SelectionObject, includeCodeAndClient: boolean) {
 
         let result = $('<span class="flex-container-with-overflow" />');
         let namesElement = $('<span class="text-overflow" />');
 
         // Find project
-        let projectId = id;
+        let projectId = parseInt(data.id)
         let project = this.getProject(projectId);
-        let projectName = project ? project.projectName : name;
+        let projectName = project ? project.projectName : data.text;
 
         let projectCode: string;
         let projectClient: string;
-        if (project) {
-            projectCode = project.projectCode ? ` [${project.projectCode}]` : '';
-            projectClient = project.clientId ? ` / ${this.getClient(project.clientId).clientName}` : '';
+        if (project && includeCodeAndClient) {
+            if (project.projectCode) {
+                projectCode = ' [' + project.projectCode + ']';
+            }
+            if (project.clientId) {
+                projectClient = ' / ' + this.getClient(project.clientId).clientName;
+            }
         }
 
         let projectAvatar = project && project.avatar || 'Content/Avatars/project.svg';
@@ -881,12 +789,6 @@
             this.changeAccount(accountId);
         });
 
-        this.initDropdown('#recent-task-selector', (index) => {
-            this.fillFormWithRecentTask(index);
-        });
-
-        $('#clear-recent-task').click(() => (this.fillFormWithInitialIssue(), false));
-
         // close popup when escape key pressed and no selectors are opened
         window.addEventListener('keydown', event => {
             if (event.keyCode == 27) {
@@ -918,20 +820,15 @@
         });
 
         toggle.click(() => {
-            if (toggle.prop('disabled')) {
-                return;
-            }
             let isOpen = dropdown.hasClass('open');
             toggleDropdown(!isOpen);
         });
 
         $(menu).click(event => {
-            let target = $(event.target);
-            let item = target.hasClass('dropdown-menu-item') ? target : target.closest('.dropdown-menu-item');
-            if (!item.length) {
+            if (!$(event.target).hasClass('dropdown-menu-item')) {
                 return;
             }
-            let value = $(item).attr('data-value');
+            let value = $(event.target).prop('data-value');
             onItemClick(value);
             toggleDropdown(false);
         });
@@ -967,7 +864,7 @@
     }
 
     private onTaskLinkClick() {
-        let url = this.getTaskUrl(this._activeTimer.details);
+        let url = $('#task-link').attr('href');
         if (url) {
             this.openPageAction(url);
             this.close();
@@ -996,10 +893,13 @@
 
         // Set project
         let selectedProject = <Select2SelectionObject>$(this._forms.create + ' .project .input').select2('data')[0];
-        if (!selectedProject || !selectedProject.selected || !Number(selectedProject.id)) {
+        let selectedProjectId = Number(selectedProject.id);
+
+        if (!selectedProject || !selectedProject.selected || !selectedProjectId) {
             timer.projectName = ''; // No project
-        } else if (Number(selectedProject.id) > 0) {
-            timer.projectName = selectedProject.text; // Existing project
+        } else if (selectedProjectId > 0) {
+            let project = this._projects.filter(_ => _.projectId == selectedProjectId)[0];
+            timer.projectName = project && project.projectName; // Existing project
         } else {
             timer.projectName = $.trim($(this._forms.create + ' .new-project .input').val()); // New project
         }

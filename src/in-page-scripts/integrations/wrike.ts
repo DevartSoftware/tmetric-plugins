@@ -18,7 +18,7 @@
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        let issueName = $$.try<HTMLTextAreaElement>('.wspace-task-widgets-title-view textarea', issueElement).value;
+        let issueName = $$.try<HTMLTextAreaElement>('textarea.title-field', issueElement).value;
         if (!issueName) {
             return;
         }

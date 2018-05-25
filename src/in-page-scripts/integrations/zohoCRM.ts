@@ -6,7 +6,7 @@
 
     matchUrl = [
         "https://*/*portal/*/*.do*",
-        "https://*/*crm/*.do*"
+        "https://*/*crm/*"
     ];
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
@@ -48,7 +48,7 @@
         let issueId: string;
         let serviceType: string;
 
-        let urlRegexp = /^(.*)\/EntityInfo\.do\?(.+)/;
+        let urlRegexp = /^(.*)\/crm\/tab\/Activities\/(\d+)/;
         let matches = source.fullUrl.match(urlRegexp); // Single activity page
         if (!matches) {
             let activityLinks = $$.all('li.ligraybackground #Subject');
@@ -59,16 +59,10 @@
         }
 
         if (matches) {
-            let params = $$.searchParams(matches[2]);
-            let issueType = params['module'];
-            if (issueType) {
-                issueId = params['id'];
-            }
-            if (issueId) {
-                serviceType = 'ZohoCRM';
-                serviceUrl = matches[1];
-                issueUrl = `/EntityInfo.do?module=${issueType}&id=${issueId}`;
-            }
+            serviceType = 'ZohoCRM';
+            serviceUrl = matches[1];
+            issueId = matches[2];
+            issueUrl = `/crm/tab/Activities/${issueId}`;
         }
 
         return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType };

@@ -14,7 +14,7 @@
         }
     }
 
-    getIssue(issueElement:HTMLElement, source:Source):WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
         let issueName = $$.try('#editable_subject').textContent;
 
         if (!issueName) {
@@ -30,7 +30,7 @@
         // https://*.usedesk.ru/tickets/TICKET_ID
         let match = /^\/tickets\/(\d+)$/.exec(source.path);
         if (match) {
-            issueId = match[1];
+            issueId = `#${match[1]}`;
             serviceUrl = source.protocol + source.host;
             issueUrl = source.path;
         }

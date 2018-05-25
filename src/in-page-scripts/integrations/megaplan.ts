@@ -1,37 +1,37 @@
 class Megaplan implements WebToolIntegration {
 
     showIssueId = false;
+
     observeMutations = true;
-    matchUrl = '*.megaplan.*/task/*/card';
+
+    matchUrl = /(.*megaplan.*)\/(task|project|event|crm|deals)(?:.*\/Task)?\/(\d+)/
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
-        var host = $$.try('.Qivm8UCnb7wWemT0-UqI3').closest('div._1XKpckMR-iqskJqYp7ANvs');
-
-        if (host) {
-            let container = $$.create('span', '_2AE_SmHSAzvfT9PloTtatR');
-            container.appendChild(linkElement);
-            host.appendChild(container);
+        let container = $$.try('Button[data-name=favorite], .favorite-icon-normal').parentElement;
+        if (container) {
+            container.insertBefore(linkElement, container.firstElementChild);
         }
     }
+
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        let issueName = $$.try('._3DaSNaNqBFWa3mWbFWicFI').textContent;
+        // https://myaccount.megaplan.ru/project/1000000/card/
+        let projectName = $$.try('a.CLink', null, (_: HTMLAnchorElement) => /\/project\/\d/.test(_.href)).textContent;
 
-        let issueNumber = source.path.split('/')[2];
-        if (!issueNumber) {
-            return;
-        }
+        // https://myaccount.megaplan.ru/task/1000004/card/
+        // https://myaccount.megaplan.ru/task/filter/all/Task/1000004
+        let match = source.fullUrl.match(this.matchUrl);
+        let serviceUrl = match[1];
+        let issueType = match[2];
+        let issueNumber = match[3];
 
+        let serviceType = 'Megaplan';
+        let issueName = document.title;
+        let issueUrl = `/${issueType}/${issueNumber}/card/`;
         let issueId = '#' + issueNumber;
 
-        let projectName = $$.try('._3bCrSGVnXH5AUbZRlD6TbT').textContent;
-
-        let serviceUrl = source.protocol + source.host;
-        let issueUrl = `task/${issueNumber}/card/`;
-        let tagNames = $$.all('[data-element="attachedTag"]', issueElement).map(label => label.textContent);
-
-        return { issueId, issueName, projectName, serviceType: 'Megaplan', serviceUrl, issueUrl, tagNames };
+        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
     }
 }
 

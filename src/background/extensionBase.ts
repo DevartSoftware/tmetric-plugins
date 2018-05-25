@@ -421,9 +421,11 @@ class ExtensionBase {
                             // This account id will be used to prepare initial data for popup
                             this._newPopupAccountId = status.accountId;
 
-                            return this.connection.connect().then(() => {
-                                this.sendToTabs({ action: 'showPopup' }, tabId);
-                            });
+                            return this.connection.connect() // Set default work type before popup show (TE-299)
+                                .then(() => this.validateTimerTags(timer, status.accountId))
+                                .then(() => {
+                                    this.sendToTabs({ action: 'showPopup' }, tabId);
+                                });
                         }
 
                         return this.validateTimerTags(timer, status.accountId)
