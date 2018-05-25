@@ -8,7 +8,7 @@
   <Identity
     Name="20634172.TMetric"
     Publisher="CN=0398C730-9245-478B-AD11-7EB33D65F500"
-    Version="2.8.0.0" />
+    Version="2.8.1.0" />
 
   <Properties>
     <DisplayName>TMetric – Time Tracker And Productivity App</DisplayName>
