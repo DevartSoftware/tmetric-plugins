@@ -85,6 +85,10 @@
 @label-width: 50px;
 @label-margin-right: 12px;
 @span-container-margin-left: 14px;
+@span-container-width: 80%;
+
+@input-margin-left: @label-width + @label-margin-right + @span-container-margin-left;
+@input-width: @body-width - 2 * @padding-large - @input-margin-left;
 
 body {
     height: auto;
@@ -183,7 +187,7 @@ input, textarea, select, button {
 
         .dropdown-menu {
             left: auto;
-            max-width: 200px;
+            max-width: @input-width;
             max-height: 400px;
             box-shadow: @shadow;
         }
@@ -387,7 +391,7 @@ input {
         font-weight: 300;
 
         > .span-container {
-            margin-left: @label-width + @label-margin-right + @span-container-margin-left;
+            margin-left: @input-margin-left;
         }
     }
 
@@ -401,7 +405,7 @@ input {
 
     &.new-project {
         .form-control {
-            margin-left: @label-width + @label-margin-right + @span-container-margin-left !important;
+            margin-left: @input-margin-left !important;
         }
     }
 
@@ -424,7 +428,7 @@ input {
 
     .span-container {
         margin-left: @span-container-margin-left;
-        width: 80%;
+        width: @span-container-width;
         max-height: @line-height-base * @font-size-base * 4;
         overflow: hidden;
     }
@@ -621,9 +625,8 @@ content {
 
                 .dropdown-menu {
                     right: auto;
-                    /*max-width: 200px;*/
-                    min-width: 200px;
-                    max-height: 200px;
+                    width: @input-width;
+                    max-height: 300px;
                     margin-top: @margin;
                     box-shadow: @shadow;
 
