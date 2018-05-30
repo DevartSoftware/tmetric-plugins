@@ -365,8 +365,7 @@
         this.initProjectSelector(this._forms.create + ' .project .input', defaultProjectId);
         $(this._forms.create + ' .new-project .input').attr('maxlength', Models.Limits.maxProjectName);
 
-        this.initTagSelector(this._forms.create + ' #tag-selector', this.makeTagItems(), this.makeTagSelectedItems(), this._canCreateTags);
-        $(this._forms.create + ' .tags .select2-search__field').attr('maxlength', Models.Limits.maxTag);
+        this.initTagSelector(defaultProjectId);
 
         // Do not focus project in extension popup (TE-117, TE-221)
         if (this.isPagePopup && issue.issueName) {
@@ -639,26 +638,31 @@
         };
     }
 
-    makeTagItems() {
+    makeTagItems(projectId: number = null) {
 
-        let existingItems = <{ [name: string]: boolean }>{};
+        let projectWorkTypeMap: { [id: number]: boolean } = {};
+        let project = this.getProject(projectId);
+        project && project.workTypeIdentifires.forEach(id => projectWorkTypeMap[id] = true);
 
-        let items = this._tags.map(tag => {
-            let name = tag.tagName;
-            existingItems[name.toLowerCase()] = true;
-            return this.makeTagItem(name, tag.isWorkType);
-        });
-
-        let isWorkTypeMap: { [name: string]: boolean } = {};
+        let accountTagMap: { [name: string]: Models.Tag } = {};
+        let itemTagMap: { [name: string]: Models.Tag } = {};
+        let items: IdTextTagType[] = [];
         this._tags.forEach(tag => {
-            isWorkTypeMap[tag.tagName.toLowerCase()] = tag.isWorkType;
+            let key = tag.tagName.toLowerCase();
+            accountTagMap[key] = tag;
+            if (!tag.isWorkType || projectWorkTypeMap[tag.tagId]) {
+                itemTagMap[key] = tag;
+                items.push(this.makeTagItem(tag.tagName, tag.isWorkType));
+            };
         });
 
         if (this._canCreateTags && this._newIssue.tagNames) {
-            this._newIssue.tagNames.forEach(name => {
-                let isWorkType = isWorkTypeMap[name.toLowerCase()]
-                if (!existingItems[name.toLowerCase()]) {
-                    items.push(this.makeTagItem(name, isWorkType));
+            this._newIssue.tagNames.forEach(tagName => {
+                let key = tagName.toLowerCase();
+                let itemTag = itemTagMap[key];
+                let accountTag = accountTagMap[key];
+                if (!itemTag && (!accountTag || !accountTag.isWorkType)) {
+                    items.push(this.makeTagItem(tagName, false));
                 }
             });
         }
@@ -813,8 +817,15 @@
         return result;
     }
 
-    initTagSelector(selector: string, items: IdTextPair[], selectedItems: string[], allowNewItems?: boolean) {
-        $(selector)
+    initTagSelector(projectId: number = null) {
+
+        let selector = this._forms.create + '.tags';
+
+        let items = this.makeTagItems(projectId);
+        let selectedItems = this.makeTagSelectedItems();
+        let allowNewItems = this._canCreateTags;
+
+        $(selector + ' #tag-selector')
             .empty()
             .select2({
                 data: items,
@@ -855,6 +866,8 @@
             })
             .val(selectedItems)
             .trigger('change');
+
+        $(selector + ' .select2-search__field').attr('maxlength', Models.Limits.maxTag);
     }
 
     private formatTag(data: ITagSelection, useIndentForTag: boolean) {
@@ -885,7 +898,7 @@
         $('#start').click(() => (this.onStartClick(), false));
         $('#stop').click(() => (this.onStopClick(), false));
         $('#create').click(() => (this.onCreateClick(), false));
-        $(this._forms.create + ' .project .input').change(this.onProjectSelectChange());
+        $(this._forms.create + ' .project .input').change(() => (this.onProjectSelectChange(), false));
         $('.cancel-btn').click(() => (this.onCancelClick(), false));
         $('#settings-btn').click(() => (this.onSettingsClick(), false));
 
@@ -958,19 +971,19 @@
     }
 
     private onProjectSelectChange() {
-        const $divNewProject = $(this._forms.create + ' .new-project');
-        const $inputNewProject = $(this._forms.create + ' .new-project .input');
-        const self = this;
+        const newProjectContainer = $(this._forms.create + ' .new-project');
+        const newProjectInput = $('.input', newProjectContainer);
 
-        return function () {
-            if ($(this).val() == -1) { // create new project option
-                let issueProjectName = (self._newIssue.projectName) || '';
-                $inputNewProject.val(issueProjectName);
-                $divNewProject.css('display', 'block');
-            } else {
-                $divNewProject.css('display', 'none');
-            }
+        let value = $(this._forms.create + ' .project .input').val();
+        if (value == -1) { // create new project option
+            let issueProjectName = (this._newIssue.projectName) || '';
+            newProjectInput.val(issueProjectName);
+            newProjectContainer.css('display', 'block');
+        } else {
+            newProjectContainer.css('display', 'none');
         }
+
+        this.initTagSelector(parseInt(value));
     }
 
     private onSiteLinkClick() {
