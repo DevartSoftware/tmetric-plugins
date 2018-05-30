@@ -1,11 +1,6 @@
 ﻿class PopupController {
 
-    constructor() {
-    }
-
-    // Initialization method used because members overriden
-    // in extended classes not accessible in base constructor
-    init() {
+    constructor(public isPagePopup = false) {
         this.initControls();
         this.getData(null);
     }
@@ -24,8 +19,6 @@
     private _newIssue: WebToolIssueTimer;
     private _newIssueInitial: WebToolIssueTimer;
     private _defaultProjectId: number;
-
-    protected isPagePopup = false;
 
     getData(accountId: number) {
 

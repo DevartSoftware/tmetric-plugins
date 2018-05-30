@@ -1,18 +1,11 @@
 ﻿class PagePopupController extends PopupController {
 
     constructor() {
-        super();
-    }
-
-    init() {
-        super.init();
+        super(true);
         this.initFrame();
     }
 
     hidePopupAction = this.wrapBackgroundAction<Models.Timer, void>('hideAllPopups');
-
-    /** @override */
-    isPagePopup = true;
 
     /** @override */
     close() {

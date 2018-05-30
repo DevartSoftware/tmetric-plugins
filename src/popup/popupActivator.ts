@@ -5,6 +5,4 @@
     let controller = location.search == '?integration' ?
         new PagePopupController() :
         new PopupController();
-
-    controller.init();
 }
