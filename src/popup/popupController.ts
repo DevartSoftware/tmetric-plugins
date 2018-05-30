@@ -17,8 +17,6 @@
     private _canCreateProjects: boolean;
     private _canCreateTags: boolean;
     private _newIssue: WebToolIssueTimer;
-    private _newIssueInitial: WebToolIssueTimer;
-    private _defaultProjectId: number;
 
     getData(accountId: number) {
 
@@ -71,7 +69,6 @@
         if (data.timer) {
             this._activeTimer = data.timer;
             this._newIssue = this._newIssue || data.newIssue;
-            this._newIssueInitial = JSON.parse(JSON.stringify(this._newIssue));
             this._accountId = data.accountId;
             this._profile = data.profile;
             this._timeFormat = data.profile.timeFormat;
@@ -82,7 +79,6 @@
             this._constants = data.constants;
             this._canCreateProjects = data.canCreateProjects;
             this._canCreateTags = data.canCreateTags;
-            this._defaultProjectId = data.defaultProjectId;
         } else {
             this.close();
         }
@@ -453,7 +449,7 @@
             }).filter(_ => !!_);
         }
 
-        let defaultProjectId = this._defaultProjectId;
+        let defaultProjectId = null;
 
         if (task.details) {
 
@@ -477,11 +473,6 @@
         this._newIssue = issue;
 
         this.fillCreateForm(defaultProjectId);
-    }
-
-    fillFormWithInitialIssue() {
-        this._newIssue = JSON.parse(JSON.stringify(this._newIssueInitial));
-        this.fillCreateForm(this._defaultProjectId);
     }
 
     getTaskUrl(details: Models.TimeEntryDetail) {
@@ -906,7 +897,7 @@
             this.fillFormWithRecentTask(index);
         });
 
-        $('#clear-recent-task').click(() => (this.fillFormWithInitialIssue(), false));
+        $('#clear-create-form').click(() => (this.onClearCreateFormClick(), false));
 
         // close popup when escape key pressed and no selectors are opened
         window.addEventListener('keydown', event => {
@@ -1062,6 +1053,11 @@
 
     private onCreateClick() {
         this.switchState(this._states.creating);
+    }
+
+    private onClearCreateFormClick() {
+        this._newIssue = <WebToolIssueTimer>{};
+        this.fillCreateForm(null);
     }
 }
 
