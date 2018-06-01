@@ -820,7 +820,7 @@
 
     initTagSelector(projectId: number = null) {
 
-        let selector = this._forms.create + '.tags';
+        let selector = this._forms.create + ' .tags';
 
         let items = this.makeTagItems(projectId);
         let selectedItems = this.makeTagSelectedItems();
