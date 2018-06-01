@@ -640,28 +640,29 @@
 
     makeTagItems(projectId: number = null) {
 
-        let projectWorkTypeMap: { [id: number]: boolean } = {};
-        let project = this.getProject(projectId);
-        project && project.workTypeIdentifires.forEach(id => projectWorkTypeMap[id] = true);
-
-        let accountTagMap: { [name: string]: Models.Tag } = {};
-        let itemTagMap: { [name: string]: Models.Tag } = {};
         let items: IdTextTagType[] = [];
+        let accountTagNames: { [name: string]: boolean } = {};
+        let projectWorkTypeIds: { [id: number]: boolean } = {};
+
+        let project = this.getProject(projectId);
+        if (project) {
+            project.workTypeIdentifires.forEach(id => {
+                projectWorkTypeIds[id] = true;
+            });
+        }
+
         this._tags.forEach(tag => {
             let key = tag.tagName.toLowerCase();
-            accountTagMap[key] = tag;
-            if (!tag.isWorkType || projectWorkTypeMap[tag.tagId]) {
-                itemTagMap[key] = tag;
+            accountTagNames[key] = true;
+            if (!project || !tag.isWorkType || projectWorkTypeIds[tag.tagId]) {
                 items.push(this.makeTagItem(tag.tagName, tag.isWorkType));
-            };
+            }
         });
 
         if (this._canCreateTags && this._newIssue.tagNames) {
             this._newIssue.tagNames.forEach(tagName => {
                 let key = tagName.toLowerCase();
-                let itemTag = itemTagMap[key];
-                let accountTag = accountTagMap[key];
-                if (!itemTag && (!accountTag || !accountTag.isWorkType)) {
+                if (!accountTagNames[key]) {
                     items.push(this.makeTagItem(tagName, false));
                 }
             });
