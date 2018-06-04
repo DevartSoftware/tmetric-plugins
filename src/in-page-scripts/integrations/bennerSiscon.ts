@@ -13,7 +13,7 @@
     }
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        var host = $$('.dashboard-stat2'); // $$('.form-actions.top.nobg.no-border.commands-bar.fluid.list-commands-bar');
+        var host = $$('.dashboard-stat2');
         if (host) {
 
             linkElement.classList.add('btn');
@@ -23,8 +23,6 @@
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
         
-        var issueUrl = source.fullUrl;
-
         var match = /(\d+)$/.exec(source.fullUrl);
         if (!match) {
             return;
@@ -49,6 +47,9 @@
         var serviceType = 'Siscon';
 
         var serviceUrl = source.protocol + source.host;
+
+
+        var issueUrl = "siscon/e/solicitacoes/Solicitacao.aspx?key=" + issueId;
 
         var tagNames = [];
         tagNames.push($$.try('#ctl00_Main_ucSolicitacao_WIDGETID_FORMSOLICITACAO_formView_PageControl_GERAL_GERAL_SITUACAOATUAL').textContent);
