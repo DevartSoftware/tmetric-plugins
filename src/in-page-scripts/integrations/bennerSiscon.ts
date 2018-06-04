@@ -13,11 +13,7 @@
     }
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        debugger;
-
-        console.log(issueElement);
-
-        var host = $$('.form-actions.top.nobg.no-border.commands-bar.fluid.list-commands-bar');
+        var host = $$('.dashboard-stat2'); // $$('.form-actions.top.nobg.no-border.commands-bar.fluid.list-commands-bar');
         if (host) {
 
             linkElement.classList.add('btn');
