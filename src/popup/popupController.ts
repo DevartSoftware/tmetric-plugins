@@ -613,7 +613,7 @@
         let container = $('<span>');
 
         sortedTags.forEach((tag, i) => {
-            let span = $('<span>').addClass('label').addClass('label-default');
+            let span = $('<span>').addClass('tag').addClass('tag-default');
 
             if (tag.isWorkType) {
                 let i = $('<i>').addClass('tag-icon').addClass('fa fa-dollar');
