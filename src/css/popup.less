@@ -855,7 +855,7 @@ content.creating {
 }
 
 .select2-results__option {
-
+    background-color: #fff !important; // fill background to prevent rendering artifacts
     &[role=group] {
         padding: 0 !important;
     }
@@ -865,15 +865,15 @@ content.creating {
         cursor: @cursor-disabled !important;
     }
     /**
-         * Hover state.
-         */
+     * Hover state.
+     */
     &[aria-selected=true] {
         background-color: lighten(#eee, 3%) !important;
         color: #555 !important;
     }
     /**
-         * Selected state.
-         */
+     * Selected state.
+     */
     &--highlighted[aria-selected] {
         background-color: lighten(#eee, 3%) !important;
         color: #555 !important;
