@@ -771,7 +771,10 @@ class ExtensionBase {
                 tagNames: defaultWorkType ? [defaultWorkType.tagName] : []
             };
 
-            let filteredProjects = scope.projects.filter(p => scope.trackedProjects.indexOf(p.projectId) > -1)
+            let trackedProjectsMap: { [id: number]: boolean } = {};
+            scope.trackedProjects.forEach(tp => trackedProjectsMap[tp] = true);
+
+            let filteredProjects = scope.projects.filter(p => trackedProjectsMap[p.projectId])
                 .sort((a, b) => a.projectName.localeCompare(b.projectName, [], { sensitivity: 'base' }));
 
             const projectMap = this.getProjectMap(accountId);
@@ -794,6 +797,8 @@ class ExtensionBase {
                 newIssue.description = descriptionMap[newIssue.issueName];
             }
 
+            let filteredRecentTasks = recentTasks.filter(t => !t.details.projectId || trackedProjectsMap[t.details.projectId]);
+
             this._newPopupIssue = null;
             this._newPopupAccountId = null;
 
@@ -809,7 +814,7 @@ class ExtensionBase {
                 canCreateTags,
                 constants: this._constants,
                 defaultProjectId,
-                recentTasks
+                recentTasks: filteredRecentTasks
             };
         });
     }
