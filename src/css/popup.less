@@ -397,16 +397,14 @@ input {
     }
 
     &.task {
-        margin-top: 30px !important;
-    }
-
-    &.description {
-        margin-top: 10px !important;
+        .form-control {
+            border: 0;
+        }
     }
 
     &.new-project {
         .form-control {
-            margin-left: @input-margin-left !important;
+            margin-left: @input-margin-left;
         }
     }
 
@@ -614,6 +612,7 @@ content {
         display: none;
 
         .task-recent {
+            margin-bottom: @margin;
 
             &.row-flex {
                 align-items: center;
