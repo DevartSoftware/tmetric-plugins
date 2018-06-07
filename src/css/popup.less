@@ -50,6 +50,7 @@
 @navbar-default-active-color: rgba(255, 255, 255, 1);
 @navbar-default-active-bg: @navbar-default-hover-bg;
 @navbar-height: 70px;
+
 //== Colors
 @accent: #178fe5;
 
@@ -59,7 +60,9 @@
 
 //== Typografy
 @text-color: #525252;
+@text-muted: fade(@text-color, 50%);
 @line-height-base: 1.42857;
+
 //== Buttons
 @btn-default-color: @text-color;
 @btn-default-bg: rgba(0,0,0,0.05);
@@ -99,10 +102,6 @@ body {
     color: @text-color;
     background-color: @background-color;
     overflow: hidden;
-}
-
-.text-center {
-    text-align: center;
 }
 
 .container {
@@ -436,6 +435,42 @@ input {
     text-align: center;
 }
 
+.pull-left {
+    float: left !important;
+}
+
+.pull-right {
+    float: right !important;
+}
+
+.bold {
+    font-weight: bold !important;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-overflow {
+    text-overflow: clip;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.text-ellipsis {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.text-muted {
+    color: @text-muted;
+}
+
+.clearfix {
+    clear: both !important;
+}
+
 // ==============================================
 //                  BUTTONS
 // ==============================================
@@ -634,6 +669,10 @@ content {
                         flex-flow: row nowrap;
                         justify-content: space-between;
 
+                        > * {
+                            .text-ellipsis;
+                        }
+
                         > *:not(:last-child) {
                             margin-right: @margin;
                         }
@@ -705,31 +744,10 @@ content.creating {
     }
 }
 
-.pull-left {
-    float: left !important;
-}
-
-.pull-right {
-    float: right !important;
-}
-
-.bold {
-    font-weight: bold !important;
-}
-
-.text-overflow {
-    text-overflow: clip;
-    overflow: hidden;
-    white-space: nowrap;
-}
-
-.clearfix {
-    clear: both !important;
-}
-
 // ================================================
 //                      SELECT2
 // ================================================
+
 .select2 {
     width: 100% !important;
 }
@@ -959,13 +977,6 @@ content.creating {
     }
 }
 
-@text-color: #525252;
-@text-muted: fade(@text-color, 50%);
-
-.text-muted {
-    color: @text-muted;
-}
-
 .flex-container {
     display: flex !important;
     flex-flow: row nowrap;
@@ -1016,9 +1027,7 @@ content.creating {
         .dropdown-toggle-text {
             display: block;
             max-width: 150px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            .text-ellipsis;
         }
 
         .fa {
@@ -1054,9 +1063,7 @@ content.creating {
             font: inherit;
             cursor: pointer;
             text-align: left;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            .text-ellipsis;
 
             &:hover {
                 background-color: rgba(0, 0, 0, 0.05);

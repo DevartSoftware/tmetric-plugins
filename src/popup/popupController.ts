@@ -416,10 +416,11 @@
             .attr('data-value', index);
 
         let description = $('<span>').text(task.details.description);
+        description.attr('title', task.details.description);
         item.append(description);
 
         if (task.details.projectId) {
-            let project = this.formatExistingProjectById(task.details.projectId, '', true);
+            let project = this.formatExistingProjectCompact(task.details.projectId);
             item.append(project);
         }
 
@@ -762,60 +763,75 @@
     }
 
     private formatExistingProject(data: Select2SelectionObject, includeCodeAndClient: boolean) {
-        return this.formatExistingProjectById(parseInt(data.id), data.text, includeCodeAndClient);
-    }
 
-    private formatExistingProjectById(id: number, name: string, includeCodeAndClient: boolean) {
+        let projectId = parseInt(data.id);
 
         let result = $('<span class="flex-container-with-overflow" />');
-        let namesElement = $('<span class="text-overflow" />');
+        let projectPartsContainer = $('<span class="text-overflow" />');
 
         // Find project
-        let projectId = id;
         let project = this.getProject(projectId);
-        let projectName = project ? project.projectName : name;
-
-        let projectCode: string;
-        let projectClient: string;
-        if (project && includeCodeAndClient) {
-            if (project.projectCode) {
-                projectCode = ' [' + project.projectCode + ']';
-            }
-            if (project.clientId) {
-                projectClient = ' / ' + this.getClient(project.clientId).clientName;
-            }
-        }
-
-        let projectAvatar = project && project.avatar || 'Content/Avatars/project.svg';
-
-        // Add project name
-        let projectNameElement = $('<span class="text-overflow">').text(projectName);
-
-        namesElement.append(projectNameElement);
 
         // Add avatar
-        let avatarPath = `${this._constants.serviceUrl}/${projectAvatar}`
-        let avatarElement = $(`<img src="${avatarPath}" />`).addClass('project-avatar-image');
-
-        let title = projectName;
-
-        if (projectCode) {
-            let projectCodeElement = $('<span />').text(projectCode);
-            namesElement.append(projectCodeElement);
-            title += projectCode;
-        }
-
-        if (projectClient) {
-            let projectClientElement = $('<span class="text-muted" />').text(projectClient);
-            namesElement.append(projectClientElement);
-            title += projectClient;
-        }
-
-        $(namesElement).attr('title', title);
+        let avatarElement = this.formatProjectAvatar(project);
         result.append(avatarElement);
-        result.append(namesElement);
+
+        // Add project name
+        let projectName = project ? project.projectName : data.text;
+        let projectNameElement = $('<span class="text-overflow">').text(projectName);
+        projectPartsContainer.append(projectNameElement);
+
+        // Add project client and code
+
+        let projectTitle = projectName;
+
+        if (project && includeCodeAndClient) {
+
+            if (project.projectCode) {
+                let projectCode = ' [' + project.projectCode + ']';
+                let projectCodeElement = $('<span />').text(projectCode);
+                projectPartsContainer.append(projectCodeElement);
+                projectTitle += projectCode;
+            }
+
+            if (project.clientId) {
+                let projectClient = ' / ' + this.getClient(project.clientId).clientName;
+                let projectClientElement = $('<span class="text-muted" />').text(projectClient);
+                projectPartsContainer.append(projectClientElement);
+                projectTitle += projectClient;
+            }
+        }
+
+        projectPartsContainer.attr('title', projectTitle);
+
+        result.append(projectPartsContainer);
 
         return result;
+    }
+
+    private formatExistingProjectCompact(id: number) {
+
+        let result = $('<span class="" />');
+
+        // Find project
+        let project = this.getProject(id);
+
+        // Add avatar
+        result.append(this.formatProjectAvatar(project));
+
+        // Add name
+        let name = project ? project.projectName : '';
+        result.append(name);
+
+        result.attr('title', name);
+
+        return result;
+    }
+
+    private formatProjectAvatar(project: Models.ProjectLite) {
+        let avatar = project && project.avatar || 'Content/Avatars/project.svg';
+        let avatarPath = `${this._constants.serviceUrl}/${avatar}`
+        return $(`<img src="${avatarPath}" />`).addClass('project-avatar-image');
     }
 
     initTagSelector(projectId: number = null) {
