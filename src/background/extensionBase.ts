@@ -797,7 +797,7 @@ class ExtensionBase {
                 newIssue.description = descriptionMap[newIssue.issueName];
             }
 
-            let filteredRecentTasks = recentTasks.filter(t => !t.details.projectId || trackedProjectsMap[t.details.projectId]);
+            let filteredRecentTasks = recentTasks ? recentTasks.filter(t => !t.details.projectId || trackedProjectsMap[t.details.projectId]) : null;
 
             this._newPopupIssue = null;
             this._newPopupAccountId = null;
