@@ -830,7 +830,7 @@
 
     private formatProjectAvatar(project: Models.ProjectLite) {
         let avatar = project && project.avatar || 'Content/Avatars/project.svg';
-        let avatarPath = `${this._constants.serviceUrl}/${avatar}`
+        let avatarPath = `${this._constants.serviceUrl}${avatar}`
         return $(`<img src="${avatarPath}" />`).addClass('project-avatar-image');
     }
 
