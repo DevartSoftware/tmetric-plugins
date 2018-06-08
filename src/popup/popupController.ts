@@ -947,7 +947,7 @@
             this.fillFormWithRecentTask(index);
         });
 
-        $('#clear-create-form').click(() => (this.onClearCreateFormClick(), false));
+        $('#clear-create-form').click(() => this.onClearCreateFormClick());
 
         // close popup when escape key pressed and no selectors are opened
         window.addEventListener('keydown', event => {
