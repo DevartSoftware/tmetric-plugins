@@ -125,6 +125,12 @@ input, textarea, select, button {
     font-family: @font-family;
 }
 
+button::-moz-focus-inner,
+input::-moz-focus-inner {
+    border: 0;
+    padding: 0;
+}
+
 .project-avatar-image {
     width: 20px;
     height: 20px;
