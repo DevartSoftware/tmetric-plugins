@@ -244,33 +244,59 @@
         }
     }
 
-    fillTaskLink(link: JQuery, task: Models.ProjectTask) {
+    private getTaskLinkDataFromProjectTask(task: Models.ProjectTask) {
+        let url = '';
+        let text = '';
 
-        let url: string;
         if (task) {
-            if (!task.integrationUrl) { // Internal task
-                url = `${this._constants.serviceUrl}/#/tasks/${this._accountId}'?id=${task.projectTaskId}`;
-            } else if (task.relativeIssueUrl) { // External task
+            if (!task.integrationUrl && task.projectTaskId) { // Internal task
+                url = `${this._constants.serviceUrl}#/tasks/${this._accountId}?id=${task.projectTaskId}`;
+            } else if (task.relativeIssueUrl && task.externalIssueId) { // External task
                 url = task.integrationUrl + task.relativeIssueUrl;
+                if (task.showIssueId) {
+                    text = task.externalIssueId;
+                }
             }
         }
 
+        return { url, text };
+    }
+
+    private getTaskLinkDataFromIssue(issue: WebToolIssueTimer) {
+        let url = '';
+        let text = '';
+
+        if (issue && issue.issueId) {
+            if (!issue.serviceUrl) { // Internal task
+                url = `${this._constants.serviceUrl}#/tasks/${this._accountId}?id=${issue.issueId}`;
+            } else if (issue.issueUrl) { // External task
+                url = issue.serviceUrl + issue.issueUrl;
+                if (issue.showIssueId) {
+                    text = issue.issueId;
+                }
+            }
+        }
+
+        return { url, text };
+    }
+
+    fillTaskLink(link: JQuery, url: string, text: string) {
+
         if (!url) {
-            return false;
+            return;
         }
 
         link.attr('href', url);
         link.attr('target', '_blank');
 
         const iconClass = 'fa fa-external-link';
-        if (task.integrationUrl && task.showIssueId) {
-            link.text(task.externalIssueId);
+        if (text) {
+            link.text(text);
             link.removeClass(iconClass);
         } else {
             link.text('');
             link.addClass(iconClass);
         }
-        return true
     }
 
     fillViewForm(timer: Models.Timer, accountId: number) {
@@ -282,9 +308,12 @@
 
         $(this._forms.view + ' .time').text(this.toDurationString(timer.startTime));
 
-        let hasTask = this.fillTaskLink($(this._forms.view + ' .task .id .link'), details.projectTask);
+        let { url, text } = this.getTaskLinkDataFromProjectTask(details.projectTask);
 
-        if (hasTask) {
+        if (url) {
+
+            this.fillTaskLink($(this._forms.view + ' .task .id .link'), url, text);
+
             $(this._forms.view + ' .task')
                 .attr('title', details.projectTask.description)
                 .find('.name')
@@ -323,7 +352,7 @@
         }
     }
 
-    fillCreateForm(defaultProjectId: number) {
+    fillCreateForm(projectId: number) {
 
         let taskSpan = $(this._forms.create + ' .task');
         let descriptionSpan = $(this._forms.create + ' .description');
@@ -332,20 +361,12 @@
 
         let issue = this._newIssue;
 
-        let hasLink = false;
-        if (issue.issueId) {
+        let { url, text } = this.getTaskLinkDataFromIssue(issue);
 
-            let projectTask = <Models.ProjectTask>{
-                showIssueId: issue.showIssueId,
-                externalIssueId: issue.issueId,
-                integrationUrl: issue.serviceUrl,
-                relativeIssueUrl: issue.issueUrl
-            };
+        if (url) {
 
-            hasLink = this.fillTaskLink(taskSpan.find('.link'), projectTask);
-        }
+            this.fillTaskLink(taskSpan.find('.link'), url, text);
 
-        if (hasLink) {
             taskSpan.find('.name').text(issue.issueName);
             descriptionSpan.find('.label').text('Notes');
             descriptionInput.attr('placeholder', 'Describe your activity');
@@ -362,10 +383,10 @@
         $(window).focus();
         descriptionInput.focus().select();
 
-        this.initProjectSelector(this._forms.create + ' .project .input', defaultProjectId);
+        this.initProjectSelector(this._forms.create + ' .project .input', projectId);
         $(this._forms.create + ' .new-project .input').attr('maxlength', Models.Limits.maxProjectName);
 
-        this.initTagSelector(defaultProjectId);
+        this.initTagSelector(projectId);
 
         // Do not focus project in extension popup (TE-117, TE-221)
         if (this.isPagePopup && issue.issueName) {
@@ -439,6 +460,7 @@
         }
 
         let issue = <WebToolIssueTimer>{};
+        let projectId = null;
 
         issue.description = task.details.description;
 
@@ -449,19 +471,17 @@
             }).filter(_ => !!_);
         }
 
-        let defaultProjectId = null;
-
         if (task.details) {
 
             let project = this.getProject(task.details.projectId);
             if (project) {
                 issue.projectName = project.projectName;
-                defaultProjectId = project.projectId;
+                projectId = project.projectId;
             }
 
             let projectTask = task.details.projectTask;
             if (projectTask) {
-                issue.issueId = projectTask.externalIssueId;
+                issue.issueId = projectTask.externalIssueId || "" + projectTask.projectTaskId;
                 issue.issueName = projectTask.description;
                 issue.issueUrl = projectTask.relativeIssueUrl;
                 //issue.serviceType =
@@ -472,7 +492,7 @@
 
         this._newIssue = issue;
 
-        this.fillCreateForm(defaultProjectId);
+        this.fillCreateForm(projectId);
     }
 
     getTaskUrl(details: Models.TimeEntryDetail) {
