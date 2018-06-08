@@ -293,7 +293,7 @@
         });
     }
 
-    putExternalTimer(timer: WebToolIssueTimer) {
+    putIssueTimer(timer: WebToolIssueTimer) {
 
         if (!timer.isStarted) {
             return this.putTimer(<Models.Timer>{ isStarted: false });
@@ -302,7 +302,7 @@
         return this.connect().then(profile => {
             let accountId = this.accountToPost || profile.activeAccountId;
             this.expectedTimerUpdate = true;
-            var promise = this.post(this.getExternalTimerUrl(accountId), timer).then(() => {
+            var promise = this.post(this.getIssueTimerUrl(accountId), timer).then(() => {
                 this.checkProfileChange();
             });
             promise.catch(() => {
@@ -490,8 +490,8 @@
         return `api/accounts/${accountId}/timer`;
     }
 
-    private getExternalTimerUrl(accountId: number) {
-        return `api/accounts/${accountId}/timer/external`;
+    private getIssueTimerUrl(accountId: number) {
+        return `api/accounts/${accountId}/timer/issue`;
     }
 
     private getTimeEntriesUrl(accountId: number, userProfileId: number) {

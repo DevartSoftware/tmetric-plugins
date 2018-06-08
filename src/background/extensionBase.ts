@@ -360,7 +360,7 @@ class ExtensionBase {
 
         promise = promise
             .then(() => {
-                return this.connection.putExternalTimer(timer);
+                return this.connection.putIssueTimer(timer);
             })
             .then(() => {
                 if (notification) {
