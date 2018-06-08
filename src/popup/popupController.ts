@@ -967,17 +967,23 @@
         let toggleIcon = $('.fa', toggle);
         let menu = $('.dropdown-menu', dropdown);
 
+        function checkCloseClick(event) {
+            if (!$(event.target).closest(dropdown).length) {
+                toggleDropdown(false);
+            }
+        }
+
         function toggleDropdown(open: boolean) {
             dropdown.toggleClass('open', open);
             toggleIcon.toggleClass('fa-angle-up', open);
             toggleIcon.toggleClass('fa-angle-down', !open);
-        }
 
-        $(document.body).click(event => {
-            if (!$(event.target).closest(dropdown).length) {
-                toggleDropdown(false);
+            if (open) {
+                $(document.body).on('click', checkCloseClick);
+            } else {
+                $(document.body).off('click', checkCloseClick);
             }
-        });
+        }
 
         toggle.click(() => {
             if (toggle.prop('disabled')) {
@@ -987,7 +993,7 @@
             toggleDropdown(!isOpen);
         });
 
-        $(menu).click(event => {
+        menu.click(event => {
             let target = $(event.target);
             let item = target.hasClass('dropdown-menu-item') ? target : target.closest('.dropdown-menu-item');
             if (!item.length) {
