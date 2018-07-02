@@ -245,6 +245,29 @@
         }
     }
 
+    private getTaskLinkData(task: Models.ProjectTask | WebToolIssueTimer) {
+        let url = '';
+        let text = '';
+
+        const merge = { ...<Models.ProjectTask>task, ...<WebToolIssueTimer>task };
+
+        const integrationUrl = merge.integrationUrl || merge.serviceUrl;
+        const relativeUrl = merge.relativeIssueUrl || merge.issueUrl;
+        const showIssueId = merge.showIssueId;
+        const issueId = merge.externalIssueId || '' + (merge.projectTaskId || '') || merge.issueId;
+
+        if (integrationUrl && relativeUrl) {  // External task
+            url = integrationUrl + relativeUrl;
+            if (showIssueId) {
+                text = issueId;
+            }
+        } else if (issueId) { // Internal task
+            url = `${this._constants.serviceUrl}#/tasks/${this._accountId}?id=${issueId}`;
+        }
+
+        return { url, text };
+    }
+
     fillTaskLink(link: JQuery, url: string, text: string) {
 
         if (!url) {
@@ -275,19 +298,7 @@
 
         let projectTask = details.projectTask;
 
-        let url = '';
-        let text = '';
-
-        if (projectTask) {
-            if (!projectTask.integrationUrl && projectTask.projectTaskId) { // Internal task
-                url = `${this._constants.serviceUrl}#/tasks/${this._accountId}?id=${projectTask.projectTaskId}`;
-            } else if (projectTask.relativeIssueUrl && projectTask.externalIssueId) { // External task
-                url = projectTask.integrationUrl + projectTask.relativeIssueUrl;
-                if (projectTask.showIssueId) {
-                    text = projectTask.externalIssueId;
-                }
-            }
-        }
+        let { url, text } = this.getTaskLinkData(projectTask);
 
         if (url) {
 
@@ -340,19 +351,7 @@
 
         let issue = this._newIssue;
 
-        let url = '';
-        let text = '';
-
-        if (issue && issue.issueId) {
-            if (!issue.serviceUrl) { // Internal task
-                url = `${this._constants.serviceUrl}#/tasks/${this._accountId}?id=${issue.issueId}`;
-            } else if (issue.issueUrl) { // External task
-                url = issue.serviceUrl + issue.issueUrl;
-                if (issue.showIssueId) {
-                    text = issue.issueId;
-                }
-            }
-        }
+        let { url, text } = this.getTaskLinkData(issue);
 
         if (url) {
 
@@ -472,7 +471,7 @@
 
             let projectTask = task.details.projectTask;
             if (projectTask) {
-                issue.issueId = projectTask.externalIssueId || "" + projectTask.projectTaskId;
+                issue.issueId = projectTask.externalIssueId || '' + (projectTask.projectTaskId || '');
                 issue.issueName = projectTask.description;
                 issue.issueUrl = projectTask.relativeIssueUrl;
                 //issue.serviceType =
@@ -484,14 +483,6 @@
         this._newIssue = issue;
 
         this.fillCreateForm(projectId);
-    }
-
-    getTaskUrl(details: Models.TimeEntryDetail) {
-        let task = details && details.projectTask;
-        if (task && task.integrationUrl && task.relativeIssueUrl) {
-            return task.integrationUrl + task.relativeIssueUrl;
-        }
-        return '';
     }
 
     private _weekdaysShort = 'Sun_Mon_Tue_Wed_Thu_Fri_Sat'.split('_');
