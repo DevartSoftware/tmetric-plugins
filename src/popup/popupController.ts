@@ -232,6 +232,7 @@
 
     private changeAccount(accountId: number) {
         let state = $('content').attr('class');
+        this._newIssue = <WebToolIssueTimer>{};
         this.getData(accountId).then(() => {
             this.switchState(state);
         });
