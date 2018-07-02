@@ -244,42 +244,6 @@
         }
     }
 
-    private getTaskLinkDataFromProjectTask(task: Models.ProjectTask) {
-        let url = '';
-        let text = '';
-
-        if (task) {
-            if (!task.integrationUrl && task.projectTaskId) { // Internal task
-                url = `${this._constants.serviceUrl}#/tasks/${this._accountId}?id=${task.projectTaskId}`;
-            } else if (task.relativeIssueUrl && task.externalIssueId) { // External task
-                url = task.integrationUrl + task.relativeIssueUrl;
-                if (task.showIssueId) {
-                    text = task.externalIssueId;
-                }
-            }
-        }
-
-        return { url, text };
-    }
-
-    private getTaskLinkDataFromIssue(issue: WebToolIssueTimer) {
-        let url = '';
-        let text = '';
-
-        if (issue && issue.issueId) {
-            if (!issue.serviceUrl) { // Internal task
-                url = `${this._constants.serviceUrl}#/tasks/${this._accountId}?id=${issue.issueId}`;
-            } else if (issue.issueUrl) { // External task
-                url = issue.serviceUrl + issue.issueUrl;
-                if (issue.showIssueId) {
-                    text = issue.issueId;
-                }
-            }
-        }
-
-        return { url, text };
-    }
-
     fillTaskLink(link: JQuery, url: string, text: string) {
 
         if (!url) {
@@ -308,19 +272,33 @@
 
         $(this._forms.view + ' .time').text(this.toDurationString(timer.startTime));
 
-        let { url, text } = this.getTaskLinkDataFromProjectTask(details.projectTask);
+        let projectTask = details.projectTask;
+
+        let url = '';
+        let text = '';
+
+        if (projectTask) {
+            if (!projectTask.integrationUrl && projectTask.projectTaskId) { // Internal task
+                url = `${this._constants.serviceUrl}#/tasks/${this._accountId}?id=${projectTask.projectTaskId}`;
+            } else if (projectTask.relativeIssueUrl && projectTask.externalIssueId) { // External task
+                url = projectTask.integrationUrl + projectTask.relativeIssueUrl;
+                if (projectTask.showIssueId) {
+                    text = projectTask.externalIssueId;
+                }
+            }
+        }
 
         if (url) {
 
             this.fillTaskLink($(this._forms.view + ' .task .id .link'), url, text);
 
             $(this._forms.view + ' .task')
-                .attr('title', details.projectTask.description)
+                .attr('title', projectTask.description)
                 .find('.name')
-                .text(details.projectTask.description);
+                .text(projectTask.description);
 
             // not show custom description if equals to default task description
-            if (details.projectTask.description == details.description) {
+            if (projectTask.description == details.description) {
                 $(this._forms.view + ' .notes').hide();
             } else {
                 let description = this.toDescription(details.description);
@@ -361,7 +339,19 @@
 
         let issue = this._newIssue;
 
-        let { url, text } = this.getTaskLinkDataFromIssue(issue);
+        let url = '';
+        let text = '';
+
+        if (issue && issue.issueId) {
+            if (!issue.serviceUrl) { // Internal task
+                url = `${this._constants.serviceUrl}#/tasks/${this._accountId}?id=${issue.issueId}`;
+            } else if (issue.issueUrl) { // External task
+                url = issue.serviceUrl + issue.issueUrl;
+                if (issue.showIssueId) {
+                    text = issue.issueId;
+                }
+            }
+        }
 
         if (url) {
 
