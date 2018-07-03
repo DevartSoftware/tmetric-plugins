@@ -89,9 +89,11 @@
 @label-margin-right: 12px;
 @span-container-margin-left: 14px;
 @span-container-width: 80%;
+@span-container-max-height: @line-height-base * @font-size-base * 4;
 
 @input-margin-left: @label-width + @label-margin-right;
 @input-width: @body-width - 2 * @padding-large - @input-margin-left;
+@input-height: 34px;
 
 body {
     height: auto;
@@ -258,7 +260,7 @@ input::-moz-focus-inner {
     display: inline-block;
     box-sizing: border-box;
     width: 100%;
-    height: 34px;
+    height: @input-height;
     line-height: 1.42457;
     margin: 0;
     padding: 6px 0;
@@ -432,7 +434,7 @@ input {
     .span-container {
         margin-left: @span-container-margin-left;
         width: @span-container-width;
-        max-height: @line-height-base * @font-size-base * 4;
+        max-height: @span-container-max-height;
         overflow: hidden;
     }
 }
@@ -760,12 +762,14 @@ content.creating {
 }
 
 .select2-selection--multiple {
-    min-height: 34px !important;
-    padding: 0 0 !important;
+    min-height: @input-height !important;
+    padding: 0 0 1px !important;
     border: none !important;
     border-bottom: 1px solid #e0e0e0 !important;
     border-radius: 0 !important;
     transition: border-color ease-in-out .2s !important;
+    max-height: @span-container-max-height;
+    overflow-y: auto;
 
     .select2-selection__rendered {
         box-sizing: border-box !important;
@@ -783,12 +787,12 @@ content.creating {
     .select2-selection__choice {
         color: @text-color !important;
         background: @btn-default-bg !important;
+        margin: 5px 0 0 6px !important;
         border: 1px solid @btn-default-border !important;
         border-radius: 3px !important;
+        padding: 0 6px !important;
         cursor: default !important;
         float: left !important;
-        margin: 5px 0 0 6px !important;
-        padding: 0 6px !important;
 
         .select2-selection__choice__remove {
             float: right !important;
@@ -796,14 +800,15 @@ content.creating {
             text-align: right !important;
         }
     }
-    /**
-     * Minus 2px borders.
-     */
+
     .select2-search--inline {
+        margin: 5px 0 3px 6px !important;
+        border: 1px solid transparent !important;
+        padding: 0 !important;
+
         .select2-search__field {
             background: transparent !important;
             padding: 0 0 !important;
-            height: 32px;
             line-height: 1.42457 !important;
             margin-top: 0 !important;
             min-width: 5em;
@@ -820,7 +825,8 @@ content.creating {
 .select2-container--focus,
 .select2-container--open {
     .select2-selection {
-        border-color: @accent !important;
+        padding: 0 0 !important;
+        border-bottom: 2px solid @accent !important;
     }
 }
 
@@ -854,7 +860,7 @@ content.creating {
 }
 
 .select2-selection--single {
-    height: 34px !important;
+    height: @input-height !important;
     padding: 6px 0 !important;
     border: none !important;
     border-bottom: 1px solid #e0e0e0 !important;
