@@ -373,28 +373,18 @@
             $(taskSpan).css('display', 'none');
         }
 
-        // Force focus on current window (for Firefox)
-        $(window).focus();
-        descriptionInput.focus().select();
-
         this.initProjectSelector(this._forms.create + ' .project .input', projectId);
         $(this._forms.create + ' .new-project .input').attr('maxlength', Models.Limits.maxProjectName);
 
         this.initTagSelector(projectId);
-
-        // Do not focus project in extension popup (TE-117, TE-221)
-        if (this.isPagePopup && issue.issueName) {
-            setTimeout(() => {
-                // Focus select2 dropdown
-                $(this._forms.create + ' .project .input').select2('open').select2('close');
-            });
-        }
     }
 
     initCreatingForm() {
-        // workaround for Edge: element is not available immediately on css display changing
+        // Timeout workaround for Edge: element is not available immediately on css display changing
         setTimeout(() => {
-            $(this._forms.create + ' .task .input').focus().select();
+            // Force focus on current window (for Firefox)
+            $(window).focus();
+            $(this._forms.create + ' .description .input').focus().select();
         }, 100);
     }
 
@@ -487,6 +477,7 @@
         this._newIssue = issue;
 
         this.fillCreateForm(projectId);
+        this.initCreatingForm();
     }
 
     private _weekdaysShort = 'Sun_Mon_Tue_Wed_Thu_Fri_Sat'.split('_');
@@ -1100,6 +1091,7 @@
     private onClearCreateFormClick() {
         this._newIssue = <WebToolIssueTimer>{};
         this.fillCreateForm(null);
+        this.initCreatingForm();
     }
 }
 
