@@ -245,16 +245,15 @@
         }
     }
 
-    private getTaskLinkData(task: Models.ProjectTask | WebToolIssueTimer) {
+    private getTaskLinkData(task: Models.ProjectTask | WebToolIssueTimer)
+    private getTaskLinkData(task: Models.ProjectTask & WebToolIssueTimer) {
         let url = '';
         let text = '';
 
-        const merge = { ...<Models.ProjectTask>task, ...<WebToolIssueTimer>task };
-
-        const integrationUrl = merge.integrationUrl || merge.serviceUrl;
-        const relativeUrl = merge.relativeIssueUrl || merge.issueUrl;
-        const showIssueId = merge.showIssueId;
-        const issueId = merge.externalIssueId || '' + (merge.projectTaskId || '') || merge.issueId;
+        const integrationUrl = task.integrationUrl || task.serviceUrl;
+        const relativeUrl = task.relativeIssueUrl || task.issueUrl;
+        const showIssueId = task.showIssueId;
+        const issueId = task.externalIssueId || '' + (task.projectTaskId || '') || task.issueId;
 
         if (integrationUrl && relativeUrl) {  // External task
             url = integrationUrl + relativeUrl;
