@@ -247,6 +247,11 @@
 
     private getTaskLinkData(task: Models.ProjectTask | WebToolIssueTimer)
     private getTaskLinkData(task: Models.ProjectTask & WebToolIssueTimer) {
+
+        if (!task) {
+            return {};
+        }
+
         let url = '';
         let text = '';
 
