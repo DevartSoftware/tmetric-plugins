@@ -35,11 +35,9 @@
             } else if (!this.isPagePopup && data.timer && data.timer.isStarted) {
                 this.fillViewForm(data.timer, data.accountId);
                 this.fillCreateForm(data.defaultProjectId);
-                this.fillRecentTaskSelector();
                 this.switchState(this._states.viewing);
             } else {
                 this.fillCreateForm(data.defaultProjectId);
-                this.fillRecentTaskSelector();
                 this.switchState(this._states.creating);
             }
         }).catch(error => {
@@ -75,7 +73,6 @@
             this._projects = data.projects;
             this._clients = data.clients;
             this._tags = data.tags.filter(tag => !!tag).sort((a, b) => this.compareTags(a, b));
-            this._recentTasks = data.recentTasks;
             this._constants = data.constants;
             this._canCreateProjects = data.canCreateProjects;
             this._canCreateTags = data.canCreateTags;
@@ -136,6 +133,7 @@
     saveProjectMapAction = this.wrapBackgroundAction<{ projectName: string, projectId: number }, void>('saveProjectMap');
     saveDescriptionMapAction = this.wrapBackgroundAction<{ taskName: string, description: string }, void>('saveDescriptionMap');
     openOptionsPage = this.wrapBackgroundAction<void, void>('openOptionsPage');
+    getRecentTasksAction = this.wrapBackgroundAction<number, Models.RecentWorkTask[]>('getRecentTasks');
 
     // ui mutations
 
@@ -162,10 +160,16 @@
     };
 
     switchState(name: string) {
+        let state = $('content').attr('class');
+        if (state == name) {
+            return;
+        }
+
         $('content').attr('class', name);
 
         if (name == this._states.creating) {
             this.initCreatingForm();
+            this.fillRecentTaskSelector();
         }
 
         let logoText: string;
@@ -348,6 +352,8 @@
 
     fillCreateForm(projectId: number) {
 
+        $(this._forms.create + ' .task-recent').toggle(!this.isPagePopup);
+
         let taskSpan = $(this._forms.create + ' .task');
         let descriptionSpan = $(this._forms.create + ' .description');
         let descriptionInput = descriptionSpan.find('.input');
@@ -390,28 +396,25 @@
 
     fillRecentTaskSelector() {
 
-        if (this.isPagePopup) {
-            $(this._forms.create + ' .task-recent').hide();
-            return;
-        }
-
         let dropdown = $('#recent-task-selector');
 
         let toggle = $('.dropdown-toggle', dropdown);
+        toggle.prop('disabled', true);
 
         let menu = $('.dropdown-menu', dropdown);
         menu.empty();
 
-        if (this._recentTasks && this._recentTasks.length) {
-            toggle.prop('disabled', false);
-            let items = this._recentTasks.map((task, index) =>
-                this.formatRecentTaskSelectorItem(task, index));
-            menu.append(items);
-        } else {
-            toggle.prop('disabled', true);
-        }
+        return this.getRecentTasksAction(this._accountId).then(recentTasks => {
 
-        $(this._forms.create + ' .task-recent').show();
+            this._recentTasks = recentTasks;
+
+            if (this._recentTasks && this._recentTasks.length) {
+                toggle.prop('disabled', false);
+                let items = this._recentTasks.map((task, index) =>
+                    this.formatRecentTaskSelectorItem(task, index));
+                menu.append(items);
+            }
+        });
     }
 
     private formatRecentTaskSelectorItem(task: Models.RecentWorkTask, index: number) {

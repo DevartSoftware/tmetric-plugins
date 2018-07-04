@@ -224,11 +224,12 @@ class ExtensionBase {
         this.listenPopupAction<{ taskName: string, description: string }, void>('saveDescriptionMap', ({ taskName, description }) => {
             this.setDescriptionMap(taskName, description);
             return Promise.resolve(null);
-        })
+        });
         this.listenPopupAction<void, void>('openOptionsPage', () => {
             chrome.runtime.openOptionsPage();
             return Promise.resolve(null);
-        })
+        });
+        this.listenPopupAction<number, Models.RecentWorkTask[]>('getRecentTasks', this.getRecentTasksAction);
 
         this.registerTabsUpdateListener();
         this.registerTabsRemoveListener();
@@ -752,9 +753,8 @@ class ExtensionBase {
         return Promise.all([
             this.getActiveTabTitle(),
             this.getAccountScope(accountId),
-            this.getDefaultWorkType(accountId),
-            params.includeRecentTasks ? this.getRecentTasks(accountId) : null
-        ]).then(([title, scope, defaultWorkType, recentTasks]) => {
+            this.getDefaultWorkType(accountId)
+        ]).then(([title, scope, defaultWorkType]) => {
 
             let userRole = this._userProfile.accountMembership
                 .find(_ => _.account.accountId == accountId)
@@ -797,8 +797,6 @@ class ExtensionBase {
                 newIssue.description = descriptionMap[newIssue.issueName];
             }
 
-            let filteredRecentTasks = recentTasks ? recentTasks.filter(t => !t.details.projectId || trackedProjectsMap[t.details.projectId]).slice(0, 25) : null;
-
             this._newPopupIssue = null;
             this._newPopupAccountId = null;
 
@@ -813,8 +811,7 @@ class ExtensionBase {
                 canCreateProjects: isAdmin || canMembersManagePublicProjects,
                 canCreateTags,
                 constants: this._constants,
-                defaultProjectId,
-                recentTasks: filteredRecentTasks
+                defaultProjectId
             };
         });
     }
@@ -1101,5 +1098,18 @@ class ExtensionBase {
         }
 
         return this.taskNameToDescriptionMap;
+    }
+
+    private async getRecentTasksAction(accountId: number) {
+
+        let [recentTasks, scope] = await Promise.all([
+            this.getRecentTasks(accountId),
+            this.getAccountScope(accountId)
+        ]);
+
+        let trackedProjectsMap: { [id: number]: boolean } = {};
+        scope.trackedProjects.forEach(tp => trackedProjectsMap[tp] = true);
+
+        return recentTasks ? recentTasks.filter(t => !t.details.projectId || trackedProjectsMap[t.details.projectId]).slice(0, 25) : null;
     }
 }

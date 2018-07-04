@@ -107,7 +107,6 @@ interface IPopupInitData {
     canCreateProjects: boolean;
     canCreateTags: boolean;
     defaultProjectId: number;
-    recentTasks: Models.RecentWorkTask[];
 }
 
 interface IPopupTimerData {
