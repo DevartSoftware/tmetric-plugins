@@ -793,7 +793,7 @@ class ExtensionBase {
 
             const descriptionMap = this.getDescriptionMap();
 
-            if (descriptionMap && newIssue.issueId) {
+            if (newIssue.issueId && !newIssue.description && descriptionMap) {
                 newIssue.description = descriptionMap[newIssue.issueName];
             }
 
