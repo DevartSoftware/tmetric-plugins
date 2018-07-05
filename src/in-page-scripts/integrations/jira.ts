@@ -26,6 +26,20 @@
 
         return { serviceUrl, issueUrl };
     }
+
+    getProjectNameFromProjectSelector() {
+        // Find avatar element
+        let avatarElement = $$('#navigation-app span[role="img"]', null, el => (el.style.backgroundImage || '').indexOf('projectavatar') >= 0);
+
+        // Find avatar container
+        let avatarContainer = avatarElement && $$.closest('span', avatarElement, el => !!el.nextElementSibling);
+
+        // Find text node in avatar container sibling
+        let projectNode = avatarContainer && $$.findNode('span', Node.TEXT_NODE, avatarContainer.nextElementSibling);
+        let projectName = projectNode && projectNode.textContent;
+
+        return projectName;
+    }
 }
 
 class Jira extends JiraBase implements WebToolIntegration {
@@ -78,19 +92,7 @@ class Jira extends JiraBase implements WebToolIntegration {
             $$.try('#navigation-app span[role="menuitem"] > span:nth-child(2) > span > span').textContent // for new design separate task view (/browse/... URL);
 
         if (!projectName) { // separate task view with side bar (TE-206)
-
-            // Find avatar element
-            let avatarElement = $$(
-                '#navigation-app span[role="img"]',
-                null,
-                el => (el.style.backgroundImage || '').indexOf('projectavatar') >= 0);
-
-            // Find avatar container
-            let avatarContainer = avatarElement && $$.closest('span', avatarElement, el => !!el.nextElementSibling);
-
-            // Find text node in avatar container sibling
-            let projectNode = avatarContainer && $$.findNode('span', Node.TEXT_NODE, avatarContainer.nextElementSibling);
-            projectName = projectNode && projectNode.textContent;
+            projectName = this.getProjectNameFromProjectSelector();
         }
 
         let { serviceUrl, issueUrl } = this.getUrls(source, issueHref);
@@ -141,4 +143,57 @@ class JiraAgile extends JiraBase implements WebToolIntegration {
     }
 }
 
-IntegrationService.register(new Jira(), new JiraAgile());
+class JiraNext extends JiraBase implements WebToolIntegration {
+
+    issueElementSelector = () => [
+        $$.visible('#ghx-detail-view'), // Issue sidebar
+        $$.visible('[role=dialog]'), // Issue dialog
+        $$.visible('#jira-frontend') // Issues and filters
+    ];
+
+    render(issueElement: HTMLElement, linkElement: HTMLElement) {
+        let anchor = $$('object ~ div a', issueElement);
+        if (!anchor) {
+            return;
+        }
+
+        let host = anchor.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement;
+        host.appendChild(linkElement);
+    }
+
+    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+
+        let issueName = $$.try('object ~ div h1', issueElement).textContent;
+        if (!issueName) {
+            return;
+        }
+
+        let anchors = $$.all('object ~ div a', issueElement);
+
+        let issueLinks = anchors.filter(el => el.getAttribute('href').split('/').some(v => v == 'browse'));
+        if (!issueLinks.length) {
+            return;
+        }
+
+        let selectedIssue = $$.searchParams(source.path)["selectedIssue"];
+        let issueLink = issueLinks.find(el => el.getAttribute('href').endsWith(selectedIssue)) || issueLinks[0];
+        let issueHref = issueLink.getAttribute('href');
+        let issueId = issueHref.split('/').pop();
+        let { serviceUrl, issueUrl } = this.getUrls(source, issueHref);
+
+        let projectName = $$.try('#content a', null, el => el.getAttribute('href').split('/').some(v => v == 'projects')).textContent;
+        if (!projectName) {
+            projectName = this.getProjectNameFromProjectSelector();
+            // Project name can not be parsed with collapsed navigation bar
+            if (!projectName) {
+                return;
+            }
+        }
+
+        let tagNames = anchors.filter(el => !!($$.searchParams(el.getAttribute('href').split('?')[1])['jql'] || '').startsWith('labels')).map(el => el.textContent);
+
+        return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Jira', tagNames };
+    }
+}
+
+IntegrationService.register(new Jira(), new JiraAgile(), new JiraNext());
