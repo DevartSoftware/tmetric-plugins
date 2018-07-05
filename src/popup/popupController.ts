@@ -390,7 +390,12 @@
         setTimeout(() => {
             // Force focus on current window (for Firefox)
             $(window).focus();
-            $(this._forms.create + ' .description .input').focus().select();
+
+            if (this.isPagePopup && this._newIssue.issueName) {
+                $(this._forms.create + ' .project .input').select2('open').select2('close');
+            } else {
+                $(this._forms.create + ' .description .input').focus().select();
+            }
         }, 100);
     }
 
