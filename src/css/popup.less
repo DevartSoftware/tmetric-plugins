@@ -415,6 +415,12 @@ input {
         }
     }
 
+    &.tags {
+        .span-container {
+            max-height: none;
+        }
+    }
+
     .label {
         font-weight: bold;
         width: @label-width;
@@ -757,6 +763,20 @@ content.creating {
 //                      SELECT2
 // ================================================
 
+@select2-selection-margin-top: 5px;
+@select2-selection-margin-right: 0px;
+@select2-selection-margin-bottom: 0px;
+@select2-selection-margin-left: 6px;
+@select2-selection-margin: @select2-selection-margin-top @select2-selection-margin-right @select2-selection-margin-bottom @select2-selection-margin-left;
+
+@select2-search-margin-top: 5px;
+@select2-search-margin-right: 0px;
+@select2-search-margin-bottom: 3px;
+@select2-search-margin-left: 6px;
+@select2-search-margin: @select2-search-margin-top @select2-search-margin-right @select2-search-margin-bottom @select2-search-margin-left;
+
+@select2-multiple-max-height: (@line-height-base * @font-size-base + @select2-selection-margin-top + /* vertical borders */ 2px) * 3 + @select2-search-margin-bottom;
+
 .select2 {
     width: 100% !important;
 }
@@ -768,7 +788,7 @@ content.creating {
     border-bottom: 1px solid #e0e0e0 !important;
     border-radius: 0 !important;
     transition: border-color ease-in-out .2s !important;
-    max-height: @span-container-max-height;
+    max-height: @select2-multiple-max-height;
     overflow-y: auto;
 
     .select2-selection__rendered {
@@ -787,7 +807,7 @@ content.creating {
     .select2-selection__choice {
         color: @text-color !important;
         background: @btn-default-bg !important;
-        margin: 5px 0 0 6px !important;
+        margin: @select2-selection-margin !important;
         border: 1px solid @btn-default-border !important;
         border-radius: 3px !important;
         padding: 0 6px !important;
@@ -802,7 +822,7 @@ content.creating {
     }
 
     .select2-search--inline {
-        margin: 5px 0 3px 6px !important;
+        margin: @select2-search-margin !important;
         border: 1px solid transparent !important;
         padding: 0 !important;
 
@@ -826,6 +846,10 @@ content.creating {
 .select2-container--open {
     .select2-selection {
         border-bottom: 2px solid @accent !important;
+
+        &.select2-selection--multiple {
+            padding: 0px !important;
+        }
     }
 }
 
