@@ -1073,7 +1073,7 @@
                 this.saveProjectMapAction({ projectName, projectId: newProject.projectId });
             }
 
-            if (timer.issueId) {
+            if (timer.issueId && timer.description != this._newIssue.description) {
                 // Save description map
                 this.saveDescriptionMapAction({
                     taskName: this._newIssue.issueName,
