@@ -152,12 +152,20 @@ class JiraNext extends JiraBase implements WebToolIntegration {
     ];
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        let anchor = $$('object ~ div a', issueElement);
-        if (!anchor) {
+
+        let issueName = $$.try('h1', issueElement);
+        if (!issueName) {
             return;
         }
 
-        let host = anchor.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement;
+        let host = $$.closest('*', issueName.parentElement, el => {
+            let style = window.getComputedStyle(el);
+            let display = style.getPropertyValue('display');
+            return display.indexOf('flex') < 0;
+        });
+
+        linkElement.classList.add('devart-timer-link-jira-next');
+
         host.appendChild(linkElement);
     }
 
