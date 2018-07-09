@@ -198,7 +198,7 @@ class JiraNext extends JiraBase implements WebToolIntegration {
             }
         }
 
-        let tagNames = anchors.filter(el => !!($$.searchParams(el.getAttribute('href').split('?')[1])['jql'] || '').startsWith('labels')).map(el => el.textContent);
+        let tagNames = anchors.filter(el => !!($$.searchParams(el.getAttribute('href'))['jql'] || '').startsWith('labels')).map(el => el.textContent);
 
         return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Jira', tagNames };
     }

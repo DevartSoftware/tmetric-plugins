@@ -176,7 +176,9 @@ $$.searchParams = query => {
         return params;
     }
 
-    if (/^[?#]/.test(query)) {
+    query = query.replace(/^[^?]*\?/, '');
+
+    if (/^#/.test(query)) {
         query = query.slice(1);
     }
 
@@ -184,5 +186,6 @@ $$.searchParams = query => {
         let [key, value] = param.split('=');
         params[key] = decodeURIComponent((value || '').replace(/\+/g, ' '));
     });
+
     return params;
 };
