@@ -192,10 +192,6 @@ class JiraNext extends JiraBase implements WebToolIntegration {
         let projectName = $$.try('#breadcrumbs-container a', null, el => el.getAttribute('href').split('/').some(v => v == 'projects')).textContent;
         if (!projectName) {
             projectName = this.getProjectNameFromProjectSelector();
-            // Project name can not be parsed with collapsed navigation bar
-            if (!projectName) {
-                return;
-            }
         }
 
         let tagNames = anchors.filter(el => !!($$.searchParams(el.getAttribute('href'))['jql'] || '').startsWith('labels')).map(el => el.textContent);
