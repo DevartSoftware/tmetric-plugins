@@ -168,7 +168,7 @@
         $('content').attr('class', name);
 
         if (name == this._states.creating) {
-            this.initCreatingForm();
+            this.focusCreatingForm();
             this.fillRecentTaskSelector();
         }
 
@@ -385,7 +385,7 @@
         this.initTagSelector(projectId);
     }
 
-    initCreatingForm() {
+    focusCreatingForm() {
         // Timeout workaround for Edge: element is not available immediately on css display changing
         setTimeout(() => {
             // Force focus on current window (for Firefox)
@@ -485,7 +485,7 @@
         this._newIssue = issue;
 
         this.fillCreateForm(projectId);
-        this.initCreatingForm();
+        this.focusCreatingForm();
     }
 
     private _weekdaysShort = 'Sun_Mon_Tue_Wed_Thu_Fri_Sat'.split('_');
@@ -1099,7 +1099,7 @@
     private onClearCreateFormClick() {
         this._newIssue = <WebToolIssueTimer>{};
         this.fillCreateForm(null);
-        this.initCreatingForm();
+        this.focusCreatingForm();
     }
 }
 
