@@ -148,7 +148,7 @@ class JiraNext extends JiraBase implements WebToolIntegration {
     issueElementSelector = () => [
         $$.visible('#ghx-detail-view'), // Issue sidebar
         $$.visible('[role=dialog]'), // Issue dialog
-        $$.visible('#jira-frontend') // Issues and filters
+        $$.visible('#jira-frontend > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2)') // Issues and filters
     ];
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
@@ -163,12 +163,12 @@ class JiraNext extends JiraBase implements WebToolIntegration {
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        let issueName = $$.try('object ~ div h1', issueElement).textContent;
+        let issueName = $$.try('h1', issueElement).textContent;
         if (!issueName) {
             return;
         }
 
-        let anchors = $$.all('object ~ div a', issueElement);
+        let anchors = $$.all('a', issueElement);
 
         let issueLinks = anchors.filter(el => el.getAttribute('href').split('/').some(v => v == 'browse'));
         if (!issueLinks.length) {
@@ -181,7 +181,7 @@ class JiraNext extends JiraBase implements WebToolIntegration {
         let issueId = issueHref.split('/').pop();
         let { serviceUrl, issueUrl } = this.getUrls(source, issueHref);
 
-        let projectName = $$.try('#content a', null, el => el.getAttribute('href').split('/').some(v => v == 'projects')).textContent;
+        let projectName = $$.try('#breadcrumbs-container a', null, el => el.getAttribute('href').split('/').some(v => v == 'projects')).textContent;
         if (!projectName) {
             projectName = this.getProjectNameFromProjectSelector();
             // Project name can not be parsed with collapsed navigation bar
