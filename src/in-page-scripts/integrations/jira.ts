@@ -146,9 +146,11 @@ class JiraAgile extends JiraBase implements WebToolIntegration {
 class JiraNext extends JiraBase implements WebToolIntegration {
 
     issueElementSelector = () => [
-        $$.visible('#ghx-detail-view'), // Issue sidebar
-        $$.visible('[role=dialog]'), // Issue dialog
-        $$.visible('#jira-frontend > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2)') // Issues and filters
+        $$.visible([
+            '#ghx-detail-view', // Issue sidebar
+            '[role=dialog]', // Issue dialog
+            '#jira-frontend > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2)' // Issues and filters
+        ].join(','))
     ];
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
