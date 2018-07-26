@@ -88,6 +88,7 @@
                 "https://addons.opera.com/*"
             ],
             "js": [
+                "in-page-scripts/integrations/activeCollab.js",
                 "in-page-scripts/integrations/asana.js",
                 "in-page-scripts/integrations/assembla.js",
                 "in-page-scripts/integrations/axosoft.js",
