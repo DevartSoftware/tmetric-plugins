@@ -42,9 +42,9 @@ class ActiveCollab implements WebToolIntegration {
     let projectName = (<any>$$.try('#project_task a[data-qa-id="task-project-label-name"]')).textContent;
     let issueId = (<any>$$.try('#project_task span[ng-bind="task.task_number"]')).textContent;
     if (issueId && projectName) {
-      let issueUrl = source.path;
       let serviceUrl = source.protocol + source.host;
       let serviceType = 'ActiveCollab';
+      let issueUrl = $$.getRelativeUrl(serviceUrl, source.fullUrl);
 
       return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
     }
