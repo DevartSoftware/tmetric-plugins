@@ -96,6 +96,7 @@
                 "in-page-scripts/integrations/bugzilla.js",
                 "in-page-scripts/integrations/doitIm.js",
                 "in-page-scripts/integrations/freshdesk.js",
+                "in-page-scripts/integrations/generic.js",
                 "in-page-scripts/integrations/gitHub.js",
                 "in-page-scripts/integrations/gitLab.js",
                 "in-page-scripts/integrations/google-calendar.js",
