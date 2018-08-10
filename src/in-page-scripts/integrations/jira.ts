@@ -60,6 +60,12 @@ class Jira extends JiraBase implements WebToolIntegration {
             containerUl.appendChild(containerLi);
             host.appendChild(containerUl);
         }
+
+        var host = $$('.command-bar .aui-toolbar2-primary');
+        if (host) {
+            linkElement.classList.add('aui-button');
+            host.appendChild(linkElement);
+        }
     }
 
     /* This code is suitable for both Jira and Jira Service Desk */
