@@ -44,6 +44,7 @@ interface WebToolIssue extends WebToolIssueIdentifier {
 interface WebToolIssueTimer extends WebToolIssue {
     isStarted: boolean;
     showIssueId?: boolean;
+    projectStatus?: number;
 }
 
 interface WebToolParsedIssue {

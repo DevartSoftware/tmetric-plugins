@@ -401,6 +401,8 @@ class ExtensionBase {
 
                 return statusPromise.then(status => {
 
+                    timer.projectStatus = status.projectStatus;
+
                     if (accountIdToPut) {
                         return this.putTimerWithIntegration(timer, status);
                     } else {
