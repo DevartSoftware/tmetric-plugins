@@ -8,10 +8,12 @@
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
-        let taskHeader = $$('.ha');
+        let taskHeader = $$('.iH.bzn .G-tF');
         if (taskHeader) {
+            let container = $$.create('div', 'G-Ni', 'J-J5-Ji');
             linkElement.classList.add('devart-timer-link-google-mail');
-            taskHeader.appendChild(linkElement);
+            container.appendChild(linkElement);
+            taskHeader.appendChild(container);
         }
     }
 
