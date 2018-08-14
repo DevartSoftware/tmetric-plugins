@@ -95,7 +95,8 @@ class Jira extends JiraBase implements WebToolIntegration {
             $$.try('#project-name-val').textContent || // separate task view (/browse/... URL)
             $$.try('.project-title > a').textContent || // service desk
             $$.try('.sd-notify-header').textContent || // service desk form https://issues.apache.org/jira/servicedesk/agent/all
-            $$.try('#navigation-app span[role="menuitem"] > span:nth-child(2) > span > span').textContent // for new design separate task view (/browse/... URL);
+            $$.try('#navigation-app span[role="menuitem"] > span:nth-child(2) > span > span').textContent || // for new design separate task view (/browse/... URL);
+            $$.try('#navigation-app div[role=presentation] button:nth-child(1) div:nth-child(2) div:nth-child(1)').textContent;
 
         if (!projectName) { // separate task view with side bar (TE-206)
             projectName = this.getProjectNameFromProjectSelector();
