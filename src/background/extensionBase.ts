@@ -323,7 +323,7 @@ class ExtensionBase {
 
         let notification: string;
 
-        if (timer.projectName) {
+        if (timer.projectName && timer.isStarted) {
             const contactAdmin = 'Please contact the account administrator to fix the problem.';
 
             if (status.projectStatus == null) {

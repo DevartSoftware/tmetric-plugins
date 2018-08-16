@@ -685,7 +685,6 @@
 
         let existingProjectId: number;
         let newProjectName = this._newIssue && this._newIssue.projectName;
-        let isArchived = this._newIssue.projectStatus == Models.ProjectStatus.Archived;
 
         let items = <IdTextPair[]>[];
         if (this._canCreateProjects) {
@@ -706,7 +705,7 @@
         if (!defaultProjectId) {
             if (existingProjectId) {
                 defaultProjectId = existingProjectId; // Select existing project (TE-215)
-            } else if (this.isPagePopup && this._canCreateProjects && newProjectName && !isArchived) {
+            } else if (this.isPagePopup && this._canCreateProjects && newProjectName) {
                 defaultProjectId = this.createProjectOption.id; // Select new project
             } else {
                 defaultProjectId = this.noProjectOption.id;
