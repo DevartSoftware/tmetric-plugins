@@ -141,7 +141,7 @@ class Jira extends JiraBase implements WebToolIntegration {
             || $$.try('.project-title > a').textContent
             || $$.try('#project-name-val').textContent // separate task view (/browse/... URL)
             || $$.try('.project-title > a').textContent // service desk
-            || $$.try('#navigation-app div[role=presentation] button:nth-child(1) div:nth-child(2) div:nth-child(1)').textContent // full task view
+            || $$.try('#navigation-app button div div:first-child', issueElement.closest('body'), el => !!el.textContent).textContent // full task view
             || $$.try('.sd-notify-header').textContent; // service desk form https://issues.apache.org/jira/servicedesk/agent/all
 
         let tagNames = anchors.filter(el => !!($$.searchParams(el.getAttribute('href'))['jql'] || '').startsWith('labels')).map(el => el.textContent);
