@@ -26,89 +26,6 @@
 
         return { serviceUrl, issueUrl };
     }
-
-    getProjectNameFromProjectSelector() {
-        // Find avatar element
-        let avatarElement = $$('#navigation-app span[role="img"]', null, el => (el.style.backgroundImage || '').indexOf('projectavatar') >= 0);
-
-        // Find avatar container
-        let avatarContainer = avatarElement && $$.closest('span', avatarElement, el => !!el.nextElementSibling);
-
-        // Find text node in avatar container sibling
-        let projectNode = avatarContainer && $$.findNode('span', Node.TEXT_NODE, avatarContainer.nextElementSibling);
-        let projectName = projectNode && projectNode.textContent;
-
-        return projectName;
-    }
-}
-
-class Jira extends JiraBase implements WebToolIntegration {
-
-    render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        var host = $$('.command-bar .toolbar-split');
-        if (host) {
-            linkElement.classList.add('toolbar-trigger');
-
-            // <ul class="toolbar-group">
-            var containerUl = $$.create('ul', 'toolbar-group');
-
-            // <li class="toolbar-item">
-            var containerLi = $$.create('li', 'toolbar-item');
-
-            containerLi.appendChild(linkElement);
-
-            containerUl.appendChild(containerLi);
-            host.appendChild(containerUl);
-
-            return;
-        }
-
-        host = $$('.command-bar .aui-toolbar2-primary');
-        if (host) {
-            linkElement.classList.add('aui-button');
-            host.appendChild(linkElement);
-        }
-    }
-
-    /* This code is suitable for both Jira and Jira Service Desk */
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-
-        // Detect Agile Desk
-        if ($$('#ghx-rabid #ghx-detail-issue')) {
-            return;
-        }
-
-        // https://devart.atlassian.net/browse/TT-1
-        // PROTOCOL = http://
-        // HOST = devart.atlassian.net
-        // PATH = /browse/TT-1
-        let issueName = $$.try('#summary-val').textContent;
-        if (!issueName) {
-            return;
-        }
-
-        let issueLink = $$('#key-val');
-        if (issueLink) {
-            var issueId = issueLink.getAttribute('data-issue-key');
-            var issueHref = issueLink.getAttribute('href');
-        }
-
-        let projectName =
-            $$.try('#project-name-val').textContent || // separate task view (/browse/... URL)
-            $$.try('.project-title > a').textContent || // service desk
-            $$.try('.sd-notify-header').textContent || // service desk form https://issues.apache.org/jira/servicedesk/agent/all
-            $$.try('#navigation-app div[role=presentation] button:nth-child(1) div:nth-child(2) div:nth-child(1)').textContent; // for new design separate task view (/browse/... URL);
-
-        if (!projectName) { // separate task view with side bar (TE-206)
-            projectName = this.getProjectNameFromProjectSelector();
-        }
-
-        let { serviceUrl, issueUrl } = this.getUrls(source, issueHref);
-
-        let tagNames = $$.all('.labels .lozenge').map(label => label.textContent);
-
-        return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Jira', tagNames };
-    }
 }
 
 class JiraAgile extends JiraBase implements WebToolIntegration {
@@ -151,20 +68,27 @@ class JiraAgile extends JiraBase implements WebToolIntegration {
     }
 }
 
-class JiraNext extends JiraBase implements WebToolIntegration {
+class Jira extends JiraBase implements WebToolIntegration {
 
     issueElementSelector = () => [
         $$.visible([
             '#ghx-detail-view', // Issue sidebar
             '[role=dialog]', // Issue dialog
             '#jira-frontend > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2)', // Issues and filters
-            '#issue-content .issue-header-content'
+            '#issue-content .issue-header-content' // Issues and filters
         ].join(','))
     ];
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
-        let host = $$('.command-bar .toolbar-split-left', issueElement);
+        let host = $$('.command-bar .aui-toolbar2-primary');
+        if (host) {
+            linkElement.classList.add('aui-button');
+            host.appendChild(linkElement);
+            return;
+        }
+
+        host = $$('.command-bar .toolbar-split-left', issueElement);
         if (host) {
             let ul = $$.create('ul', 'toolbar-group');
             let li = $$.create('li', 'toolbar-item');
@@ -208,20 +132,25 @@ class JiraNext extends JiraBase implements WebToolIntegration {
         }
 
         let selectedIssue = $$.searchParams(source.path)["selectedIssue"];
-        let issueLink = issueLinks.find(el => el.getAttribute('href').endsWith(selectedIssue)) || issueLinks[0];
+        let issueLink = issueLinks.find(el => el.getAttribute('href').endsWith(selectedIssue)) || issueLinks[issueLinks.length - 1];
         let issueHref = issueLink.getAttribute('href');
         let issueId = issueHref.split('/').pop();
         let { serviceUrl, issueUrl } = this.getUrls(source, issueHref);
 
-        let projectName = $$.try('#breadcrumbs-container a', null, el => el.getAttribute('href').split('/').some(v => v == 'projects')).textContent;
-        if (!projectName) {
-            projectName = this.getProjectNameFromProjectSelector();
-        }
+        let projectName = $$.try('#breadcrumbs-container a', null, el => el.getAttribute('href').split('/').some(v => v == 'projects')).textContent
+            || $$.try('.project-title > a').textContent
+            || $$.try('#project-name-val').textContent // separate task view (/browse/... URL)
+            || $$.try('.project-title > a').textContent // service desk
+            || $$.try('#navigation-app div[role=presentation] button:nth-child(1) div:nth-child(2) div:nth-child(1)').textContent // full task view
+            || $$.try('.sd-notify-header').textContent; // service desk form https://issues.apache.org/jira/servicedesk/agent/all
 
         let tagNames = anchors.filter(el => !!($$.searchParams(el.getAttribute('href'))['jql'] || '').startsWith('labels')).map(el => el.textContent);
+        if (!tagNames.length) {
+            tagNames = $$.all('.labels .lozenge').map(label => label.textContent);
+        }
 
         return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Jira', tagNames };
     }
 }
 
-IntegrationService.register(new JiraNext(), new Jira(), new JiraAgile());
+IntegrationService.register(new Jira(), new JiraAgile());
