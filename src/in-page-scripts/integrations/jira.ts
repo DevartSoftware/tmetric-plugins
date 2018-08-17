@@ -97,8 +97,7 @@ class Jira extends JiraBase implements WebToolIntegration {
             $$.try('#project-name-val').textContent || // separate task view (/browse/... URL)
             $$.try('.project-title > a').textContent || // service desk
             $$.try('.sd-notify-header').textContent || // service desk form https://issues.apache.org/jira/servicedesk/agent/all
-            $$.try('#navigation-app span[role="menuitem"] > span:nth-child(2) > span > span').textContent || // for new design separate task view (/browse/... URL);
-            $$.try('#navigation-app div[role=presentation] button:nth-child(1) div:nth-child(2) div:nth-child(1)').textContent;
+            $$.try('#navigation-app div[role=presentation] button:nth-child(1) div:nth-child(2) div:nth-child(1)').textContent; // for new design separate task view (/browse/... URL);
 
         if (!projectName) { // separate task view with side bar (TE-206)
             projectName = this.getProjectNameFromProjectSelector();
@@ -158,26 +157,40 @@ class JiraNext extends JiraBase implements WebToolIntegration {
         $$.visible([
             '#ghx-detail-view', // Issue sidebar
             '[role=dialog]', // Issue dialog
-            '#jira-frontend > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2)' // Issues and filters
+            '#jira-frontend > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2)', // Issues and filters
+            '#issue-content .issue-header-content'
         ].join(','))
     ];
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
+
+        let host = $$('.command-bar .toolbar-split-left', issueElement);
+        if (host) {
+            let ul = $$.create('ul', 'toolbar-group');
+            let li = $$.create('li', 'toolbar-item');
+            linkElement.classList.add('toolbar-trigger');
+            li.appendChild(linkElement);
+            ul.appendChild(li);
+            host.appendChild(ul);
+            return;
+        }
 
         let issueName = $$.try('h1', issueElement);
         if (!issueName) {
             return;
         }
 
-        let host = $$.closest('*', issueName.parentElement, el => {
+        host = $$.closest('*', issueName.parentElement, el => {
             let style = window.getComputedStyle(el);
             let display = style.getPropertyValue('display');
             return display.indexOf('flex') < 0;
         });
 
-        linkElement.classList.add('devart-timer-link-jira-next');
-
-        host.appendChild(linkElement);
+        if (host) {
+            linkElement.classList.add('devart-timer-link-jira-next');
+            host.appendChild(linkElement);
+            return;
+        }
     }
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
@@ -211,4 +224,4 @@ class JiraNext extends JiraBase implements WebToolIntegration {
     }
 }
 
-IntegrationService.register(new Jira(), new JiraAgile(), new JiraNext());
+IntegrationService.register(new JiraNext(), new Jira(), new JiraAgile());
