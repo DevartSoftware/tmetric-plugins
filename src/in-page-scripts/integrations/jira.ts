@@ -136,10 +136,10 @@ class Jira extends JiraBase implements WebToolIntegration {
         let issueId = issueHref.split('/').pop();
         let { serviceUrl, issueUrl } = this.getUrls(source, issueHref);
 
-        let projectName = $$.try('#breadcrumbs-container a', null, el => el.getAttribute('href').split('/').some(v => v == 'projects')).textContent
+        let projectName = $$.try('#breadcrumbs-container a', null, el => el.getAttribute('href').split('/').some(v => v == 'projects')).textContent // when navigation bar collapsed
+            || $$.try('#navigation-app button div', null, el => el.textContent && !el.childElementCount).textContent // navigation bar expanded
             || $$.try('#project-name-val').textContent // separate task view (/browse/... URL)
             || $$.try('.project-title > a').textContent // service desk
-            || $$.try('#navigation-app button div', null, el => el.textContent && !el.childElementCount).textContent // full task view
             || $$.try('.sd-notify-header').textContent; // service desk form https://issues.apache.org/jira/servicedesk/agent/all
 
         let tagNames = anchors.filter(el => !!($$.searchParams(el.getAttribute('href'))['jql'] || '').startsWith('labels')).map(el => el.textContent);
