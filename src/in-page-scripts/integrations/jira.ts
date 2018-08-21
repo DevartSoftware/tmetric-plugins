@@ -74,7 +74,6 @@ class Jira extends JiraBase implements WebToolIntegration {
         $$.visible([
             '#ghx-detail-view', // Issue sidebar
             '[role=dialog]', // Issue dialog
-            '#jira-frontend > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2)', // Issues and filters
             '#issue-content .issue-header-content' // Issues and filters
         ].join(','))
     ];
@@ -138,15 +137,14 @@ class Jira extends JiraBase implements WebToolIntegration {
         let { serviceUrl, issueUrl } = this.getUrls(source, issueHref);
 
         let projectName = $$.try('#breadcrumbs-container a', null, el => el.getAttribute('href').split('/').some(v => v == 'projects')).textContent
-            || $$.try('.project-title > a').textContent
             || $$.try('#project-name-val').textContent // separate task view (/browse/... URL)
             || $$.try('.project-title > a').textContent // service desk
-            || $$.try('#navigation-app button div div:first-child', issueElement.closest('body'), el => !!el.textContent).textContent // full task view
+            || $$.try('#navigation-app button div', null, el => el.textContent && !el.childElementCount).textContent // full task view
             || $$.try('.sd-notify-header').textContent; // service desk form https://issues.apache.org/jira/servicedesk/agent/all
 
         let tagNames = anchors.filter(el => !!($$.searchParams(el.getAttribute('href'))['jql'] || '').startsWith('labels')).map(el => el.textContent);
         if (!tagNames.length) {
-            tagNames = $$.all('.labels .lozenge').map(label => label.textContent);
+            tagNames = $$.all('.labels .lozenge').map(label => label.textContent); // old interface
         }
 
         return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Jira', tagNames };
