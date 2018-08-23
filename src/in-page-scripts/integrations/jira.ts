@@ -70,6 +70,20 @@ class JiraAgile extends JiraBase implements WebToolIntegration {
 
 class Jira extends JiraBase implements WebToolIntegration {
 
+    getProjectNameFromProjectSelector() {
+        // Find avatar element
+        let avatarElement = $$('#navigation-app span[role="img"]', null, el => (el.style.backgroundImage || '').indexOf('projectavatar') >= 0);
+
+        // Find avatar container
+        let avatarContainer = avatarElement && $$.closest('div,span', avatarElement, el => !!el.innerText);
+
+        // Find text node in avatar container sibling
+        let projectNode = avatarContainer && $$.try('div,span', avatarContainer, el => el.textContent && !el.childElementCount)
+        let projectName = projectNode && projectNode.textContent;
+
+        return projectName;
+    }
+
     issueElementSelector = () => [
         $$.visible([
             '#ghx-detail-view', // Issue sidebar
@@ -79,7 +93,6 @@ class Jira extends JiraBase implements WebToolIntegration {
     ];
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-
         let host = $$('.command-bar .aui-toolbar2-primary');
         if (host) {
             linkElement.classList.add('aui-button');
@@ -137,7 +150,7 @@ class Jira extends JiraBase implements WebToolIntegration {
         let { serviceUrl, issueUrl } = this.getUrls(source, issueHref);
 
         let projectName = $$.try('#breadcrumbs-container a', null, el => el.getAttribute('href').split('/').some(v => v == 'projects')).textContent // when navigation bar collapsed
-            || $$.try('#navigation-app button div', null, el => el.textContent && !el.childElementCount).textContent // navigation bar expanded
+            || this.getProjectNameFromProjectSelector() // navigation bar expanded, trying to find project name by project avatar
             || $$.try('#project-name-val').textContent // separate task view (/browse/... URL)
             || $$.try('.project-title > a').textContent // service desk
             || $$.try('.sd-notify-header').textContent; // service desk form https://issues.apache.org/jira/servicedesk/agent/all
