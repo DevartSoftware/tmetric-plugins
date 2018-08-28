@@ -77,7 +77,7 @@ class Jira extends JiraBase implements WebToolIntegration {
         // Find avatar container
         let avatarContainer = avatarElement && $$.closest('div,span', avatarElement, el => !!el.innerText);
 
-        // Find text node in avatar container sibling
+        // Find text node in avatar container
         let projectNode = avatarContainer && $$.try('div,span', avatarContainer, el => el.textContent && !el.childElementCount)
         let projectName = projectNode && projectNode.textContent;
 
