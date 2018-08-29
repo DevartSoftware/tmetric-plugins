@@ -70,20 +70,6 @@ class JiraAgile extends JiraBase implements WebToolIntegration {
 
 class Jira extends JiraBase implements WebToolIntegration {
 
-    getProjectNameFromProjectSelector() {
-        // Find avatar element
-        let avatarElement = $$('#navigation-app span[role="img"]', null, el => (el.style.backgroundImage || '').indexOf('projectavatar') >= 0);
-
-        // Find avatar container
-        let avatarContainer = avatarElement && $$.closest('div,span', avatarElement, el => !!el.innerText);
-
-        // Find text node in avatar container
-        let projectNode = avatarContainer && $$.try('div,span', avatarContainer, el => el.textContent && !el.childElementCount)
-        let projectName = projectNode && projectNode.textContent;
-
-        return projectName;
-    }
-
     issueElementSelector = () => [
         $$.visible([
             '#ghx-detail-view', // Issue sidebar
@@ -150,10 +136,10 @@ class Jira extends JiraBase implements WebToolIntegration {
         let { serviceUrl, issueUrl } = this.getUrls(source, issueHref);
 
         let projectName = $$.try('#breadcrumbs-container a', null, el => el.getAttribute('href').split('/').some(v => v == 'projects')).textContent // when navigation bar collapsed
-            || this.getProjectNameFromProjectSelector() // navigation bar expanded, trying to find project name by project avatar
             || $$.try('#project-name-val').textContent // separate task view (/browse/... URL)
             || $$.try('.project-title > a').textContent // service desk
-            || $$.try('.sd-notify-header').textContent; // service desk form https://issues.apache.org/jira/servicedesk/agent/all
+            || $$.try('.sd-notify-header').textContent // service desk form https://issues.apache.org/jira/servicedesk/agent/all
+            || this.getProjectNameFromAvatar(); // navigation bar expanded, trying to find project name by project avatar
 
         let tagNames = anchors.filter(el => !!($$.searchParams(el.getAttribute('href'))['jql'] || '').startsWith('labels')).map(el => el.textContent);
         if (!tagNames.length) {
@@ -161,6 +147,20 @@ class Jira extends JiraBase implements WebToolIntegration {
         }
 
         return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Jira', tagNames };
+    }
+
+    private getProjectNameFromAvatar() {
+        // Find avatar element
+        let avatarElement = $$('#navigation-app span[role="img"]', null, el => (el.style.backgroundImage || '').indexOf('projectavatar') >= 0);
+
+        // Find avatar container
+        let avatarContainer = avatarElement && $$.closest('div,span', avatarElement, el => !!el.innerText);
+
+        // Find text node in avatar container
+        let projectNode = avatarContainer && $$.try('div,span', avatarContainer, el => el.textContent && !el.childElementCount);
+        if (projectNode && projectNode.offsetWidth) {
+            return projectNode.textContent;
+        }
     }
 }
 
