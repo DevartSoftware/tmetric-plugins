@@ -1,4 +1,4 @@
-﻿class JiraBase {
+﻿class Jira implements WebToolIntegration {
 
     showIssueId = true;
 
@@ -8,77 +8,17 @@
         return $$.getAttribute('meta[name=application-name]', 'content') == 'JIRA';
     }
 
-    getUrls(source: Source, issueHref: string) {
-
-        var serviceUrl = source.protocol + source.host;
-        var issueUrl = issueHref;
-
-        // for case when jira installed outside domain root we should append context path to serviceUrl and remove it from issueUrl
-        // https://issues.apache.org/jira/
-        // ajs-context-path = /jira
-        // serviceUrl = http://jira.local
-        // issueUrl = /jira/browse/tt-1
-        var jiraContextPath = $$.getAttribute('meta[name=ajs-context-path]', 'content');
-        if (jiraContextPath) {
-            serviceUrl += jiraContextPath;
-            issueUrl = $$.getRelativeUrl(jiraContextPath, issueUrl);
-        }
-
-        return { serviceUrl, issueUrl };
-    }
-}
-
-class JiraAgile extends JiraBase implements WebToolIntegration {
-
-    render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        var detailSection = $$('#ghx-detail-head');
-        if (detailSection) {
-            var container = $$.create('div');
-            container.appendChild(linkElement);
-
-            detailSection.appendChild(container);
-        }
-    }
-
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-        // seek specific element for Agile Desk and check if detail view is visible
-        if (!$$('#ghx-rabid #ghx-detail-issue')) {
-            return;
-        }
-
-        var issueName = $$.try('dd[data-field-id=summary]').textContent;
-        if (!issueName) {
-            // nothing to do without issue name
-            return;
-        }
-
-        var propertyLink = $$('dd[data-field-id=issuekey]');
-
-        var issueId = propertyLink.textContent;
-
-        var issueHref = $$.getAttribute('a', 'href', propertyLink);
-
-        var projectName = $$('.ghx-project').textContent;
-
-        var { serviceUrl, issueUrl } = this.getUrls(source, issueHref);
-
-        var tagNames = $$.all('.labels .lozenge').map(label => label.textContent);
-
-        return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Jira', tagNames };
-    }
-}
-
-class Jira extends JiraBase implements WebToolIntegration {
-
     issueElementSelector = () => [
         $$.visible([
             '#ghx-detail-view', // Issue sidebar
             '[role=dialog]', // Issue dialog
-            '#issue-content .issue-header-content' // Issues and filters
+            '#issue-content .issue-header-content', // Issues and filters
+            '.new-issue-container',
         ].join(','))
     ];
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
+
         let host = $$('.command-bar .aui-toolbar2-primary');
         if (host) {
             linkElement.classList.add('aui-button');
@@ -122,26 +62,25 @@ class Jira extends JiraBase implements WebToolIntegration {
             return;
         }
 
-        let anchors = $$.all('a', issueElement);
+        // In case when JIRA installed outside domain root we
+        // should append path to serviceUrl.
+        // Example: https://issues.apache.org/jira/
+        let servicePath = $$.getAttribute('meta[name=ajs-context-path]', 'content');
+        let serviceUrl = source.protocol + source.host + servicePath;
 
-        let issueLinks = anchors.filter(el => el.getAttribute('href').split('/').some(v => v == 'browse'));
-        if (!issueLinks.length) {
-            return;
-        }
-
-        let selectedIssue = $$.searchParams(source.path)["selectedIssue"];
-        let issueLink = issueLinks.find(el => el.getAttribute('href').endsWith(selectedIssue)) || issueLinks[issueLinks.length - 1];
-        let issueHref = issueLink.getAttribute('href');
-        let issueId = issueHref.split('/').pop();
-        let { serviceUrl, issueUrl } = this.getUrls(source, issueHref);
+        let issueId = $$.searchParams(source.fullUrl)['selectedIssue'] // Board
+            || (source.path.match(/\/(?:issues|browse)\/([^\/]+)/) || [])[1]; // Other pages
+        let issueUrl = issueId && ('/browse/' + issueId);
 
         let projectName = $$.try('#breadcrumbs-container a', null, el => el.getAttribute('href').split('/').some(v => v == 'projects')).textContent // when navigation bar collapsed
             || $$.try('#project-name-val').textContent // separate task view (/browse/... URL)
-            || $$.try('.project-title > a').textContent // service desk
+            || $$.try('.project-title > a').textContent // old service desk and agile board
             || $$.try('.sd-notify-header').textContent // service desk form https://issues.apache.org/jira/servicedesk/agent/all
             || this.getProjectNameFromAvatar(); // navigation bar expanded, trying to find project name by project avatar
 
-        let tagNames = anchors.filter(el => !!($$.searchParams(el.getAttribute('href'))['jql'] || '').startsWith('labels')).map(el => el.textContent);
+        let tagNames = $$.all('a', issueElement)
+            .filter(el => /jql=labels/.test(el.getAttribute('href')))
+            .map(el => el.textContent);
         if (!tagNames.length) {
             tagNames = $$.all('.labels .lozenge').map(label => label.textContent); // old interface
         }
@@ -164,4 +103,4 @@ class Jira extends JiraBase implements WebToolIntegration {
     }
 }
 
-IntegrationService.register(new Jira(), new JiraAgile());
+IntegrationService.register(new Jira());
