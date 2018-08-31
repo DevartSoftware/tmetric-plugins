@@ -323,7 +323,7 @@ class ExtensionBase {
 
         let notification: string;
 
-        if (timer.projectName && timer.isStarted) {
+        if (timer.projectName) {
             const contactAdmin = 'Please contact the account administrator to fix the problem.';
 
             if (status.projectStatus == null) {
@@ -390,6 +390,11 @@ class ExtensionBase {
     private async putExternalTimer(timer: WebToolIssueTimer, tabId: number, accountIdToPut: number = null) {
 
         let settings = await this.getSettings();
+
+        // Stop timer without any checks (TE-339)
+        if (!timer.isStarted) {
+            timer = <WebToolIssueTimer>{ isStarted: false }
+        }
 
         this.putData(timer,
             timer => {
