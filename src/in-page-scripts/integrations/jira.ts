@@ -12,7 +12,7 @@
         $$.visible([
             '#ghx-detail-view', // Issue sidebar
             '[role=dialog]', // Issue dialog
-            '#issue-content .issue-header-content', // Issues and filters
+            '#issue-content', // Issues and filters
             '.new-issue-container',
         ].join(','))
     ];
@@ -76,7 +76,8 @@
             || $$.try('#project-name-val').textContent // separate task view (/browse/... URL)
             || $$.try('.project-title > a').textContent // old service desk and agile board
             || $$.try('.sd-notify-header').textContent // service desk form https://issues.apache.org/jira/servicedesk/agent/all
-            || this.getProjectNameFromAvatar(); // navigation bar expanded, trying to find project name by project avatar
+            || $$.try('img', issueElement, (img: HTMLImageElement) => /projectavatar/.test(img.src)).title // issues and filter
+            || this.getProjectNameFromNavigationBar(); // navigation bar expanded, trying to find project name by project avatar
 
         let tagNames = $$.all('a', issueElement)
             .filter(el => /jql=labels/.test(el.getAttribute('href')))
@@ -88,7 +89,7 @@
         return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Jira', tagNames };
     }
 
-    private getProjectNameFromAvatar() {
+    private getProjectNameFromNavigationBar() {
         // Find avatar element
         let avatarElement = $$('#navigation-app span[role="img"]', null, el => (el.style.backgroundImage || '').indexOf('projectavatar') >= 0);
 
