@@ -391,6 +391,11 @@ class ExtensionBase {
 
         let settings = await this.getSettings();
 
+        // Stop timer without any checks (TE-339)
+        if (!timer.isStarted) {
+            timer = <WebToolIssueTimer>{ isStarted: false }
+        }
+
         this.putData(timer,
             timer => {
 

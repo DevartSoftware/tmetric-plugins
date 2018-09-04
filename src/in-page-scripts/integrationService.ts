@@ -334,6 +334,8 @@
         newLink.href = '#';
         newLink.title = 'Track spent time via TMetric service';
         newLink.onclick = function (e) {
+            // TE-342 - prevent keeping focus on timer button
+            this.blur();
             e.stopPropagation();
             sendBackgroundMessage({ action: 'putTimer', data: newIssueTimer });
             return false;
