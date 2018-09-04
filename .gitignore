@@ -19,3 +19,4 @@ Thumbs.db
 /src/popup/*.css
 /src/settings/*.js
 /package-lock.json
+/tests/private-system/node_modules
