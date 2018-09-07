@@ -13,12 +13,13 @@
             '#ghx-detail-view', // Issue sidebar
             '[role=dialog]', // Issue dialog
             '#issue-content', // Issues and filters
-            '.new-issue-container',
+            '.new-issue-container'
         ].join(','))
     ];
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
+        // Old filters and issues
         let host = $$('.command-bar .aui-toolbar2-primary');
         if (host) {
             linkElement.classList.add('aui-button');
@@ -26,6 +27,7 @@
             return;
         }
 
+        // Old separate issue page
         host = $$('.command-bar .toolbar-split-left', issueElement);
         if (host) {
             let ul = $$.create('ul', 'toolbar-group');
@@ -37,17 +39,24 @@
             return;
         }
 
+        // Old agile sidebar
+        host = $$('#ghx-detail-head', issueElement);
+        if (host) {
+            let container = $$.create('div');
+            container.appendChild(linkElement);
+            host.appendChild(container);
+        }
+
+        // New view
         let issueName = $$.try('h1', issueElement);
         if (!issueName) {
             return;
         }
-
         host = $$.closest('*', issueName.parentElement, el => {
             let style = window.getComputedStyle(el);
             let display = style.getPropertyValue('display');
             return display.indexOf('flex') < 0;
         });
-
         if (host) {
             linkElement.classList.add('devart-timer-link-jira-next');
             host.appendChild(linkElement);
@@ -57,7 +66,7 @@
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        let issueName = $$.try('h1', issueElement).textContent;
+        let issueName = $$.try('#summary-val, h1', issueElement).textContent;
         if (!issueName) {
             return;
         }
