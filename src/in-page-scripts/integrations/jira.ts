@@ -14,7 +14,9 @@
             '[role=dialog]', // Issue dialog
             '#issue-content', // Issues and filters
             '.new-issue-container'
-        ].join(','))
+        ].join(',')),
+        // Issues and filters
+        $$.try('#jira-frontend object').parentElement && $$.try('#jira-frontend object').parentElement.parentElement
     ];
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
