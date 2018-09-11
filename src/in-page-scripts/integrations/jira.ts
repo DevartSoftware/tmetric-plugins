@@ -12,11 +12,11 @@
         $$.visible([
             '#ghx-detail-view', // Issue sidebar
             '[role=dialog]', // Issue dialog
-            '#issue-content', // Issues and filters
+            '#issue-content', // Old issues and filters
             '.new-issue-container'
         ].join(',')),
         // Issues and filters
-        $$.try('#jira-frontend object').parentElement && $$.try('#jira-frontend object').parentElement.parentElement
+        ($$.try('#jira-frontend object').parentElement || <HTMLElement>{}).parentElement
     ];
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
