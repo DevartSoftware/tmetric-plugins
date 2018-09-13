@@ -22,7 +22,7 @@
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
         // Old filters and issues
-        let host = $$('.command-bar .aui-toolbar2-primary');
+        let host = $$('.command-bar .aui-toolbar2-primary', issueElement);
         if (host) {
             linkElement.classList.add('aui-button');
             host.appendChild(linkElement);
@@ -68,7 +68,7 @@
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        let issueName = $$.try('#summary-val, h1', issueElement).textContent;
+        let issueName = $$.try('dd[data-field-id=summary], h1', issueElement).textContent;
         if (!issueName) {
             return;
         }
@@ -94,7 +94,7 @@
             .filter(el => /jql=labels/.test(el.getAttribute('href')))
             .map(el => el.textContent);
         if (!tagNames.length) {
-            tagNames = $$.all('.labels .lozenge').map(label => label.textContent); // old interface
+            tagNames = ($$.try('dd[data-field-id=labels]', issueElement).textContent || '').split(','); // old interface
         }
 
         return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Jira', tagNames };
