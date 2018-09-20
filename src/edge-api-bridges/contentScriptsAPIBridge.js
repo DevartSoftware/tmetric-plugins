@@ -287,6 +287,11 @@ class EdgeBridgeDebugLog {
 }
 var bridgeLog = new EdgeBridgeDebugLog();
 class EdgeExtensionBridge {
+    get inIncognitoContext() {
+        return bridgeLog.DoActionAndLog(() => {
+            return myBrowser.extension.inIncognitoContext;
+        }, "extension.inIncognitoContext");
+    }
     getBackgroundPage() {
         return bridgeLog.DoActionAndLog(() => {
             return myBrowser.extension.getBackgroundPage.apply(null, arguments);
@@ -302,13 +307,17 @@ class EdgeExtensionBridge {
             return myBrowser.extension.getViews.apply(null, arguments);
         }, "extension.getViews");
     }
+    isAllowedIncognitoAccess(callback) {
+        return bridgeLog.DoActionAndLog(() => {
+            return myBrowser.extension.isAllowedIncognitoAccess.apply(null, arguments);
+        }, "extension.isAllowedIncognitoAccess");
+    }
 }
 class EdgeChromeExtensionBridge extends EdgeExtensionBridge {
     get onConnect() { return bridgeLog.DoActionAndLog(() => { return EdgeRuntimeBridge.prototype.onConnect; }, "extension.onConnect", "runtime.onConnect", "runtime.onConnect"); }
     get onMessage() { return bridgeLog.DoActionAndLog(() => { return myBrowser.runtime.onMessage; }, "extension.onMessage", "runtime.onMessage", "runtime.onMessage"); }
     get onRequest() { return bridgeLog.DoActionAndLog(() => { return myBrowser.runtime.onMessage; }, "extension.onRequest", "runtime.onMessage", "runtime.onMessage"); }
     get onRequestExternal() { return bridgeLog.DoActionAndLog(() => { return myBrowser.runtime.onMessageExternal; }, "extension.onRequestExternal", "runtime.onMessageExternal", "runtime.onMessageExternal"); }
-    get inIncognitoContext() { return bridgeLog.DoActionAndLog(() => { return myBrowser.extension["inPrivateContext"]; }, "extension.inIncognitoContext", undefined, "extension.inPrivateContext"); }
     get lastError() { return bridgeLog.DoActionAndLog(() => { return myBrowser.runtime.lastError; }, "extension.lastError", undefined, "runtime.lastError"); }
     connect(extensionId, connectInfo) {
         return bridgeLog.DoActionAndLog(() => {
@@ -327,9 +336,6 @@ class EdgeChromeExtensionBridge extends EdgeExtensionBridge {
     }
     isAllowedFileSchemeAccess(callback) {
         bridgeLog.LogUnavailbleApi("extension.isAllowedFileSchemeAccess");
-    }
-    isAllowedIncognitoAccess(callback) {
-        bridgeLog.LogUnavailbleApi("extension.isAllowedIncognitoAccess");
     }
     setUpdateUrlData(data) {
         bridgeLog.LogUnavailbleApi("extension.setUpdateUrlData");
@@ -393,6 +399,9 @@ class EdgeRuntimeBridge {
         }, "runtime.reload");
     }
     sendMessage(extensionId, message, options, responseCallback) {
+        if (arguments.length === 4) {
+            Array.prototype.splice.apply(arguments, [2, 1]);
+        }
         bridgeLog.DoActionAndLog(() => {
             myBrowser.runtime.sendMessage.apply(null, arguments);
         }, "runtime.sendMessage");
