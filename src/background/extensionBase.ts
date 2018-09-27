@@ -116,6 +116,8 @@ class ExtensionBase {
 
     private serviceUrl: string;
 
+    private signalRUrl: string;
+
     private extraHours: number;
 
     private _constants: Models.Constants;
@@ -134,11 +136,11 @@ class ExtensionBase {
 
     private defaultApplicationUrl = 'https://app.tmetric.com/';
 
+    private defaultSignalRUrl = 'https://signalr.tmetric.com/';
+
     constructor() {
-        this.serviceUrl = this.getTestValue('tmetric.url') || this.defaultApplicationUrl;
-        if (this.serviceUrl[this.serviceUrl.length - 1] != '/') {
-            this.serviceUrl += '/';
-        }
+        this.serviceUrl = this.normalizeUrlLastSlash(this.getTestValue('tmetric.url') || this.defaultApplicationUrl);
+        this.signalRUrl = this.normalizeUrlLastSlash(this.getTestValue('tmetric.signalRUrl') || this.defaultSignalRUrl);
 
         this._constants = this.getDefaultConstants();
 
@@ -199,7 +201,7 @@ class ExtensionBase {
         });
 
         this.connection
-            .init(this.serviceUrl)
+            .init(this.serviceUrl, this.signalRUrl)
             .then(() => this.connection.getVersion());
 
         this.listenPopupAction<IPopupParams, IPopupInitData>('initialize', this.initializePopupAction);
@@ -527,6 +529,13 @@ class ExtensionBase {
 
     private getLoginUrl(): string {
         return this.serviceUrl + 'login';
+    }
+
+    private normalizeUrlLastSlash(url: string) {
+        if (url[url.length - 1] != '/') {
+            url += '/';
+        }
+        return url;
     }
 
     private normalizeUrl(url: string) {

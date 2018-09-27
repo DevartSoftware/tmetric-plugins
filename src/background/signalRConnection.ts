@@ -1,6 +1,6 @@
 ﻿class SignalRConnection {
 
-    url: string;
+    serviceUrl: string;
 
     hub: SignalR.Hub.Connection;
 
@@ -76,10 +76,10 @@
         }));
     }
 
-    init(url: string): Promise<void> {
+    init(serviceUrl: string, signalRUrl: string): Promise<void> {
 
-        this.url = url;
-        this.hub = $.hubConnection(url);
+        this.serviceUrl = serviceUrl;
+        this.hub = $.hubConnection(signalRUrl);
 
         this.hub.disconnected(() => {
             this.expectedTimerUpdate = false;
@@ -429,7 +429,7 @@
 
     ajax<TReq, TRes>(url: string, method: string, dataReq?: TReq): Promise<TRes> {
         var settings = <JQueryAjaxSettings>{};
-        settings.url = this.url + url;
+        settings.url = this.serviceUrl + url;
 
         if (dataReq !== undefined) {
             settings.data = JSON.stringify(dataReq);
