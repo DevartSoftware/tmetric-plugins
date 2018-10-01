@@ -3,7 +3,6 @@ Extension adds TMetric one-click time tracking to popular Web tools. Supported
 Web browsers are **Chrome**, **Firefox**, **Edge**, and **Opera**.
 
 ## Supported services
-* [ActiveCollab](https://activecollab.com/)
 * [Asana](https://asana.com)
 * [Assembla](https://www.assembla.com)
 * [Axosoft](https://www.axosoft.com)
