@@ -4,16 +4,23 @@
 
     observeMutations = true;
 
-    matchUrl = '*://*/issue/*';
+    matchUrl = ['*://*/issue/*', '*://*/agiles/*'];
 
     issueElementSelector = [
         '.content_fsi .toolbar_fsi', // old interface
-        '.yt-issue-body__summary'    // new interface
+        '.yt-issue-view'    // new interface
     ];
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
         if (issueElement.matches(this.issueElementSelector[1])) {
             linkElement.classList.add('devart-timer-link-youtrack')
+
+            var host = $$('.yt-issue-view__toolbar', issueElement);
+            if (!!host) {
+                host.parentElement.insertBefore(linkElement, host.nextElementSibling);
+            }
+
+            return;
         }
 
         issueElement.appendChild(linkElement);
@@ -21,75 +28,33 @@
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        // Full url:
+        // Full url (task):
         // https://HOST/PATH/issue/ISSUE_ID#PARAMETERS
-        var match = /^(.+)\/issue\/(.+)$/.exec(source.fullUrl);
+        // Full url (agile):
+        // https://HOST/PATH/agiles/*/*
+        var match = /^(.+)\/issue\/(.+)$/.exec(source.fullUrl) || /^(.+)\/agiles\/.+$/.exec(source.fullUrl);
         if (!match) {
             return;
         }
 
         var issueId = $$.try('.issueId', issueElement).textContent ||
-            $$('.js-issue-id', issueElement.closest('.yt-issue-view')).textContent;
+            $$('.js-issue-id', issueElement.closest('.yt-issue-view')).textContent ||
+            $$.try('.yt-issue-view__issue-id', issueElement).textContent.trim();
+
         if (!issueId) {
             return;
         }
 
         var issueName = $$.try('.issue-summary', issueElement).textContent ||
-            $$.try('.yt-issue-body__summary').textContent.trim().replace(/\s+start timer$/i, ''); // TE-365
+            $$.try('.yt-issue-body__summary', issueElement).textContent ||
+            $$.try('.yt-issue-fields-panel__field-value', issueElement).textContent;
 
         if (!issueName) {
             return;
         }
 
-        var projectName = $$.try('.fsi-properties .fsi-property .attribute.bold').textContent;
-
-        var serviceType = 'YouTrack';
-
-        var serviceUrl = match[1];
-
-        var issueUrl = 'issue/' + issueId;
-
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
-    }
-}
-
-class YouTrackBoard implements WebToolIntegration {
-
-    showIssueId = true;
-
-    observeMutations = true;
-
-    matchUrl = '*://*/agiles/*';
-
-    issueElementSelector = '.yt-issue-view';
-
-    render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        var host = $$('.yt-issue-view__toolbar', issueElement);
-        if (host) {
-            host.parentElement.insertBefore(linkElement, host.nextElementSibling);
-        }
-    }
-
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-
-        // Full url:
-        // https://HOST/PATH/agiles/*/*
-        var match = /^(.+)\/agiles\/.+$/.exec(source.fullUrl);
-        if (!match) {
-            return;
-        }
-
-        var issueId = $$.try('.yt-issue-view__issue-id', issueElement).textContent.trim();
-        if (!issueId) {
-            return;
-        }
-
-        var issueName = $$.try('.yt-issue-body__summary', issueElement).textContent;
-        if (!issueName) {
-            return;
-        }
-
-        var projectName = $$.try('.yt-issue-fields-panel__field-value', issueElement).textContent;
+        var projectName = $$.try('.fsi-properties .fsi-property .attribute.bold').textContent ||
+            $$.try('.yt-issue-key-value-list').querySelector('tr td:nth-child(2)').textContent;
 
         var serviceType = 'YouTrack';
 
@@ -155,4 +120,4 @@ class YouTrackBoardOld implements WebToolIntegration {
     }
 }
 
-IntegrationService.register(new YouTrack(), new YouTrackBoard(), new YouTrackBoardOld());
+IntegrationService.register(new YouTrack(), new YouTrackBoardOld());
