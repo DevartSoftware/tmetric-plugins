@@ -35,7 +35,8 @@
         }
 
         var issueName = $$.try('.issue-summary', issueElement).textContent ||
-            $$.try('.yt-issue-body__summary').textContent;
+            $$.try('.yt-issue-body__summary').textContent.trim().replace(/\s+start timer$/i, ''); // TE-365
+
         if (!issueName) {
             return;
         }
