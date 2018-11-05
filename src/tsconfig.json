@@ -24,6 +24,7 @@
         "background/httpStatusCode.d.ts",
         "background/simpleEvent.ts",
         "background/signalRConnection.ts",
+        "in-page-scripts/integrations/activeCollab.ts",
         "in-page-scripts/integrations/asana.ts",
         "in-page-scripts/integrations/assembla.ts",
         "in-page-scripts/integrations/axosoft.ts",
