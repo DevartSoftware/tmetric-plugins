@@ -4,18 +4,55 @@
 
     observeMutations = true;
 
-    matchUrl = '*://*/issue/*';
-
-    issueElementSelector = [
-        '.content_fsi .toolbar_fsi', // old interface
-        '.yt-issue-body__summary'    // new interface
+    matchUrl = [
+        '*://*/issue/*',
+        '*://*/agiles/*'
     ];
 
+    issueElementSelector = '.yt-issue-view';
+
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        if (issueElement.matches(this.issueElementSelector[1])) {
-            linkElement.classList.add('devart-timer-link-youtrack')
+        let host = $$('.yt-issue-view__meta-information', issueElement)
+            || $$('.yt-issue-toolbar', issueElement); // falback for future changes
+        if (host) {
+            host.appendChild(linkElement);
+        }
+    }
+
+    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+
+        let issueName = $$.try('.yt-issue-body__summary', issueElement).textContent;
+        if (!issueName) {
+            return;
         }
 
+        let linkElement = $$('.yt-issue-id');
+
+        let issueId = linkElement && linkElement.textContent;
+
+        let issueUrl = linkElement && linkElement.getAttribute('href');
+
+        let projectName = $$.try('yt-issue-project', issueElement).textContent;
+
+        let serviceType = 'YouTrack';
+
+        let serviceUrl = (<HTMLAnchorElement>$$.try('base')).href;
+
+        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+    }
+}
+
+class YouTrackOld implements WebToolIntegration {
+
+    showIssueId = true;
+
+    observeMutations = true;
+
+    matchUrl = '*://*/issue/*';
+
+    issueElementSelector = '.content_fsi .toolbar_fsi';
+
+    render(issueElement: HTMLElement, linkElement: HTMLElement) {
         issueElement.appendChild(linkElement);
     }
 
@@ -28,67 +65,17 @@
             return;
         }
 
-        var issueId = $$.try('.issueId', issueElement).textContent ||
-            $$('.js-issue-id', issueElement.closest('.yt-issue-view')).textContent;
+        var issueId = $$.try('.issueId', issueElement).textContent;
         if (!issueId) {
             return;
         }
 
-        var issueName = $$.try('.issue-summary', issueElement).textContent ||
-            $$.try('.yt-issue-body__summary').textContent;
+        var issueName = $$.try('.issue-summary', issueElement).textContent;
         if (!issueName) {
             return;
         }
 
         var projectName = $$.try('.fsi-properties .fsi-property .attribute.bold').textContent;
-
-        var serviceType = 'YouTrack';
-
-        var serviceUrl = match[1];
-
-        var issueUrl = 'issue/' + issueId;
-
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
-    }
-}
-
-class YouTrackBoard implements WebToolIntegration {
-
-    showIssueId = true;
-
-    observeMutations = true;
-
-    matchUrl = '*://*/agiles/*';
-
-    issueElementSelector = '.yt-issue-view';
-
-    render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        var host = $$('.yt-issue-view__toolbar', issueElement);
-        if (host) {
-            host.parentElement.insertBefore(linkElement, host.nextElementSibling);
-        }
-    }
-
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-
-        // Full url:
-        // https://HOST/PATH/agiles/*/*
-        var match = /^(.+)\/agiles\/.+$/.exec(source.fullUrl);
-        if (!match) {
-            return;
-        }
-
-        var issueId = $$.try('.yt-issue-view__issue-id', issueElement).textContent.trim();
-        if (!issueId) {
-            return;
-        }
-
-        var issueName = $$.try('.yt-issue-body__summary', issueElement).textContent;
-        if (!issueName) {
-            return;
-        }
-
-        var projectName = $$.try('.yt-issue-fields-panel__field-value', issueElement).textContent;
 
         var serviceType = 'YouTrack';
 
@@ -154,4 +141,4 @@ class YouTrackBoardOld implements WebToolIntegration {
     }
 }
 
-IntegrationService.register(new YouTrack(), new YouTrackBoard(), new YouTrackBoardOld());
+IntegrationService.register(new YouTrack(), new YouTrackOld(), new YouTrackBoardOld());
