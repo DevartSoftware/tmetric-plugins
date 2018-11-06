@@ -7,7 +7,7 @@ class ActiveCollab implements WebToolIntegration {
     observeMutations = true;
 
     issueElementSelector = [
-        '.object_view_main',          // task
+        '.object_view_main' // task
     ]
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {

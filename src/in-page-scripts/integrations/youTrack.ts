@@ -36,7 +36,7 @@
 
         let serviceType = 'YouTrack';
 
-        let serviceUrl = (<HTMLAnchorElement>$$.try('base')).href;
+        let serviceUrl = (<HTMLBaseElement>$$.try('base')).href;
 
         return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
     }
