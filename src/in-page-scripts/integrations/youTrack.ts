@@ -4,57 +4,78 @@
 
     observeMutations = true;
 
-    matchUrl = ['*://*/issue/*', '*://*/agiles/*'];
-
-    issueElementSelector = [
-        '.content_fsi .toolbar_fsi', // old interface
-        '.yt-issue-view'    // new interface
+    matchUrl = [
+        '*://*/issue/*',
+        '*://*/agiles/*'
     ];
 
+    issueElementSelector = '.yt-issue-view';
+
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        if (issueElement.matches(this.issueElementSelector[1])) {
-            linkElement.classList.add('devart-timer-link-youtrack')
+        let host = $$('.yt-issue-view__meta-information', issueElement)
+            || $$('.yt-issue-toolbar', issueElement); // falback for future changes
+        if (host) {
+            host.appendChild(linkElement);
+        }
+    }
 
-            var host = $$('.yt-issue-view__toolbar', issueElement);
-            if (!!host) {
-                host.parentElement.insertBefore(linkElement, host.nextElementSibling);
-            }
+    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
+        let issueName = $$.try('.yt-issue-body__summary', issueElement).textContent;
+        if (!issueName) {
             return;
         }
 
+        let linkElement = $$('.yt-issue-id');
+
+        let issueId = linkElement && linkElement.textContent;
+
+        let issueUrl = linkElement && linkElement.getAttribute('href');
+
+        let projectName = $$.try('yt-issue-project', issueElement).textContent;
+
+        let serviceType = 'YouTrack';
+
+        let serviceUrl = (<HTMLAnchorElement>$$.try('base')).href;
+
+        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+    }
+}
+
+class YouTrackOld implements WebToolIntegration {
+
+    showIssueId = true;
+
+    observeMutations = true;
+
+    matchUrl = '*://*/issue/*';
+
+    issueElementSelector = '.content_fsi .toolbar_fsi';
+
+    render(issueElement: HTMLElement, linkElement: HTMLElement) {
         issueElement.appendChild(linkElement);
     }
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        // Full url (task):
+        // Full url:
         // https://HOST/PATH/issue/ISSUE_ID#PARAMETERS
-        // Full url (agile):
-        // https://HOST/PATH/agiles/*/*
-        var match = /^(.+)\/issue\/(.+)$/.exec(source.fullUrl) || /^(.+)\/agiles\/.+$/.exec(source.fullUrl);
+        var match = /^(.+)\/issue\/(.+)$/.exec(source.fullUrl);
         if (!match) {
             return;
         }
 
-        var issueId = $$.try('.issueId', issueElement).textContent ||
-            $$('.js-issue-id', issueElement.closest('.yt-issue-view')).textContent ||
-            $$.try('.yt-issue-view__issue-id', issueElement).textContent.trim();
-
+        var issueId = $$.try('.issueId', issueElement).textContent;
         if (!issueId) {
             return;
         }
 
-        var issueName = $$.try('.issue-summary', issueElement).textContent ||
-            $$.try('.yt-issue-body__summary', issueElement).textContent ||
-            $$.try('.yt-issue-fields-panel__field-value', issueElement).textContent;
-
+        var issueName = $$.try('.issue-summary', issueElement).textContent;
         if (!issueName) {
             return;
         }
 
-        var projectName = $$.try('.fsi-properties .fsi-property .attribute.bold').textContent ||
-            $$.try('.yt-issue-key-value-list').querySelector('tr td:nth-child(2)').textContent;
+        var projectName = $$.try('.fsi-properties .fsi-property .attribute.bold').textContent;
 
         var serviceType = 'YouTrack';
 
@@ -120,4 +141,4 @@ class YouTrackBoardOld implements WebToolIntegration {
     }
 }
 
-IntegrationService.register(new YouTrack(), new YouTrackBoardOld());
+IntegrationService.register(new YouTrack(), new YouTrackOld(), new YouTrackBoardOld());
