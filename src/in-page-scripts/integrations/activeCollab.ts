@@ -12,18 +12,10 @@ class ActiveCollab implements WebToolIntegration {
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
-        let existing = $$('div.object_view_sidebar .tmetric');
-
         let host = $$('div.object_view_sidebar');
         if (host) {
-            if (existing) {
-                host.removeChild(existing);
-            }
-
-            let newdiv = document.createElement("div");
-            newdiv.classList.add('page_section', 'with_padding', 'tmetric');
+            let newdiv = $$.create('div', 'page_section', 'with_padding');
             newdiv.appendChild(linkElement);
-
             host.appendChild(newdiv);
         }
     }
