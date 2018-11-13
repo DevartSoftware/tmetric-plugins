@@ -139,6 +139,9 @@ class ExtensionBase {
     private defaultSignalRUrl = 'https://signalr.tmetric.com/';
 
     constructor() {
+
+        this.updateState();
+
         this.serviceUrl = this.normalizeUrlLastSlash(this.getTestValue('tmetric.url') || this.defaultApplicationUrl);
         this.signalRUrl = this.normalizeUrlLastSlash(this.getTestValue('tmetric.signalRUrl') || this.defaultSignalRUrl);
 
