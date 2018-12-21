@@ -58,14 +58,11 @@ class NewGoogleCalendar implements WebToolIntegration {
 
         // Find task deskription container and add link as its sibling
 
-        // Event or task popup
-        let container = $$.closest('.Tnsqdc', $$('#rAECCd'));
+        // Event, task or reminder popup
+        let container = $$('.Tnsqdc .pPTZAe');
         if (container) {
-            linkElement.style.cssFloat = 'right';
-            linkElement.style.padding = '16px 16px 0 0';
-            let div = document.createElement('div');
-            div.appendChild(linkElement);
-            container.parentNode.insertBefore(div, container.nextElementSibling);
+            linkElement.classList.add('devart-timer-link-google-calendar-popup-modern');
+            container.insertBefore(linkElement, container.firstElementChild);
             return;
         }
 
@@ -79,7 +76,7 @@ class NewGoogleCalendar implements WebToolIntegration {
 
     getIssue(issueElement: HTMLElement, source: Source) {
 
-        let issueName = $$.try('#rAECCd').textContent // Event or task popup
+        let issueName = $$.try('#rAECCd').textContent // Event, task or reminder popup
             || (<any>$$.try('#xTiIn')).value; // Event editor
 
         return { issueName };
