@@ -1056,6 +1056,7 @@
         } else if (selectedProjectId > 0) {
             let project = this._projects.filter(_ => _.projectId == selectedProjectId)[0];
             timer.projectName = project && project.projectName; // Existing project
+            timer.projectId = project && project.projectId;
         } else {
             timer.projectName = $.trim($(this._forms.create + ' .new-project .input').val()); // New project
         }
@@ -1071,8 +1072,10 @@
             // Save project map
             let projectName = this._newIssue.projectName || '';
             let newProjectName = timer.projectName || '';
-            let newProject = this._projects.find(_ => _.projectName == newProjectName);
-            if (newProjectName == projectName) {
+            let foundProjects = this._projects.filter(_ => _.projectName == newProjectName);
+            let newProject = foundProjects.find(p => p.projectId == timer.projectId) || foundProjects[0];
+
+            if (newProjectName == projectName && foundProjects.length < 2) {
                 this.saveProjectMapAction({ projectName, projectId: null });
             } else if (newProject) {
                 this.saveProjectMapAction({ projectName, projectId: newProject.projectId });
