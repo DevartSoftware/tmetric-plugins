@@ -85,7 +85,6 @@ declare module Models {
         reportDetailedTimeEnabled: boolean;
         canMembersManagePublicProjects: boolean;
         canMembersCreateTags: boolean;
-        requiredFields: RequiredFields;
     }
 
     export interface RequiredFields {
@@ -238,6 +237,7 @@ declare module Models {
         managedUsers: any[];
         account: Account;
         features: any;
+        requiredFields: RequiredFields;
     }
 
     interface Money {

@@ -422,7 +422,7 @@ class ExtensionBase {
                 if (timer.isStarted) {
 
                     const matchedProjectCount = this.getTrackedProjects(scope).filter(p => p.projectName == timer.projectName).length;
-                    const requiredFields = scope.account.requiredFields;
+                    const requiredFields = scope.requiredFields;
                     let showPopup = settings.showPopup || Models.ShowPopupOption.Always;
 
                     if (requiredFields.taskLink && !timer.issueUrl) {
@@ -741,7 +741,13 @@ class ExtensionBase {
     private getAccountScope(accountId: number) {
         let scope = this._accountScopeCache[accountId];
         if (!scope) {
-            scope = this._accountScopeCache[accountId] = this.connection.getAccountScope(accountId);
+            scope = this._accountScopeCache[accountId] = this.connection.getAccountScope(accountId)
+
+                // Legacy server
+                .then(scope => {
+                    scope.requiredFields = scope.requiredFields || <Models.RequiredFields>{};
+                    return scope;
+                })
         }
         return scope;
     }
@@ -843,7 +849,7 @@ class ExtensionBase {
                 canCreateTags,
                 constants: this._constants,
                 defaultProjectId,
-                requiredFields: scope.account.requiredFields
+                requiredFields: scope.requiredFields
             };
         });
     }

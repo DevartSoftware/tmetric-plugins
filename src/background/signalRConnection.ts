@@ -234,20 +234,16 @@
 
             this.waitAllRejects([this.getVersion(), this.getProfile()])
                 .then(([version, profile]) => {
-                    this.waitAllRejects([this.getAccountScope()])
+                    this.hub.start({ pingInterval: null })
                         .then(() => {
-                            this.hub.start({ pingInterval: null })
-                                .then(() => {
-                                    //this.hub['disconnectTimeout'] = 1000; // for dev
-                                    this.hubConnected = true;
-                                    this.setRetryPending(false);
-                                    this.hubProxy.invoke('register', profile.userProfileId)
-                                        .then(() => callback(profile))
-                                        .fail(reject);
-                                })
+                            //this.hub['disconnectTimeout'] = 1000; // for dev
+                            this.hubConnected = true;
+                            this.setRetryPending(false);
+                            this.hubProxy.invoke('register', profile.userProfileId)
+                                .then(() => callback(profile))
                                 .fail(reject);
                         })
-                        .catch(reject);
+                        .fail(reject);
                 })
                 .catch(e => {
                     console.log('connect: getProfile failed');
