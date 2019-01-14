@@ -21,7 +21,7 @@
         }
 
         if (issueElement.matches(this.issueElementSelector[1])) {
-            let container = $$('.ItemRow-right', issueElement);
+            let container = $$('.ItemRowTwoColumnStructure-right', issueElement);
             linkElement.classList.add('devart-timer-link-minimal', 'devart-timer-link-asana-subtask');
             container.insertBefore(linkElement, container.firstElementChild);
         }

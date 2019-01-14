@@ -139,6 +139,9 @@ class ExtensionBase {
     private defaultSignalRUrl = 'https://signalr.tmetric.com/';
 
     constructor() {
+
+        this.updateState();
+
         this.serviceUrl = this.normalizeUrlLastSlash(this.getTestValue('tmetric.url') || this.defaultApplicationUrl);
         this.signalRUrl = this.normalizeUrlLastSlash(this.getTestValue('tmetric.signalRUrl') || this.defaultSignalRUrl);
 
@@ -398,49 +401,53 @@ class ExtensionBase {
             timer = <WebToolIssueTimer>{ isStarted: false }
         }
 
-        this.putData(timer,
-            timer => {
+        this.putData(timer, timer => {
 
-                let statusPromise = this.getIntegrationStatus(timer, accountIdToPut);
-                statusPromise.catch(() => {
-                    this.connection.checkProfileChange(); // TE-179
-                });
-
-                return statusPromise.then(status => {
-
-                    if (accountIdToPut) {
-                        return this.putTimerWithIntegration(timer, status);
-                    } else {
-
-                        if (timer.isStarted &&
-                            (
-                                !settings.showPopup ||
-                                settings.showPopup == Models.ShowPopupOption.Always ||
-                                (
-                                    settings.showPopup == Models.ShowPopupOption.WhenProjectIsNotSpecified && (
-                                        !timer.projectName ||
-                                        status.projectStatus == null
-                                    )
-                                )
-                            )
-                        ) {
-                            // This timer will be send when popup ask for initial data
-                            this._newPopupIssue = timer;
-                            // This account id will be used to prepare initial data for popup
-                            this._newPopupAccountId = status.accountId;
-
-                            return this.connection.connect() // Set default work type before popup show (TE-299)
-                                .then(() => this.validateTimerTags(timer, status.accountId))
-                                .then(() => {
-                                    this.sendToTabs({ action: 'showPopup' }, tabId);
-                                });
-                        }
-
-                        return this.validateTimerTags(timer, status.accountId)
-                            .then(() => this.putTimerWithIntegration(timer, status));
-                    }
-                });
+            let status: Models.IntegratedProjectStatus;
+            let scopePromise = this.getIntegrationStatus(timer, accountIdToPut).then(s => {
+                status = s;
+                return this.getAccountScope(status.accountId);
             });
+
+            scopePromise.catch(() => {
+                this.connection.checkProfileChange(); // TE-179
+            });
+
+            return scopePromise.then(scope => {
+
+                if (accountIdToPut) {
+                    return this.putTimerWithIntegration(timer, status);
+                }
+
+                if (
+                    timer.isStarted && (
+                        !settings.showPopup ||
+                        settings.showPopup == Models.ShowPopupOption.Always || (
+                            settings.showPopup == Models.ShowPopupOption.WhenProjectIsNotSpecified && (
+                                !timer.projectName ||
+                                status.projectStatus == null ||
+                                this.getTrackedProjects(scope).filter(p => p.projectName == timer.projectName).length > 1
+                            )
+                        )
+                    )
+                ) {
+
+                    // This timer will be send when popup ask for initial data
+                    this._newPopupIssue = timer;
+                    // This account id will be used to prepare initial data for popup
+                    this._newPopupAccountId = status.accountId;
+
+                    return this.connection.connect() // Set default work type before popup show (TE-299)
+                        .then(() => this.validateTimerTags(timer, status.accountId))
+                        .then(() => {
+                            this.sendToTabs({ action: 'showPopup' }, tabId);
+                        });
+                }
+
+                return this.validateTimerTags(timer, status.accountId)
+                    .then(() => this.putTimerWithIntegration(timer, status));
+            });
+        });
     }
 
     private putData<T>(data: T, action: (data: T) => Promise<any>, retryAction?: (data: T) => Promise<any>) {
@@ -785,10 +792,7 @@ class ExtensionBase {
                 tagNames: defaultWorkType ? [defaultWorkType.tagName] : []
             };
 
-            let trackedProjectsMap: { [id: number]: boolean } = {};
-            scope.trackedProjects.forEach(tp => trackedProjectsMap[tp] = true);
-
-            let filteredProjects = scope.projects.filter(p => trackedProjectsMap[p.projectId])
+            let filteredProjects = this.getTrackedProjects(scope)
                 .sort((a, b) => a.projectName.localeCompare(b.projectName, [], { sensitivity: 'base' }));
 
             const projectMap = this.getProjectMap(accountId);
@@ -1112,6 +1116,12 @@ class ExtensionBase {
         }
 
         return this.taskNameToDescriptionMap;
+    }
+
+    private getTrackedProjects(scope: Models.AccountScope) {
+        const trackedProjectsMap: { [id: number]: boolean } = {};
+        scope.trackedProjects.forEach(tp => trackedProjectsMap[tp] = true);
+        return scope.projects.filter(p => trackedProjectsMap[p.projectId]);
     }
 
     private async getRecentTasksAction(accountId: number) {

@@ -7,23 +7,15 @@ class ActiveCollab implements WebToolIntegration {
     observeMutations = true;
 
     issueElementSelector = [
-        '.object_view_main',          // task
+        '.object_view' // task
     ]
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
-        let existing = $$('div.object_view_sidebar .tmetric');
-
         let host = $$('div.object_view_sidebar');
         if (host) {
-            if (existing) {
-                host.removeChild(existing);
-            }
-
-            let newdiv = document.createElement("div");
-            newdiv.classList.add('page_section', 'with_padding', 'tmetric');
+            let newdiv = $$.create('div', 'page_section', 'with_padding');
             newdiv.appendChild(linkElement);
-
             host.appendChild(newdiv);
         }
     }
@@ -35,15 +27,20 @@ class ActiveCollab implements WebToolIntegration {
             return;
         }
 
-        let projectName = (<any>$$.try('#project_task a[data-qa-id="task-project-label-name"]')).textContent;
         let issueId = (<any>$$.try('#project_task span[ng-bind="task.task_number"]')).textContent;
-        if (issueId && projectName) {
-            let serviceUrl = source.protocol + source.host;
-            let serviceType = 'ActiveCollab';
-            let issueUrl = $$.getRelativeUrl(serviceUrl, source.fullUrl);
-
-            return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+        if (issueId) {
+            issueId = '#' + issueId;
         }
+
+        let projectName = (<any>$$.try('#project_task a[data-qa-id="task-project-label-name"]')).textContent;
+        let serviceUrl = source.protocol + source.host;
+        let serviceType = 'ActiveCollab';
+        let issueUrl: string;
+        if (issueId && projectName) {
+            issueUrl = $$.getRelativeUrl(serviceUrl, source.fullUrl);
+        }
+
+        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
     }
 }
 
