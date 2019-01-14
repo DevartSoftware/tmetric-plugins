@@ -419,29 +419,42 @@ class ExtensionBase {
                     return this.putTimerWithIntegration(timer, status);
                 }
 
-                if (
-                    timer.isStarted && (
-                        !settings.showPopup ||
-                        settings.showPopup == Models.ShowPopupOption.Always || (
-                            settings.showPopup == Models.ShowPopupOption.WhenProjectIsNotSpecified && (
-                                !timer.projectName ||
-                                status.projectStatus == null ||
-                                this.getTrackedProjects(scope).filter(p => p.projectName == timer.projectName).length > 1
-                            )
-                        )
-                    )
-                ) {
+                if (timer.isStarted) {
 
-                    // This timer will be send when popup ask for initial data
-                    this._newPopupIssue = timer;
-                    // This account id will be used to prepare initial data for popup
-                    this._newPopupAccountId = status.accountId;
+                    const matchedProjectCount = this.getTrackedProjects(scope).filter(p => p.projectName == timer.projectName).length;
+                    const requiredFields = scope.account.requiredFields;
+                    let showPopup = settings.showPopup || Models.ShowPopupOption.Always;
 
-                    return this.connection.connect() // Set default work type before popup show (TE-299)
-                        .then(() => this.validateTimerTags(timer, status.accountId))
-                        .then(() => {
-                            this.sendToTabs({ action: 'showPopup' }, tabId);
-                        });
+                    if (requiredFields.taskLink && !timer.issueUrl) {
+                        showPopup = Models.ShowPopupOption.Never;
+                    } else if (
+                        requiredFields.description && !timer.description ||
+                        requiredFields.project && !matchedProjectCount ||
+                        requiredFields.tags && (!timer.tagNames || !timer.tagNames.length)
+                    ) {
+                        showPopup = Models.ShowPopupOption.Always;
+                    }
+
+                    if (showPopup != Models.ShowPopupOption.Never) {
+
+                        if (showPopup == Models.ShowPopupOption.Always ||
+                            !timer.projectName ||
+                            status.projectStatus == null ||
+                            matchedProjectCount > 1
+                        ) {
+
+                            // This timer will be send when popup ask for initial data
+                            this._newPopupIssue = timer;
+                            // This account id will be used to prepare initial data for popup
+                            this._newPopupAccountId = status.accountId;
+
+                            return this.connection.connect() // Set default work type before popup show (TE-299)
+                                .then(() => this.validateTimerTags(timer, status.accountId))
+                                .then(() => {
+                                    this.sendToTabs({ action: 'showPopup' }, tabId);
+                                });
+                        }
+                    }
                 }
 
                 return this.validateTimerTags(timer, status.accountId)
@@ -829,7 +842,8 @@ class ExtensionBase {
                 canCreateProjects: isAdmin || canMembersManagePublicProjects,
                 canCreateTags,
                 constants: this._constants,
-                defaultProjectId
+                defaultProjectId,
+                requiredFields: scope.account.requiredFields
             };
         });
     }

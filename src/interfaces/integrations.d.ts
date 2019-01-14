@@ -108,6 +108,7 @@ interface IPopupInitData {
     canCreateProjects: boolean;
     canCreateTags: boolean;
     defaultProjectId: number;
+    requiredFields: Models.RequiredFields;
 }
 
 interface IPopupTimerData {

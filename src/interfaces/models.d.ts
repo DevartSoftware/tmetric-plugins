@@ -85,6 +85,14 @@ declare module Models {
         reportDetailedTimeEnabled: boolean;
         canMembersManagePublicProjects: boolean;
         canMembersCreateTags: boolean;
+        requiredFields: RequiredFields;
+    }
+
+    export interface RequiredFields {
+        description: boolean;
+        project: boolean;
+        tags: boolean;
+        taskLink: boolean;
     }
 
     interface AccountMember {
