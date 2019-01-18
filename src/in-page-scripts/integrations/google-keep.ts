@@ -42,7 +42,7 @@
                 issueName = $$('.notranslate', card).textContent;
             }
 
-            let matches = source.fullUrl.match(/\/#[a-zA-Z]+\/(\d+\.\d+)/);
+            let matches = source.fullUrl.match(/\/#[a-zA-Z]+\/([\w\.-]+)$/);
             if (matches) {
                 issueUrl = matches[0];
                 issueId = matches[1];
