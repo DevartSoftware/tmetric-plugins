@@ -294,3 +294,19 @@
 .devart-timer-link-jira-next {
     margin-left: 8px;
 }
+
+.devart-timer-link-clickup {
+    .task__toolbar & {
+        margin-right: 1rem;
+    }
+
+    .task-todo-item &.devart-timer-link-start,
+    .checklist-todo-item &.devart-timer-link-start {
+        visibility: hidden !important;
+    }
+
+    .task-todo-item:hover &.devart-timer-link-start,
+    .checklist-todo-item:hover &.devart-timer-link-start {
+        visibility: visible !important;
+    }
+}

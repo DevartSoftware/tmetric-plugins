@@ -95,6 +95,7 @@
                 "in-page-scripts/integrations/basecamp.js",
                 "in-page-scripts/integrations/bitbucket.js",
                 "in-page-scripts/integrations/bugzilla.js",
+                "in-page-scripts/integrations/clickup.js",
                 "in-page-scripts/integrations/doitIm.js",
                 "in-page-scripts/integrations/freshdesk.js",
                 "in-page-scripts/integrations/generic.js",
