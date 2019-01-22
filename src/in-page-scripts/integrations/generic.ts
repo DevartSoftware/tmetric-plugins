@@ -20,7 +20,12 @@
         let serviceUrl = issueElement.getAttribute('data-service-url');
         let issueUrl = issueElement.getAttribute('data-issue-url');
         let projectName = issueElement.getAttribute('data-project-name');
-        let tagNames = issueElement.getAttribute('data-tag-names').split(',');
+
+        let tagNames: string[];
+        let tagNamesAttribute = issueElement.getAttribute('data-tag-names');
+        if (tagNamesAttribute) {
+            tagNames = tagNamesAttribute.split(',');
+        }
 
         return {
             issueId,
