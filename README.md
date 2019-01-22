@@ -26,6 +26,7 @@ Web browsers are **Chrome**, **Firefox**, **Edge**, and **Opera**.
 * [Podio](https://podio.com)
 * [Producteev](https://www.producteev.com)
 * [Redmine](https://www.redmine.org)
+* [Salesforce](https://www.salesforce.com)
 * [Sprintly](https://sprint.ly)
 * [Taiga](https://taiga.io)
 * [Team Foundation Server](https://www.visualstudio.com/tfs/)

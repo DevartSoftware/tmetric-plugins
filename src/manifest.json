@@ -114,6 +114,7 @@
                 "in-page-scripts/integrations/podio.js",
                 "in-page-scripts/integrations/producteev.js",
                 "in-page-scripts/integrations/redmine.js",
+                "in-page-scripts/integrations/salesforce.js",
                 "in-page-scripts/integrations/sprintly.js",
                 "in-page-scripts/integrations/taiga.js",
                 "in-page-scripts/integrations/teamweek.js",
