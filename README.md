@@ -68,7 +68,6 @@ To build extensions from sources you need:
 This can be done with the following script
 ```sh
 $ npm install
-$ npm -g install gulp-cli
 $ npm -g install typescript@1.8.x
 $ gulp build
 ```
