@@ -47,6 +47,7 @@
             let container = $$.create('div');
             container.appendChild(linkElement);
             host.appendChild(container);
+            return;
         }
 
         // New view
@@ -54,14 +55,14 @@
         if (!issueName) {
             return;
         }
-        host = $$.closest('*', issueName.parentElement, el => {
-            let style = window.getComputedStyle(el);
-            let display = style.getPropertyValue('display');
-            return display.indexOf('flex') < 0;
-        });
-        if (host) {
+
+        let anchor = $$.try('a[href^="/browse/"][target=_blank]', issueElement);
+        if (anchor) {
             linkElement.classList.add('devart-timer-link-jira-next');
-            host.appendChild(linkElement);
+            if (issueElement.matches('#ghx-detail-view')) {
+                linkElement.classList.add('devart-timer-link-minimal');
+            }
+            anchor.parentElement.appendChild(linkElement);
             return;
         }
     }
