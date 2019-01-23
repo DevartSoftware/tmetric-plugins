@@ -164,7 +164,7 @@ function clean (input) {
 
 gulp.task('clean:sources', () => {
     return clean([
-        './**/*.map',
+        'src/**/*.map',
         'src/background/*.js',
         'src/css/*.css',
         'src/in-page-scripts/**/*.js',
