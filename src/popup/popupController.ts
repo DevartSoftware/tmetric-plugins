@@ -16,6 +16,7 @@
     private _constants: Models.Constants;
     private _canCreateProjects: boolean;
     private _canCreateTags: boolean;
+    private _requiredFields: Models.RequiredFields;
     private _newIssue: WebToolIssueTimer;
 
     getData(accountId: number) {
@@ -76,6 +77,7 @@
             this._constants = data.constants;
             this._canCreateProjects = data.canCreateProjects;
             this._canCreateTags = data.canCreateTags;
+            this._requiredFields = data.requiredFields;
         } else {
             this.close();
         }
