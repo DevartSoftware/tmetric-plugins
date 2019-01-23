@@ -15,10 +15,13 @@
         linkElement.classList.add('devart-timer-link-minimal');
 
         if (issueElement.matches(this.issueElementSelector[0])) { // for checklist
-            linkElement.classList.add('devart-timer-link-google-keep-item')
-            issueElement.insertBefore(linkElement, issueElement.querySelector('div[role="button"]:last-child'));
+            linkElement.classList.add('devart-timer-link-google-keep-item');
+            let btn = issueElement.querySelector('div[role="button"]:last-child');
+            if (btn) {
+                btn.parentElement.insertBefore(linkElement, btn);
+            }
         } else if (issueElement.matches(this.issueElementSelector[1])) { // for note
-            linkElement.classList.add('devart-timer-link-google-keep-note')
+            linkElement.classList.add('devart-timer-link-google-keep-note');
             let toolbar = issueElement.querySelector('[role="toolbar"]');
             toolbar.appendChild(linkElement);
         }
@@ -39,7 +42,7 @@
                 issueName = $$('.notranslate', card).textContent;
             }
 
-            let matches = source.fullUrl.match(/\/#[a-zA-Z]+\/(\d+\.\d+)/);
+            let matches = source.fullUrl.match(/\/#[a-zA-Z]+\/([\w\.-]+)$/);
             if (matches) {
                 issueUrl = matches[0];
                 issueId = matches[1];
