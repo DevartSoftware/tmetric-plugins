@@ -68,11 +68,10 @@ To build extensions from sources you need:
 This can be done with the following script
 ```sh
 $ npm install
-$ npm -g install typescript@1.8.x
 $ npx gulp build
 ```
 
-If you are building on Windows you can simply run `install.bat` and `build.bat`.
+If you are building on Windows you can simply run `build.bat`.
 
 Built extensions can be found in `/dist/` folder.
 
