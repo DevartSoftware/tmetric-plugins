@@ -1,4 +1,4 @@
-﻿class SalesforceLightning implements WebToolIntegration {
+﻿class Salesforce implements WebToolIntegration {
 
     showIssueId = false;
 
@@ -22,7 +22,7 @@
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        let serviceType = 'SalesforceLightning';
+        let serviceType = 'Salesforce';
 
         let serviceUrl = source.protocol + source.host;
 
@@ -48,4 +48,4 @@
     }
 }
 
-IntegrationService.register(new SalesforceLightning());
+IntegrationService.register(new Salesforce());
