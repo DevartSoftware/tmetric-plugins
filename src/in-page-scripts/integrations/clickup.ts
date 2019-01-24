@@ -7,7 +7,7 @@
     matchUrl = '*://app.clickup.com';
 
     issueElementSelector = [
-        '.task__toolbar:nth-last-of-type(1)',
+        '.task',
         '.lv-subtask__outer', // subtask list item
         '.checklist-todo-item' // check list item
     ];
@@ -15,7 +15,10 @@
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
         linkElement.classList.add('devart-timer-link-clickup');
         if (issueElement.matches(this.issueElementSelector[0])) {
-            issueElement.insertBefore(linkElement, issueElement.firstElementChild.nextElementSibling);
+            let element = $$('.task__toolbar:nth-last-of-type(1)', issueElement);
+            if (element) {
+                element.insertBefore(linkElement, element.firstElementChild.nextElementSibling);
+            }
         } else if (issueElement.matches(this.issueElementSelector[1])) {
             linkElement.classList.add('devart-timer-link-minimal');
             let element = $$('.task-todo-item__name-text', issueElement);
