@@ -65,7 +65,7 @@
             description = $$.try('.checklist-item__name', issueElement).textContent;
         }
 
-        let projectName = $$.try('.breadcrumbs__link:nth-last-of-type(2)').textContent;
+        let projectName = $$.try('.breadcrumbs__link[data-category]').textContent;
 
         return { serviceType, serviceUrl, issueId, issueName, issueUrl, description, projectName };
     }
