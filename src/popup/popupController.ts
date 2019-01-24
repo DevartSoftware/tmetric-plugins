@@ -910,6 +910,58 @@
         return textSpan;
     }
 
+    private showRequiredInputError(query: string) {
+        let field = $(query);
+        let fieldInput = $('.input', field);
+
+        field.addClass('error');
+        fieldInput.focus();
+
+        if (!field.hasClass('validated')) {
+            field.addClass('validated');
+            fieldInput.on('input', (event) => {
+                field.toggleClass('error', !$(event.target).val());
+            });
+        }
+    }
+
+    private showRequiredSelectError(query: string) {
+        let field = $(query);
+        let fieldSelect = $('.input', field);
+
+        field.addClass('error');
+        fieldSelect.select2('open').select2('close'); // focus select2
+
+        if (!field.hasClass('validated')) {
+            field.addClass('validated');
+            fieldSelect.on('change', (event) => {
+                field.toggleClass('error', $(event.target).val() == 0);
+            });
+        }
+    }
+
+    private checkRequiredFields(timer: WebToolIssueTimer) {
+
+        $(this._forms.create + ' .error').removeClass('error');
+
+        if (this._requiredFields.description && !timer.description) {
+
+            this.showRequiredInputError(this._forms.create + ' .description');
+        } else if (this._requiredFields.project && !timer.projectName) {
+
+            if ($(this._forms.create + ' .project .input').val() == -1) {
+                this.showRequiredInputError(this._forms.create + ' .new-project');
+            } else {
+                this.showRequiredSelectError(this._forms.create + ' .project');
+            }
+        } else if (this._requiredFields.tags && (!timer.tagNames || !timer.tagNames.length)) {
+
+            this.showRequiredSelectError(this._forms.create + ' .tags');
+        }
+
+        return $(this._forms.create + ' .error').length == 0;
+    }
+
     // ui event handlers
 
     initControls() {
@@ -1067,6 +1119,10 @@
         timer.isStarted = true;
         timer.description = $(this._forms.create + ' .description .input').val();
         timer.tagNames = $(this._forms.create + ' .tags .input').select().val() || [];
+
+        if (!this.checkRequiredFields(timer)) {
+            return;
+        }
 
         // Put timer
         this.putTimer(this._accountId, timer).then(() => {
