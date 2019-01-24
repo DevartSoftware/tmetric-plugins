@@ -11,7 +11,7 @@ Web browsers are **Chrome**, **Firefox**, **Edge**, and **Opera**.
 * [Bitbucket](https://bitbucket.org)
 * [Bitrix24](https://www.bitrix24.com)
 * [Bugzilla](https://www.bugzilla.org)
-* [Clickup](https://clickup.com)
+* [ClickUp](https://clickup.com)
 * [Doit.im](https://doit.im)
 * [Freshdesk](https://freshdesk.com)
 * [G Suite](https://gsuite.google.com)

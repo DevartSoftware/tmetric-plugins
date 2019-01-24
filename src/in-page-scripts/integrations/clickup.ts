@@ -33,7 +33,7 @@
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        let serviceType = 'Clickup';
+        let serviceType = 'ClickUp';
 
         let serviceUrl = source.protocol + source.host;
 
