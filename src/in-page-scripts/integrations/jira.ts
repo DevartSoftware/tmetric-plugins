@@ -13,10 +13,10 @@
             '#ghx-detail-view', // Issue sidebar
             '[role=dialog]', // Issue dialog
             '#issue-content', // Old issues and filters
-            '.new-issue-container'
+            '.new-issue-container' // Issue
         ].join(',')),
         // Issues and filters
-        ($$.try('#jira-frontend object').parentElement || <HTMLElement>{}).parentElement
+        ((obj: HTMLElement) => obj ? obj.parentElement.parentElement.parentElement : null)($$('#jira-frontend object'))
     ];
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
