@@ -266,7 +266,7 @@
         const showIssueId = task.showIssueId;
         const issueId = task.externalIssueId || '' + (task.projectTaskId || '') || task.issueId;
 
-        if (integrationUrl && relativeUrl) {  // External task
+        if (integrationUrl && relativeUrl) { // External task
             url = integrationUrl + relativeUrl;
             if (showIssueId) {
                 text = issueId;
@@ -944,7 +944,7 @@
 
         $(this._forms.create + ' .error').removeClass('error');
 
-        if (this._requiredFields.description && !timer.description) {
+        if (this._requiredFields.description && !timer.issueName && !timer.description) {
 
             this.showRequiredInputError(this._forms.create + ' .description');
         } else if (this._requiredFields.project && !timer.projectName) {
