@@ -51,12 +51,12 @@
         }
 
         // New view
-        let issueName = $$.try('h1', issueElement);
+        let issueName = $$('h1', issueElement);
         if (!issueName) {
             return;
         }
 
-        let anchor = $$.try('a[href^="/browse/"][target=_blank]', issueElement);
+        let anchor = $$('a[href^="/browse/"][target=_blank]', issueElement);
         if (anchor) {
             linkElement.classList.add('devart-timer-link-jira-next');
             if (issueElement.matches('#ghx-detail-view')) {
