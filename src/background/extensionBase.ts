@@ -806,7 +806,6 @@ class ExtensionBase {
 
             let newIssue = this._newPopupIssue || <WebToolIssueTimer>{ // _newPopupIssue is null if called from toolbar popup
                 isStarted: true,
-                issueName: title,
                 description: title,
                 tagNames: defaultWorkType ? [defaultWorkType.tagName] : []
             };
