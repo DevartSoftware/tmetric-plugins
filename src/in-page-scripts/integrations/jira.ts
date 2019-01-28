@@ -103,7 +103,7 @@
 
     private getProjectNameFromNavigationBar() {
         // Find avatar element
-        let avatarElement = $$('#navigation-app span[role="img"]', null, el => (el.style.backgroundImage || '').indexOf('projectavatar') >= 0);
+        let avatarElement = $$('#navigation-app span[role="img"], [data-test-id="navigation-apps.project-switcher-v2"] span[role="img"]', null, el => (el.style.backgroundImage || '').indexOf('projectavatar') >= 0);
 
         // Find avatar container
         let avatarContainer = avatarElement && $$.closest('div,span', avatarElement, el => !!el.innerText);
