@@ -8,16 +8,22 @@
         return $$.getAttribute('meta[name=application-name]', 'content') == 'JIRA';
     }
 
-    issueElementSelector = () => [
-        $$.visible([
-            '#ghx-detail-view', // Issue sidebar
-            '[role=dialog]', // Issue dialog
-            '#issue-content', // Old issues and filters
-            '.new-issue-container' // Issue
-        ].join(',')),
-        // Issues and filters
-        ((obj: HTMLElement) => obj ? obj.parentElement.parentElement.parentElement : null)($$('#jira-frontend object'))
-    ];
+    issueElementSelector = () => {
+
+        // object element on Issues and filters page
+        let element = $$('#jira-frontend object');
+
+        return [
+            $$.visible([
+                '#ghx-detail-view', // Issue sidebar
+                '[role=dialog]', // Issue dialog
+                '#issue-content', // Old issues and filters
+                '.new-issue-container' // Issue
+            ].join(',')),
+            // Issues and filters
+            element && element.parentElement.parentElement.parentElement
+        ]
+    };
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
