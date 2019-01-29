@@ -431,7 +431,7 @@ class ExtensionBase {
                     if (requiredFields.taskLink && !timer.issueUrl) {
                         showPopup = Models.ShowPopupOption.Never;
                     } else if (
-                        requiredFields.description && !timer.description ||
+                        requiredFields.description && !timer.issueName && !timer.description ||
                         requiredFields.project && !matchedProjectCount ||
                         requiredFields.tags && (!timer.tagNames || !timer.tagNames.length)
                     ) {
