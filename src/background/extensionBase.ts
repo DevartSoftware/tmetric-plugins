@@ -413,11 +413,14 @@ class ExtensionBase {
                 this.connection.checkProfileChange(); // TE-179
             });
 
-            return scopePromise.then(scope => {
+            return scopePromise.then(async scope => {
 
                 if (accountIdToPut) {
                     return this.putTimerWithIntegration(timer, status);
                 }
+
+                // Set default work type before popup show (TE-299)
+                await this.validateTimerTags(timer, status.accountId);
 
                 if (timer.isStarted) {
 
@@ -445,20 +448,16 @@ class ExtensionBase {
 
                             // This timer will be send when popup ask for initial data
                             this._newPopupIssue = timer;
+
                             // This account id will be used to prepare initial data for popup
                             this._newPopupAccountId = status.accountId;
 
-                            return this.connection.connect() // Set default work type before popup show (TE-299)
-                                .then(() => this.validateTimerTags(timer, status.accountId))
-                                .then(() => {
-                                    this.sendToTabs({ action: 'showPopup' }, tabId);
-                                });
+                            return this.sendToTabs({ action: 'showPopup' }, tabId);
                         }
                     }
                 }
 
-                return this.validateTimerTags(timer, status.accountId)
-                    .then(() => this.putTimerWithIntegration(timer, status));
+                return this.putTimerWithIntegration(timer, status);
             });
         });
     }
