@@ -446,6 +446,14 @@ class ExtensionBase {
                             matchedProjectCount > 1
                         ) {
 
+                            // Clear non open project to let user select another
+                            if (status.projectStatus != null &&
+                                status.projectStatus != Models.ProjectStatus.Open
+                            ) {
+                                timer.projectId = 0;
+                                timer.projectName = '';
+                            }
+
                             // This timer will be send when popup ask for initial data
                             this._newPopupIssue = timer;
 
