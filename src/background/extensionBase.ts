@@ -419,10 +419,10 @@ class ExtensionBase {
                     return this.putTimerWithIntegration(timer, status);
                 }
 
-                // Set default work type before popup show (TE-299)
-                await this.validateTimerTags(timer, status.accountId);
-
                 if (timer.isStarted) {
+
+                    // Set default work type before popup show (TE-299)
+                    await this.validateTimerTags(timer, status.accountId);
 
                     const matchedProjectCount = this.getTrackedProjects(scope).filter(p => p.projectName == timer.projectName).length;
                     const requiredFields = scope.requiredFields;
