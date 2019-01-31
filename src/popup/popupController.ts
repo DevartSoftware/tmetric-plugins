@@ -378,11 +378,10 @@
             task.css('display', 'none');
 
             description.find('.label').text('Task');
+            description.toggleClass('required', this._requiredFields.description);
             descriptionInput.attr('placeholder', 'Enter description');
             descriptionInput.val(issue.description || issue.issueName);
         }
-
-        description.toggleClass('required', this._requiredFields.description);
 
         this.initProjectSelector(projectId);
         $(this._forms.create + ' .new-project .input').attr('maxlength', Models.Limits.maxProjectName);
