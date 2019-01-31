@@ -324,7 +324,7 @@ class ExtensionBase {
         this.openTrackerPage();
     }
 
-    private putTimerWithIntegration(timer: WebToolIssueTimer, status: Models.IntegratedProjectStatus) {
+    private putTimerWithIntegration(timer: WebToolIssueTimer, status: Models.IntegratedProjectStatus, requiredFields: Models.RequiredFields) {
 
         let notification: string;
 
@@ -347,6 +347,11 @@ class ExtensionBase {
             else if (status.projectRole == null) {
                 notification = `Project '${timer.projectName}' exists, but you don't have access to the project.\n\n${contactAdmin}`;
                 timer.projectName = undefined;
+            }
+
+            if (requiredFields.project && notification) {
+                this.showNotification(notification);
+                return;
             }
         }
 
@@ -416,7 +421,7 @@ class ExtensionBase {
             return scopePromise.then(async scope => {
 
                 if (accountIdToPut) {
-                    return this.putTimerWithIntegration(timer, status);
+                    return this.putTimerWithIntegration(timer, status, scope.requiredFields);
                 }
 
                 if (timer.isStarted) {
@@ -465,7 +470,7 @@ class ExtensionBase {
                     }
                 }
 
-                return this.putTimerWithIntegration(timer, status);
+                return this.putTimerWithIntegration(timer, status, scope.requiredFields);
             });
         });
     }
