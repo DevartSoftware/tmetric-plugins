@@ -356,9 +356,9 @@
 
         $(this._forms.create + ' .task-recent').toggle(!this.isPagePopup);
 
-        let taskSpan = $(this._forms.create + ' .task');
-        let descriptionSpan = $(this._forms.create + ' .description');
-        let descriptionInput = descriptionSpan.find('.input');
+        let task = $(this._forms.create + ' .task');
+        let description = $(this._forms.create + ' .description');
+        let descriptionInput = description.find('.input');
         descriptionInput.attr('maxlength', Models.Limits.maxTask);
 
         let issue = this._newIssue;
@@ -366,25 +366,30 @@
         let { url, text } = this.getTaskLinkData(issue);
 
         if (url) {
+            this.fillTaskLink(task.find('.link'), url, text);
 
-            this.fillTaskLink(taskSpan.find('.link'), url, text);
+            task.css('display', 'inline-flex');
+            task.find('.name').text(issue.issueName);
 
-            taskSpan.find('.name').text(issue.issueName);
-            descriptionSpan.find('.label').text('Notes');
+            description.find('.label').text('Notes');
             descriptionInput.attr('placeholder', 'Describe your activity');
             descriptionInput.val(issue.description);
-            $(taskSpan).css('display', 'inline-flex');
         } else {
-            descriptionSpan.find('.label').text('Task');
+            task.css('display', 'none');
+
+            description.find('.label').text('Task');
             descriptionInput.attr('placeholder', 'Enter description');
             descriptionInput.val(issue.description || issue.issueName);
-            $(taskSpan).css('display', 'none');
         }
 
-        this.initProjectSelector(this._forms.create + ' .project .input', projectId);
+        description.toggleClass('required', this._requiredFields.description);
+
+        this.initProjectSelector(projectId);
         $(this._forms.create + ' .new-project .input').attr('maxlength', Models.Limits.maxProjectName);
+        $(this._forms.create + ' .project').toggleClass('required', this._requiredFields.project);
 
         this.initTagSelector(projectId);
+        $(this._forms.create + ' .tags').toggleClass('required', this._requiredFields.tags);
     }
 
     focusCreatingForm() {
@@ -683,7 +688,9 @@
         return this._newIssue.tagNames || [];
     }
 
-    initProjectSelector(selector: string, defaultProjectId: number) {
+    initProjectSelector(defaultProjectId: number) {
+
+        let query = this._forms.create + ' .project .input';
 
         let existingProjectId: number;
         let newProjectName = this._newIssue && this._newIssue.projectName;
@@ -714,7 +721,7 @@
             }
         }
 
-        $(selector)
+        $(query)
             .empty()
             .select2({
                 data: items,
@@ -726,7 +733,7 @@
 
         // Force set selected flag in true value for default project.
         // Because select2 does not do it itself.
-        let data: Select2SelectionObject[] = $(selector).select2('data');
+        let data: Select2SelectionObject[] = $(query).select2('data');
         let selectedItem = data[0];
         if (selectedItem) {
             selectedItem.selected = true;
@@ -843,13 +850,13 @@
 
     initTagSelector(projectId: number = null) {
 
-        let selector = this._forms.create + ' .tags';
+        let query = this._forms.create + ' .tags';
 
         let items = this.makeTagItems(projectId);
         let selectedItems = this.makeTagSelectedItems();
         let allowNewItems = this._canCreateTags;
 
-        $(selector + ' #tag-selector')
+        $(query + ' .input')
             .empty()
             .select2({
                 data: items,
@@ -877,7 +884,7 @@
                 createTag: (params) => {
                     let name = $.trim(params.term);
                     if (name) {
-                        let foundOptions = $(selector)
+                        let foundOptions = $(query)
                             .find('option')
                             .filter((i, option) => $(option).text().toLowerCase() == name.toLowerCase());
                         if (!foundOptions.length) {
@@ -891,7 +898,7 @@
             .val(selectedItems)
             .trigger('change');
 
-        $(selector + ' .select2-search__field').attr('maxlength', Models.Limits.maxTag);
+        $(query + ' .select2-search__field').attr('maxlength', Models.Limits.maxTag);
     }
 
     private formatTag(data: ITagSelection, useIndentForTag: boolean) {
@@ -909,6 +916,8 @@
 
         return textSpan;
     }
+
+    // required fields
 
     private showRequiredInputError(query: string) {
         let field = $(query);

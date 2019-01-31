@@ -496,6 +496,20 @@ input {
     clear: both !important;
 }
 
+.asterisks {
+    display: none;
+
+    .required & {
+        display: inline;
+        position: relative;
+        width: 0;
+        top: -0.3rem;
+        left: 0.1rem;
+        font-size: 0.75rem;
+        cursor: default;
+    }
+}
+
 // ==============================================
 //                  BUTTONS
 // ==============================================
