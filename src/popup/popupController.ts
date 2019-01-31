@@ -372,6 +372,7 @@
             task.find('.name').text(issue.issueName);
 
             description.find('.label').text('Notes');
+            description.removeClass('required');
             descriptionInput.attr('placeholder', 'Describe your activity');
             descriptionInput.val(issue.description);
         } else {
