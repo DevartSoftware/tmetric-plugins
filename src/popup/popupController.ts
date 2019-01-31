@@ -379,7 +379,7 @@
             task.css('display', 'none');
 
             description.find('.label').text('Task');
-            description.toggleClass('required', this._requiredFields.description);
+            description.toggleClass('required', this._requiredFields.description && !this._requiredFields.taskLink);
             descriptionInput.attr('placeholder', 'Enter description');
             descriptionInput.val(issue.description || issue.issueName);
         }
