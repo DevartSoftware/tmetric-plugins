@@ -1,76 +1,74 @@
-class ClickUp implements WebToolIntegration {
-    showIssueId = true;
+class Clickup implements WebToolIntegration {
 
-    /**
-     * The array of URLs (with wildcards) that are used to identify
-     * pages as those that belong to the service.
-     */
-    matchUrl = ["*://*.clickup.com/t/*"];
+    showIssueId = false;
 
-    /**
-     * observeMutations = true means that the extension observes the page for
-     * dynamic data loading. This means that, if the tool loads some parts of
-     * the page with AJAX or generates dynamically, the TMetric extension waits
-     * until all loading is done and then adds the button to the page.
-     */
     observeMutations = true;
 
-    /**
-     * Extracts information about the issue (ticket or task) from a Web
-     * page by querying the DOM model.
-     */
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-        var issueId = source.path.replace("/t/", "");
-        var issueName = $$.try(".task-name-container .task-name__overlay")
-            .textContent;
-        var serviceUrl = source.protocol + source.host;
-        var issueUrl = "#" + source.path;
-        var projectName = assignTrimmedString(
-            ".task-container__header .breadcrumbs .breadcrumbs__link:nth-of-type(2)"
-        );
+    matchUrl = '*://app.clickup.com';
 
-        var listName = assignTrimmedString(
-            ".task-container__header .breadcrumbs .breadcrumbs__link:nth-of-type(3)"
-        );
+    issueElementSelector = [
+        '.task',
+        '.lv-subtask__outer', // subtask list item
+        '.checklist-todo-item' // check list item
+    ];
 
-        var issueObj = {
-            issueId,
-            issueName,
-            issueUrl,
-            projectName: listName
-                ? projectName + " - " + listName
-                : projectName,
-            serviceUrl,
-            serviceType: "ClickUp"
-        };
-
-        function assignTrimmedString(str) {
-            var text = $$.try(str);
-            if (typeof text.textContent === "string") {
-                return text.textContent
-                    .replace(/[\n\r]+|[\s]{2,}/g, " ")
-                    .trim();
-            } else {
-                return;
+    render(issueElement: HTMLElement, linkElement: HTMLElement) {
+        linkElement.classList.add('devart-timer-link-clickup');
+        if (issueElement.matches(this.issueElementSelector[0])) {
+            let element = $$('.task__toolbar:nth-last-of-type(1)', issueElement);
+            if (element) {
+                element.insertBefore(linkElement, element.firstElementChild.nextElementSibling);
+            }
+        } else if (issueElement.matches(this.issueElementSelector[1])) {
+            linkElement.classList.add('devart-timer-link-minimal');
+            let element = $$('.task-todo-item__name-text', issueElement);
+            if (element) {
+                element.parentElement.insertBefore(linkElement, element.nextElementSibling);
+            }
+        } else if (issueElement.matches(this.issueElementSelector[2])) {
+            linkElement.classList.add('devart-timer-link-minimal');
+            let element = $$('.checklist-item__name-block', issueElement);
+            if (element) {
+                element.parentElement.insertBefore(linkElement, element.nextElementSibling);
             }
         }
-
-        console.log("issueObj:", issueObj);
-        return issueObj;
     }
 
-    /**
-     * Inserts the timer button for the identified issue into a Web page.
-     */
-    render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        console.log("render:", linkElement);
-        var host = $$(".cu-task-info_task-created").parentNode;
-        if (host) {
-            var container = $$.create("div", "cu-task-info");
-            container.appendChild(linkElement);
-            host.appendChild(container);
+    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+
+        let serviceType = 'ClickUp';
+
+        let serviceUrl = source.protocol + source.host;
+
+        let issueId: string;
+        let issueUrl: string;
+        let matches = source.fullUrl.match(/\/t\/([^\/]+)$/);
+        if (matches) {
+            issueId = matches[1];
+            issueUrl = '/t/' + issueId;
         }
+
+        let issueName = $$.try('.task-name__overlay').textContent;
+
+        let description: string;
+        if (issueElement.matches(this.issueElementSelector[1])) {
+            let subtaskLink = <HTMLAnchorElement>$$('.task-todo-item__name-text a', issueElement);
+            if (subtaskLink) {
+                let matches = subtaskLink.href.match(/\/t\/([^\/]+)$/);
+                if (matches) {
+                    issueName = subtaskLink.textContent;
+                    issueId = matches[1];
+                    issueUrl = '/t/' + issueId;
+                }
+            }
+        } else if (issueElement.matches(this.issueElementSelector[2])) {
+            description = $$.try('.checklist-item__name', issueElement).textContent;
+        }
+
+        let projectName = $$.try('.breadcrumbs__link[data-category]').textContent;
+
+        return { serviceType, serviceUrl, issueId, issueName, issueUrl, description, projectName };
     }
 }
 
-IntegrationService.register(new ClickUp());
+IntegrationService.register(new Clickup());

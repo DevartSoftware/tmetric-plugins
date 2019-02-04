@@ -87,6 +87,13 @@ declare module Models {
         canMembersCreateTags: boolean;
     }
 
+    export interface RequiredFields {
+        description: boolean;
+        project: boolean;
+        tags: boolean;
+        taskLink: boolean;
+    }
+
     interface AccountMember {
         accountId: number;
         accountMemberId: number;
@@ -230,6 +237,7 @@ declare module Models {
         managedUsers: any[];
         account: Account;
         features: any;
+        requiredFields: RequiredFields;
     }
 
     interface Money {

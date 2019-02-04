@@ -324,7 +324,7 @@ class ExtensionBase {
         this.openTrackerPage();
     }
 
-    private putTimerWithIntegration(timer: WebToolIssueTimer, status: Models.IntegratedProjectStatus) {
+    private putTimerWithIntegration(timer: WebToolIssueTimer, status: Models.IntegratedProjectStatus, requiredFields: Models.RequiredFields) {
 
         let notification: string;
 
@@ -347,6 +347,11 @@ class ExtensionBase {
             else if (status.projectRole == null) {
                 notification = `Project '${timer.projectName}' exists, but you don't have access to the project.\n\n${contactAdmin}`;
                 timer.projectName = undefined;
+            }
+
+            if (requiredFields.project && notification) {
+                this.showNotification(notification);
+                return;
             }
         }
 
@@ -413,39 +418,59 @@ class ExtensionBase {
                 this.connection.checkProfileChange(); // TE-179
             });
 
-            return scopePromise.then(scope => {
+            return scopePromise.then(async scope => {
 
                 if (accountIdToPut) {
-                    return this.putTimerWithIntegration(timer, status);
+                    return this.putTimerWithIntegration(timer, status, scope.requiredFields);
                 }
 
-                if (
-                    timer.isStarted && (
-                        !settings.showPopup ||
-                        settings.showPopup == Models.ShowPopupOption.Always || (
-                            settings.showPopup == Models.ShowPopupOption.WhenProjectIsNotSpecified && (
-                                !timer.projectName ||
-                                status.projectStatus == null ||
-                                this.getTrackedProjects(scope).filter(p => p.projectName == timer.projectName).length > 1
-                            )
-                        )
-                    )
-                ) {
+                if (timer.isStarted) {
 
-                    // This timer will be send when popup ask for initial data
-                    this._newPopupIssue = timer;
-                    // This account id will be used to prepare initial data for popup
-                    this._newPopupAccountId = status.accountId;
+                    // Set default work type before popup show (TE-299)
+                    await this.validateTimerTags(timer, status.accountId);
 
-                    return this.connection.connect() // Set default work type before popup show (TE-299)
-                        .then(() => this.validateTimerTags(timer, status.accountId))
-                        .then(() => {
-                            this.sendToTabs({ action: 'showPopup' }, tabId);
-                        });
+                    const matchedProjectCount = this.getTrackedProjects(scope).filter(p => p.projectName == timer.projectName).length;
+                    const requiredFields = scope.requiredFields;
+                    let showPopup = settings.showPopup || Models.ShowPopupOption.Always;
+
+                    if (requiredFields.taskLink && !timer.issueUrl) {
+                        showPopup = Models.ShowPopupOption.Never;
+                    } else if (
+                        requiredFields.description && !timer.issueName && !timer.description ||
+                        requiredFields.project && !matchedProjectCount ||
+                        requiredFields.tags && (!timer.tagNames || !timer.tagNames.length)
+                    ) {
+                        showPopup = Models.ShowPopupOption.Always;
+                    }
+
+                    if (showPopup != Models.ShowPopupOption.Never) {
+
+                        if (showPopup == Models.ShowPopupOption.Always ||
+                            !timer.projectName ||
+                            status.projectStatus == null ||
+                            matchedProjectCount > 1
+                        ) {
+
+                            // Clear non open project to let user select another
+                            if (status.projectStatus != null &&
+                                status.projectStatus != Models.ProjectStatus.Open
+                            ) {
+                                timer.projectId = 0;
+                                timer.projectName = '';
+                            }
+
+                            // This timer will be send when popup ask for initial data
+                            this._newPopupIssue = timer;
+
+                            // This account id will be used to prepare initial data for popup
+                            this._newPopupAccountId = status.accountId;
+
+                            return this.sendToTabs({ action: 'showPopup' }, tabId);
+                        }
+                    }
                 }
 
-                return this.validateTimerTags(timer, status.accountId)
-                    .then(() => this.putTimerWithIntegration(timer, status));
+                return this.putTimerWithIntegration(timer, status, scope.requiredFields);
             });
         });
     }
@@ -728,7 +753,13 @@ class ExtensionBase {
     private getAccountScope(accountId: number) {
         let scope = this._accountScopeCache[accountId];
         if (!scope) {
-            scope = this._accountScopeCache[accountId] = this.connection.getAccountScope(accountId);
+            scope = this._accountScopeCache[accountId] = this.connection.getAccountScope(accountId)
+
+                // Legacy server
+                .then(scope => {
+                    scope.requiredFields = scope.requiredFields || <Models.RequiredFields>{};
+                    return scope;
+                })
         }
         return scope;
     }
@@ -787,7 +818,6 @@ class ExtensionBase {
 
             let newIssue = this._newPopupIssue || <WebToolIssueTimer>{ // _newPopupIssue is null if called from toolbar popup
                 isStarted: true,
-                issueName: title,
                 description: title,
                 tagNames: defaultWorkType ? [defaultWorkType.tagName] : []
             };
@@ -829,7 +859,8 @@ class ExtensionBase {
                 canCreateProjects: isAdmin || canMembersManagePublicProjects,
                 canCreateTags,
                 constants: this._constants,
-                defaultProjectId
+                defaultProjectId,
+                requiredFields: scope.requiredFields
             };
         });
     }

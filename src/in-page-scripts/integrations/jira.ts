@@ -8,16 +8,22 @@
         return $$.getAttribute('meta[name=application-name]', 'content') == 'JIRA';
     }
 
-    issueElementSelector = () => [
-        $$.visible([
-            '#ghx-detail-view', // Issue sidebar
-            '[role=dialog]', // Issue dialog
-            '#issue-content', // Old issues and filters
-            '.new-issue-container'
-        ].join(',')),
-        // Issues and filters
-        ($$.try('#jira-frontend object').parentElement || <HTMLElement>{}).parentElement
-    ];
+    issueElementSelector = () => {
+
+        // object element on Issues and filters page
+        let element = $$('#jira-frontend object');
+
+        return [
+            $$.visible([
+                '#ghx-detail-view', // Issue sidebar
+                '[role=dialog]', // Issue dialog
+                '#issue-content', // Old issues and filters
+                '.new-issue-container' // Issue
+            ].join(',')),
+            // Issues and filters
+            element && element.parentElement.parentElement.parentElement
+        ]
+    };
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
@@ -47,21 +53,22 @@
             let container = $$.create('div');
             container.appendChild(linkElement);
             host.appendChild(container);
+            return;
         }
 
         // New view
-        let issueName = $$.try('h1', issueElement);
+        let issueName = $$('h1', issueElement);
         if (!issueName) {
             return;
         }
-        host = $$.closest('*', issueName.parentElement, el => {
-            let style = window.getComputedStyle(el);
-            let display = style.getPropertyValue('display');
-            return display.indexOf('flex') < 0;
-        });
-        if (host) {
+
+        let anchor = $$('a[href^="/browse/"][target=_blank]', issueElement);
+        if (anchor) {
             linkElement.classList.add('devart-timer-link-jira-next');
-            host.appendChild(linkElement);
+            if (issueElement.matches('#ghx-detail-view')) {
+                linkElement.classList.add('devart-timer-link-minimal');
+            }
+            anchor.parentElement.appendChild(linkElement);
             return;
         }
     }
@@ -102,7 +109,7 @@
 
     private getProjectNameFromNavigationBar() {
         // Find avatar element
-        let avatarElement = $$('#navigation-app span[role="img"]', null, el => (el.style.backgroundImage || '').indexOf('projectavatar') >= 0);
+        let avatarElement = $$('#navigation-app span[role="img"], [data-test-id="navigation-apps.project-switcher-v2"] span[role="img"]', null, el => (el.style.backgroundImage || '').indexOf('projectavatar') >= 0);
 
         // Find avatar container
         let avatarContainer = avatarElement && $$.closest('div,span', avatarElement, el => !!el.innerText);

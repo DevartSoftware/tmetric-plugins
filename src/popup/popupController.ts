@@ -16,6 +16,7 @@
     private _constants: Models.Constants;
     private _canCreateProjects: boolean;
     private _canCreateTags: boolean;
+    private _requiredFields: Models.RequiredFields;
     private _newIssue: WebToolIssueTimer;
 
     getData(accountId: number) {
@@ -76,6 +77,7 @@
             this._constants = data.constants;
             this._canCreateProjects = data.canCreateProjects;
             this._canCreateTags = data.canCreateTags;
+            this._requiredFields = data.requiredFields;
         } else {
             this.close();
         }
@@ -264,7 +266,7 @@
         const showIssueId = task.showIssueId;
         const issueId = task.externalIssueId || '' + (task.projectTaskId || '') || task.issueId;
 
-        if (integrationUrl && relativeUrl) {  // External task
+        if (integrationUrl && relativeUrl) { // External task
             url = integrationUrl + relativeUrl;
             if (showIssueId) {
                 text = issueId;
@@ -354,9 +356,9 @@
 
         $(this._forms.create + ' .task-recent').toggle(!this.isPagePopup);
 
-        let taskSpan = $(this._forms.create + ' .task');
-        let descriptionSpan = $(this._forms.create + ' .description');
-        let descriptionInput = descriptionSpan.find('.input');
+        let task = $(this._forms.create + ' .task');
+        let description = $(this._forms.create + ' .description');
+        let descriptionInput = description.find('.input');
         descriptionInput.attr('maxlength', Models.Limits.maxTask);
 
         let issue = this._newIssue;
@@ -364,25 +366,30 @@
         let { url, text } = this.getTaskLinkData(issue);
 
         if (url) {
+            this.fillTaskLink(task.find('.link'), url, text);
 
-            this.fillTaskLink(taskSpan.find('.link'), url, text);
+            task.css('display', 'inline-flex');
+            task.find('.name').text(issue.issueName);
 
-            taskSpan.find('.name').text(issue.issueName);
-            descriptionSpan.find('.label').text('Notes');
+            description.find('.label').text('Notes');
+            description.removeClass('required');
             descriptionInput.attr('placeholder', 'Describe your activity');
             descriptionInput.val(issue.description);
-            $(taskSpan).css('display', 'inline-flex');
         } else {
-            descriptionSpan.find('.label').text('Task');
+            task.css('display', 'none');
+
+            description.find('.label').text('Task');
+            description.toggleClass('required', this._requiredFields.description && !this._requiredFields.taskLink);
             descriptionInput.attr('placeholder', 'Enter description');
             descriptionInput.val(issue.description || issue.issueName);
-            $(taskSpan).css('display', 'none');
         }
 
-        this.initProjectSelector(this._forms.create + ' .project .input', projectId);
+        this.initProjectSelector(projectId);
         $(this._forms.create + ' .new-project .input').attr('maxlength', Models.Limits.maxProjectName);
+        $(this._forms.create + ' .project').toggleClass('required', this._requiredFields.project);
 
         this.initTagSelector(projectId);
+        $(this._forms.create + ' .tags').toggleClass('required', this._requiredFields.tags);
     }
 
     focusCreatingForm() {
@@ -681,7 +688,9 @@
         return this._newIssue.tagNames || [];
     }
 
-    initProjectSelector(selector: string, defaultProjectId: number) {
+    initProjectSelector(defaultProjectId: number) {
+
+        let query = this._forms.create + ' .project .input';
 
         let existingProjectId: number;
         let newProjectName = this._newIssue && this._newIssue.projectName;
@@ -712,7 +721,7 @@
             }
         }
 
-        $(selector)
+        $(query)
             .empty()
             .select2({
                 data: items,
@@ -724,7 +733,7 @@
 
         // Force set selected flag in true value for default project.
         // Because select2 does not do it itself.
-        let data: Select2SelectionObject[] = $(selector).select2('data');
+        let data: Select2SelectionObject[] = $(query).select2('data');
         let selectedItem = data[0];
         if (selectedItem) {
             selectedItem.selected = true;
@@ -841,13 +850,13 @@
 
     initTagSelector(projectId: number = null) {
 
-        let selector = this._forms.create + ' .tags';
+        let query = this._forms.create + ' .tags';
 
         let items = this.makeTagItems(projectId);
         let selectedItems = this.makeTagSelectedItems();
         let allowNewItems = this._canCreateTags;
 
-        $(selector + ' #tag-selector')
+        $(query + ' .input')
             .empty()
             .select2({
                 data: items,
@@ -875,7 +884,7 @@
                 createTag: (params) => {
                     let name = $.trim(params.term);
                     if (name) {
-                        let foundOptions = $(selector)
+                        let foundOptions = $(query)
                             .find('option')
                             .filter((i, option) => $(option).text().toLowerCase() == name.toLowerCase());
                         if (!foundOptions.length) {
@@ -889,7 +898,7 @@
             .val(selectedItems)
             .trigger('change');
 
-        $(selector + ' .select2-search__field').attr('maxlength', Models.Limits.maxTag);
+        $(query + ' .select2-search__field').attr('maxlength', Models.Limits.maxTag);
     }
 
     private formatTag(data: ITagSelection, useIndentForTag: boolean) {
@@ -906,6 +915,60 @@
         }
 
         return textSpan;
+    }
+
+    // required fields
+
+    private showRequiredInputError(query: string) {
+        let field = $(query);
+        let fieldInput = $('.input', field);
+
+        field.addClass('error');
+        fieldInput.focus();
+
+        if (!field.hasClass('validated')) {
+            field.addClass('validated');
+            fieldInput.on('input', (event) => {
+                field.toggleClass('error', !$(event.target).val());
+            });
+        }
+    }
+
+    private showRequiredSelectError(query: string) {
+        let field = $(query);
+        let fieldSelect = $('.input', field);
+
+        field.addClass('error');
+        fieldSelect.select2('open').select2('close'); // focus select2
+
+        if (!field.hasClass('validated')) {
+            field.addClass('validated');
+            fieldSelect.on('change', (event) => {
+                field.toggleClass('error', $(event.target).val() == 0);
+            });
+        }
+    }
+
+    private checkRequiredFields(timer: WebToolIssueTimer) {
+
+        $(this._forms.create + ' .error').removeClass('error');
+
+        if (this._requiredFields.description && !timer.issueName && !timer.description) {
+
+            this.showRequiredInputError(this._forms.create + ' .description');
+        } else if (this._requiredFields.project && !timer.projectName) {
+
+            if ($(this._forms.create + ' .project .input').val() == -1) {
+                this.showRequiredInputError(this._forms.create + ' .new-project');
+            } else {
+                this.showRequiredSelectError(this._forms.create + ' .project');
+            }
+        } else if (this._requiredFields.tags && (!timer.tagNames || !timer.tagNames.length)) {
+
+            this.showRequiredSelectError(this._forms.create + ' .tags');
+        }
+
+        return $(this._forms.create + ' .error').length == 0;
     }
 
     // ui event handlers
@@ -1065,6 +1128,10 @@
         timer.isStarted = true;
         timer.description = $(this._forms.create + ' .description .input').val();
         timer.tagNames = $(this._forms.create + ' .tags .input').select().val() || [];
+
+        if (!this.checkRequiredFields(timer)) {
+            return;
+        }
 
         // Put timer
         this.putTimer(this._accountId, timer).then(() => {

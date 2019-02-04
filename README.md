@@ -3,6 +3,7 @@ Extension adds TMetric one-click time tracking to popular Web tools. Supported
 Web browsers are **Chrome**, **Firefox**, **Edge**, and **Opera**.
 
 ## Supported services
+* [ActiveCollab](https://activecollab.com/)
 * [Asana](https://asana.com)
 * [Assembla](https://www.assembla.com)
 * [Axosoft](https://www.axosoft.com)
@@ -10,7 +11,7 @@ Web browsers are **Chrome**, **Firefox**, **Edge**, and **Opera**.
 * [Bitbucket](https://bitbucket.org)
 * [Bitrix24](https://www.bitrix24.com)
 * [Bugzilla](https://www.bugzilla.org)
-* [Clickup](https://clickup.com)
+* [ClickUp](https://clickup.com)
 * [Doit.im](https://doit.im)
 * [Freshdesk](https://freshdesk.com)
 * [G Suite](https://gsuite.google.com)
@@ -25,6 +26,7 @@ Web browsers are **Chrome**, **Firefox**, **Edge**, and **Opera**.
 * [Podio](https://podio.com)
 * [Producteev](https://www.producteev.com)
 * [Redmine](https://www.redmine.org)
+* [Salesforce](https://www.salesforce.com)
 * [Sprintly](https://sprint.ly)
 * [Taiga](https://taiga.io)
 * [Team Foundation Server](https://www.visualstudio.com/tfs/)
@@ -66,12 +68,10 @@ To build extensions from sources you need:
 This can be done with the following script
 ```sh
 $ npm install
-$ npm -g install gulp-cli
-$ npm -g install typescript@1.8.x
-$ gulp build
+$ npx gulp build
 ```
 
-If you are building on Windows you can simply run `install.bat` and `build.bat`.
+If you are building on Windows you can simply run `build.bat`.
 
 Built extensions can be found in `/dist/` folder.
 
