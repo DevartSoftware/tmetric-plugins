@@ -1,4 +1,4 @@
-﻿class Clickup implements WebToolIntegration {
+class Clickup implements WebToolIntegration {
 
     showIssueId = false;
 

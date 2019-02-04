@@ -39,12 +39,10 @@
             "background/chromeExtension.js"
         ]
     },
-    "web_accessible_resources": [
-        "popup/popup.html"
-    ],
+    "web_accessible_resources": ["popup/popup.html"],
     "content_scripts": [
         {
-            "matches": [ "http://*/*", "https://*/*" ],
+            "matches": ["http://*/*", "https://*/*"],
             "exclude_matches": [
                 "https://chrome.google.com/webstore/*",
                 "https://addons.opera.com/*",
@@ -76,13 +74,11 @@
                 "in-page-scripts/integrations/testLink.js",
                 "in-page-scripts/integrations/zohoCRM.js"
             ],
-            "css": [
-                "css/timer-link.css"
-            ],
+            "css": ["css/timer-link.css"],
             "run_at": "document_end"
         },
         {
-            "matches": [ "http://*/*", "https://*/*" ],
+            "matches": ["http://*/*", "https://*/*"],
             "exclude_matches": [
                 "https://chrome.google.com/webstore/*",
                 "https://addons.opera.com/*"
@@ -133,37 +129,34 @@
                 "in-page-scripts/integrations/youTrack.js",
                 "in-page-scripts/integrations/zendesk.js"
             ],
-            "css": [
-                "css/timer-link.css"
-            ],
+            "css": ["css/timer-link.css"],
             "run_at": "document_end"
         },
         {
-            "matches": [ "http://*/*", "https://*/*" ],
+            "matches": ["http://*/*", "https://*/*"],
             "exclude_matches": [
                 "https://chrome.google.com/webstore/*",
                 "https://addons.opera.com/*"
             ],
             "all_frames": true,
-            "js": [
-                "in-page-scripts/init.js"
-            ],
+            "js": ["in-page-scripts/init.js"],
             "run_at": "document_end"
         },
         {
-            "matches": [ "http://*/*", "https://*/*" ],
+            "matches": ["http://*/*", "https://*/*"],
             "exclude_matches": [
                 "https://chrome.google.com/webstore/*",
                 "https://addons.opera.com/*"
             ],
-            "js": [
-                "in-page-scripts/topmostPage.js"
-            ],
+            "js": ["in-page-scripts/topmostPage.js"],
             "run_at": "document_end"
         },
         {
-            "matches": [ "https://beta.tmetric.com/*", "https://app.tmetric.com/*" ],
-            "js": [ "in-page-scripts/version.js" ],
+            "matches": [
+                "https://beta.tmetric.com/*",
+                "https://app.tmetric.com/*"
+            ],
+            "js": ["in-page-scripts/version.js"],
             "run_at": "document_end"
         }
     ],
