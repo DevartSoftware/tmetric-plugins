@@ -379,17 +379,17 @@
             task.css('display', 'none');
 
             description.find('.label').text('Task');
-            description.toggleClass('required', this._requiredFields.description && !this._requiredFields.taskLink);
+            description.toggleClass('required', !!(this._requiredFields.description && !this._requiredFields.taskLink));
             descriptionInput.attr('placeholder', 'Enter description');
             descriptionInput.val(issue.description || issue.issueName);
         }
 
         this.initProjectSelector(projectId);
         $(this._forms.create + ' .new-project .input').attr('maxlength', Models.Limits.maxProjectName);
-        $(this._forms.create + ' .project').toggleClass('required', this._requiredFields.project);
+        $(this._forms.create + ' .project').toggleClass('required', !!this._requiredFields.project);
 
         this.initTagSelector(projectId);
-        $(this._forms.create + ' .tags').toggleClass('required', this._requiredFields.tags);
+        $(this._forms.create + ' .tags').toggleClass('required', !!this._requiredFields.tags);
     }
 
     focusCreatingForm() {
