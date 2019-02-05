@@ -757,7 +757,12 @@ class ExtensionBase {
 
                 // Legacy server
                 .then(scope => {
-                    scope.requiredFields = scope.requiredFields || <Models.RequiredFields>{};
+                    scope.requiredFields = scope.requiredFields || <Models.RequiredFields>{
+                        description: false,
+                        project: false,
+                        tags: false,
+                        taskLink: false
+                    };
                     return scope;
                 })
         }
