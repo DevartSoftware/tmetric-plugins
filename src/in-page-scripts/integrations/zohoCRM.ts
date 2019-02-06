@@ -90,7 +90,8 @@ class ZohoProject implements WebToolIntegration {
             || (<HTMLTextAreaElement>$$.try('textarea.detail-tsktitle')).value; // issues
 
         let projectName = $$.try('.detail-hierarchy a').textContent // issues
-            || $$.try('.detail-hierarchy span > span').textContent; // tasks
+            || $$.try('.detail-hierarchy span > span').textContent // tasks
+            || $$.try('.topband_projsel [id^="projlink_"]').textContent; // project in header
 
         return { issueName, projectName };
     }
