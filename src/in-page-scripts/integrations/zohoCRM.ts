@@ -48,7 +48,7 @@
         let issueId: string;
         let serviceType: string;
 
-        let urlRegexp = /^(.*)\/crm\/tab\/Activities\/(\d+)/;
+        let urlRegexp = /^(.*)\/crm\/([^\/]+\/)?tab\/Activities\/(\d+)/;
         let matches = source.fullUrl.match(urlRegexp); // Single activity page
         if (!matches) {
             let activityLinks = $$.all('li.ligraybackground #Subject');
@@ -61,7 +61,7 @@
         if (matches) {
             serviceType = 'ZohoCRM';
             serviceUrl = matches[1];
-            issueId = matches[2];
+            issueId = matches[3] || matches[2];
             issueUrl = `/crm/tab/Activities/${issueId}`;
         }
 
