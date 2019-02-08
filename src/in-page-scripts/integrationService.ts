@@ -333,7 +333,7 @@
         newLink.setAttribute('data-session', this.session.toString());
         newLink.href = '#';
         newLink.title = 'Track spent time via TMetric service';
-        newLink.onclick = function (e) {
+        newLink.onclick = function (this: HTMLAnchorElement, e) {
             // TE-342 - prevent keeping focus on timer button
             this.blur();
             e.stopPropagation();
