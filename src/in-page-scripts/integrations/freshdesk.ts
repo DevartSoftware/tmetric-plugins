@@ -55,12 +55,6 @@ class NewFreshdesk implements WebToolIntegration {
         let host = $$('.page-actions__left');
         if (host) {
             linkElement.classList.add('app-icon-btn', 'app-icon-btn--text', 'devart-timer-link-freshdesk');
-            linkElement.style.display = 'inline-table';
-            for (let i = 0; i < linkElement.children.length; i++) {
-                let style = (<HTMLElement>linkElement.children[i]).style;
-                style.display = 'table-cell';
-                style.verticalAlign = 'middle';
-            }
             host.appendChild(linkElement);
         }
     }
@@ -68,7 +62,7 @@ class NewFreshdesk implements WebToolIntegration {
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
         // https://company.freshdesk.com/a/tickets/1
-        let issueName = $$.try('.description-subject').textContent;
+        let issueName = $$.try('.ticket-subject-heading').textContent;
 
         let issueId: string;
         let issueUrl: string;
