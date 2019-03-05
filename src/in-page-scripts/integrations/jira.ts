@@ -94,8 +94,9 @@
             || $$.try('#project-name-val').textContent // separate task view (/browse/... URL)
             || $$.try('.project-title > a').textContent // old service desk and agile board
             || $$.try('.sd-notify-header').textContent // service desk form https://issues.apache.org/jira/servicedesk/agent/all
-            || $$.try('img', issueElement, (img: HTMLImageElement) => /projectavatar/.test(img.src)).title // issues and filter
-            || this.getProjectNameFromNavigationBar(); // navigation bar expanded, trying to find project name by project avatar
+            || this.getProjectNameFromProjectLink(issueId) // trying to find project link
+            || this.getProjectNameFromAvatar(issueElement) // trying to find project avatar
+            || this.getProjectNameFromNavigationBar(); // trying to find project name on navigation bar
 
         let tagNames = $$.all('a', issueElement)
             .filter(el => /jql=labels/.test(el.getAttribute('href')))
@@ -105,6 +106,17 @@
         }
 
         return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Jira', tagNames };
+    }
+
+    private getProjectNameFromProjectLink(issueId: string) {
+        let projectId = (issueId || '').indexOf('-') > 0 && issueId.split('-')[0];
+        if (projectId) {
+            return $$.try(`a[href="/browse/${projectId}"]`).textContent;
+        }
+    }
+
+    private getProjectNameFromAvatar(issueElement: HTMLElement) {
+        return $$.try('img', issueElement, (img: HTMLImageElement) => /projectavatar/.test(img.src)).title;
     }
 
     private getProjectNameFromNavigationBar() {
