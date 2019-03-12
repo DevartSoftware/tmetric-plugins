@@ -25,8 +25,8 @@ var config = {
     keepDebug: false
 };
 
-if (argv.version) {
-    config.version = argv.version;
+if (argv.newversion) {
+    config.version = argv.newversion;
 }
 
 if (argv.distDir) {
