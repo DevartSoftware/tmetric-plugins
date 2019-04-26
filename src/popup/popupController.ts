@@ -844,8 +844,12 @@
 
     private formatProjectAvatar(project: Models.ProjectLite) {
         let avatar = project && project.avatar || 'Content/Avatars/project.svg';
-        let avatarPath = `${this._constants.serviceUrl}${avatar}`
-        return $(`<img src="${avatarPath}" />`).addClass('project-avatar-image');
+        avatar = avatar.replace(/^\//, '');
+        let avatarUrl = `${this._constants.storageUrl}${avatar}`;
+        if (!/\.svg$/.test(avatarUrl)) {
+            avatarUrl = avatarUrl.replace(/(.+)(\.\w+)$/, '$1~s48$2');
+        }
+        return $(`<img src="${avatarUrl}" />`).addClass('project-avatar-image');
     }
 
     initTagSelector(projectId: number = null) {
