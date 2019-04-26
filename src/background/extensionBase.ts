@@ -8,7 +8,8 @@ class ExtensionBase {
             extensionName: chrome.runtime.getManifest().name,
             browserSchema: this.getBrowserSchema(),
             extensionUUID: this.getExtensionUUID(),
-            serviceUrl: this.serviceUrl
+            serviceUrl: this.serviceUrl,
+            storageUrl: this.storageUrl
         };
         return constants;
     }
@@ -118,6 +119,8 @@ class ExtensionBase {
 
     private signalRUrl: string;
 
+    private storageUrl: string;
+
     private extraHours: number;
 
     private _constants: Models.Constants;
@@ -138,12 +141,15 @@ class ExtensionBase {
 
     private defaultSignalRUrl = 'https://signalr.tmetric.com/';
 
+    private defaultStorageUrl = 'https://services.tmetric.com/storage/';
+
     constructor() {
 
         this.updateState();
 
         this.serviceUrl = this.normalizeUrlLastSlash(this.getTestValue('tmetric.url') || this.defaultApplicationUrl);
         this.signalRUrl = this.normalizeUrlLastSlash(this.getTestValue('tmetric.signalRUrl') || this.defaultSignalRUrl);
+        this.storageUrl = this.normalizeUrlLastSlash(this.getTestValue('tmetric.storageUrl') || this.defaultStorageUrl);
 
         this._constants = this.getDefaultConstants();
 
