@@ -10,8 +10,16 @@
 
     issueElementSelector = () => {
 
-        // object element on Issues and filters page
-        let element = $$('#jira-frontend object');
+        // Issues and filters page
+        let element = $$('#jira-issue-header');
+        if (element) {
+            element = element.parentElement;
+        } else {
+            element = $$('#jira-frontend object'); // Old view
+            if (element) {
+                element = element.parentElement.parentElement.parentElement;
+            }
+        }
 
         return [
             $$.visible([
@@ -21,7 +29,7 @@
                 '.new-issue-container' // Issue
             ].join(',')),
             // Issues and filters
-            element && element.parentElement.parentElement.parentElement
+            element
         ]
     };
 
