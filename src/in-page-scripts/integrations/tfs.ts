@@ -7,8 +7,9 @@
     matchUrl = [
         // Visual Studio Team Services
         '*://*.visualstudio.com/*',
-        // Visual Studio Team Foundation Server
+        // Azure DevOps / Team Foundation Server
         '*://*/_home*',
+        '*://*/_boards*',
         '*://*/_dashboards*',
         '*://*/_backlogs*',
         '*://*/_workitems*'

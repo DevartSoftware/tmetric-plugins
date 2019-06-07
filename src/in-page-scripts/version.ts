@@ -15,7 +15,7 @@
     }
 
     let extensionInfo = { // object is updated from gulp build
-        version: '2.10.2'
+        version: '2.10.3'
     };
 
     let metaName = 'tmetric-extension-version';
