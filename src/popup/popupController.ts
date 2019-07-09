@@ -132,7 +132,7 @@
     retryAction = this.wrapBackgroundAction<void, void>('retry');
     fixTimerAction = this.wrapBackgroundAction<void, void>('fixTimer');
     putTimerAction = this.wrapBackgroundAction<IPopupTimerData, void>('putTimer');
-    saveProjectMapAction = this.wrapBackgroundAction<{ projectName: string, projectId: number }, void>('saveProjectMap');
+    saveProjectMapAction = this.wrapBackgroundAction<{ accountId: number, projectName: string, projectId: number }, void>('saveProjectMap');
     saveDescriptionMapAction = this.wrapBackgroundAction<{ taskName: string, description: string }, void>('saveDescriptionMap');
     openOptionsPage = this.wrapBackgroundAction<void, void>('openOptionsPage');
     getRecentTasksAction = this.wrapBackgroundAction<number, Models.RecentWorkTask[]>('getRecentTasks');
@@ -1137,19 +1137,21 @@
             return;
         }
 
+        let accountId = this._accountId;
+
         // Put timer
-        this.putTimer(this._accountId, timer).then(() => {
+        this.putTimer(accountId, timer).then(() => {
 
             // Save project map
             let projectName = this._newIssue.projectName || '';
             let newProjectName = timer.projectName || '';
-            let foundProjects = this._projects.filter(_ => _.projectName == newProjectName);
-            let newProject = foundProjects.find(p => p.projectId == timer.projectId) || foundProjects[0];
+            let existingProjects = this._projects.filter(_ => _.projectName == newProjectName);
+            let existingProject = existingProjects.find(p => p.projectId == timer.projectId) || existingProjects[0];
 
-            if (newProjectName == projectName && foundProjects.length < 2) {
-                this.saveProjectMapAction({ projectName, projectId: null });
-            } else if (newProject) {
-                this.saveProjectMapAction({ projectName, projectId: newProject.projectId });
+            if (newProjectName == projectName && existingProjects.length < 2) {
+                this.saveProjectMapAction({ accountId, projectName, projectId: null });
+            } else if (existingProject) {
+                this.saveProjectMapAction({ accountId, projectName, projectId: existingProject.projectId });
             }
 
             if (timer.issueId && timer.description != this._newIssue.description) {

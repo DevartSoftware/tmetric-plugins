@@ -228,8 +228,8 @@ class ExtensionBase {
             this.sendToTabs({ action: 'hidePopup' });
             return Promise.resolve(null);
         });
-        this.listenPopupAction<{ projectName: string, projectId: number }, void>('saveProjectMap', ({ projectName, projectId }) => {
-            this.setProjectMap(this._userProfile.activeAccountId, projectName, projectId);
+        this.listenPopupAction<{ accountId: number, projectName: string, projectId: number }, void>('saveProjectMap', ({ accountId, projectName, projectId }) => {
+            this.setProjectMap(accountId, projectName, projectId);
             return Promise.resolve(null);
         });
         this.listenPopupAction<{ taskName: string, description: string }, void>('saveDescriptionMap', ({ taskName, description }) => {
