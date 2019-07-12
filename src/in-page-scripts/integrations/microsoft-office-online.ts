@@ -24,6 +24,9 @@
             return;
         }
 
+        // Sign out link example:
+        // https://login.live.com/logout.srf?ct=1562949350&rver=7.1.6819.0&lc=1033&id=281053&ru=https:%2F%2Fonedrive.live.com%2Fredir%3Fresid%3DOWNER_ID%25DOCUMENT_ID%26page%3DView&cbcxt=sky
+
         let match = /.*[\?\&]ru=([^&]+).*/.exec(link.href);
         if (!match) {
             return;
@@ -36,7 +39,7 @@
 
         let issueId = match[1];
 
-        let issueUrl = `edit.aspx?resid=${issueId}`;
+        let issueUrl = `edit?resid=${issueId}`;
 
         let issueName = $$.try('#BreadcrumbTitle', issueElement).textContent;
 
