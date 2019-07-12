@@ -10,7 +10,9 @@
     <Compile Remove="wwwroot;node_modules\**\*;bower_components" />
     <EmbeddedResource Remove="wwwroot;node_modules\**\*;bower_components" />
     <None Remove="in-page-scripts\integrations\microsoft-office-online.ts" />
+    <None Remove="in-page-scripts\integrations\microsoft-outlook-online.ts" />
     <TypeScriptCompile Include="in-page-scripts\integrations\microsoft-office-online.ts" />
+    <TypeScriptCompile Include="in-page-scripts\integrations\microsoft-outlook-online.ts" />
     <None Update="node_modules\**\*;bower_components;**.xproj;**.user;**.vspscc">
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
     </None>
