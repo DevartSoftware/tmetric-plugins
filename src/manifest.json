@@ -5,7 +5,7 @@
     "short_name": "TMetric",
     "description": "Simple time tracking extension which helps you be more productive, complete projects in time and bill your clients correctly.",
     "author": "Devart",
-    "version": "2.10.3",
+    "version": "2.11.0",
 
     "icons": {
         "16": "images/icon16.png",
@@ -51,7 +51,9 @@
                 "*://*/*lib/execute/execSetResults.php*",
                 "https://*/*portal/*/*.do*",
                 "https://*/*crm/*",
-                "https://*/*/tasks*"
+                "https://*/*/tasks*",
+                "https://onedrive.live.com/edit.aspx?*",
+                "https://*.officeapps.live.com/*"
             ],
             "js": [
                 "in-page-scripts/utils.js",
@@ -65,7 +67,9 @@
                 "*://*/*lib/execute/execSetResults.php*",
                 "https://*/*portal/*/*.do*",
                 "https://*/*crm/*",
-                "https://*/*/tasks*"
+                "https://*/*/tasks*",
+                "https://onedrive.live.com/edit.aspx?*",
+                "https://*.officeapps.live.com/*"
             ],
             "all_frames": true,
             "js": [
@@ -73,6 +77,7 @@
                 "in-page-scripts/integrationService.js",
                 "in-page-scripts/page.js",
                 "in-page-scripts/integrations/bitrix24.js",
+                "in-page-scripts/integrations/microsoft-office-online.js",
                 "in-page-scripts/integrations/testLink.js",
                 "in-page-scripts/integrations/zohoCRM.js"
             ],
@@ -108,6 +113,7 @@
                 "in-page-scripts/integrations/google-mail.js",
                 "in-page-scripts/integrations/jira.js",
                 "in-page-scripts/integrations/megaplan.js",
+                "in-page-scripts/integrations/microsoft-outlook-online.js",
                 "in-page-scripts/integrations/openProject.js",
                 "in-page-scripts/integrations/pipedrive.js",
                 "in-page-scripts/integrations/pivotalTracker.js",

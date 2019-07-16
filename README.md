@@ -19,6 +19,8 @@ Web browsers are **Chrome**, **Firefox**, **Edge**, and **Opera**.
 * [GitLab](https://gitlab.com)
 * [JIRA](https://www.atlassian.com/software/jira)
 * [JIRA Service Desk](https://www.atlassian.com/software/jira/service-desk)
+* [Microsoft Office Online](https://products.office.com/office-online)
+* [Microsoft Outlook Online](https://outlook.live.com)
 * [Megaplan](https://megaplan.ru)
 * [OpenProject](https://www.openproject.org)
 * [Pipedrive](https://www.pipedrive.com)
