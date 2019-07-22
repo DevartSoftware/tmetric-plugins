@@ -8,14 +8,8 @@
         return null;
     }
 
-    hostSelector: string;
-
-    render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        var host = $$(this.hostSelector, issueElement);
-        if (host) {
-            linkElement.classList.add('action_button', 'small', 'devart-timer-link-basecamp');
-            host.appendChild(linkElement);
-        }
+    getIssueName(issueElement: HTMLElement): string {
+        return null;
     }
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
@@ -44,14 +38,12 @@
         }
         issueId = '#' + issueId;
 
-        var issueName =
-            $$.try<HTMLTextAreaElement>('.todos-form__input--summary', issueElement).value ||
-            $$.try('.todo h1', issueElement).textContent;
+        var issueName = this.getIssueName(issueElement);
         if (!issueName) {
             return;
         }
 
-        var projectName = $$.try('.project-header__name a').textContent;
+        var projectName = $$.try('[data-target="breadcrumbs.link"]').textContent;
 
         var serviceType = 'Basecamp';
 
@@ -65,10 +57,21 @@ class BasecampTodo extends BasecampBase implements WebToolIntegration {
 
     issueElementSelector = '.panel--perma';
 
-    hostSelector = '.perma-toolbar';
-
-    getIssueUrl(issueElement: HTMLElement, source: Source): string {
+    getIssueUrl(issueElement: HTMLElement, source: Source) {
         return source.path;
+    }
+
+    getIssueName(issueElement: HTMLElement) {
+        return $$.try('h1', issueElement).textContent
+            || $$.try<HTMLTextAreaElement>('.todos-form__title', issueElement).value // issue in edit mode
+    }
+
+    render(issueElement: HTMLElement, linkElement: HTMLElement) {
+        var host = $$('.perma-toolbar', issueElement);
+        if (host) {
+            linkElement.classList.add('btn', 'btn--small', 'devart-timer-link-basecamp');
+            host.insertBefore(linkElement, host.firstElementChild);
+        }
     }
 }
 
@@ -79,12 +82,37 @@ class BasecampTodos extends BasecampBase implements WebToolIntegration {
         '*://*basecamp.com/*/buckets/*/todolists/*'
     ];
 
-    issueElementSelector = '.todos .edit_todo';
+    issueElementSelector = [
+        '.todo',
+        '.todos-form--todo' // issue in edit mode
+    ];
 
-    hostSelector = '.submit';
+    getIssueUrl(issueElement: HTMLElement, source: Source) {
+        return (<HTMLAnchorElement>$$.try('.checkbox__content > a', issueElement)).href
+            || (<HTMLFormElement>$$.try('form', issueElement)).action; // issue in edit mode
+    }
 
-    getIssueUrl(issueElement: HTMLElement, source: Source): string {
-        return (<HTMLFormElement>issueElement).action;
+    getIssueName(issueElement: HTMLElement) {
+        return $$.try('.checkbox__content > a', issueElement).textContent
+            || $$.try<HTMLTextAreaElement>('.todos-form__title', issueElement).value; // issue in edit mode
+    }
+
+    render(issueElement: HTMLElement, linkElement: HTMLElement) {
+
+        var host = $$('.checkbox__content > a', issueElement);
+        if (host) {
+            linkElement.classList.add('text-toggle', 'devart-timer-link-basecamp');
+            host.parentElement.insertBefore(linkElement, $$('.todo__unassigned-unscheduled', host.parentElement));
+            return;
+        }
+
+        // issue in edit mode
+        var host = $$('form .submit', issueElement);
+        if (host) {
+            linkElement.classList.add('btn', 'btn--small', 'devart-timer-link-basecamp');
+            host.appendChild(linkElement);
+            return;
+        }
     }
 }
 
