@@ -65,6 +65,8 @@
             }
         }
 
+        let tagNames = $$.all("span.tag-box.tag-box-delete-experience", issueElement).map(label => label.textContent);
+
         // https://devart.visualstudio.com/
         let serviceUrl = source.protocol + source.host;
         let serviceType = 'TFS';
@@ -74,7 +76,7 @@
             || $$('.work-item-form-areaIteration input', issueElement) // old layout
         let projectName = projectInput && (<HTMLInputElement>projectInput).value;
 
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
     }
 }
 
