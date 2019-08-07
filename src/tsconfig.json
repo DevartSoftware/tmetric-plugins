@@ -73,6 +73,7 @@
         "in-page-scripts/integrations/youTrack.ts",
         "in-page-scripts/integrations/zendesk.ts",
         "in-page-scripts/integrations/zohoCRM.ts",
+        "in-page-scripts/integrations/mimiCRM.ts",
         "in-page-scripts/integrationService.ts",
         "in-page-scripts/page.ts",
         "in-page-scripts/topmostPage.ts",
