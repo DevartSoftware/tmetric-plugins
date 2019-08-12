@@ -9,11 +9,14 @@
         '*://*/agiles/*'
     ];
 
-    issueElementSelector = '.yt-issue-view';
+    issueElementSelector = '.yt-issue-view, yt-agile-card';
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        let host = $$('.yt-issue-view__meta-information', issueElement)
-            || $$('.yt-issue-toolbar', issueElement); // falback for future changes
+        let host =
+            $$('.yt-issue-view__meta-information', issueElement) ||
+            $$('.yt-issue-toolbar', issueElement) ||
+            $$('.yt-agile-card__summary', issueElement);
+
         if (host) {
             host.appendChild(linkElement);
         }
@@ -21,12 +24,15 @@
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        let issueName = $$.try('.yt-issue-body__summary', issueElement).textContent;
+        let issueName =
+            $$.try('.yt-issue-body__summary', issueElement).textContent || // single task
+            $$.try('yt-agile-card__summary > span', issueElement).textContent; // agile board
+
         if (!issueName) {
             return;
         }
 
-        let linkElement = $$('.yt-issue-id');
+        let linkElement = $$('.yt-issue-id', issueElement);
 
         let issueId = linkElement && linkElement.textContent;
 
