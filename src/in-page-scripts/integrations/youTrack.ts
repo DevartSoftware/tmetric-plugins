@@ -40,11 +40,13 @@
 
         let projectName = $$.try('yt-issue-project', issueElement).textContent;
 
+        let tagNames = $$.all('.yt-issue-tags__tag__name', issueElement).map(_ => _.textContent);
+
         let serviceType = 'YouTrack';
 
         let serviceUrl = (<HTMLBaseElement>$$.try('base')).href;
 
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+        return { issueId, issueName, projectName, tagNames, serviceType, serviceUrl, issueUrl };
     }
 }
 
