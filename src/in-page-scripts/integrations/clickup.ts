@@ -50,6 +50,8 @@ class Clickup implements WebToolIntegration {
 
         let issueName = $$.try('.task-name__overlay').textContent;
 
+        let tags = $$.all('.cu-tags-view__container .cu-tags-view .cu-tags-select__name', issueElement);
+
         let description: string;
         if (issueElement.matches(this.issueElementSelector[1])) {
             let subtaskLink = <HTMLAnchorElement>$$('.task-todo-item__name-text a', issueElement);
@@ -59,6 +61,7 @@ class Clickup implements WebToolIntegration {
                     issueName = subtaskLink.textContent;
                     issueId = matches[1];
                     issueUrl = '/t/' + issueId;
+                    tags = $$.all('.cu-tags-view__container-list .cu-tags-view .cu-tags-select__name', issueElement);
                 }
             }
         } else if (issueElement.matches(this.issueElementSelector[2])) {
@@ -67,7 +70,7 @@ class Clickup implements WebToolIntegration {
 
         let projectName = $$.try('.breadcrumbs__link[data-category]').textContent;
 
-        let tagNames = $$.all('.cu-tags-view__container .cu-tags-select__name', issueElement).map(_ => _.textContent);
+        let tagNames = tags.map(_ => _.textContent);
 
         return { serviceType, serviceUrl, issueId, issueName, issueUrl, description, projectName, tagNames };
     }
