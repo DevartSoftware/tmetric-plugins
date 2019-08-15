@@ -13,6 +13,7 @@ Web browsers are **Chrome**, **Firefox**, **Edge**, and **Opera**.
 * [Bugzilla](https://www.bugzilla.org)
 * [ClickUp](https://clickup.com)
 * [Doit.im](https://doit.im)
+* [Easy Redmine](https://easyredmine.com)
 * [Freshdesk](https://freshdesk.com)
 * [G Suite](https://gsuite.google.com)
 * [GitHub](https://github.com)
