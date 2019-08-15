@@ -67,7 +67,9 @@ class Clickup implements WebToolIntegration {
 
         let projectName = $$.try('.breadcrumbs__link[data-category]').textContent;
 
-        return { serviceType, serviceUrl, issueId, issueName, issueUrl, description, projectName };
+        let tagNames = $$.all('.cu-tags-view__container .cu-tags-select__name', issueElement).map(_ => _.textContent);
+
+        return { serviceType, serviceUrl, issueId, issueName, issueUrl, description, projectName, tagNames };
     }
 }
 
