@@ -1,10 +1,11 @@
+.DS_Store
 .vs/
 Thumbs.db
 *.js.map
 *.lock.json
 *.xproj.user
 *.csproj.user
-/node_modules/
+node_modules/
 /dist/
 /src/lib
 /src/bin
@@ -19,4 +20,3 @@ Thumbs.db
 /src/popup/*.css
 /src/settings/*.js
 /package-lock.json
-/tests/private-system/node_modules
