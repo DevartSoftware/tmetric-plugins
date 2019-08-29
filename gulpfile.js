@@ -44,6 +44,8 @@ var firefoxDir = distDir + 'firefox/';
 var firefoxUnpackedDir = firefoxDir + 'unpacked/';
 var edgeDir = distDir + 'edge/';
 var edgeUnpackedDir = edgeDir + 'Extension/';
+var safariDir = distDir + 'safari/';
+var safariExtensionDir = safariDir + 'TMetric for Safari Extension/';
 
 console.log('Start build');
 console.log(JSON.stringify(config, null, 2));
@@ -79,6 +81,12 @@ var files = {
     ],
     firefox: [
         'src/background/firefoxExtension.js'
+    ],
+    safari: [
+        'src/safari/**',
+        '!src/safari/**/*.ts',
+        '!src/safari/build/**',
+        '!src/safari/TMetric for Safari.xcodeproj/xcuserdata/**'
     ]
 };
 
@@ -173,7 +181,8 @@ gulp.task('clean:sources', () => {
         'src/in-page-scripts/**/*.js',
         'src/lib/*',
         'src/popup/*.js',
-        'src/settings/*.js'
+        'src/settings/*.js',
+        'src/safari/*.js'
     ]);
 });
 
@@ -354,12 +363,32 @@ gulp.task('prepackage:edge', gulp.series(
 gulp.task('package:edge', gulp.series('prepackage:edge'));
 
 // =============================================================================
+// Tasks for building Safari App Extension xcode project
+// =============================================================================
+
+function copyFilesSafari() {
+    return gulp.src(files.safari, { base: path.join(src, 'safari') })
+        .pipe(gulp.dest(safariDir));
+}
+
+function stripDebugSafari() {
+    return stripDebugCommon(safariExtensionDir);
+}
+
+gulp.task('prepackage:safari', gulp.series(
+    copyFilesSafari,
+    stripDebugSafari
+));
+
+gulp.task('package:safari', gulp.series('prepackage:safari'));
+
+// =============================================================================
 // Task for building addons
 // =============================================================================
 
 gulp.task('build', gulp.series(
     'clean', 'lib', 'compile', 'version',
-    gulp.parallel('package:chrome', 'package:firefox', 'package:edge')
+    gulp.parallel('package:chrome', 'package:firefox', 'package:edge', 'package:safari')
 ));
 
 // =============================================================================
