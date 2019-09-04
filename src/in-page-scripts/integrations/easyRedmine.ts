@@ -55,7 +55,7 @@
         // </h1>
         var projectName = $$.try('h1 .self', issueElement).textContent;
 
-        var serviceType = 'EasyRedmine';
+        var serviceType = 'Redmine';
 
         return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
     }
