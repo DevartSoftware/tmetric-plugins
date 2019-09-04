@@ -18,7 +18,6 @@
 		9378DE852316ECD200C38834 /* SafariExtensionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9378DE842316ECD200C38834 /* SafariExtensionViewController.swift */; };
 		9378DE882316ECD200C38834 /* SafariExtensionViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9378DE862316ECD200C38834 /* SafariExtensionViewController.xib */; };
 		9378DE8B2316ECD200C38834 /* script.js in Resources */ = {isa = PBXBuildFile; fileRef = 9378DE8A2316ECD200C38834 /* script.js */; };
-		9378DE8D2316ECD200C38834 /* ToolbarItemIcon.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 9378DE8C2316ECD200C38834 /* ToolbarItemIcon.pdf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,7 +59,6 @@
 		9378DE872316ECD200C38834 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/SafariExtensionViewController.xib; sourceTree = "<group>"; };
 		9378DE892316ECD200C38834 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9378DE8A2316ECD200C38834 /* script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = script.js; sourceTree = "<group>"; };
-		9378DE8C2316ECD200C38834 /* ToolbarItemIcon.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = ToolbarItemIcon.pdf; sourceTree = "<group>"; };
 		9378DE8E2316ECD200C38834 /* TMetric_for_Safari_Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TMetric_for_Safari_Extension.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -131,7 +129,6 @@
 				9378DE862316ECD200C38834 /* SafariExtensionViewController.xib */,
 				9378DE892316ECD200C38834 /* Info.plist */,
 				9378DE8A2316ECD200C38834 /* script.js */,
-				9378DE8C2316ECD200C38834 /* ToolbarItemIcon.pdf */,
 				9378DE8E2316ECD200C38834 /* TMetric_for_Safari_Extension.entitlements */,
 			);
 			path = "TMetric for Safari Extension";
@@ -228,7 +225,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9378DE8D2316ECD200C38834 /* ToolbarItemIcon.pdf in Resources */,
 				9378DE882316ECD200C38834 /* SafariExtensionViewController.xib in Resources */,
 				9378DE8B2316ECD200C38834 /* script.js in Resources */,
 			);
