@@ -1,3 +1,27 @@
+// Settings
+
+function normalizeUrlLastSlash(url: string) {
+    if (url[url.length - 1] != '/') {
+        url += '/';
+    }
+    return url;
+}
+
+function getStorageValue(name: string, defaultValue: string) {
+    let value = '';
+    try {
+        value = localStorage.getItem(name);
+    }
+    catch (err) {
+        console.log(err, location.href);
+    }
+    return value || defaultValue;
+}
+
+var settings = {
+    serviceUrl: normalizeUrlLastSlash(getStorageValue('tmetric.url', 'https://app.tmetric.com'))
+};
+
 // Bundle inclusion functions
 
 function isLocationMatchPattern (pattern: string) {
@@ -109,6 +133,6 @@ window.chrome = <typeof chrome>{
 // Open popup timer
 
 function openPopupTimer(timer: WebToolIssueTimer) {
-    let url = 'http://app.tmetric.com/PopupTimer';
+    let url = settings.serviceUrl + 'PopupTimer';
     window.open(url, 'TMetricPopup', 'toolbar=no,scrollbars=no,resizable=no,width=480,height=640,left=0,top=0');
 }
