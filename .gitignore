@@ -16,6 +16,7 @@ node_modules/
 !/src/css/tmetricicons.css
 /src/in-page-scripts/**/*.js
 /src/safari/**/*.js
+/src/safari/**/*.css
 /src/popup/*.js
 /src/popup/*.css
 /src/settings/*.js

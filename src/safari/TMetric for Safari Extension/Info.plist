@@ -35,6 +35,13 @@
 				<string>script.js</string>
 			</dict>
 		</array>
+		<key>SFSafariStyleSheet</key>
+		<array>
+			<dict>
+				<key>Style Sheet</key>
+				<string>styles.css</string>
+			</dict>
+		</array>
 		<key>SFSafariWebsiteAccess</key>
 		<dict>
 			<key>Level</key>

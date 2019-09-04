@@ -18,6 +18,7 @@
 		9378DE852316ECD200C38834 /* SafariExtensionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9378DE842316ECD200C38834 /* SafariExtensionViewController.swift */; };
 		9378DE882316ECD200C38834 /* SafariExtensionViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9378DE862316ECD200C38834 /* SafariExtensionViewController.xib */; };
 		9378DE8B2316ECD200C38834 /* script.js in Resources */ = {isa = PBXBuildFile; fileRef = 9378DE8A2316ECD200C38834 /* script.js */; };
+		9379BE0F23202728004E10A6 /* styles.css in Resources */ = {isa = PBXBuildFile; fileRef = 9379BE0E23202728004E10A6 /* styles.css */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,6 +61,7 @@
 		9378DE892316ECD200C38834 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9378DE8A2316ECD200C38834 /* script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = script.js; sourceTree = "<group>"; };
 		9378DE8E2316ECD200C38834 /* TMetric_for_Safari_Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TMetric_for_Safari_Extension.entitlements; sourceTree = "<group>"; };
+		9379BE0E23202728004E10A6 /* styles.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = styles.css; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -130,6 +132,7 @@
 				9378DE892316ECD200C38834 /* Info.plist */,
 				9378DE8A2316ECD200C38834 /* script.js */,
 				9378DE8E2316ECD200C38834 /* TMetric_for_Safari_Extension.entitlements */,
+				9379BE0E23202728004E10A6 /* styles.css */,
 			);
 			path = "TMetric for Safari Extension";
 			sourceTree = "<group>";
@@ -225,6 +228,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9379BE0F23202728004E10A6 /* styles.css in Resources */,
 				9378DE882316ECD200C38834 /* SafariExtensionViewController.xib in Resources */,
 				9378DE8B2316ECD200C38834 /* script.js in Resources */,
 			);

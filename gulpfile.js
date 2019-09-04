@@ -184,14 +184,14 @@ gulp.task('clean:sources', () => {
         'src/lib/*',
         'src/popup/*.js',
         'src/settings/*.js',
-        'src/safari/**/*.js'
+        'src/safari/**/*.js',
+        'src/safari/**/*.css'
     ]);
 });
 
 gulp.task('clean:dist', () => {
     return clean([distDir + '**']);
 });
-
 
 gulp.task('clean', gulp.parallel('clean:sources', 'clean:dist'));
 
@@ -426,6 +426,63 @@ function bundleScriptsSafari() {
         .pipe(gulp.dest(safariExtensionSrcDir))
 }
 
+function bundleStylesSafari() {
+
+    var styleFileName = 'styles.css';
+    var styleFile = safariExtensionSrcDir + styleFileName;
+
+    var manifestFile = src + 'manifest.json';
+    var manifest = jsonfile.readFileSync(manifestFile);
+    var contentScripts = manifest.content_scripts;
+
+    // create styles file
+    fs.writeFileSync(styleFile, '');
+
+    return gulp.src([styleFile])
+        .pipe(through.obj((file, encoding, callback) => {
+
+            // combine bundles
+
+            var bundlesContent = '';
+
+            contentScripts.forEach(info => {
+
+                let bundleContent = '';
+
+                if (info.css) {
+                    info.css.forEach((scriptName) => {
+                        let scriptPath = path.normalize(src + '/' + scriptName);
+                        try {
+                            let scriptContent = fs.readFileSync(scriptPath) + '';
+                            bundleContent += `\n\n/* ${scriptName} */\n\n${scriptContent}`;
+                        }
+                        catch (err) {
+                            console.log(`Not found script ${scriptName} in folder ${src}.`);
+                        }
+                    });
+                }
+
+                bundlesContent += `${bundleContent}`;
+
+            });
+
+            // combine file content
+
+            var combinedContent = '';
+            combinedContent += file.contents.toString(encoding);
+            combinedContent += `${bundlesContent}`;
+            
+            // replace file content
+
+            file.contents = Buffer.from(combinedContent, encoding);
+            
+            callback(null, file);
+
+        }))
+        .pipe(concat(styleFileName))
+        .pipe(gulp.dest(safariExtensionSrcDir))
+}
+
 function copyFilesSafari() {
     return gulp.src(files.safari, { base: safariSrcDir })
         .pipe(gulp.dest(safariDir));
@@ -437,6 +494,7 @@ function stripDebugSafari() {
 
 gulp.task('prepackage:safari', gulp.series(
     bundleScriptsSafari,
+    bundleStylesSafari,
     copyFilesSafari,
     stripDebugSafari
 ));
