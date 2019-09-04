@@ -44,8 +44,9 @@ var firefoxDir = distDir + 'firefox/';
 var firefoxUnpackedDir = firefoxDir + 'unpacked/';
 var edgeDir = distDir + 'edge/';
 var edgeUnpackedDir = edgeDir + 'Extension/';
+var safariExtensionFolderName = 'TMetric for Safari Extension';
 var safariDir = distDir + 'safari/';
-var safariExtensionDir = safariDir + 'TMetric for Safari Extension/';
+var safariExtensionDir = safariDir + safariExtensionFolderName + '/';
 
 console.log('Start build');
 console.log(JSON.stringify(config, null, 2));
@@ -85,6 +86,7 @@ var files = {
     safari: [
         'src/safari/**',
         '!src/safari/**/*.ts',
+        '!src/safari/**/*.map',
         '!src/safari/build/**',
         '!src/safari/TMetric for Safari.xcodeproj/xcuserdata/**'
     ]
@@ -182,7 +184,7 @@ gulp.task('clean:sources', () => {
         'src/lib/*',
         'src/popup/*.js',
         'src/settings/*.js',
-        'src/safari/*.js'
+        'src/safari/**/*.js'
     ]);
 });
 
@@ -366,8 +368,64 @@ gulp.task('package:edge', gulp.series('prepackage:edge'));
 // Tasks for building Safari App Extension xcode project
 // =============================================================================
 
+var safariSrcDir = src + 'safari/';
+var safariExtensionSrcDir = safariSrcDir + safariExtensionFolderName + '/';
+var safariScriptFileName = 'script.js';
+var safariScriptFile = safariExtensionSrcDir + safariScriptFileName;
+
+function bundleScriptsSafari() {
+    var manifestFile = src + 'manifest.json';
+    var manifest = jsonfile.readFileSync(manifestFile);
+    var contentScripts = manifest.content_scripts;
+
+    return gulp.src([safariScriptFile])
+        .pipe(through.obj((file, encoding, callback) => {
+
+            // combine bundles
+
+            var bundlesContent = '';
+
+            contentScripts.forEach(info => {
+
+                let bundleContent = '';
+
+                if (info.js) {
+                    info.js.forEach((scriptName) => {
+                        let scriptPath = path.normalize(src + '/' + scriptName);
+                        try {
+                            let scriptContent = fs.readFileSync(scriptPath) + '';
+                            bundleContent += `\n\n// ${scriptName}\n\n${scriptContent}`;
+                        }
+                        catch (err) {
+                            console.log(`Not found script ${scriptName} in folder ${src}.`);
+                        }
+                    });
+                }
+
+                bundlesContent += `\n\nif (shouldIncludeScripts(${JSON.stringify(info, null, 4)})) {\n${bundleContent}\n}`;
+
+            });
+
+            // combine file content
+
+            var combinedContent = '';
+            combinedContent += file.contents.toString(encoding);
+            combinedContent += `\n\nfunction loadBundles () {\n${bundlesContent}\n}`;
+            combinedContent += `\n\nif (document.readyState == "loading") {\n\tdocument.addEventListener("DOMContentLoaded", loadBundles);\n} else {\n\tloadBundles();\n}`;
+
+            // replace file content
+
+            file.contents = Buffer.from(combinedContent, encoding);
+            
+            callback(null, file);
+
+        }))
+        .pipe(concat(safariScriptFileName))
+        .pipe(gulp.dest(safariExtensionSrcDir))
+}
+
 function copyFilesSafari() {
-    return gulp.src(files.safari, { base: path.join(src, 'safari') })
+    return gulp.src(files.safari, { base: safariSrcDir })
         .pipe(gulp.dest(safariDir));
 }
 
@@ -376,6 +434,7 @@ function stripDebugSafari() {
 }
 
 gulp.task('prepackage:safari', gulp.series(
+    bundleScriptsSafari,
     copyFilesSafari,
     stripDebugSafari
 ));
