@@ -370,15 +370,17 @@ gulp.task('package:edge', gulp.series('prepackage:edge'));
 
 var safariSrcDir = src + 'safari/';
 var safariExtensionSrcDir = safariSrcDir + safariExtensionFolderName + '/';
-var safariScriptFileName = 'script.js';
-var safariScriptFile = safariExtensionSrcDir + safariScriptFileName;
 
 function bundleScriptsSafari() {
+
+    var scriptFileName = 'script.js';
+    var scriptFile = safariExtensionSrcDir + scriptFileName;
+
     var manifestFile = src + 'manifest.json';
     var manifest = jsonfile.readFileSync(manifestFile);
     var contentScripts = manifest.content_scripts;
 
-    return gulp.src([safariScriptFile])
+    return gulp.src([scriptFile])
         .pipe(through.obj((file, encoding, callback) => {
 
             // combine bundles
@@ -420,7 +422,7 @@ function bundleScriptsSafari() {
             callback(null, file);
 
         }))
-        .pipe(concat(safariScriptFileName))
+        .pipe(concat(scriptFileName))
         .pipe(gulp.dest(safariExtensionSrcDir))
 }
 
