@@ -51,6 +51,6 @@
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2019 Devart. All rights reserved.</string>
 	<key>NSHumanReadableDescription</key>
-	<string>This is a Safari Extension. You should tell us what your extension does here.</string>
+	<string>Simple time tracking extension which helps you be more productive, complete projects in time and bill your clients correctly.</string>
 </dict>
 </plist>

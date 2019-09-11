@@ -4,6 +4,10 @@
 
     matchUrl = /(.*)\/(issues|easy_crm_cases|test_cases)\/(\d+)/;
 
+    match(source: Source): boolean {
+        return $$.getAttribute('meta[name=application-name]', 'content') == 'Easy Redmine';
+    }
+
     issueElementSelector = [
         'body.controller-issues.action-show',
         'body.controller-easy_crm_cases.action-show',

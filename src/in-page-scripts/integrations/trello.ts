@@ -55,7 +55,7 @@
         //  <a class="board-header-btn board-header-btn-name js-rename-board" href="#">
         //    <span class="board-header-btn-text">Test Board</span>
         //  </a>
-        var projectName = $$.try('.board-header-btn-name > .board-header-btn-text').textContent;
+        var projectName = $$.try('.board-header-btn > .board-header-btn-text').textContent;
 
         var serviceUrl = source.protocol + source.host;
 
