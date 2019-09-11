@@ -86,7 +86,7 @@ var files = {
         'src/safari/**',
         '!src/safari/**/*.ts',
         '!src/safari/build/**',
-        '!src/safari/TMetric for Safari.xcodeproj/xcuserdata/**'
+        '!src/safari/**/xcuserdata/**'
     ]
 };
 
@@ -388,7 +388,15 @@ gulp.task('package:safari', gulp.series('prepackage:safari'));
 
 gulp.task('build', gulp.series(
     'clean', 'lib', 'compile', 'version',
-    gulp.parallel('package:chrome', 'package:firefox', 'package:edge', 'package:safari')
+    gulp.parallel('package:chrome', 'package:firefox', 'package:edge')
+));
+
+// =============================================================================
+// Task for building safari addon
+// =============================================================================
+
+gulp.task('build:safari', gulp.series(
+    'clean', 'compile', 'package:safari'
 ));
 
 // =============================================================================
