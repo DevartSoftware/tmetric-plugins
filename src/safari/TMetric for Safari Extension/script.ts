@@ -134,6 +134,6 @@ window.chrome = <typeof chrome>{
 
 function openPopupTimer(timer: WebToolIssueTimer) {
     let url = settings.serviceUrl + 'PopupTimer';
-    url += '?timer=' + encodeURIComponent(JSON.stringify(timer));
+    url += '#' + encodeURIComponent(JSON.stringify(timer));
     window.open(url, 'TMetricPopup', 'toolbar=no,scrollbars=no,resizable=no,width=480,height=640,left=0,top=0');
 }
