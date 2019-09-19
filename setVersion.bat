@@ -1,4 +1,4 @@
 @echo off
 cd /d %~dp0
 
-call npx --no-install gulp version --newversion=2.13.0
+call npx --no-install gulp version --newversion=2.13.1

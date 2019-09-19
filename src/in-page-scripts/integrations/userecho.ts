@@ -2,14 +2,14 @@
 
     showIssueId = false;
 
-    matchUrl = ['*://*.userecho.com*/topics/*'];
+    matchUrl = 'https://*.userecho.com/*';
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
-        var host = $$('.topic-actions-panel');
+        let host = $$('.topic-actions-panel');
 
         if (host) {
-            var container = $$.create('li');
+            let container = $$.create('li');
             container.appendChild(linkElement);
             host.insertBefore(container, host.firstChild);
         }
@@ -17,24 +17,22 @@
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        var issue = $$.try('.topic-header a');
-
+        let issue = $$.try('.topic-header a');
         let issueName = issue.textContent;
         let issueHref = issue.getAttribute('href');
 
-        //https://company.userecho.com/topics/1-test/
-        //https://company.userecho.com/topics/2-test-1-2/
-
-        var match = /\/topics\/([\d]*)\-.*\//.exec(issueHref);
-        if (!match) {
+        // /communities/1/topics/1-good-an-idea
+        // /knowledge-bases/2/articles/3-how-it-works
+        // /helpdesks/3/tickets/4-change-status
+        let match = /^(\/[^\/]+\/\d+\/[^\/]+\/(\d+)-)/.exec(issueHref);
+        if (!issueName || !match) {
             return;
         }
 
-        var issueId = match[1];
-        var serviceUrl = source.protocol + source.host;
-        // Work URL https://company.userecho.com/topics/2
-        var issueUrl = '/topics/' + issueId;
-        var projectName = $$.try('.navbar-brand').textContent;
+        let issueUrl = match[1];
+        let issueId = match[2];
+        let serviceUrl = source.protocol + source.host;
+        let projectName = $$.try('.navbar-brand').textContent;
 
         return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Userecho' };
     }
