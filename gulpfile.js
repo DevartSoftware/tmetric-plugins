@@ -433,54 +433,7 @@ function bundleStylesSafari() {
     var styleFileName = 'styles.css';
     var styleFile = safariExtensionSrcDir + styleFileName;
 
-    var manifestFile = src + 'manifest.json';
-    var manifest = jsonfile.readFileSync(manifestFile);
-    var contentScripts = manifest.content_scripts;
-
-    // create styles file
-    fs.writeFileSync(styleFile, '');
-
-    return gulp.src([styleFile])
-        .pipe(through.obj((file, encoding, callback) => {
-
-            // combine bundles
-
-            var bundlesContent = '';
-
-            contentScripts.forEach(info => {
-
-                let bundleContent = '';
-
-                if (info.css) {
-                    info.css.forEach((scriptName) => {
-                        let scriptPath = path.normalize(src + '/' + scriptName);
-                        try {
-                            let scriptContent = fs.readFileSync(scriptPath) + '';
-                            bundleContent += `\n\n/* ${scriptName} */\n\n${scriptContent}`;
-                        }
-                        catch (err) {
-                            console.log(`Not found script ${scriptName} in folder ${src}.`);
-                        }
-                    });
-                }
-
-                bundlesContent += `${bundleContent}`;
-
-            });
-
-            // combine file content
-
-            var combinedContent = '';
-            combinedContent += file.contents.toString(encoding);
-            combinedContent += `${bundlesContent}`;
-            
-            // replace file content
-
-            file.contents = Buffer.from(combinedContent, encoding);
-            
-            callback(null, file);
-
-        }))
+    return gulp.src([ 'src/css/timer-link.css' ], { base: src })
         .pipe(concat(styleFileName))
         .pipe(gulp.dest(safariExtensionSrcDir))
 }
