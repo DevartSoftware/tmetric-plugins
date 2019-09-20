@@ -53,6 +53,7 @@ console.log(JSON.stringify(config, null, 2));
 
 var files = {
     common: [
+        'src/background/serverConnection.js',
         'src/background/signalRConnection.js',
         'src/css/*.css',
         'src/in-page-scripts/integrations/*.js',
@@ -70,6 +71,7 @@ var files = {
         'src/popup/popupActivator.js',
         'src/settings/settings.html',
         'src/settings/settingsController.js',
+        'src/background/backgroundBase.js',
         'src/background/extensionBase.js',
         'src/background/simpleEvent.js',
         'src/manifest.json'

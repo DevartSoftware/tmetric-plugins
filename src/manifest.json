@@ -34,7 +34,9 @@
             "lib/jquery.min.js",
             "lib/jquery.signalr.min.js",
             "background/simpleEvent.js",
+            "background/serverConnection.js",
             "background/signalRConnection.js",
+            "background/backgroundBase.js",
             "background/extensionBase.js",
             "background/chromeExtension.js"
         ]

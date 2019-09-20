@@ -1081,31 +1081,31 @@
         this.initTagSelector(parseInt(value));
     }
 
-    private onSiteLinkClick() {
-        this.openTrackerAction();
+    private async onSiteLinkClick() {
+        await this.openTrackerAction();
         this.close();
     }
 
-    private onTaskLinkClick() {
+    private async onTaskLinkClick() {
         let url = $('#task-link').attr('href');
         if (url) {
-            this.openPageAction(url);
+            await this.openPageAction(url);
             this.close();
         }
     }
 
-    private onLoginClick() {
-        this.loginAction();
+    private async onLoginClick() {
+        await this.loginAction();
         this.close();
     }
 
-    private onRetryClick() {
-        this.retryAction();
+    private async onRetryClick() {
+        await this.retryAction();
         this.close();
     }
 
-    private onFixClick() {
-        this.fixTimerAction();
+    private async onFixClick() {
+        await this.fixTimerAction();
         this.close();
     }
 
