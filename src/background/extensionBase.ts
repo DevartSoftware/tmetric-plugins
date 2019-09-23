@@ -11,8 +11,28 @@ abstract class ExtensionBase extends BackgroundBase {
         }
     }
 
+    protected getConstants() {
+        let constants = super.getConstants();
+        return <Models.Constants>{
+            maxTimerHours: constants.maxTimerHours,
+            serviceUrl: this.getUrl('tmetric.url', constants.serviceUrl),
+            storageUrl: this.getUrl('tmetric.storageUrl', constants.storageUrl),
+            extensionName: this.getExtensionName(),
+            browserSchema: this.getBrowserSchema(),
+            extensionUUID: this.getExtensionUUID()
+        };
+    }
+
     protected getExtensionName() {
         return chrome.runtime.getManifest().name;
+    }
+
+    protected abstract getBrowserSchema(): string
+
+    protected abstract getExtensionUUID(): string
+
+    protected getUrl(key, defaultValue) {
+        return this.normalizeUrlLastSlash(this.getTestValue(key) || defaultValue);
     }
 
     /**
@@ -87,13 +107,11 @@ abstract class ExtensionBase extends BackgroundBase {
 
     private loginWindowPending: boolean;
 
-    private signalRUrl: string;
+    protected signalRUrl: string;
 
-    private extraHours: number;
+    protected extraHours: number;
 
-    protected _timeEntries: Models.TimeEntry[];
-
-    private static defaultSignalRUrl = 'https://signalr.tmetric.com/';
+    protected timeEntries: Models.TimeEntry[];
 
     constructor() {
 
@@ -108,7 +126,7 @@ abstract class ExtensionBase extends BackgroundBase {
                 this.clearIssuesDurationsCache();
             }
 
-            this._timer = timer;
+            this.timer = timer;
 
             if (timer && timer.details) {
                 let project = await this.getProject(timer.details.projectId);
@@ -120,21 +138,21 @@ abstract class ExtensionBase extends BackgroundBase {
 
             // timer should be received from server on connect
             if (timer) {
-                let action = this._actionOnConnect;
+                let action = this.actionOnConnect;
                 if (action) {
-                    this._actionOnConnect = null;
+                    this.actionOnConnect = null;
                     action();
                 }
             }
         });
 
         this.connection.onUpdateTracker(timeEntries => {
-            this._timeEntries = timeEntries;
+            this.timeEntries = timeEntries;
             this.updateState();
         });
 
         this.connection.onUpdateProfile(profile => {
-            this._userProfile = profile;
+            this.userProfile = profile;
         });
 
         this.connection.onUpdateActiveAccount(acountId => {
@@ -165,7 +183,7 @@ abstract class ExtensionBase extends BackgroundBase {
 
         super.init();
 
-        this.signalRUrl = this.normalizeUrlLastSlash(this.getTestValue('tmetric.signalRUrl') || ExtensionBase.defaultSignalRUrl);
+        this.signalRUrl = this.getUrl('tmetric.signalRUrl', 'https://signalr.tmetric.com/');
 
         this.extraHours = this.getTestValue('tmetric.extraHours');
         if (this.extraHours) {
@@ -181,7 +199,7 @@ abstract class ExtensionBase extends BackgroundBase {
         this.connection = new SignalRConnection();
 
         this.connection
-            .init({ serviceUrl: this.serviceUrl, signalRUrl: this.signalRUrl })
+            .init({ serviceUrl: this.constants.serviceUrl, signalRUrl: this.signalRUrl })
             .then(() => this.connection.getVersion());
     }
 
@@ -193,11 +211,11 @@ abstract class ExtensionBase extends BackgroundBase {
         switch (message.action) {
 
             case 'getConstants':
-                this.sendToTabs({ action: 'setConstants', data: this._constants }, tabId);
+                this.sendToTabs({ action: 'setConstants', data: this.constants }, tabId);
                 break;
 
             case 'getTimer':
-                this.sendToTabs({ action: 'setTimer', data: this._timer }, tabId);
+                this.sendToTabs({ action: 'setTimer', data: this.timer }, tabId);
                 break;
 
             case 'putTimer':
@@ -208,8 +226,8 @@ abstract class ExtensionBase extends BackgroundBase {
                 this.getIssuesDurations(message.data).then(durations => {
 
                     // show extra time on link for test purposes
-                    if (this.extraHours && this._timer && this._timer.isStarted) {
-                        let activeDetails = this._timer.details;
+                    if (this.extraHours && this.timer && this.timer.isStarted) {
+                        let activeDetails = this.timer.details;
                         if (activeDetails && activeDetails.projectTask) {
                             let activeTask = activeDetails.projectTask;
                             for (let i = 0; i < durations.length; i++) {
@@ -294,10 +312,10 @@ abstract class ExtensionBase extends BackgroundBase {
                         this.validateTimerProject(timer, status);
 
                         // This timer will be send when popup ask for initial data
-                        this._newPopupIssue = timer;
+                        this.newPopupIssue = timer;
 
                         // This account id will be used to prepare initial data for popup
-                        this._newPopupAccountId = status.accountId;
+                        this.newPopupAccountId = status.accountId;
 
                         return this.showPopup(tabId);
                     }
@@ -308,21 +326,78 @@ abstract class ExtensionBase extends BackgroundBase {
         });
     }
 
+    protected putData<T>(data: T, action: (data: T) => Promise<any>, retryAction?: (data: T) => Promise<any>) {
+
+        let onFail = (status: AjaxStatus, showDialog: boolean) => {
+
+            this.actionOnConnect = null;
+
+            // Zero status when server is unavailable or certificate fails (#59755). Show dialog in that case too.
+            if (!status || status.statusCode == HttpStatusCode.Unauthorized || status.statusCode == 0) {
+
+                let disconnectPromise = this.connection.disconnect();
+
+                if (showDialog) {
+                    disconnectPromise.then(() => {
+                        this.actionOnConnect = () => onConnect(false);
+                        this.showLoginDialog();
+                    });
+                }
+            }
+            else {
+
+                let error = this.getErrorText(status);
+
+                if (status.statusCode == HttpStatusCode.Forbidden && retryAction) {
+                    let promise = retryAction(data);
+                    if (promise) {
+                        promise.catch(() => this.showError(error));
+                        return;
+                    }
+                }
+
+                this.showError(error);
+            }
+        };
+
+        let onConnect = (showDialog: boolean) => {
+
+            if (this.isLongTimer()) {
+
+                // ensure connection before page open to prevent login duplication (#67759)
+                this.actionOnConnect = () => this.fixTimer();
+                this.connection.getData().catch(status => onFail(status, showDialog));
+                return;
+            }
+
+            action(data).catch(status => onFail(status, showDialog));
+        };
+
+        if (this.timer == null) {
+            // connect before action to get actual state
+            this.actionOnConnect = () => onConnect(true);
+            this.connection.reconnect().catch(status => onFail(status, true));
+        }
+        else {
+            onConnect(true);
+        }
+    }
+
     private updateState() {
         let state = ButtonState.connect;
         let text = 'Not Connected';
-        if (this._timer) {
+        if (this.timer) {
             let todayTotal = 'Today Total - '
-                + this.durationToString(this.getDuration(this._timeEntries))
+                + this.durationToString(this.getDuration(this.timeEntries))
                 + ' hours';
-            if (this._timer.isStarted) {
-                if (this.getDuration(this._timer) > this._constants.maxTimerHours * 60 * 60000) {
+            if (this.timer.isStarted) {
+                if (this.getDuration(this.timer) > this.constants.maxTimerHours * 60 * 60000) {
                     state = ButtonState.fixtimer;
                     text = 'Started\nYou need to fix long-running timer';
                 }
                 else {
                     state = ButtonState.stop;
-                    let description = this._timer.details.description || '(No task description)';
+                    let description = this.timer.details.description || '(No task description)';
                     text = `Started (${todayTotal})\n${description}`;
                 }
             }
@@ -336,7 +411,7 @@ abstract class ExtensionBase extends BackgroundBase {
     }
 
     private getLoginUrl(): string {
-        return this.serviceUrl + 'login';
+        return this.constants.serviceUrl + 'login';
     }
 
     private getDuration(timer: Models.Timer): number
@@ -371,6 +446,68 @@ abstract class ExtensionBase extends BackgroundBase {
         let minutes = totalMinutes % 60;
 
         return sign + hours + (minutes < 10 ? ':0' : ':') + minutes;
+    }
+
+    // issues durations cache
+
+    private _issuesDurationsCache: { [key: string]: WebToolIssueDuration } = {};
+
+    private makeIssueDurationKey(identifier: WebToolIssueIdentifier) {
+        return identifier.serviceUrl + '/' + identifier.issueUrl;
+    }
+
+    protected getIssueDurationFromCache(identifier: WebToolIssueIdentifier): WebToolIssueDuration {
+        return this._issuesDurationsCache[this.makeIssueDurationKey(identifier)];
+    }
+
+    protected putIssuesDurationsToCache(durations: WebToolIssueDuration[]) {
+        durations.forEach(duration => {
+            this._issuesDurationsCache[this.makeIssueDurationKey(duration)] = duration;
+        });
+    }
+
+    protected removeIssuesDurationsFromCache(identifiers: WebToolIssueIdentifier[]) {
+        identifiers.forEach(identifier => {
+            delete this._issuesDurationsCache[this.makeIssueDurationKey(identifier)];
+        });
+    }
+
+    protected clearIssuesDurationsCache() {
+        this._issuesDurationsCache = {};
+    }
+
+    protected getIssuesDurations(identifiers: WebToolIssueIdentifier[]): Promise<WebToolIssueDuration[]> {
+
+        let durations = <WebToolIssueDuration[]>[];
+        let fetchIdentifiers = <WebToolIssueIdentifier[]>[];
+
+        // Do not show durations of tasks without url
+        identifiers = identifiers.filter(_ => !!_.serviceUrl && !!_.issueUrl);
+
+        identifiers.forEach(identifier => {
+            let duration = this.getIssueDurationFromCache(identifier);
+            if (duration) {
+                durations.push(duration);
+            }
+            else {
+                fetchIdentifiers.push(identifier);
+            }
+        });
+
+        if (durations.length == identifiers.length) {
+            return Promise.resolve(durations);
+        }
+
+        return new Promise<WebToolIssueDuration[]>(resolve => {
+            this.connection.fetchIssuesDurations(fetchIdentifiers)
+                .then(fetchDurations => {
+                    this.putIssuesDurationsToCache(fetchDurations);
+                    resolve(durations.concat(fetchDurations));
+                })
+                .catch(() => {
+                    resolve([]);
+                });
+        });
     }
 
     protected showLoginDialog() {
@@ -432,6 +569,10 @@ abstract class ExtensionBase extends BackgroundBase {
                 });
             }
         }));
+    }
+
+    protected getTestValue(name: string): any {
+        return localStorage.getItem(name);
     }
 
     protected getActiveTabTitle() {
@@ -497,7 +638,7 @@ abstract class ExtensionBase extends BackgroundBase {
         chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
             if (tabId == this.loginTabId && changeInfo.url) {
                 let tabUrl = changeInfo.url.toLowerCase();
-                let serviceUrl = this.serviceUrl.toLowerCase();
+                let serviceUrl = this.constants.serviceUrl.toLowerCase();
                 if (tabUrl == serviceUrl || tabUrl.indexOf(serviceUrl + '#') == 0) {
                     chrome.tabs.remove(tabId);
                     return;
@@ -524,7 +665,7 @@ abstract class ExtensionBase extends BackgroundBase {
         ) => {
 
             // Popup requests
-            if (!sender.url || sender.url.startsWith(this._constants.browserSchema)) {
+            if (!sender.url || sender.url.startsWith(this.constants.browserSchema)) {
                 this.onPopupRequest(message, senderResponse);
                 return !!senderResponse;
             }

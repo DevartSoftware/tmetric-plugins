@@ -1,22 +1,12 @@
 ﻿abstract class BackgroundBase {
 
-    protected getDefaultConstants() {
-        let constants: Models.Constants = {
+    protected getConstants() {
+        return <Models.Constants>{
             maxTimerHours: 12,
-            extensionName: this.getExtensionName(),
-            browserSchema: this.getBrowserSchema(),
-            extensionUUID: this.getExtensionUUID(),
-            serviceUrl: this.serviceUrl,
-            storageUrl: this.storageUrl
+            serviceUrl: 'https://app.tmetric.com/',
+            storageUrl: 'https://services.tmetric.com/storage/',
         };
-        return constants;
     }
-
-    protected abstract getExtensionName(): string
-
-    protected abstract getBrowserSchema(): string
-
-    protected abstract getExtensionUUID(): string
 
     protected showError(message: string) {
         // This needed to prevent alert cleaning via build.
@@ -33,25 +23,17 @@
 
     protected connection: ServerConnection;
 
-    protected serviceUrl: string;
+    protected constants: Models.Constants;
 
-    protected storageUrl: string;
+    protected actionOnConnect: () => void;
 
-    protected _constants: Models.Constants;
+    protected timer: Models.TimerEx;
 
-    protected _actionOnConnect: () => void;
+    protected newPopupIssue: WebToolIssueTimer;
 
-    protected _timer: Models.TimerEx;
+    protected newPopupAccountId: number;
 
-    protected _newPopupIssue: WebToolIssueTimer;
-
-    protected _newPopupAccountId: number;
-
-    protected _userProfile: Models.UserProfile;
-
-    private static defaultApplicationUrl = 'https://app.tmetric.com/';
-
-    private static defaultStorageUrl = 'https://services.tmetric.com/storage/';
+    protected userProfile: Models.UserProfile;
 
     constructor() {
 
@@ -77,22 +59,18 @@
     }
 
     protected init() {
-
-        this.serviceUrl = this.normalizeUrlLastSlash(this.getTestValue('tmetric.url') || BackgroundBase.defaultApplicationUrl);
-        this.storageUrl = this.normalizeUrlLastSlash(this.getTestValue('tmetric.storageUrl') || BackgroundBase.defaultStorageUrl);
-
-        this._constants = this.getDefaultConstants();
+        this.constants = this.getConstants();
     }
 
     protected initConnection() {
 
         this.connection = new ServerConnection();
 
-        this.connection.init({ serviceUrl: this.serviceUrl });
+        this.connection.init({ serviceUrl: this.constants.serviceUrl });
     }
 
     protected async getProject(projectId: number, accountId?: number) {
-        accountId = accountId || this._userProfile.activeAccountId;
+        accountId = accountId || this.userProfile.activeAccountId;
 
         let scope = await this.getAccountScope(accountId);
         if (scope) {
@@ -101,9 +79,9 @@
     }
 
     protected openTrackerPage() {
-        let url = this.serviceUrl;
-        if (this._userProfile && this._userProfile.activeAccountId) {
-            url += '#/tracker/' + this._userProfile.activeAccountId + '/';
+        let url = this.constants.serviceUrl;
+        if (this.userProfile && this.userProfile.activeAccountId) {
+            url += '#/tracker/' + this.userProfile.activeAccountId + '/';
         }
         this.openPage(url);
     }
@@ -218,10 +196,10 @@
                 this.validateTimerProject(timer, status);
 
                 // This timer will be send when popup ask for initial data
-                this._newPopupIssue = timer;
+                this.newPopupIssue = timer;
 
                 // This account id will be used to prepare initial data for popup
-                this._newPopupAccountId = status.accountId;
+                this.newPopupAccountId = status.accountId;
 
                 return this.showPopup();
             }
@@ -231,60 +209,7 @@
     }
 
     protected putData<T>(data: T, action: (data: T) => Promise<any>, retryAction?: (data: T) => Promise<any>) {
-
-        let onFail = (status: AjaxStatus, showDialog: boolean) => {
-
-            this._actionOnConnect = null;
-
-            // Zero status when server is unavailable or certificate fails (#59755). Show dialog in that case too.
-            if (!status || status.statusCode == HttpStatusCode.Unauthorized || status.statusCode == 0) {
-
-                let disconnectPromise = this.connection.disconnect();
-
-                if (showDialog) {
-                    disconnectPromise.then(() => {
-                        this._actionOnConnect = () => onConnect(false);
-                        this.showLoginDialog();
-                    });
-                }
-            }
-            else {
-
-                let error = this.getErrorText(status);
-
-                if (status.statusCode == HttpStatusCode.Forbidden && retryAction) {
-                    let promise = retryAction(data);
-                    if (promise) {
-                        promise.catch(() => this.showError(error));
-                        return;
-                    }
-                }
-
-                this.showError(error);
-            }
-        };
-
-        let onConnect = (showDialog: boolean) => {
-
-            if (this.isLongTimer()) {
-
-                // ensure connection before page open to prevent login duplication (#67759)
-                this._actionOnConnect = () => this.fixTimer();
-                this.connection.getData().catch(status => onFail(status, showDialog));
-                return;
-            }
-
-            action(data).catch(status => onFail(status, showDialog));
-        };
-
-        if (this._timer == null) {
-            // connect before action to get actual state
-            this._actionOnConnect = () => onConnect(true);
-            this.connection.reconnect().catch(status => onFail(status, true));
-        }
-        else {
-            onConnect(true);
-        }
+        action(data).catch(status => this.showError(this.getErrorText(status)));
     }
 
     protected normalizeUrlLastSlash(url: string) {
@@ -304,7 +229,7 @@
 
     protected async validateTimerTags(timer: WebToolIssueTimer, accountId?: number) {
 
-        accountId = accountId || this._userProfile.activeAccountId;
+        accountId = accountId || this.userProfile.activeAccountId;
 
         let scope = await this.getAccountScope(accountId);
 
@@ -354,78 +279,16 @@
 
     protected async getDefaultWorkType(accountId?: number) {
 
-        accountId = accountId || this._userProfile.activeAccountId;
+        accountId = accountId || this.userProfile.activeAccountId;
 
         let scope = await this.getAccountScope(accountId);
-        let member = this._userProfile.accountMembership.find(_ => _.account.accountId == accountId);
+        let member = this.userProfile.accountMembership.find(_ => _.account.accountId == accountId);
 
         return scope.tags.find(tag => tag.tagId == member.defaultWorkTypeId);
     }
 
     protected async getRecentTasks(accountId?: number) {
-        return await this.connection.getRecentWorkTasks(accountId || this._userProfile.activeAccountId);
-    }
-
-    // issues durations cache
-
-    private _issuesDurationsCache: { [key: string]: WebToolIssueDuration } = {};
-
-    private makeIssueDurationKey(identifier: WebToolIssueIdentifier) {
-        return identifier.serviceUrl + '/' + identifier.issueUrl;
-    }
-
-    protected getIssueDurationFromCache(identifier: WebToolIssueIdentifier): WebToolIssueDuration {
-        return this._issuesDurationsCache[this.makeIssueDurationKey(identifier)];
-    }
-
-    protected putIssuesDurationsToCache(durations: WebToolIssueDuration[]) {
-        durations.forEach(duration => {
-            this._issuesDurationsCache[this.makeIssueDurationKey(duration)] = duration;
-        });
-    }
-
-    protected removeIssuesDurationsFromCache(identifiers: WebToolIssueIdentifier[]) {
-        identifiers.forEach(identifier => {
-            delete this._issuesDurationsCache[this.makeIssueDurationKey(identifier)];
-        });
-    }
-
-    protected clearIssuesDurationsCache() {
-        this._issuesDurationsCache = {};
-    }
-
-    protected getIssuesDurations(identifiers: WebToolIssueIdentifier[]): Promise<WebToolIssueDuration[]> {
-
-        let durations = <WebToolIssueDuration[]>[];
-        let fetchIdentifiers = <WebToolIssueIdentifier[]>[];
-
-        // Do not show durations of tasks without url
-        identifiers = identifiers.filter(_ => !!_.serviceUrl && !!_.issueUrl);
-
-        identifiers.forEach(identifier => {
-            let duration = this.getIssueDurationFromCache(identifier);
-            if (duration) {
-                durations.push(duration);
-            }
-            else {
-                fetchIdentifiers.push(identifier);
-            }
-        });
-
-        if (durations.length == identifiers.length) {
-            return Promise.resolve(durations);
-        }
-
-        return new Promise<WebToolIssueDuration[]>(resolve => {
-            this.connection.fetchIssuesDurations(fetchIdentifiers)
-                .then(fetchDurations => {
-                    this.putIssuesDurationsToCache(fetchDurations);
-                    resolve(durations.concat(fetchDurations));
-                })
-                .catch(() => {
-                    resolve([]);
-                });
-        });
+        return await this.connection.getRecentWorkTasks(accountId || this.userProfile.activeAccountId);
     }
 
     // account scope cache
@@ -483,13 +346,13 @@
         let accountId = params.accountId;
 
         // get popup default data from account where project exist
-        if (!accountId && this._newPopupAccountId) {
-            accountId = this._newPopupAccountId;
+        if (!accountId && this.newPopupAccountId) {
+            accountId = this.newPopupAccountId;
         }
 
         // get default data from active account
-        if (!this._userProfile.accountMembership.some(_ => _.account.accountId == accountId)) {
-            accountId = this._userProfile.activeAccountId;
+        if (!this.userProfile.accountMembership.some(_ => _.account.accountId == accountId)) {
+            accountId = this.userProfile.activeAccountId;
         }
 
         return Promise.all([
@@ -498,7 +361,7 @@
             this.getDefaultWorkType(accountId)
         ]).then(([title, scope, defaultWorkType]) => {
 
-            let userRole = this._userProfile.accountMembership
+            let userRole = this.userProfile.accountMembership
                 .find(_ => _.account.accountId == accountId)
                 .role;
 
@@ -506,7 +369,7 @@
             let canCreateTags = scope.account.canMembersCreateTags;
             let isAdmin = (userRole == Models.ServiceRole.Admin || userRole == Models.ServiceRole.Owner);
 
-            let newIssue = this._newPopupIssue || <WebToolIssueTimer>{ // _newPopupIssue is null if called from toolbar popup
+            let newIssue = this.newPopupIssue || <WebToolIssueTimer>{ // _newPopupIssue is null if called from toolbar popup
                 isStarted: true,
                 description: title,
                 tagNames: defaultWorkType ? [defaultWorkType.tagName] : []
@@ -538,20 +401,20 @@
                 newIssue.description = descriptionMap[newIssue.issueName];
             }
 
-            this._newPopupIssue = null;
-            this._newPopupAccountId = null;
+            this.newPopupIssue = null;
+            this.newPopupAccountId = null;
 
             return <IPopupInitData>{
-                timer: this._timer,
+                timer: this.timer,
                 newIssue,
-                profile: this._userProfile,
+                profile: this.userProfile,
                 accountId,
                 projects: filteredProjects,
                 clients: scope.clients,
                 tags: scope.tags,
                 canCreateProjects: isAdmin || canMembersManagePublicProjects,
                 canCreateTags,
-                constants: this._constants,
+                constants: this.constants,
                 defaultProjectId,
                 requiredFields: scope.requiredFields
             };
@@ -561,8 +424,8 @@
     protected initializePopupAction(params: IPopupParams): Promise<IPopupInitData> {
         return new Promise((resolve, reject) => {
             // Forget about old action when user open popup again
-            this._actionOnConnect = null;
-            if (this._timer) {
+            this.actionOnConnect = null;
+            if (this.timer) {
                 resolve(this.getPopupData(params));
             } else {
                 reject('Not connected');
@@ -616,13 +479,7 @@
         });
     }
 
-    protected getTestValue(name: string): any {
-        return localStorage.getItem(name);
-    }
-
-    protected getActiveTabTitle() {
-        return Promise.resolve(document.title);
-    }
+    protected abstract getActiveTabTitle(): Promise<string>;
 
     protected openPage(url: string) {
         open(url);
