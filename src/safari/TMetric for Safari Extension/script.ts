@@ -134,6 +134,23 @@ window.chrome = <typeof chrome>{
 
 function openPopupTimer(timer: WebToolIssueTimer) {
     let url = settings.serviceUrl + 'PopupTimer';
-    url += '#' + encodeURIComponent(JSON.stringify(timer));
+    url += '#' + objToParams(timer);
     window.open(url, 'TMetricPopup', 'toolbar=no,scrollbars=no,resizable=no,width=480,height=640,left=0,top=0');
+}
+
+// Utils
+
+function objToParams(obj: any) {
+    let params = new URLSearchParams();
+    for (let name in obj) {
+        let value = obj[name];
+        if (Array.isArray(value)) {
+            for (let item of value) {
+                params.append(name, item);
+            }
+        } else {
+            params.set(name, value)
+        }
+    }
+    return params.toString();
 }
