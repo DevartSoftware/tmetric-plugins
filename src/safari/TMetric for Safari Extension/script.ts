@@ -7,19 +7,8 @@ function normalizeUrlLastSlash(url: string) {
     return url;
 }
 
-function getStorageValue(name: string, defaultValue: string) {
-    let value = '';
-    try {
-        value = localStorage.getItem(name);
-    }
-    catch (err) {
-        console.log(err, location.href);
-    }
-    return value || defaultValue;
-}
-
 var settings = {
-    serviceUrl: normalizeUrlLastSlash(getStorageValue('tmetric.url', 'https://app.tmetric.com'))
+    serviceUrl: normalizeUrlLastSlash('https://app.tmetric.com')
 };
 
 // Bundle inclusion functions
