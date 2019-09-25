@@ -44,9 +44,10 @@ var firefoxDir = distDir + 'firefox/';
 var firefoxUnpackedDir = firefoxDir + 'unpacked/';
 var edgeDir = distDir + 'edge/';
 var edgeUnpackedDir = edgeDir + 'Extension/';
-var safariExtensionFolderName = 'TMetric for Safari Extension';
+var safariAppFolderName = 'TMetric for Safari';
+var safariAppExtensionFolderName = 'TMetric for Safari Extension';
 var safariDir = distDir + 'safari/';
-var safariExtensionDir = safariDir + safariExtensionFolderName + '/';
+var safariExtensionDir = safariDir + safariAppExtensionFolderName + '/';
 
 console.log('Start build');
 console.log(JSON.stringify(config, null, 2));
@@ -371,12 +372,13 @@ gulp.task('package:edge', gulp.series('prepackage:edge'));
 // =============================================================================
 
 var safariSrcDir = src + 'safari/';
-var safariExtensionSrcDir = safariSrcDir + safariExtensionFolderName + '/';
+var safariAppSrcDir = safariSrcDir + safariAppFolderName + '/';
+var safariAppExtensionSrcDir = safariSrcDir + safariAppExtensionFolderName + '/';
 
 function bundleScriptsSafari() {
 
     var scriptFileName = 'script.js';
-    var scriptFile = safariExtensionSrcDir + scriptFileName;
+    var scriptFile = safariAppExtensionSrcDir + scriptFileName;
 
     var manifestFile = src + 'manifest.json';
     var manifest = jsonfile.readFileSync(manifestFile);
@@ -425,17 +427,31 @@ function bundleScriptsSafari() {
 
         }))
         .pipe(concat(scriptFileName))
-        .pipe(gulp.dest(safariExtensionSrcDir))
+        .pipe(gulp.dest(safariAppExtensionSrcDir))
 }
 
 function bundleStylesSafari() {
 
     var styleFileName = 'styles.css';
-    var styleFile = safariExtensionSrcDir + styleFileName;
+    var styleFile = safariAppExtensionSrcDir + styleFileName;
 
     return gulp.src([ 'src/css/timer-link.css' ], { base: src })
         .pipe(concat(styleFileName))
-        .pipe(gulp.dest(safariExtensionSrcDir))
+        .pipe(gulp.dest(safariAppExtensionSrcDir))
+}
+
+function copyIconsSafari() {
+
+    var iconsFolder = src + 'images/';
+    var iconSetFolder = safariAppSrcDir + 'Assets.xcassets/AppIcon.appiconset/';
+    var iconSetFile = iconSetFolder + 'Contents.json';
+
+    var content = jsonfile.readFileSync(iconSetFile);
+    var iconFiles = content.images.map(_ => iconsFolder + _.filename);
+    console.log(iconFiles);
+
+    return gulp.src(iconFiles)
+        .pipe(gulp.dest(iconSetFolder));
 }
 
 function copyFilesSafari() {
@@ -450,6 +466,7 @@ function stripDebugSafari() {
 gulp.task('prepackage:safari', gulp.series(
     bundleScriptsSafari,
     bundleStylesSafari,
+    copyIconsSafari,
     copyFilesSafari,
     stripDebugSafari
 ));
