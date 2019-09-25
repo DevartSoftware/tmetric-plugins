@@ -17,20 +17,28 @@
     display: inline-block;
     vertical-align: middle;
 
+    &:before {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        background-size: 16px 16px;
+        content: "";
+    }
+
     .devart-timer-link-start > &:before {
-        content: data-uri('src/images/start16.png');
+        background-image: data-uri('src/images/start.png');
     }
 
     .devart-timer-link-stop > &:before {
-        content: data-uri('src/images/stop16.png');
+        background-image: data-uri('src/images/stop.png');
     }
 
     .devart-timer-link-minimal.devart-timer-link-start > &:before {
-        content: data-uri('src/images/simple_start_19.png');
+        background-image: data-uri('src/images/simple_start.png');
     }
 
     .devart-timer-link-minimal.devart-timer-link-stop > &:before {
-        content: data-uri('src/images/simple_stop_19.png');
+        background-image: data-uri('src/images/simple_stop.png');
     }
 }
 
