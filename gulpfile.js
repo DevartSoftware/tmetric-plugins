@@ -448,7 +448,6 @@ function copyIconsSafari() {
 
     var content = jsonfile.readFileSync(iconSetFile);
     var iconFiles = content.images.map(_ => iconsFolder + _.filename);
-    console.log(iconFiles);
 
     return gulp.src(iconFiles)
         .pipe(gulp.dest(iconSetFolder));
