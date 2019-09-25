@@ -122,9 +122,33 @@ window.chrome = <typeof chrome>{
 // Open popup timer
 
 function openPopupTimer(timer: WebToolIssueTimer) {
+
     let url = settings.serviceUrl + 'PopupTimer';
     url += '#' + objToParams(timer);
-    window.open(url, 'TMetricPopup', 'toolbar=no,scrollbars=no,resizable=no,width=480,height=640,left=0,top=0');
+
+    let popupId = 'TMetricPopup';
+
+    let width = 480;
+    let height = 640;
+
+    // get position relative to window center
+    let left = Math.round(screenLeft + (outerWidth - width) / 2);
+    let top = Math.round(screenTop + (outerHeight - height) / 2);
+
+    let options = `toolbar=no,scrollbars=no,resizable=no,width=${width},height=${height},left=${left},top=${top}`;
+    
+    let popup = open(url, popupId, options);
+
+    // check if popup just opened
+    if (popup.document.readyState != 'complete') {
+
+        // adjust position using actual dimension
+        let xDelta = (width - popup.outerWidth) / 2;
+        let yDelta = (height - popup.outerHeight) / 2;
+        popup.moveBy(xDelta, yDelta);
+    }
+
+    popup.focus();
 }
 
 // Utils
