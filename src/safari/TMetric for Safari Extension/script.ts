@@ -32,36 +32,13 @@ var settings = {
 
 type ExtensionMessageEventCallback = chrome.runtime.ExtensionMessageEvent extends chrome.events.Event<infer T> ? T : never;
 
-class Messenger implements chrome.runtime.ExtensionMessageEvent {
+class Messenger implements Partial<chrome.runtime.ExtensionMessageEvent> {
 
     private _listeners: ExtensionMessageEventCallback[] = [];
 
-    addListener (callback: ExtensionMessageEventCallback) {
+    addListener(callback: ExtensionMessageEventCallback) {
         this._listeners.push(callback);
     }
-
-    removeListener (callback: ExtensionMessageEventCallback) {
-        let index = this._listeners.indexOf(callback);
-        if (index < 0) {
-            return;
-        }
-
-        this._listeners.splice(index, 1);
-    }
-
-    hasListener (callback: ExtensionMessageEventCallback) {
-        return this._listeners.indexOf(callback) > -1;
-    }
-
-    hasListeners () {
-        return this._listeners.length > 0;
-    }
-
-    getRules() {}
-
-    addRules() {}
-
-    removeRules() {}
 
     notifyListeners(message: ITabMessage) {
         this._listeners.forEach(listener => {
@@ -73,23 +50,23 @@ class Messenger implements chrome.runtime.ExtensionMessageEvent {
 var messenger = new Messenger();
 
 window.chrome = <typeof chrome>{
-    runtime: {
+    runtime: {
         sendMessage: (message: ITabMessage, responseCallback: (response: any) => void) => {
 
             // Emulate extension background message handling
             // Use responseCallback to respond with runtime error
-            
+
             // Respond callback message
             messenger.notifyListeners({ action: message.action + '_callback' });
 
             switch (message.action) {
-                
+
                 case 'getConstants':
-                    messenger.notifyListeners({ action: 'setConstants', data: {}});
+                    messenger.notifyListeners({ action: 'setConstants', data: {} });
                     break;
 
                 case 'getTimer':
-                    messenger.notifyListeners({ action: 'setTimer', data: null});
+                    messenger.notifyListeners({ action: 'setTimer', data: null });
                     break;
 
                 case 'putTimer':
@@ -97,9 +74,8 @@ window.chrome = <typeof chrome>{
                     break;
 
                 case 'getIssuesDurations':
-                    messenger.notifyListeners({ action: 'setIssuesDurations', data: []});
+                    messenger.notifyListeners({ action: 'setIssuesDurations', data: [] });
                     break;
-        
             }
         },
         onMessage: {
@@ -125,7 +101,7 @@ function openPopupTimer(timer: WebToolIssueTimer) {
     let top = Math.round(screenTop + (outerHeight - height) / 2);
 
     let options = `toolbar=no,scrollbars=no,resizable=no,width=${width},height=${height},left=${left},top=${top}`;
-    
+
     let popup = open(url, popupId, options);
 
     // check if popup just opened
@@ -144,7 +120,7 @@ function openPopupTimer(timer: WebToolIssueTimer) {
 
 declare type ContentScriptsManifest = chrome.runtime.Manifest['content_scripts'];
 
-function isLocationMatchPattern (pattern: string) {
+function isLocationMatchPattern(pattern: string) {
 
     let patternMatch = pattern.match(/(.+):\/\/(.+)(\/.+)/);
     let patternScheme = patternMatch[1];
@@ -160,17 +136,16 @@ function shouldIncludeScripts(item: ContentScriptsManifest[number]) {
 
     let isMatch = item.matches && item.matches.some(match => isLocationMatchPattern(match));
     let isExcludeMatch = item.exclude_matches && item.exclude_matches.some(match => isLocationMatchPattern(match));
-    
+
     if (!isMatch || isExcludeMatch) {
         return false;
     }
 
     let isTopWindow = window.top == window;
     return isTopWindow || item.all_frames;
-
 }
 
-function includeScripts(manifest: ContentScriptsManifest, scripts: { [ scriptName: string ] : () => void }) {
+function includeScripts(manifest: ContentScriptsManifest, scripts: { [scriptName: string]: () => void }) {
     manifest.forEach(info => {
         if (shouldIncludeScripts(info)) {
             info.js.forEach(name => scripts[name]());
