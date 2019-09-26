@@ -55,6 +55,7 @@ console.log(JSON.stringify(config, null, 2));
 var files = {
     common: [
         'src/background/serverConnection.js',
+        'src/background/signalRHubProxy.js',
         'src/background/signalRConnection.js',
         'src/css/*.css',
         'src/in-page-scripts/integrations/*.js',
@@ -206,8 +207,8 @@ gulp.task('lib', () => {
         .src('node_modules/jquery/dist/jquery.min.js')
         .pipe(gulp.dest(lib));
     var signalr = gulp
-        .src('node_modules/ms-signalr-client/jquery.signalR-2.2.1.min.js')
-        .pipe(rename('jquery.signalr.min.js'))
+        .src('node_modules/@aspnet/signalr/dist/browser/signalr.min.js')
+        .pipe(rename('signalr.min.js'))
         .pipe(gulp.dest(lib));
     var select2 = gulp
         .src([

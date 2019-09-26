@@ -44,8 +44,6 @@
         this.listenPopupAction<IPopupParams, IPopupInitData>('initialize', this.initializePopupAction);
         this.listenPopupAction<void, void>('openTracker', this.openTrackerPagePopupAction);
         this.listenPopupAction<string, void>('openPage', this.openPagePopupAction);
-        this.listenPopupAction<void, boolean>('isConnectionRetryEnabled', this.isConnectionRetryEnabledPopupAction);
-        this.listenPopupAction<void, void>('retry', this.retryConnectionPopupAction);
         this.listenPopupAction<void, void>('login', this.loginPopupAction);
         this.listenPopupAction<void, void>('fixTimer', this.fixTimerPopupAction);
         this.listenPopupAction<IPopupTimerData, void>('putTimer', this.putTimerPopupAction);
@@ -317,7 +315,7 @@
 
     private _popupActions = {};
 
-    private listenPopupAction<TParams, TResult>(action: string, handler: (data: TParams) => Promise<TResult>) {
+    protected listenPopupAction<TParams, TResult>(action: string, handler: (data: TParams) => Promise<TResult>) {
         this._popupActions[action] = handler;
     }
 
@@ -443,14 +441,6 @@
         return Promise.resolve(null).then(() => {
             this.openPage(url);
         });
-    }
-
-    protected isConnectionRetryEnabledPopupAction(): Promise<boolean> {
-        return this.connection.isConnectionRetryEnabled();
-    }
-
-    protected retryConnectionPopupAction() {
-        return this.connection.retryConnection();
     }
 
     protected abstract showLoginDialog(): void

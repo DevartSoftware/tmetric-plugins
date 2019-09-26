@@ -16,8 +16,6 @@
 
     expectedTimerUpdate = false;
 
-    disconnecting = false;
-
     serverApiVersion: number;
 
     /** Like promise.all but reject is called after all promises are settled */
@@ -76,61 +74,6 @@
             .then(() => undefined);
     }
 
-    setRetryPending(isRetryPending: boolean) {
-
-        console.log('setRetryPending: ' + isRetryPending);
-
-        if (!!this.retryPendingHandle == isRetryPending) {
-            return;
-        }
-
-        if (isRetryPending) {
-            var timeout = this.retryTimeout;
-            var fromPreviousRetry = new Date().getTime() - this.retryTimeStamp.getTime();
-            if (!timeout || fromPreviousRetry > 5 * 60000) {
-                timeout = 30000; // Start from 30 second interval when reconnected more than 5 mins ago
-            }
-            else {
-                timeout = Math.min(timeout * 1.25, 90000); // else increase interval up to 1.5 mins
-            }
-            this.retryTimeout = timeout;
-            timeout *= 1 + Math.random(); // Random for uniform server load
-            //timeout = 3000; // for dev
-
-            this.retryPendingHandle = setTimeout(() => this.retryConnection(), timeout);
-        }
-        else if (this.retryPendingHandle) {
-            clearTimeout(this.retryPendingHandle);
-            this.retryPendingHandle = null;
-        }
-    }
-
-    protected get canRetryConnection() {
-        return !this.retryInProgress;
-    }
-
-    retryConnection() {
-        console.log('retryConnection');
-        this.setRetryPending(false);
-        if (this.canRetryConnection) {
-            this.retryInProgress = true;
-            this.reconnect()
-                .catch((err: AjaxStatus) => {
-                    // Stop retrying when server returns error code
-                    if (!(err.statusCode > 0)) {
-                        this.setRetryPending(true);
-                    }
-                })
-                .then(() => this.retryInProgress = false);
-        }
-        return Promise.resolve();
-    }
-
-    isConnectionRetryEnabled() {
-        console.log('retryPending: ' + !!this.retryPendingHandle + ', retryInProgress: ' + !!this.retryInProgress);
-        return Promise.resolve(!!(this.retryPendingHandle || this.retryInProgress));
-    }
-
     connect() {
 
         console.log('connect');
@@ -138,7 +81,6 @@
 
             this.waitAllRejects([this.getVersion(), this.getProfile()])
                 .then(([version, profile]) => {
-                    this.setRetryPending(false);
                     callback(profile);
                 })
                 .catch(e => {
@@ -149,15 +91,7 @@
     }
 
     disconnect() {
-        this.disconnecting = true;
-        var promise = new Promise<void>((callback, reject) => {
-            console.log('disconnect: disable retrying');
-            this.setRetryPending(false);
-            callback();
-        });
-        promise.then(() => this.disconnecting = false);
-        promise.catch(() => this.disconnecting = false);
-        return promise;
+        return Promise.resolve();
     }
 
     putTimer(timer: Models.Timer) {

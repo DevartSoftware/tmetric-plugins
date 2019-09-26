@@ -117,6 +117,9 @@ abstract class ExtensionBase extends BackgroundBase {
 
         super();
 
+        this.listenPopupAction<void, boolean>('isConnectionRetryEnabled', this.isConnectionRetryEnabledPopupAction);
+        this.listenPopupAction<void, void>('retry', this.retryConnectionPopupAction);
+
         this.updateState();
 
         this.connection.onUpdateTimer(async timer => {
@@ -698,5 +701,13 @@ abstract class ExtensionBase extends BackgroundBase {
 
     protected hidePopup(tabId?: number): void {
         this.sendToTabs({ action: 'hidePopup' }, tabId);
+    }
+
+    private isConnectionRetryEnabledPopupAction(): Promise<boolean> {
+        return this.connection.isConnectionRetryEnabled();
+    }
+
+    private retryConnectionPopupAction() {
+        return this.connection.retryConnection();
     }
 }
