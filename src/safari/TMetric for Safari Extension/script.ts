@@ -1,4 +1,19 @@
-// Settings
+// Utils
+
+function objToParams(obj: any) {
+    let params = new URLSearchParams();
+    for (let name in obj) {
+        let value = obj[name];
+        if (Array.isArray(value)) {
+            for (let item of value) {
+                params.append(name, item);
+            }
+        } else {
+            params.set(name, value)
+        }
+    }
+    return params.toString();
+}
 
 function normalizeUrlLastSlash(url: string) {
     if (url[url.length - 1] != '/') {
@@ -7,37 +22,11 @@ function normalizeUrlLastSlash(url: string) {
     return url;
 }
 
+// Settings
+
 var settings = {
     serviceUrl: normalizeUrlLastSlash('https://app.tmetric.com')
 };
-
-// Bundle inclusion functions
-
-function isLocationMatchPattern (pattern: string) {
-
-    let patternMatch = pattern.match(/(.+):\/\/(.+)(\/.+)/);
-    let patternScheme = patternMatch[1];
-    let patternHost = patternMatch[2];
-    let patternPath = patternMatch[3];
-
-    return (new RegExp((patternScheme == '*' ? 'http|htpps' : patternScheme) + ':', 'i')).test(location.protocol) &&
-        (new RegExp(patternHost.replace('.', '\.').replace('*', '.*'), 'i')).test(location.host) &&
-        (new RegExp(patternPath, 'i')).test(location.pathname);
-}
-
-function shouldIncludeScripts(item: chrome.runtime.Manifest['content_scripts'][number]) {
-
-    let isMatch = item.matches && item.matches.some(match => isLocationMatchPattern(match));
-    let isExcludeMatch = item.exclude_matches && item.exclude_matches.some(match => isLocationMatchPattern(match));
-    
-    if (!isMatch || isExcludeMatch) {
-        return false;
-    }
-
-    let isTopWindow = window.top == window;
-    return isTopWindow || item.all_frames;
-
-}
 
 // Message handling
 
@@ -151,19 +140,40 @@ function openPopupTimer(timer: WebToolIssueTimer) {
     popup.focus();
 }
 
-// Utils
+// Bundle inclusion
 
-function objToParams(obj: any) {
-    let params = new URLSearchParams();
-    for (let name in obj) {
-        let value = obj[name];
-        if (Array.isArray(value)) {
-            for (let item of value) {
-                params.append(name, item);
-            }
-        } else {
-            params.set(name, value)
-        }
+declare type ContentScriptsManifest = chrome.runtime.Manifest['content_scripts'];
+
+function isLocationMatchPattern (pattern: string) {
+
+    let patternMatch = pattern.match(/(.+):\/\/(.+)(\/.+)/);
+    let patternScheme = patternMatch[1];
+    let patternHost = patternMatch[2];
+    let patternPath = patternMatch[3];
+
+    return (new RegExp((patternScheme == '*' ? 'http|htpps' : patternScheme) + ':', 'i')).test(location.protocol) &&
+        (new RegExp(patternHost.replace('.', '\.').replace('*', '.*'), 'i')).test(location.host) &&
+        (new RegExp(patternPath, 'i')).test(location.pathname);
+}
+
+function shouldIncludeScripts(item: ContentScriptsManifest[number]) {
+
+    let isMatch = item.matches && item.matches.some(match => isLocationMatchPattern(match));
+    let isExcludeMatch = item.exclude_matches && item.exclude_matches.some(match => isLocationMatchPattern(match));
+    
+    if (!isMatch || isExcludeMatch) {
+        return false;
     }
-    return params.toString();
+
+    let isTopWindow = window.top == window;
+    return isTopWindow || item.all_frames;
+
+}
+
+function includeScripts(manifest: ContentScriptsManifest, scripts: { [ scriptName: string ] : () => void }) {
+    manifest.forEach(info => {
+        if (shouldIncludeScripts(info)) {
+            info.js.forEach(name => scripts[name]());
+        }
+    });
 }

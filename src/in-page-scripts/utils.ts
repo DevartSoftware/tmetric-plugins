@@ -15,7 +15,7 @@
 }
 
 // Do not use 'let' here to allow variable reassigning
-var $$ = <Utils>function (selector: string, element?: NodeSelector, condition?: (el: Element) => boolean) {
+var $$ = (<any>window).$$ = <Utils>function (selector: string, element?: NodeSelector, condition?: (el: Element) => boolean) {
 
     element = element || document;
 

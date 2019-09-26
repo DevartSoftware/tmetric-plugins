@@ -388,37 +388,48 @@ function bundleScriptsSafari() {
     return gulp.src([scriptFile])
         .pipe(through.obj((file, encoding, callback) => {
 
-            // combine bundles
+            // load content scripts
 
-            var bundlesContent = '';
+            let scripts = {};
 
             contentScripts.forEach(info => {
 
-                let bundleContent = '';
+                info.js.forEach(scriptName => {
+                    if (scripts[scriptName]) {
+                        return;
+                    }
 
-                if (info.js) {
-                    info.js.forEach((scriptName) => {
-                        let scriptPath = path.normalize(src + '/' + scriptName);
-                        try {
-                            let scriptContent = fs.readFileSync(scriptPath) + '';
-                            bundleContent += `\n\n// ${scriptName}\n\n${scriptContent}`;
-                        }
-                        catch (err) {
-                            console.log(`Not found script ${scriptName} in folder ${src}.`);
-                        }
-                    });
-                }
-
-                bundlesContent += `\n\nif (shouldIncludeScripts(${JSON.stringify(info, null, 4)})) {\n${bundleContent}\n}`;
-
+                    let scriptPath = path.normalize(src + '/' + scriptName);
+                    try {
+                        let scriptContent = fs.readFileSync(scriptPath) + '';
+                        scripts[scriptName] = scriptContent;
+                    }
+                    catch (err) {
+                        console.log(`Not found script ${scriptName} in folder ${src}.`);
+                    }
+                });
             });
+
+            // combine scripts map
+
+            let scriptsMap = '';
+
+            for (let scriptName in scripts) {
+                let script = scripts[scriptName];
+                scriptsMap += `\n\n'${scriptName}' : function () {\n${script}\n},`;
+            }
+
+            // combine extension content
+
+            var extensionContent = '';
+            extensionContent += `\n\n${file.contents.toString(encoding)}`;
+            extensionContent += `\n\nincludeScripts(${JSON.stringify(contentScripts, null, 4)}, {\n${scriptsMap}\n});`;
 
             // combine file content
 
             var combinedContent = '';
-            combinedContent += file.contents.toString(encoding);
-            combinedContent += `\n\nfunction loadBundles () {\n${bundlesContent}\n}`;
-            combinedContent += `\n\nif (document.readyState == "loading") {\n\tdocument.addEventListener("DOMContentLoaded", loadBundles);\n} else {\n\tloadBundles();\n}`;
+            combinedContent += `\n\nfunction initTMetricExtension () {\n${extensionContent}\n}`;
+            combinedContent += `\n\nif (document.readyState == "loading") {\n\tdocument.addEventListener("DOMContentLoaded", initTMetricExtension);\n} else {\n\tinitTMetricExtension();\n}`;
 
             // replace file content
 

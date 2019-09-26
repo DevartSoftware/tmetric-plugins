@@ -56,7 +56,7 @@ if (typeof document != 'undefined') {
         /**
          * Sends message to background script.
          */
-        sendBackgroundMessage = function (message: ITabMessage) {
+        sendBackgroundMessage = (<any>window).sendBackgroundMessage = function (message: ITabMessage) {
 
             // finalize script when extension removed/disabled/upgraded (#66666)
             let callbackAction = message.action + '_callback';
