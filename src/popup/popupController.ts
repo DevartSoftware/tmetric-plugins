@@ -171,7 +171,9 @@
 
         if (name == this._states.creating) {
             this.focusCreatingForm();
-            this.fillRecentTaskSelector();
+            if (!this.isPagePopup) {
+                this.fillRecentTaskSelector();
+            }
         }
 
         let logoText: string;
