@@ -133,14 +133,7 @@ function isLocationMatchPattern(pattern: string) {
 }
 
 function shouldIncludeScripts(item: ContentScriptsManifest[number]) {
-
     let isMatch = item.matches && item.matches.some(match => isLocationMatchPattern(match));
-    let isExcludeMatch = item.exclude_matches && item.exclude_matches.some(match => isLocationMatchPattern(match));
-
-    if (!isMatch || isExcludeMatch) {
-        return false;
-    }
-
     let isTopWindow = window.top == window;
-    return isTopWindow || item.all_frames;
+    return isMatch && (isTopWindow || item.all_frames);
 }
