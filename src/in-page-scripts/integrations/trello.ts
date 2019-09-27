@@ -23,8 +23,11 @@
             linkElement.classList.add('button-link');
             issueElement.insertBefore(linkElement, issueElement.firstElementChild);
         } else if (issueElement.matches(this.issueElementSelector[1])) { // for checklist
-            linkElement.classList.add('devart-timer-link-minimal', 'devart-timer-link-trello');
-            issueElement.insertBefore(linkElement, issueElement.nextElementSibling);
+            let wrapper = $$.try('.checklist-item-menu-wrapper', issueElement);
+            if (wrapper) {
+                linkElement.classList.add('devart-timer-link-minimal', 'devart-timer-link-trello');
+                wrapper.appendChild(linkElement);
+            }
         }
     }
 
