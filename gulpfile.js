@@ -385,45 +385,50 @@ function bundleScriptsSafari() {
     var manifest = jsonfile.readFileSync(manifestFile);
     var contentScripts = manifest.content_scripts;
 
+
+    function loadFilesContent(filePaths) {
+        return filePaths.map(filePath => {
+            try {
+                let srcFilePath = path.normalize(src + filePath);
+                return `// ${filePath}\n\n${fs.readFileSync(srcFilePath)}`;
+            }
+            catch (err) {
+                console.log(`Not found file ${filePath} in folder ${src}.`);
+            }
+        }).join('\n\n');
+    }
+
     return gulp.src([scriptFile])
         .pipe(through.obj((file, encoding, callback) => {
 
-            // load content scripts
+            let extensionContent = '';
 
-            let scripts = {};
+            // add script file content
+            extensionContent += `${file.contents.toString(encoding)}`;
+
+            // add common scripts
+
+            extensionContent += '\n\n' + loadFilesContent([
+                "in-page-scripts/utils.js",
+                "in-page-scripts/integrationService.js",
+                "in-page-scripts/page.js"
+            ]);
+
+            // add integrations scripts
 
             contentScripts.forEach(info => {
 
-                info.js.forEach(scriptName => {
-                    if (scripts[scriptName]) {
-                        return;
-                    }
+                let integrations = info.js.filter(filePath => /\/integrations\//.test(filePath));
+                if (!integrations.length) {
+                    return;
+                }
 
-                    let scriptPath = path.normalize(src + '/' + scriptName);
-                    try {
-                        let scriptContent = fs.readFileSync(scriptPath) + '';
-                        scripts[scriptName] = scriptContent;
-                    }
-                    catch (err) {
-                        console.log(`Not found script ${scriptName} in folder ${src}.`);
-                    }
-                });
+                extensionContent += `\n\nif (shouldIncludeScripts(${JSON.stringify(info, null, 4)})) {\n${loadFilesContent(integrations)}\n}`;
             });
 
-            // combine scripts map
+            // add init script
 
-            let scriptsMap = '';
-
-            for (let scriptName in scripts) {
-                let script = scripts[scriptName];
-                scriptsMap += `\n\n'${scriptName}' : function () {\n${script}\n},`;
-            }
-
-            // combine extension content
-
-            var extensionContent = '';
-            extensionContent += `\n\n${file.contents.toString(encoding)}`;
-            extensionContent += `\n\nincludeScripts(${JSON.stringify(contentScripts, null, 4)}, {\n${scriptsMap}\n});`;
+            extensionContent += loadFilesContent([ "in-page-scripts/init.js" ]);
 
             // combine file content
 
@@ -434,7 +439,7 @@ function bundleScriptsSafari() {
             // replace file content
 
             file.contents = Buffer.from(combinedContent, encoding);
-            
+
             callback(null, file);
 
         }))

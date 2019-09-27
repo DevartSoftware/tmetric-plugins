@@ -144,11 +144,3 @@ function shouldIncludeScripts(item: ContentScriptsManifest[number]) {
     let isTopWindow = window.top == window;
     return isTopWindow || item.all_frames;
 }
-
-function includeScripts(manifest: ContentScriptsManifest, scripts: { [scriptName: string]: () => void }) {
-    manifest.forEach(info => {
-        if (shouldIncludeScripts(info)) {
-            info.js.forEach(name => scripts[name]());
-        }
-    });
-}
