@@ -1,4 +1,4 @@
-﻿var IntegrationService = (<any>window).IntegrationService = class IntegrationService {
+﻿class IntegrationService {
 
     static session = Date.now();
 
