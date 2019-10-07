@@ -12,7 +12,9 @@
         '*://*/_boards*',
         '*://*/_dashboards*',
         '*://*/_backlogs*',
-        '*://*/_workitems*'
+        '*://*/_workitems*',
+        '*://*/_sprints*',
+        '*://*/_queries*',
     ];
 
     issueElementSelector = () => $$.all('.work-item-form');
