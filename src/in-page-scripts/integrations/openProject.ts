@@ -1,12 +1,8 @@
-class OpenProject {
+class OpenProject implements WebToolIntegration {
 
     showIssueId = true;
 
     matchUrl = /(https:\/\/.+\.openproject\.com).*\/work_packages\/\D*(\d+)/;
-
-    match(source: Source): boolean {
-        return $$.getAttribute('body', 'ng-app') == 'openproject';
-    }
 
     observeMutations = true;
 
@@ -18,14 +14,14 @@ class OpenProject {
                 let container = $$.create('div');
                 container.classList.add('devart-timer-link-openproject-container')
                 container.appendChild(linkElement);
-                detailedView.insertBefore(container, infoWrapper.nextElementSibling)
+                detailedView.insertBefore(container, infoWrapper.nextElementSibling);
             }
         }
     }
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        let match = source.fullUrl.match(this.matchUrl)
+        let match = source.fullUrl.match(this.matchUrl);
         let serviceUrl = match[1];
         let issueUrl = '/work_packages/' + match[2];
         let issueId = '#' + match[2];
