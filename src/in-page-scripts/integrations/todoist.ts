@@ -26,38 +26,49 @@
 
         let issueId = '#' + issueNumber;
 
+        // Release:
         // <span class="text sel_item_content"> Task Name <a class="ex_link">LinkText</a> <b>Bold</b> ... </span>
-        let issueName = $$
-            .findAllNodes('.content > .text', null, issueElement)
-            .filter(node => {
-                if (node.nodeType == Node.TEXT_NODE) {
-                    return true;
-                }
-                if (node.nodeType != Node.ELEMENT_NODE) {
-                    return false;
-                }
-                let tag = <Element>node;
-                if (['B', 'I', 'STRONG', 'EM'].indexOf(tag.tagName) >= 0) {
-                    return true;
-                }
-                if (tag.tagName != 'A') {
-                    return false;
-                }
-                if (tag.classList.contains('ex_link')) {
-                    return true;
-                }
-                let href = tag.getAttribute('href');
-                if (href && !href.indexOf("mailto:")) {
-                    return true;
-                }
-            })
-            .reduce((sumText, node) => {
-                let text = node.textContent;
-                if (text[0] == ' ' && sumText[sumText.length - 1] == ' ') {
-                    text = text.substring(1);
-                }
-                return sumText + text;
-            }, "");
+        // Beta:
+        // <span class="text sel_item_content">
+        //      <span class="task_item_content_text"> Task Name <a class="ex_link">LinkText</a> <b>Bold</b > </span>
+        //      ...
+        // </span>
+
+        let issueName = $$.try('.content > .text .task_item_content_text', issueElement).textContent;
+
+        if (!issueName) {
+            issueName = $$
+                .findAllNodes('.content > .text', null, issueElement)
+                .filter(node => {
+                    if (node.nodeType == Node.TEXT_NODE) {
+                        return true;
+                    }
+                    if (node.nodeType != Node.ELEMENT_NODE) {
+                        return false;
+                    }
+                    let tag = <Element>node;
+                    if (['B', 'I', 'STRONG', 'EM'].indexOf(tag.tagName) >= 0) {
+                        return true;
+                    }
+                    if (tag.tagName != 'A') {
+                        return false;
+                    }
+                    if (tag.classList.contains('ex_link')) {
+                        return true;
+                    }
+                    let href = tag.getAttribute('href');
+                    if (href && !href.indexOf("mailto:")) {
+                        return true;
+                    }
+                })
+                .reduce((sumText, node) => {
+                    let text = node.textContent;
+                    if (text[0] == ' ' && sumText[sumText.length - 1] == ' ') {
+                        text = text.substring(1);
+                    }
+                    return sumText + text;
+                }, "");
+        }
 
         if (!issueName) {
             return;
