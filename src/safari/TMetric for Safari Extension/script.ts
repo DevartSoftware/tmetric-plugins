@@ -93,7 +93,7 @@ function openPopupTimer(timer: WebToolIssueTimer) {
 
     let popupId = 'TMetricPopup';
 
-    let width = 480;
+    let width = 460 + 2 * 30; // container width plus margins
     let height = 640;
 
     // get position relative to window center
