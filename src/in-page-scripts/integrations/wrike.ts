@@ -4,7 +4,7 @@
 
     observeMutations = true;
 
-    matchUrl = '*://www.wrike.com/workspace.htm*';
+    matchUrl = '*://*.wrike.com/workspace.htm*';
 
     issueElementSelector = '.wspace-task-view';
 
