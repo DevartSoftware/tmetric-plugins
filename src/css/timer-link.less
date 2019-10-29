@@ -228,12 +228,25 @@
 
 .devart-timer-link-todoist {
 
+    .task_item & {
+        margin-left: 1em;
+    }
+
     .task_item &.devart-timer-link-start {
         visibility: hidden !important;
     }
 
     .task_item:hover &.devart-timer-link-start {
         visibility: visible !important;
+    }
+
+    .item_overview & {
+        text-decoration: none;
+
+        .devart-timer-link-icon {
+            margin: 0;
+            line-height: 1;
+        }
     }
 }
 
