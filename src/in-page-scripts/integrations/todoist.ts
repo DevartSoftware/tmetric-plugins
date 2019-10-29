@@ -32,7 +32,7 @@
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        let issueNumber, issueId, issueName, projectName;
+        let issueNumber: string, issueId: string, issueName: string, projectName: string;
 
         if (issueElement.matches(this.issueElementSelector[0])) {
 
@@ -85,7 +85,7 @@
                             text = text.substring(1);
                         }
                         return sumText + text;
-                    }, "");
+                    }, '');
             }
 
             projectName =
