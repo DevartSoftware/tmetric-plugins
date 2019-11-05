@@ -25,7 +25,7 @@
             let host = $$('.item_overview_sub', issueElement);
             if (host) {
                 linkElement.classList.add('devart-timer-link-todoist');
-                host.appendChild(linkElement);
+                host.insertBefore(linkElement, host.firstElementChild);
             }
         }
     }
