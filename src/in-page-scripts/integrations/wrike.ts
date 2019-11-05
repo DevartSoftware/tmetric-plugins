@@ -23,13 +23,16 @@
             return;
         }
 
-        let isModal = !!$$.closest('.x-plain', issueElement);
 
         let params = $$.searchParams(document.location.hash);
+
         let issueId = params['t']                 // folder, My Work,
-            || params['ot']                       // modal
-            // modals in Inbox did not translate issue id to url hash
-            || (isModal ? null : params['ei']);   // Inbox
+            || params['ot'];                      // modal
+
+        let inboxMatch = document.location.hash && document.location.hash.match(/#\/inbox\/task\/(\d+)/);
+        if (inboxMatch) {
+            issueId = inboxMatch[1];
+        }
 
         let issueUrl: string;
         if (issueId) {
