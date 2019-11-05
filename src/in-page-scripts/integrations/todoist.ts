@@ -32,7 +32,7 @@
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        let issueNumber: string, issueId: string, issueName: string, projectName: string;
+        let issueNumber: string, issueId: string, issueName: string, projectName: string, tagNames: string[];
 
         if (issueElement.matches(this.issueElementSelector[0])) {
 
@@ -92,9 +92,15 @@
                 $$.try('.project_item__name', issueElement).textContent || // Today, 7 Days
                 $$.try('.project_link').textContent || // Project tab (new design)
                 $$.try('.pname', issueElement).textContent; // Project tab (old design)
+
+            tagNames = $$.all('.label', issueElement).map(label => label.textContent);
         } else if (issueElement.matches(this.issueElementSelector[1])) {
 
-            issueNumber = decodeURIComponent(document.location.hash).match(/#task\/(\d+)/)[1];
+            let issueNumberMatch = decodeURIComponent(document.location.hash).match(/#task\/(\d+)/);
+            issueNumber = issueNumberMatch && issueNumberMatch[1];
+            if (!issueNumber) {
+                return;
+            }
 
             issueId = '#' + issueNumber;
 
@@ -112,6 +118,8 @@
             if (issue) {
                 projectName = issue.projectName;
             }
+
+            tagNames = $$.all('.item_overview_label', issueElement).map(label => label.textContent);
         }
 
         if (!issueNumber || !issueName) {
@@ -121,8 +129,6 @@
         let serviceType = 'Todoist';
         let serviceUrl = source.protocol + source.host;
         let issueUrl = 'showTask?id=' + issueNumber;
-
-        let tagNames = $$.all('.labels_holder .label:not(.label_sep)', issueElement).map(label => label.textContent);
 
         return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
     }
