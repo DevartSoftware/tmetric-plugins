@@ -11,7 +11,7 @@
     // in links parsed on task items
     issueElementSelector = [
         '.task_item',
-        '.item_overview'
+        '.side_panel .item_detail'
     ];
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
@@ -96,8 +96,7 @@
             tagNames = $$.all('.label', issueElement).map(label => label.textContent);
         } else if (issueElement.matches(this.issueElementSelector[1])) {
 
-            let issueNumberMatch = decodeURIComponent(document.location.hash).match(/#task\/(\d+)/);
-            issueNumber = issueNumberMatch && issueNumberMatch[1];
+            issueNumber = $$.getAttribute('ul[data-subitem-list-id]', 'data-subitem-list-id', issueElement);
             if (!issueNumber) {
                 return;
             }
