@@ -4,7 +4,7 @@
 
     observeMutations = true;
 
-    matchUrl = '*://www.wrike.com/workspace.htm*';
+    matchUrl = '*://*.wrike.com/workspace.htm*';
 
     issueElementSelector = '.wspace-task-view';
 
@@ -23,24 +23,41 @@
             return;
         }
 
-        let isModal = !!$$.closest('.x-plain', issueElement);
+        let issueTags = $$.all('.wspace-task-widgets-tags-dataview > div', issueElement);
+        let projectName = issueTags.length == 1 ? issueTags[0].textContent : null;
 
         let params = $$.searchParams(document.location.hash);
+
         let issueId = params['t']                 // folder, My Work,
-            || params['ot']                       // modal
-            // modals in Inbox did not translate issue id to url hash
-            || (isModal ? null : params['ei']);   // Inbox
+            || params['ot'];                      // modal
+
+        let inboxMatch = document.location.hash && document.location.hash.match(/#\/inbox\/task\/(\d+)/);
+        if (inboxMatch) {
+            issueId = inboxMatch[1];
+        }
+
+        // get issue id from task in dashboard widgets
+        let isOverview = params['path'] == 'overview';
+        if (!issueId && isOverview) {
+
+            // find issue identifier by name
+            let foundIdentifiers = $$.all('wrike-task-list-task')
+                .map(task => {
+                    if ($$('.task-block wrike-task-title', task).textContent == issueName) {
+                        return task.getAttribute('data-id');
+                    }
+                })
+                .filter(_ => !!_);
+
+            if (foundIdentifiers.length == 1) {
+                issueId = foundIdentifiers[0];
+            }
+        }
 
         let issueUrl: string;
         if (issueId) {
             issueUrl = '/open.htm?id=' + issueId;
             issueId = '#' + issueId;
-        }
-
-        let issueTags = $$.all('.wspace-task-widgets-tags-dataview > div', issueElement);
-        let projectName: string;
-        if (issueTags.length == 1) {
-            projectName = issueTags[0].textContent;
         }
 
         let serviceType = 'Wrike';

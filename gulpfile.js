@@ -284,6 +284,9 @@ function modifyManifestFirefox() {
             manifest['applications'] = {
                 gecko: { id: '@tmetric' }
             };
+
+            delete manifest['options_ui']['open_in_tab'];
+
             return manifest;
         }))
         .pipe(gulp.dest(firefoxUnpackedDir));

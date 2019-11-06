@@ -270,7 +270,7 @@
                 var statusCode = xhr.status;
                 var statusText = xhr.statusText;
                 if (xhr.responseJSON) {
-                    var responseMessage = xhr.responseJSON.Message;
+                    var responseMessage = xhr.responseJSON.message;
                 }
 
                 if (statusText == 'error') // jQuery replaces empty status to 'error'
