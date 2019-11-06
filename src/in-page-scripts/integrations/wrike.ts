@@ -40,51 +40,17 @@
         let isOverview = params['path'] == 'overview';
         if (!issueId && isOverview) {
 
-            // find first task with matched issue and project name
-            // or just matched issue name
-            let taskInfo = $$.all('wrike-task-list-task')
-                // get task infos
-                .reduce((props, task) => {
-
-                    // skip task without id
-                    let id = task.getAttribute('data-id');
-                    if (!id) {
-                        return props;
+            // find issue identifier by name
+            let foundIdentifiers = $$.all('wrike-task-list-task')
+                .map(task => {
+                    if ($$('.task-block wrike-task-title', task).textContent == issueName) {
+                        return task.getAttribute('data-id');
                     }
+                })
+                .filter(_ => !!_);
 
-                    // task element include task and subtasks
-                    // narrow to task
-                    let taskEl = $$('.task-block', task);
-
-                    // skip task with not matched name
-                    if ($$('wrike-task-title', taskEl).textContent != issueName) {
-                        return props;
-                    }
-
-                    // get project tags
-                    let tags = $$.all('.tag-text', taskEl);
-
-                    // skip if project tags more than 1
-                    if (tags.length > 1) {
-                        return props;
-                    }
-
-                    if (tags.length == 0) {
-                        // task from dashboard widget location root does not display project tag
-                        // include task without tag
-                        props.push({ id, projectMatch: false });
-                    } else if (tags[0].textContent == projectName) {
-                        // include task with matched project name
-                        props.push({ id, projectMatch: true });
-                    }
-
-                    return props;
-                }, <{ id: string, projectMatch: boolean }[]>[])
-                // prioritize tasks with matched project name
-                .sort((a, b) => (a.projectMatch ? 0 : 1) - (b.projectMatch ? 0 : 1))[0];
-
-            if (taskInfo) {
-                issueId = taskInfo.id;
+            if (foundIdentifiers.length == 1) {
+                issueId = foundIdentifiers[0];
             }
         }
 
