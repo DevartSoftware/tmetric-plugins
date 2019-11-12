@@ -1048,6 +1048,10 @@ content.creating {
     &::-webkit-input-placeholder {
         color: @input-color-placeholder !important;
     }
+    // reset input placeholder paddings in safari
+    &::-webkit-search-decoration {
+        -webkit-appearance: none;
+    }
 }
 
 .flex-container {
