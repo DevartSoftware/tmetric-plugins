@@ -8,7 +8,7 @@ function objToParams(obj: any) {
             for (let item of value) {
                 params.append(name, item);
             }
-        } else if (typeof value !== 'undefined') {
+        } else if (value != null) {
             params.set(name, value)
         }
     }
