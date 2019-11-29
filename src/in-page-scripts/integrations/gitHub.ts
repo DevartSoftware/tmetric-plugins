@@ -10,7 +10,7 @@
         let host = $$('.gh-header-actions');
         if (host) {
             linkElement.style.display = 'inline-block'; // ZenHub hides action links by default
-            linkElement.classList.add('github');
+            linkElement.classList.add('mr-2'); // margin for edit button
             linkElement.classList.add('btn');
             linkElement.classList.add('btn-sm');
             host.insertBefore(linkElement, host.firstElementChild);
