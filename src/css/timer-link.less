@@ -369,4 +369,8 @@
 .devart-timer-link-easy-redmine {
     display: inline-block;
     margin-bottom: 1rem;
+
+    [class*=icon]:before {
+        &:extend(.devart-timer-link-icon:before);
+    }
 }
