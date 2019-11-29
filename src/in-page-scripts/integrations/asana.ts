@@ -7,8 +7,8 @@
     matchUrl = '*://app.asana.com/*/*';
 
     issueElementSelector = [
-        '.SingleTaskPane',          // task
-        '.SubtaskTaskRow'           // sub-task
+        '.SingleTaskPane, .SingleTaskPaneSpreadsheet',  // task
+        '.SubtaskTaskRow'                               // sub-task
     ]
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
@@ -16,8 +16,7 @@
         if (issueElement.matches(this.issueElementSelector[0])) {
             let linkContainer = $$.create('div', 'devart-timer-link-asana');
             linkContainer.appendChild(linkElement);
-            $$('.SingleTaskTitleRow, .sticky-view-placeholder, .SingleTaskPane-titleRow', issueElement)
-                .insertAdjacentElement('afterend', linkContainer);
+            $$('.SingleTaskTitleInput', issueElement).insertAdjacentElement('afterend', linkContainer);
         }
 
         if (issueElement.matches(this.issueElementSelector[1])) {
@@ -32,13 +31,12 @@
         let description: string;
 
         // Find root task
-        let rootTaskPane = $$.closest('.SingleTaskPane', issueElement);
+        let rootTaskPane = $$.closest(this.issueElementSelector[0], issueElement);
         if (!rootTaskPane) {
             return;
         }
 
-        let issueName = $$.try<HTMLTextAreaElement>(
-            '.SingleTaskTitleRow .simpleTextarea, .SingleTaskPane-titleRow .simpleTextarea', rootTaskPane).value;
+        let issueName = $$.try<HTMLTextAreaElement>('.SingleTaskTitleInput .simpleTextarea', rootTaskPane).value;
         let issuePath = source.path;
 
         // Sub-tasks
@@ -78,13 +76,13 @@
 
         let projectName =
             $$.try('.TaskProjectToken-projectName').textContent || // task project token
-            $$.try('.TaskProjectPill-projectName').textContent || // task project pill
+            $$.try('.TaskProjectPill-projectName, .TaskProjectToken-potTokenizerPill').textContent || // task project pill
             $$.try('.TaskAncestry-ancestorProject').textContent; // subtask project
 
         let serviceType = 'Asana';
         let serviceUrl = source.protocol + source.host;
 
-        let tagNames = $$.all('.TaskTags .Token').map(label => label.textContent);
+        let tagNames = $$.all('.TaskTags .Token, .TaskTags .TaskTagTokenPills-potPill').map(label => label.textContent);
 
         return { issueId, issueName, projectName, serviceType, description, serviceUrl, issueUrl, tagNames };
     }
