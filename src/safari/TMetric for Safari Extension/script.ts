@@ -120,16 +120,20 @@ function openPopupTimer(timer: WebToolIssueTimer) {
 
 declare type ContentScriptsManifest = chrome.runtime.Manifest['content_scripts'];
 
+function patternToRegExp(pattern: string, ) {
+    return new RegExp(pattern.replace(/\./g, '\.').replace(/\*/g, '.*'), 'i');
+}
+
 function isLocationMatchPattern(pattern: string) {
 
-    let patternMatch = pattern.match(/(.+):\/\/(.+)(\/.+)/);
+    let patternMatch = pattern.match(/(.+):\/\/([^\/]+)(\/.+)/);
     let patternScheme = patternMatch[1];
     let patternHost = patternMatch[2];
     let patternPath = patternMatch[3];
 
     return (new RegExp((patternScheme == '*' ? 'http|htpps' : patternScheme) + ':', 'i')).test(location.protocol) &&
-        (new RegExp(patternHost.replace('.', '\.').replace('*', '.*'), 'i')).test(location.host) &&
-        (new RegExp(patternPath, 'i')).test(location.pathname);
+        patternToRegExp(patternHost).test(location.host) &&
+        patternToRegExp(patternPath).test(location.pathname);
 }
 
 function shouldIncludeScripts(item: ContentScriptsManifest[number]) {
