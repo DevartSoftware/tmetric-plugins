@@ -47,7 +47,10 @@
                         return task.getAttribute('data-id');
                     }
                 })
-                .filter((item, index, array) => !!item && array.indexOf(item) == index);
+                .filter((item, index, array) =>
+                    !!item && // filter out tasks without id
+                    array.indexOf(item) == index // filter out task dulicates
+                );
 
             if (foundIdentifiers.length == 1) {
                 issueId = foundIdentifiers[0];
