@@ -47,7 +47,7 @@
                         return task.getAttribute('data-id');
                     }
                 })
-                .filter(_ => !!_);
+                .filter((item, index, array) => !!item && array.indexOf(item) == index);
 
             if (foundIdentifiers.length == 1) {
                 issueId = foundIdentifiers[0];
