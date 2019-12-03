@@ -61,10 +61,12 @@
 @info-color: #31708f;
 @info-background-color: #d9edf7;
 @info-border-color: #b9dff2;
+
 //== Typografy
 @text-color: #525252;
 @text-muted: fade(@text-color, 50%);
 @line-height-base: 1.42857;
+
 //== Buttons
 @btn-default-color: @text-color;
 @btn-default-bg: rgba(0,0,0,0.05);
@@ -85,6 +87,7 @@
 @btn-font-weight: 300;
 
 @shadow: 0 2px 3px 0 rgba(47,47,47,.25);
+
 //== Popup
 @label-width: 50px;
 @label-margin-right: 12px;
@@ -797,6 +800,7 @@ content.creating {
 @select2-selection-margin-bottom: 0px;
 @select2-selection-margin-left: 0px;
 @select2-selection-margin: @select2-selection-margin-top @select2-selection-margin-right @select2-selection-margin-bottom @select2-selection-margin-left;
+@select2-selection-border-width: 1px;
 
 @select2-search-margin-top: 5px;
 @select2-search-margin-right: 0px;
@@ -804,7 +808,7 @@ content.creating {
 @select2-search-margin-left: 0px;
 @select2-search-margin: @select2-search-margin-top @select2-search-margin-right @select2-search-margin-bottom @select2-search-margin-left;
 
-@select2-multiple-max-height: (@line-height-base * @font-size-base + @select2-selection-margin-top + /* vertical borders */ 2px) * 3 + @select2-search-margin-bottom;
+@select2-multiple-max-height: (ceil(@line-height-base * @font-size-base) + @select2-selection-margin-top + @select2-selection-margin-bottom + 2 * @select2-selection-border-width) * 3 + @select2-search-margin-bottom;
 
 .select2 {
     width: 100% !important;
@@ -837,7 +841,7 @@ content.creating {
         color: @text-color !important;
         background: @btn-default-bg !important;
         margin: @select2-selection-margin !important;
-        border: 1px solid @btn-default-border !important;
+        border: @select2-selection-border-width solid @btn-default-border !important;
         border-radius: 3px !important;
         padding: 0 6px !important;
         cursor: default !important;
