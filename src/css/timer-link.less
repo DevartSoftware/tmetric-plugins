@@ -13,32 +13,32 @@
 
 .devart-timer-link-icon {
     margin: -2px 0;
-    padding-right: 3px;
+    padding-right: 3px !important;
     display: inline-block;
     vertical-align: middle;
 
     &:before {
-        display: inline-block;
-        width: 16px;
-        height: 16px;
-        background-size: 16px 16px;
-        content: "";
+        display: inline-block !important;
+        width: 16px !important;
+        height: 16px !important;
+        background-size: 16px 16px !important;
+        content: "" !important;
     }
 
     .devart-timer-link-start > &:before {
-        background-image: data-uri('src/images/start.png');
+        background-image: data-uri('src/images/start.png') !important;
     }
 
     .devart-timer-link-stop > &:before {
-        background-image: data-uri('src/images/stop.png');
+        background-image: data-uri('src/images/stop.png') !important;
     }
 
     .devart-timer-link-minimal.devart-timer-link-start > &:before {
-        background-image: data-uri('src/images/simple_start.png');
+        background-image: data-uri('src/images/simple_start.png') !important;
     }
 
     .devart-timer-link-minimal.devart-timer-link-stop > &:before {
-        background-image: data-uri('src/images/simple_stop.png');
+        background-image: data-uri('src/images/simple_stop.png') !important;
     }
 }
 
@@ -369,8 +369,4 @@
 .devart-timer-link-easy-redmine {
     display: inline-block;
     margin-bottom: 1rem;
-
-    [class*=icon]:before {
-        &:extend(.devart-timer-link-icon:before);
-    }
 }
