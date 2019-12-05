@@ -352,7 +352,7 @@
         }
     }
 
-    fillCreateForm(projectId: number) {
+    fillCreateForm(projectId?: number) {
 
         $(this._forms.create + ' .task-recent').toggle(!this.isPagePopup);
 
