@@ -390,7 +390,7 @@
         $(this._forms.create + ' .new-project .input').attr('maxlength', Models.Limits.maxProjectName);
         $(this._forms.create + ' .project').toggleClass('required', !!this._requiredFields.project);
 
-        // tags selector initialized from project selector change handler onProjectSelectChange
+        this.initTagSelector(projectId);
         $(this._forms.create + ' .tags').toggleClass('required', !!this._requiredFields.tags);
     }
 
@@ -1071,7 +1071,7 @@
         const newProjectContainer = $(this._forms.create + ' .new-project');
         const newProjectInput = $('.input', newProjectContainer);
 
-        let value = parseInt($(this._forms.create + ' .project .input').val());
+        let value = $(this._forms.create + ' .project .input').val();
         if (value == -1) { // create new project option
             let issueProjectName = (this._newIssue.projectName) || '';
             newProjectInput.val(issueProjectName);
@@ -1080,7 +1080,7 @@
             newProjectContainer.css('display', 'none');
         }
 
-        this.initTagSelector(value);
+        this.initTagSelector(parseInt(value));
     }
 
     private async onSiteLinkClick() {
