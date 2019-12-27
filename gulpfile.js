@@ -460,19 +460,6 @@ function bundleStylesSafari() {
         .pipe(gulp.dest(safariAppExtensionSrcDir))
 }
 
-function copyIconsSafari() {
-
-    var iconsFolder = src + 'images/';
-    var iconSetFolder = safariAppSrcDir + 'Assets.xcassets/AppIcon.appiconset/';
-    var iconSetFile = iconSetFolder + 'Contents.json';
-
-    var content = jsonfile.readFileSync(iconSetFile);
-    var iconFiles = content.images.map(_ => iconsFolder + _.filename);
-
-    return gulp.src(iconFiles)
-        .pipe(gulp.dest(iconSetFolder));
-}
-
 function copyFilesSafari() {
     return gulp.src(files.safari, { base: safariSrcDir })
         .pipe(gulp.dest(safariDir));
@@ -485,7 +472,6 @@ function stripDebugSafari() {
 gulp.task('prepackage:safari', gulp.series(
     bundleScriptsSafari,
     bundleStylesSafari,
-    copyIconsSafari,
     copyFilesSafari,
     stripDebugSafari
 ));
