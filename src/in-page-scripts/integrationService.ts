@@ -313,6 +313,11 @@
             oldSession = this.parseLinkSession(oldLink);
         }
 
+        if (oldSession > this.session) {
+            // Issue created in newer session
+            return;
+        }
+
         if (this.isSameIssue(oldIssueTimer, newIssueTimer) &&
             newIssueTimer.duration == oldIssueTimer.duration &&
             newIssueTimer.isStarted == oldIssueTimer.isStarted &&
