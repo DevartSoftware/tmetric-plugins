@@ -431,12 +431,12 @@ function bundleScriptsSafari() {
 
             // add init script
 
-            extensionContent += loadFilesContent([ "in-page-scripts/init.js" ]);
+            extensionContent += '\n\n' + loadFilesContent([ "in-page-scripts/init.js" ]);
 
             // combine file content
 
             var combinedContent = '';
-            combinedContent += `\n\nfunction initTMetricExtension () {\n${extensionContent}\n}`;
+            combinedContent += `\n\nfunction initTMetricExtension () {\n\n${extensionContent}\n\n}`;
             combinedContent += `\n\nif (document.readyState == "loading") {\n\tdocument.addEventListener("DOMContentLoaded", initTMetricExtension);\n} else {\n\tinitTMetricExtension();\n}`;
 
             // replace file content
