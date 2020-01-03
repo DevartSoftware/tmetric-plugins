@@ -36,8 +36,8 @@ fi
 
 xcodebuild
 
-infoPListFile=./$appName/Info.plist
-version=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "$infoPListFile")
+infoPListFile=./build/Release/$appName.app/Contents/Info.plist
+version=$(/usr/libexec/PlistBuddy -c "Print CFBundleVersion" "$infoPListFile")
 
 packageFile="tmetric_for_safari-$version.pkg"
 
