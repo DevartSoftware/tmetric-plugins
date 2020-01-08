@@ -406,7 +406,7 @@
 				CODE_SIGN_ENTITLEMENTS = "TMetric for Safari Extension/TMetric_for_Safari_Extension.entitlements";
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.0.6;
+				CURRENT_PROJECT_VERSION = 1.0.7;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = "TMetric for Safari Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -428,7 +428,7 @@
 				CODE_SIGN_ENTITLEMENTS = "TMetric for Safari Extension/TMetric_for_Safari_Extension.entitlements";
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.0.6;
+				CURRENT_PROJECT_VERSION = 1.0.7;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = "TMetric for Safari Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -452,7 +452,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = NO;
-				CURRENT_PROJECT_VERSION = 1.0.6;
+				CURRENT_PROJECT_VERSION = 1.0.7;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = "TMetric for Safari/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -474,7 +474,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = NO;
-				CURRENT_PROJECT_VERSION = 1.0.6;
+				CURRENT_PROJECT_VERSION = 1.0.7;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = "TMetric for Safari/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
