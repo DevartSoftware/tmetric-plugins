@@ -48,6 +48,7 @@ Web browsers are **Chrome**, **Firefox**, **Edge**, and **Opera**.
 * [Wrike](https://www.wrike.com)
 * [Wunderlist](https://www.wunderlist.com)
 * [YouTrack](https://www.jetbrains.com/youtrack)
+* [Zammad](https://www.zammad.com)
 * [Zendesk](https://www.zendesk.com)
 * [Zoho CRM](https://www.zoho.com/crm)
 

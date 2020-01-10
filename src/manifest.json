@@ -138,6 +138,7 @@
                 "in-page-scripts/integrations/wrike.js",
                 "in-page-scripts/integrations/wunderlist.js",
                 "in-page-scripts/integrations/youTrack.js",
+                "in-page-scripts/integrations/zammad.js",
                 "in-page-scripts/integrations/zendesk.js"
             ],
             "css": [
