@@ -407,6 +407,7 @@ function bundleScriptsSafari() {
             let extensionContent = '';
 
             // add script file content
+            
             extensionContent += `${file.contents.toString(encoding)}`;
 
             // add common scripts

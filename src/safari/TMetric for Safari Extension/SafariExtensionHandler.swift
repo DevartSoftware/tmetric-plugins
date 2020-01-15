@@ -17,9 +17,81 @@ class SafariExtensionHandler: SFSafariExtensionHandler {
         }
     }
     
+    private func findTabWithActivePage(window: SFSafariWindow, url: URL) -> SFSafariTab? {
+        
+        var tabWithActivePageWithUrl: SFSafariTab?
+        let semafore = DispatchSemaphore(value: 0)
+        
+        window.getAllTabs(completionHandler: { tabs in
+
+            if (tabs.count > 0) {
+
+                let dispatchGroup = DispatchGroup()
+
+                tabs.forEach({ tab in
+
+                    dispatchGroup.enter()
+                    
+                    DispatchQueue.global().async {
+                        
+                        tab.getActivePage(completionHandler: { page in
+
+                            if (page != nil) {
+                            
+                                page?.getPropertiesWithCompletionHandler({ properties in
+
+                                    if (tabWithActivePageWithUrl == nil &&
+                                        properties?.url?.scheme == url.scheme &&
+                                        properties?.url?.host == url.host &&
+                                        properties?.url?.port == url.port &&
+                                        properties?.url?.path == url.path
+                                    ) {
+                                        tabWithActivePageWithUrl = tab
+                                    }
+                                    
+                                    dispatchGroup.leave()
+                                    
+                                })
+                                
+                            }
+                            
+                        })
+                        
+                    }
+                    
+                })
+
+                dispatchGroup.notify(queue: .main) {
+                    semafore.signal()
+                }
+
+            }
+            
+        })
+
+        _ = semafore.wait(timeout: .distantFuture)
+        
+        return tabWithActivePageWithUrl
+        
+    }
+
     override func toolbarItemClicked(in window: SFSafariWindow) {
-        // This method will be called when your toolbar item is clicked.
-        NSLog("The extension's toolbar item was clicked")
+        NSLog("toolbarItemClicked")
+
+        let url = URL(string: "https://app.tmetric.com/")
+        
+        DispatchQueue.global(qos: .userInitiated).async {
+
+            let tab = self.findTabWithActivePage(window: window, url: url!)
+            
+            if (tab == nil) {
+                NSLog("toolbarItemClicked tab not found")
+                window.openTab(with: url!, makeActiveIfPossible: true, completionHandler: { tab in })
+            } else {
+                NSLog("toolbarItemClicked tab found")
+                tab?.activate(completionHandler: { })
+            }
+        }
     }
     
     override func validateToolbarItem(in window: SFSafariWindow, validationHandler: @escaping ((Bool, String) -> Void)) {

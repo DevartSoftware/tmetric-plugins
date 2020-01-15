@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		510392AA23B54DCF00CAF8E6 /* AppIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 510392A923B54DCF00CAF8E6 /* AppIcon.icns */; };
+		51E93C7423C8D87D0073C76C /* ToolbarItemIcon.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 51E93C7323C8D87C0073C76C /* ToolbarItemIcon.pdf */; };
 		9378DE6B2316ECD100C38834 /* TMetric_for_Safari.entitlements in Resources */ = {isa = PBXBuildFile; fileRef = 9378DE6A2316ECD100C38834 /* TMetric_for_Safari.entitlements */; };
 		9378DE6D2316ECD100C38834 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9378DE6C2316ECD100C38834 /* AppDelegate.swift */; };
 		9378DE702316ECD100C38834 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9378DE6E2316ECD100C38834 /* Main.storyboard */; };
@@ -47,6 +48,7 @@
 
 /* Begin PBXFileReference section */
 		510392A923B54DCF00CAF8E6 /* AppIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = AppIcon.icns; sourceTree = "<group>"; };
+		51E93C7323C8D87C0073C76C /* ToolbarItemIcon.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = ToolbarItemIcon.pdf; sourceTree = "<group>"; };
 		9378DE672316ECD100C38834 /* TMetric for Safari.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "TMetric for Safari.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9378DE6A2316ECD100C38834 /* TMetric_for_Safari.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TMetric_for_Safari.entitlements; sourceTree = "<group>"; };
 		9378DE6C2316ECD100C38834 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -126,6 +128,7 @@
 		9378DE812316ECD200C38834 /* TMetric for Safari Extension */ = {
 			isa = PBXGroup;
 			children = (
+				51E93C7323C8D87C0073C76C /* ToolbarItemIcon.pdf */,
 				9378DE822316ECD200C38834 /* SafariExtensionHandler.swift */,
 				9378DE842316ECD200C38834 /* SafariExtensionViewController.swift */,
 				9378DE862316ECD200C38834 /* SafariExtensionViewController.xib */,
@@ -230,6 +233,7 @@
 			files = (
 				9379BE0F23202728004E10A6 /* styles.css in Resources */,
 				9378DE882316ECD200C38834 /* SafariExtensionViewController.xib in Resources */,
+				51E93C7423C8D87D0073C76C /* ToolbarItemIcon.pdf in Resources */,
 				9378DE8B2316ECD200C38834 /* script.js in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
