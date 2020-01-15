@@ -24,17 +24,6 @@
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
 	<key>NSExtension</key>
 	<dict>
-		<key>SFSafariToolbarItem</key>
-		<dict>
-			<key>Action</key>
-			<string>Command</string>
-			<key>Image</key>
-			<string>ToolbarItemIcon.pdf</string>
-			<key>Label</key>
-			<string>TMetric</string>
-			<key>Identifier</key>
-			<string>TMetricButton</string>
-		</dict>
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.Safari.extension</string>
 		<key>NSExtensionPrincipalClass</key>
@@ -53,6 +42,17 @@
 				<string>styles.css</string>
 			</dict>
 		</array>
+		<key>SFSafariToolbarItem</key>
+		<dict>
+			<key>Action</key>
+			<string>Command</string>
+			<key>Identifier</key>
+			<string>TMetricButton</string>
+			<key>Image</key>
+			<string>ToolbarItemIcon.pdf</string>
+			<key>Label</key>
+			<string>TMetric</string>
+		</dict>
 		<key>SFSafariWebsiteAccess</key>
 		<dict>
 			<key>Level</key>
