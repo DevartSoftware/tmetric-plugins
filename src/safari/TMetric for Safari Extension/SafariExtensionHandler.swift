@@ -13,7 +13,7 @@ class SafariExtensionHandler: SFSafariExtensionHandler {
     override func messageReceived(withName messageName: String, from page: SFSafariPage, userInfo: [String : Any]?) {
         // This method will be called when a content script provided by your extension calls safari.extension.dispatchMessage("message").
         page.getPropertiesWithCompletionHandler { properties in
-            NSLog("The extension received a message (\(messageName)) from a script injected into (\(String(describing: properties?.url))) with userInfo (\(userInfo ?? [:]))")
+//            NSLog("The extension received a message (\(messageName)) from a script injected into (\(String(describing: properties?.url))) with userInfo (\(userInfo ?? [:]))")
         }
     }
     
@@ -76,7 +76,7 @@ class SafariExtensionHandler: SFSafariExtensionHandler {
     }
 
     override func toolbarItemClicked(in window: SFSafariWindow) {
-        NSLog("toolbarItemClicked")
+//        NSLog("toolbarItemClicked")
 
         let appUrl = URL(string: "https://app.tmetric.com/")
         let idUrl = URL(string: "https://id.tmetric.com/core/login")
@@ -90,10 +90,10 @@ class SafariExtensionHandler: SFSafariExtensionHandler {
             }
             
             if (tab == nil) {
-                NSLog("toolbarItemClicked tab not found")
+//                NSLog("toolbarItemClicked tab not found")
                 window.openTab(with: appUrl!, makeActiveIfPossible: true, completionHandler: { tab in })
             } else {
-                NSLog("toolbarItemClicked tab found")
+//                NSLog("toolbarItemClicked tab found")
                 tab?.activate(completionHandler: { })
             }
         }
