@@ -113,6 +113,7 @@
                 "in-page-scripts/integrations/google-keep.js",
                 "in-page-scripts/integrations/google-mail.js",
                 "in-page-scripts/integrations/jira.js",
+                "in-page-scripts/integrations/kayako.js",
                 "in-page-scripts/integrations/megaplan.js",
                 "in-page-scripts/integrations/microsoft-outlook-online.js",
                 "in-page-scripts/integrations/openProject.js",
