@@ -96,6 +96,8 @@
 
         let issueId = $$.searchParams(source.fullUrl)['selectedIssue'] // Board
             || (source.path.match(/\/(?:issues|browse)\/([^\/]+)/) || [])[1]; // Other pages
+
+        issueId = /[^#]*/.exec(issueId)[0]; // trim hash
         let issueUrl = issueId && ('/browse/' + issueId);
 
         let projectName = $$.try('#breadcrumbs-container a', null, el => el.getAttribute('href').split('/').some(v => v == 'projects')).textContent // when navigation bar collapsed
