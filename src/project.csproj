@@ -14,4 +14,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="typings\%40fake\node\" />
+  </ItemGroup>
+
 </Project>

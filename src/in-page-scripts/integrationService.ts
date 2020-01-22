@@ -107,9 +107,10 @@
                     }
 
                     if (issue.tagNames) {
-                        issue.tagNames = issue.tagNames
+                        issue.tagNames = [...new Set(issue.tagNames
                             .map(tagName => this.trimText(tagName, Models.Limits.maxTag))
-                            .filter(tagName => !!tagName);
+                            .filter(tagName => !!tagName))
+                        ];
                     }
 
                     issues.push(issue);
@@ -310,6 +311,11 @@
         if (oldLink) {
             oldIssueTimer = this.parseLinkTimer(oldLink);
             oldSession = this.parseLinkSession(oldLink);
+        }
+
+        if (oldSession > this.session) {
+            // Issue created in newer session
+            return;
         }
 
         if (this.isSameIssue(oldIssueTimer, newIssueTimer) &&

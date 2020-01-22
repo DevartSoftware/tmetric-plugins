@@ -44,14 +44,18 @@ var firefoxDir = distDir + 'firefox/';
 var firefoxUnpackedDir = firefoxDir + 'unpacked/';
 var edgeDir = distDir + 'edge/';
 var edgeUnpackedDir = edgeDir + 'Extension/';
+var safariAppFolderName = 'TMetric for Safari';
+var safariAppExtensionFolderName = 'TMetric for Safari Extension';
 var safariDir = distDir + 'safari/';
-var safariExtensionDir = safariDir + 'TMetric for Safari Extension/';
+var safariExtensionDir = safariDir + safariAppExtensionFolderName + '/';
 
 console.log('Start build');
 console.log(JSON.stringify(config, null, 2));
 
 var files = {
     common: [
+        'src/background/serverConnection.js',
+        'src/background/signalRHubProxy.js',
         'src/background/signalRConnection.js',
         'src/css/*.css',
         'src/in-page-scripts/integrations/*.js',
@@ -69,6 +73,7 @@ var files = {
         'src/popup/popupActivator.js',
         'src/settings/settings.html',
         'src/settings/settingsController.js',
+        'src/background/backgroundBase.js',
         'src/background/extensionBase.js',
         'src/background/simpleEvent.js',
         'src/manifest.json'
@@ -85,6 +90,7 @@ var files = {
     safari: [
         'src/safari/**',
         '!src/safari/**/*.ts',
+        '!src/safari/**/*.map',
         '!src/safari/build/**',
         '!src/safari/**/xcuserdata/**'
     ]
@@ -182,14 +188,14 @@ gulp.task('clean:sources', () => {
         'src/lib/*',
         'src/popup/*.js',
         'src/settings/*.js',
-        'src/safari/*.js'
+        'src/safari/**/*.js',
+        'src/safari/**/*.css'
     ]);
 });
 
 gulp.task('clean:dist', () => {
     return clean([distDir + '**']);
 });
-
 
 gulp.task('clean', gulp.parallel('clean:sources', 'clean:dist'));
 
@@ -201,8 +207,8 @@ gulp.task('lib', () => {
         .src('node_modules/jquery/dist/jquery.min.js')
         .pipe(gulp.dest(lib));
     var signalr = gulp
-        .src('node_modules/ms-signalr-client/jquery.signalR-2.2.1.min.js')
-        .pipe(rename('jquery.signalr.min.js'))
+        .src('node_modules/@aspnet/signalr/dist/browser/signalr.min.js')
+        .pipe(rename('signalr.min.js'))
         .pipe(gulp.dest(lib));
     var select2 = gulp
         .src([
@@ -369,8 +375,94 @@ gulp.task('package:edge', gulp.series('prepackage:edge'));
 // Tasks for building Safari App Extension xcode project
 // =============================================================================
 
+var safariSrcDir = src + 'safari/';
+var safariAppSrcDir = safariSrcDir + safariAppFolderName + '/';
+var safariAppExtensionSrcDir = safariSrcDir + safariAppExtensionFolderName + '/';
+
+function bundleScriptsSafari() {
+
+    var scriptFileName = 'script.js';
+    var scriptFile = safariAppExtensionSrcDir + scriptFileName;
+
+    var manifestFile = src + 'manifest.json';
+    var manifest = jsonfile.readFileSync(manifestFile);
+    var contentScripts = manifest.content_scripts;
+
+
+    function loadFilesContent(filePaths) {
+        return filePaths.map(filePath => {
+            try {
+                let srcFilePath = path.normalize(src + filePath);
+                return `// ${filePath}\n\n${fs.readFileSync(srcFilePath)}`;
+            }
+            catch (err) {
+                console.log(`Not found file ${filePath} in folder ${src}.`);
+            }
+        }).join('\n\n');
+    }
+
+    return gulp.src([scriptFile])
+        .pipe(through.obj((file, encoding, callback) => {
+
+            let extensionContent = '';
+
+            // add script file content
+            
+            extensionContent += `${file.contents.toString(encoding)}`;
+
+            // add common scripts
+
+            extensionContent += '\n\n' + loadFilesContent([
+                "in-page-scripts/utils.js",
+                "in-page-scripts/integrationService.js",
+                "in-page-scripts/page.js"
+            ]);
+
+            // add integrations scripts
+
+            contentScripts.forEach(info => {
+
+                let integrations = info.js.filter(filePath => /\/integrations\//.test(filePath));
+                if (!integrations.length) {
+                    return;
+                }
+
+                extensionContent += `\n\nif (shouldIncludeScripts(${JSON.stringify(info, null, 4)})) {\n${loadFilesContent(integrations)}\n}`;
+            });
+
+            // add init script
+
+            extensionContent += '\n\n' + loadFilesContent([ "in-page-scripts/init.js" ]);
+
+            // combine file content
+
+            var combinedContent = '';
+            combinedContent += `\n\nfunction initTMetricExtension () {\n\n${extensionContent}\n\n}`;
+            combinedContent += `\n\nif (document.readyState == "loading") {\n\tdocument.addEventListener("DOMContentLoaded", initTMetricExtension);\n} else {\n\tinitTMetricExtension();\n}`;
+
+            // replace file content
+
+            file.contents = Buffer.from(combinedContent, encoding);
+
+            callback(null, file);
+
+        }))
+        .pipe(concat(scriptFileName))
+        .pipe(gulp.dest(safariAppExtensionSrcDir))
+}
+
+function bundleStylesSafari() {
+
+    var styleFileName = 'styles.css';
+    var styleFile = safariAppExtensionSrcDir + styleFileName;
+
+    return gulp.src([ 'src/css/timer-link.css' ], { base: src })
+        .pipe(concat(styleFileName))
+        .pipe(gulp.dest(safariAppExtensionSrcDir))
+}
+
 function copyFilesSafari() {
-    return gulp.src(files.safari, { base: path.join(src, 'safari') })
+    return gulp.src(files.safari, { base: safariSrcDir })
         .pipe(gulp.dest(safariDir));
 }
 
@@ -379,6 +471,8 @@ function stripDebugSafari() {
 }
 
 gulp.task('prepackage:safari', gulp.series(
+    bundleScriptsSafari,
+    bundleStylesSafari,
     copyFilesSafari,
     stripDebugSafari
 ));

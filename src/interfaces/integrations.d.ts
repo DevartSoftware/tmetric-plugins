@@ -116,6 +116,17 @@ interface IPopupTimerData {
     accountId?: number;
 }
 
+interface IAccountProjectMapping {
+    accountId: number;
+    projectName: string;
+    projectId: number;
+}
+
+interface ITaskDescriptionMapping {
+    taskName: string;
+    description: string;
+}
+
 interface IExtensionSettings {
     showPopup: Models.ShowPopupOption
 }
