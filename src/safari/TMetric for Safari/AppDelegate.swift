@@ -19,4 +19,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Insert code here to tear down your application
     }
     
+    
+    @IBAction func openTMetricHelp(_ sender: AnyObject?) {
+        let url = URL(string: "https://tmetric.com/help/apps/browser-extension")
+        NSWorkspace.shared.open(url!)
+    }
 }

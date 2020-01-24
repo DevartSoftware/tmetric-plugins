@@ -12,25 +12,33 @@
 }
 
 .devart-timer-link-icon {
-    margin: -2px 0;
-    padding-right: 3px;
-    display: inline-block;
-    vertical-align: middle;
+    margin: -2px 0 !important;
+    padding-right: 3px !important;
+    display: inline-block !important;
+    vertical-align: middle !important;
+
+    &:before {
+        display: inline-block !important;
+        width: 16px !important;
+        height: 16px !important;
+        background-size: 16px 16px !important;
+        content: "" !important;
+    }
 
     .devart-timer-link-start > &:before {
-        content: data-uri('src/images/start16.png');
+        background-image: data-uri('src/images/start.png') !important;
     }
 
     .devart-timer-link-stop > &:before {
-        content: data-uri('src/images/stop16.png');
+        background-image: data-uri('src/images/stop.png') !important;
     }
 
     .devart-timer-link-minimal.devart-timer-link-start > &:before {
-        content: data-uri('src/images/simple_start_19.png');
+        background-image: data-uri('src/images/simple_start.png') !important;
     }
 
     .devart-timer-link-minimal.devart-timer-link-stop > &:before {
-        content: data-uri('src/images/simple_stop_19.png');
+        background-image: data-uri('src/images/simple_stop.png') !important;
     }
 }
 
@@ -94,11 +102,17 @@
 }
 
 .devart-timer-link-google-calendar-popup-modern {
+    display: inline;
+    align-self: center;
     margin-right: 10px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    color: #3c4043;
+    border-radius: 5px;
+    padding: 5px;
+    background-color: rgba(255, 255, 255, 0.4);
+    z-index: 0;
+
+    span {
+        color: #3c4043;
+    }
 }
 
 .devart-timer-link-google-inbox {
@@ -124,8 +138,8 @@
     margin: 0px 8px;
 
     .devart-timer-link-icon {
-        vertical-align: top;
-        margin-top: 7px;
+        vertical-align: top !important;
+        margin-top: 7px !important;
     }
 }
 
@@ -244,8 +258,8 @@
         text-decoration: none;
 
         .devart-timer-link-icon {
-            margin: 0;
-            line-height: 1;
+            margin: 0 !important;
+            line-height: 1 !important;
         }
     }
 }
@@ -263,13 +277,19 @@
     .checklist-item:hover & {
         opacity: 1;
     }
+
+    &.devart-timer-link-minimal {
+        position: absolute;
+        top: 0;
+        right: 32px;
+    }
 }
 
 .devart-timer-link-test-rail {
     padding: 0px 10px !important;
 
     .devart-timer-link-icon {
-        line-height: 10px;
+        line-height: 10px !important;
     }
 }
 
@@ -285,7 +305,7 @@
 
 .devart-timer-link-wunderlist-detail {
     .devart-timer-link-icon {
-        border: 8px solid transparent;
+        border: 8px solid transparent !important;
     }
 }
 
@@ -335,7 +355,7 @@
     color: inherit;
 
     .devart-timer-link-icon {
-        margin: 4px 0 0 0;
+        margin: 4px 0 0 0 !important;
     }
 }
 

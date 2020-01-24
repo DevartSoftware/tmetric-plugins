@@ -79,9 +79,9 @@
             serviceUrl = source.protocol + source.host;
         }
 
-        let issueUrl = $$.getRelativeUrl(serviceUrl, source.fullUrl);
+        let issueUrl = $$.getRelativeUrl(serviceUrl, source.fullUrl).match(/[^#]*/)[0]; // trim hash
 
-        var tagNames = $$.all('.labels .label').map(label => label.textContent);
+        let tagNames = $$.all('.labels .label, .issuable-show-labels .badge').map(label => label.textContent);
 
         return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
     }
@@ -156,7 +156,7 @@ class GitLabSidebar implements WebToolIntegration {
             }
         }
 
-        let tagNames = $$.all('.issuable-show-labels > a span').map(label => label.textContent);
+        let tagNames = $$.all('.issuable-show-labels > a span, .issuable-show-labels .badge').map(label => label.textContent);
 
         return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
     }
