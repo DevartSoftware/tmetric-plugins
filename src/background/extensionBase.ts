@@ -2,15 +2,6 @@
 
 abstract class ExtensionBase extends BackgroundBase {
 
-    private getDefaultLoginPosition() {
-        return {
-            width: 420,
-            height: 535,
-            left: 400,
-            top: 300
-        }
-    }
-
     protected getConstants() {
         let constants = super.getConstants();
         return <Models.Constants>{
@@ -526,7 +517,10 @@ abstract class ExtensionBase extends BackgroundBase {
             this.loginWindowPending = true;
             try {
 
-                let { width, height, left, top } = this.getDefaultLoginPosition();
+                let width = 420;
+                let height = 635;
+                let left = 400;
+                let top = 250;
 
                 if (pageWindow.left != null && pageWindow.width != null) {
                     left = Math.round(pageWindow.left + (pageWindow.width - width) / 2);

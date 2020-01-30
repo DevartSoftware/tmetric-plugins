@@ -288,3 +288,18 @@
         });
     }
 }
+
+{
+    let p: { invokeClientMethod: (this: signalR.HubConnection, message: signalR.InvocationMessage) => void };
+    p = <any>signalR.HubConnection.prototype;
+    const oldInvoke = p.invokeClientMethod;
+    p.invokeClientMethod = function (message) {
+        if (message && message.target) {
+            const methods = (<any>this).methods;
+            if (methods && !methods[message.target.toLowerCase()]) {
+                this.on(message.target, () => {/* no handler, just remove warning  */ })
+            }
+        }
+        oldInvoke.apply(this, arguments);
+    };
+}
