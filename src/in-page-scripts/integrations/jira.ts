@@ -4,6 +4,8 @@
 
     observeMutations = true;
 
+    issueLinkSelector = 'a[href^="/browse/"][target=_blank]';
+
     match(source: Source): boolean {
         return $$.getAttribute('meta[name=application-name]', 'content') == 'JIRA';
     }
@@ -70,7 +72,7 @@
             return;
         }
 
-        let anchor = $$('a[href^="/browse/"][target=_blank]', issueElement);
+        let anchor = $$(this.issueLinkSelector, issueElement);
         if (anchor) {
             linkElement.classList.add('devart-timer-link-jira-next');
             if (issueElement.matches('#ghx-detail-view')) {
@@ -97,8 +99,16 @@
         let issueId = $$.searchParams(source.fullUrl)['selectedIssue'] // Board
             || (source.path.match(/\/(?:issues|browse)\/([^\/]+)/) || [])[1]; // Other pages
 
-        issueId = /[^#]*/.exec(issueId)[0]; // trim hash
+        issueId = issueId && /[^#]*/.exec(issueId)[0]; // trim hash
         let issueUrl = issueId && ('/browse/' + issueId);
+
+        // Support links in JIRA Service Desk (TE-498)
+        if (!issueUrl) {
+            issueUrl = $$.getAttribute(this.issueLinkSelector, 'href', issueElement);
+            if (issueUrl) {
+                issueId = issueUrl.match(/\/browse\/(.*)/)[1];
+            }
+        }
 
         let projectName = $$.try('#breadcrumbs-container a', null, el => el.getAttribute('href').split('/').some(v => v == 'projects')).textContent // when navigation bar collapsed
             || $$.try('#project-name-val').textContent // separate task view (/browse/... URL)
