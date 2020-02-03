@@ -267,7 +267,8 @@ abstract class ExtensionBase extends BackgroundBase {
                 var status = await this.getIntegrationStatus(timer, accountId);
                 var scope = await this.getAccountScope(status.accountId);
             } catch (err) {
-                return this.connection.checkProfileChange(); // TE-179
+                this.connection.checkProfileChange(); // TE-179
+                return Promise.reject(err);
             }
 
             if (accountId) {
