@@ -60,7 +60,7 @@
     }
 
     checkProfileChange() {
-        this.isProfileChanged().then(isProfileChanged => {
+        return this.isProfileChanged().then(isProfileChanged => {
             if (isProfileChanged) {
                 this.reconnect();
             }
