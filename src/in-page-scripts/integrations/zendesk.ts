@@ -9,14 +9,16 @@
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
         let host = $$.visible('header .pane.right');
         if (host) {
-            linkElement.classList.add('btn', 'devart-timer-link-zendesk');
+            linkElement.classList.add('btn', 'origin', 'devart-timer-link-zendesk');
             host.appendChild(linkElement);
         }
     }
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        var issueNameElement = $$.visible<HTMLInputElement>('.ticket .editable input[name=subject]');
+        var issueNameElement = $$.visible<HTMLInputElement>('.ticket .editable input[name=subject]') ||
+            $$.visible<HTMLInputElement>('.ticket .editable input[data-test-id=ticket-pane-subject]'); // TE-506
+
         var issueName = issueNameElement && issueNameElement.value;
         if (!issueName) {
             return;
