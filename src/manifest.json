@@ -23,7 +23,6 @@
     "default_title": "Not Connected"
   },
   "permissions": [
-    "activeTab",
     "tabs",
     "notifications",
     "http://*/*",
