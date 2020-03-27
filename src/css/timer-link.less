@@ -270,18 +270,14 @@
     float: right;
 }
 
-.devart-timer-link-trello {
-    margin-top: 5px;
+.devart-timer-link-trello.devart-timer-link-minimal {
+    margin-top: 3px;
+    margin-left: 3px;
     opacity: 0;
 
-    .checklist-item:hover & {
+    .checklist-item:hover &,
+    &.devart-timer-link-stop {
         opacity: 1;
-    }
-
-    &.devart-timer-link-minimal {
-        position: absolute;
-        top: 0;
-        right: 32px;
     }
 }
 
