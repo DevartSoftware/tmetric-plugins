@@ -11,7 +11,7 @@
     // in links parsed on task items
     issueElementSelector = [
         '.task_item',
-        '.side_panel .item_detail'
+        '.side_panel .item_detail, .detail_modal .item_detail'
     ];
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
