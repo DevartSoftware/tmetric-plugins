@@ -16,10 +16,10 @@
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
         if (issueElement.matches(this.issueElementSelector[0])) {
-            let host = $$('.content > .text', issueElement);
+            let host = $$('.task_item_details_bottom', issueElement);
             if (host) {
                 linkElement.classList.add('devart-timer-link-todoist');
-                host.insertBefore(linkElement, host.lastChild);
+                host.insertBefore(linkElement, $$('.column_project', host));
             }
         } else if (issueElement.matches(this.issueElementSelector[1])) {
             let host = $$('.item_overview_sub', issueElement);
