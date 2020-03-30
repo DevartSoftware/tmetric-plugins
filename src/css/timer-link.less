@@ -242,15 +242,18 @@
 
 .devart-timer-link-todoist {
 
-    .task_item & {
+    .task_item &,
+    .task_list_item & {
         margin-right: 1em;
     }
 
-    .task_item &.devart-timer-link-start {
+    .task_item &.devart-timer-link-start,
+    .task_list_item &.devart-timer-link-start {
         visibility: hidden !important;
     }
 
-    .task_item:hover &.devart-timer-link-start {
+    .task_item:hover &.devart-timer-link-start,
+    .task_list_item:hover &.devart-timer-link-start {
         visibility: visible !important;
     }
 
