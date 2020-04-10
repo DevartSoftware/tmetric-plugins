@@ -22,7 +22,8 @@ var dist = path.normalize(process.cwd() + '/dist/');
 
 var config = {
     distDir: dist,
-    keepDebug: false
+    keepDebug: false,
+    keepSources: false
 };
 
 if (argv.newversion) {
@@ -35,6 +36,10 @@ if (argv.distDir) {
 
 if (argv.keepDebug) {
     config.keepDebug = argv.keepDebug;
+}
+
+if (argv.keepSources) {
+    config.keepSources = argv.keepSources;
 }
 
 var distDir = config.distDir;
@@ -222,10 +227,32 @@ gulp.task('lib', () => {
 // compile
 
 gulp.task('compile:ts', () => {
-    var ts = require('gulp-typescript'); // TypeScript compiler for gulp.js
+
+    // Using typescript compiler for gulp.js
+    var ts = require('gulp-typescript');
+
+    // Gulp typescript compiler do not support source map options from tsconfig.json
+    // Using gulp source map plugin
+    var sourcemaps = require('gulp-sourcemaps');
+
     var project = ts.createProject('./src/tsconfig.json');
     var files = project.config.files.map(path => src + path);
-    return gulp.src(files, { base: src }).pipe(project()).pipe(gulp.dest(src));
+
+    let task = gulp.src(files, { base: src });
+
+    if (config.keepSources) {
+        task = task.pipe(sourcemaps.init());
+    }
+
+    task = task.pipe(project());
+
+    if (config.keepSources) {
+        task = task.pipe(sourcemaps.write({ sourceRoot: '/', includeContent: true }))
+    }
+        
+    task = task.pipe(gulp.dest(src));
+
+    return task;
 });
 
 gulp.task('compile:less', () => {
