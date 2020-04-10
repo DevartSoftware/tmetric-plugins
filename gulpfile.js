@@ -42,6 +42,12 @@ if (argv.keepSources) {
     config.keepSources = argv.keepSources;
 }
 
+// detect visual studio
+if (process.env['VSAPPIDNAME']) {
+    config.keepDebug = true;
+    config.keepSources = true;
+}
+
 var distDir = config.distDir;
 var chromeDir = distDir + 'chrome/';
 var chromeUnpackedDir = chromeDir + 'unpacked/';
