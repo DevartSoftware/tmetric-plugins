@@ -81,7 +81,7 @@
 
         let issueUrl = $$.getRelativeUrl(serviceUrl, source.fullUrl).match(/[^#]*/)[0]; // trim hash
 
-        let tagNames = $$.all('.labels .label, .issuable-show-labels .badge').map(label => label.textContent);
+        let tagNames = $$.all('.labels .label, .issuable-show-labels .badge, .issuable-show-labels .gl-label').map(label => label.textContent);
 
         return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
     }
