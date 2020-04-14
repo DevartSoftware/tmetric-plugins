@@ -53,6 +53,7 @@
         "in-page-scripts/integrations/google-keep.ts",
         "in-page-scripts/integrations/google-mail.ts",
         "in-page-scripts/integrations/jira.ts",
+        "in-page-scripts/integrations/kayako.ts",
         "in-page-scripts/integrations/megaplan.ts",
         "in-page-scripts/integrations/microsoft-office-online.ts",
         "in-page-scripts/integrations/microsoft-outlook-online.ts",
