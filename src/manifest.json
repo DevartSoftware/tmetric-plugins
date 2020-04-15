@@ -116,6 +116,7 @@
         "in-page-scripts/integrations/google-keep.js",
         "in-page-scripts/integrations/google-mail.js",
         "in-page-scripts/integrations/jira.js",
+        "in-page-scripts/integrations/kayako.js",
         "in-page-scripts/integrations/megaplan.js",
         "in-page-scripts/integrations/microsoft-outlook-online.js",
         "in-page-scripts/integrations/openProject.js",
@@ -141,6 +142,7 @@
         "in-page-scripts/integrations/wrike.js",
         "in-page-scripts/integrations/wunderlist.js",
         "in-page-scripts/integrations/youTrack.js",
+        "in-page-scripts/integrations/zammad.js",
         "in-page-scripts/integrations/zendesk.js"
       ],
       "css": [

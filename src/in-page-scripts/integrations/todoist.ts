@@ -10,16 +10,16 @@
     // because overview item searches project name
     // in links parsed on task items
     issueElementSelector = [
-        '.task_item',
-        '.side_panel .item_detail'
+        '.task_item, .task_list_item',
+        '.side_panel .item_detail, .detail_modal .item_detail'
     ];
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
         if (issueElement.matches(this.issueElementSelector[0])) {
-            let host = $$('.content > .text', issueElement);
+            let host = $$('.task_item_details_bottom, .task_list_item__info_tags', issueElement);
             if (host) {
                 linkElement.classList.add('devart-timer-link-todoist');
-                host.insertBefore(linkElement, host.lastChild);
+                host.insertBefore(linkElement, $$('.column_project, .task_list_item__project', host));
             }
         } else if (issueElement.matches(this.issueElementSelector[1])) {
             let host = $$('.item_overview_sub', issueElement);
@@ -36,8 +36,11 @@
 
         if (issueElement.matches(this.issueElementSelector[0])) {
 
+            // Release:
             // <li class="task_item" id="item_123456789">
-            issueNumber = issueElement.id.split('_')[1];
+            // Beta, section Upcoming:
+            // <li class="task_list_item" data-item-id="3523828033">
+            issueNumber = issueElement.id.split('_')[1] || issueElement.getAttribute('data-item-id');
             if (!issueNumber) {
                 return;
             }
@@ -45,14 +48,18 @@
             issueId = '#' + issueNumber;
 
             // Release:
-            // <span class="text sel_item_content"> Task Name <a class="ex_link">LinkText</a> <b>Bold</b> ... </span>
-            // Beta:
             // <span class="text sel_item_content">
             //      <span class="task_item_content_text"> Task Name <a class="ex_link">LinkText</a> <b>Bold</b > </span>
             //      ...
             // </span>
-
-            issueName = $$.try('.content > .text .task_item_content_text', issueElement).textContent;
+            // Beta, section Upcoming:
+            // <div class="task_list_item__content">
+            //    <div class="task_content">
+            //        <span>Task Name</span>
+            //    </div>
+            //    ...
+            //</div>
+            issueName = $$.try('.content > .text .task_item_content_text, .task_list_item__content .task_content', issueElement).textContent;
 
             if (!issueName) {
                 issueName = $$
@@ -91,9 +98,11 @@
             projectName =
                 $$.try('.project_item__name', issueElement).textContent || // Today, 7 Days
                 $$.try('.project_link').textContent || // Project tab (new design)
+                $$.try('.task_list_item__project', issueElement).textContent || // Upcoming
                 $$.try('.pname', issueElement).textContent; // Project tab (old design)
 
-            tagNames = $$.all('.label', issueElement).map(label => label.textContent);
+            tagNames = $$.all('.label, .task_list_item__info_tags__label', issueElement).map(label => label.textContent);
+
         } else if (issueElement.matches(this.issueElementSelector[1])) {
 
             issueNumber = $$.getAttribute('ul[data-subitem-list-id]', 'data-subitem-list-id', issueElement);

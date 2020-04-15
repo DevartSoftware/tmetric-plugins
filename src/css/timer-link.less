@@ -242,15 +242,18 @@
 
 .devart-timer-link-todoist {
 
-    .task_item & {
-        margin-left: 1em;
+    .task_item &,
+    .task_list_item & {
+        margin-right: 1em;
     }
 
-    .task_item &.devart-timer-link-start {
+    .task_item &.devart-timer-link-start,
+    .task_list_item &.devart-timer-link-start {
         visibility: hidden !important;
     }
 
-    .task_item:hover &.devart-timer-link-start {
+    .task_item:hover &.devart-timer-link-start,
+    .task_list_item:hover &.devart-timer-link-start {
         visibility: visible !important;
     }
 
@@ -258,6 +261,7 @@
         text-decoration: none;
 
         .devart-timer-link-icon {
+            align-self: center;
             margin: 0 !important;
             line-height: 1 !important;
         }
@@ -270,18 +274,14 @@
     float: right;
 }
 
-.devart-timer-link-trello {
-    margin-top: 5px;
+.devart-timer-link-trello.devart-timer-link-minimal {
+    margin-top: 3px;
+    margin-left: 3px;
     opacity: 0;
 
-    .checklist-item:hover & {
+    .checklist-item:hover &,
+    &.devart-timer-link-stop {
         opacity: 1;
-    }
-
-    &.devart-timer-link-minimal {
-        position: absolute;
-        top: 0;
-        right: 32px;
     }
 }
 
