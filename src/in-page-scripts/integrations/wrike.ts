@@ -9,7 +9,7 @@
     issueElementSelector = '.wspace-task-view';
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        let host = $$('.wrike-panel-header-toolbar', issueElement);
+        let host = $$('.wrike-panel-header-toolbar, .action-bar', issueElement);
         if (host) {
             linkElement.classList.add('devart-timer-link-wrike');
             host.insertBefore(linkElement, host.firstElementChild);
@@ -18,12 +18,12 @@
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        let issueName = $$.try<HTMLTextAreaElement>('textarea.title-field', issueElement).value;
+        let issueName = $$.try<HTMLTextAreaElement>('textarea.title-field, textarea.title__field', issueElement).value;
         if (!issueName) {
             return;
         }
 
-        let issueTags = $$.all('.wspace-task-widgets-tags-dataview > div', issueElement);
+        let issueTags = $$.all('.wspace-task-widgets-tags-dataview > div, .task-tags .tag-text', issueElement);
         let projectName = issueTags.length == 1 ? issueTags[0].textContent : null;
 
         let params = $$.searchParams(document.location.hash);
