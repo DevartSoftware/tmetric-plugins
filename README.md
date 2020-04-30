@@ -20,6 +20,7 @@ web browsers are **Chrome**, **Firefox**, **Edge**, **Opera**, and **Safari**.
 * [GitLab](https://gitlab.com)
 * [JIRA](https://www.atlassian.com/software/jira)
 * [JIRA Service Desk](https://www.atlassian.com/software/jira/service-desk)
+* [Kayako](http://www.kayako.com)
 * [Microsoft Office Online](https://products.office.com/office-online)
 * [Microsoft Outlook Online](https://outlook.live.com)
 * [Megaplan](https://megaplan.ru)
@@ -48,6 +49,7 @@ web browsers are **Chrome**, **Firefox**, **Edge**, **Opera**, and **Safari**.
 * [Wrike](https://www.wrike.com)
 * [Wunderlist](https://www.wunderlist.com)
 * [YouTrack](https://www.jetbrains.com/youtrack)
+* [Zammad](https://www.zammad.com)
 * [Zendesk](https://www.zendesk.com)
 * [Zoho CRM](https://www.zoho.com/crm)
 
