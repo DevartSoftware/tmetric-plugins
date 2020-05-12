@@ -93,6 +93,7 @@
         "popup/popupController.ts",
         "popup/pagePopupController.ts",
         "popup/popupActivator.ts",
+        "permissions/permissions.ts",
         "settings/settingsController.ts",
         "safari/TMetric for Safari Extension/script.ts"
     ]

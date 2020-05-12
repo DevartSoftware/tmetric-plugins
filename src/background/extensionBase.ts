@@ -161,6 +161,7 @@ abstract class ExtensionBase extends BackgroundBase {
             this.removeIssuesDurationsFromCache(identifiers);
         });
 
+        this.registerInstallListener();
         this.registerTabsUpdateListener();
         this.registerTabsRemoveListener();
 
@@ -629,6 +630,13 @@ abstract class ExtensionBase extends BackgroundBase {
                     chrome.tabs.create({ active: true, windowId: currentWindowId, url });
                 }
             });
+        });
+    }
+
+    private registerInstallListener() {
+        chrome.runtime.onInstalled.addListener(() => {
+            let url = chrome.runtime.getURL('permissions/permissions.html');
+            chrome.tabs.create({ url, active: true });
         });
     }
 
