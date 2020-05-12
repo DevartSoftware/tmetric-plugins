@@ -23,6 +23,11 @@ interface Source {
     path: string;
 }
 
+interface IntegrationInfo {
+    integrationType: string;
+    icon: string;
+}
+
 interface WebToolIssueIdentifier {
     serviceUrl?: string;
     issueUrl?: string;
