@@ -24,7 +24,7 @@ interface Source {
 }
 
 interface IntegrationInfo {
-    integrationType: string;
+    serviceName: string;
     icon: string;
 }
 
