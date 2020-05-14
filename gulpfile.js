@@ -77,7 +77,7 @@ var files = {
         'src/in-page-scripts/version.js',
         'src/in-page-scripts/utils.js',
         'src/lib/**',
-        'src/images/*.png',
+        'src/images/**',
         'src/popup/popup.html',
         'src/popup/popupController.js',
         'src/popup/pagePopupController.js',
@@ -257,7 +257,7 @@ gulp.task('compile:ts', () => {
     if (config.keepSources) {
         task = task.pipe(sourcemaps.write({ sourceRoot: '/', includeContent: true }))
     }
-        
+
     task = task.pipe(gulp.dest(src));
 
     return task;
@@ -442,7 +442,7 @@ function bundleScriptsSafari() {
             let extensionContent = '';
 
             // add script file content
-            
+
             extensionContent += `${file.contents.toString(encoding)}`;
 
             // add common scripts

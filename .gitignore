@@ -1,5 +1,6 @@
 .DS_Store
 .vs/
+.idea/
 Thumbs.db
 *.js.map
 *.lock.json
