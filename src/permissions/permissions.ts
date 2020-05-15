@@ -44,11 +44,11 @@ const integrations = <IntegrationInfo[]>[
         icon: "freshdesk.svg"
     },
     {
-        serviceName: "Github",
+        serviceName: "GitHub",
         icon: "github.svg"
     },
     {
-        serviceName: "Gitlab",
+        serviceName: "GitLab",
         icon: "gitlab.svg"
     },
     {
@@ -212,7 +212,13 @@ const integrations = <IntegrationInfo[]>[
 function renderIntegrations(holder: string) {
     let content = integrations.map(item => $('<li>')
         .attr('title', item.serviceName)
-        .append(`<label class="logo-wrapper"><input type="checkbox" name="${item.serviceName}" /><span class="logo-area"><img src="../images/integrations/${item.icon}" alt="${item.serviceName}" /></span></label>`));
+        .append(`
+<label class="logo-wrapper">
+  <input type="checkbox" name="${item.serviceName}" />
+  <span class="logo-area">
+    <img src="../images/integrations/${item.icon}" alt="${item.serviceName}" />
+  </span>
+</label>`));
     $(holder).empty().append(content);
 }
 
@@ -231,7 +237,7 @@ function initPage() {
     });
 }
 
-$(window).resize(function() {
+$(window).resize(function () {
     setScrollArea();
 });
 
@@ -245,40 +251,40 @@ function setScrollArea() {
 }
 
 function showPopup() {
-    $('.logo-wrapper').click(function() {
+    $('.logo-wrapper').click(function () {
         if ($(this).children('input:checkbox').prop('checked')) {
             $(this).addClass('active');
             $('.location-popup, .overlay').addClass('visible');
         }
     });
 
-    $('.close-popup').click(function() {
+    $('.close-popup').click(function () {
         $('.location-popup, .overlay').removeClass('visible');
-        $('.logo-wrapper.active').removeClass('active').find('input:checkbox').prop('checked',false);
+        $('.logo-wrapper.active').removeClass('active').find('input:checkbox').prop('checked', false);
     });
 
-    $('.show-confirm').click(function() {
+    $('.show-confirm').click(function () {
         $('.location-popup, .overlay').removeClass('visible');
-        $('.logo-wrapper.active').removeClass('active').find('input:checkbox').prop('checked',true);
+        $('.logo-wrapper.active').removeClass('active').find('input:checkbox').prop('checked', true);
     });
 }
 
 function setAllLogos() {
-    $('.enable-all').click(function() {
-        $('.logos-list input:checkbox').each(function(){
-            $(this).prop('checked',true);
+    $('.enable-all').click(function () {
+        $('.logos-list input:checkbox').each(function () {
+            $(this).prop('checked', true);
         })
     });
 
-    $('.disable-all').click(function() {
-        $('.logos-list input:checkbox').each(function(){
-            $(this).prop('checked',false);
+    $('.disable-all').click(function () {
+        $('.logos-list input:checkbox').each(function () {
+            $(this).prop('checked', false);
         })
     });
 }
 
 function checkSelect() {
-    $('.js-select').on("select2:selecting", function(e) {
+    $('.js-select').on("select2:selecting", function (e) {
         if ($('.js-select').find(':selected').val() === 'Server') {
             $('.form-group.hidden:visible').hide(500);
         } else {
