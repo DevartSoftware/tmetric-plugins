@@ -253,17 +253,13 @@ p {
             visibility: hidden;
 
             &:checked + .logo-area {
-                border-color: @logo-active-border-color;
-                background: @logo-active-background;
-                box-shadow: none;
+                .active-logo;
+            }
+        }
 
-                img {
-                    filter: none;
-                }
-
-                &:after {
-                    opacity: 1;
-                }
+        &.active {
+            .logo-area {
+                .active-logo;
             }
         }
     }
@@ -362,67 +358,6 @@ p {
 
 .btn-group {
     display: flex;
-}
-
-.confirm-popup {
-    width: @popup-confirm-width;
-    padding: 18px 20px 20px 64px;
-
-    .icon-close {
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 36px;
-        height: 36px;
-        background: url('../images/icon-close.svg') no-repeat;
-        .icon-svg;
-    }
-
-    .popup-logo {
-        position: absolute;
-        top: 16px;
-        left: 16px;
-        width: 34px;
-        height: 34px;
-        background: url('../images/logo-icon-tmetric.svg') no-repeat;
-        .icon-svg;
-    }
-
-    h3 {
-        margin: 0 0 12px;
-        font: 700 15px/1.5 @font-family;
-    }
-
-    p {
-        margin: 0 0 12px;
-    }
-
-    ul {
-        margin: 0 0 15px;
-        padding: 0;
-        list-style: none;
-
-        li {
-            padding-left: 13px;
-            position: relative;
-            &:before {
-                content: '\2022';
-                position: absolute;
-                top: 0;
-                left: 0;
-            }
-        }
-    }
-
-    .btn-group {
-        justify-content: flex-end;
-    }
-
-    .btn {
-        margin-left: 10px;
-        border-radius: 2px;
-        min-width: 64px;
-    }
 }
 
 // ================================================
@@ -748,5 +683,19 @@ p {
     // reset input placeholder paddings in safari
     &::-webkit-search-decoration {
         -webkit-appearance: none;
+    }
+}
+
+.active-logo {
+    border-color: @logo-active-border-color;
+    background: @logo-active-background;
+    box-shadow: none;
+
+    img {
+        filter: none;
+    }
+
+    &:after {
+        opacity: 1;
     }
 }
