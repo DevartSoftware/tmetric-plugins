@@ -381,6 +381,9 @@
     private static isSameIssue(oldIssue: WebToolIssue, newIssue: WebToolIssue) {
 
         function normalizeServiceUrl(issue: WebToolIssue) {
+            if (!issue.issueUrl) { // ignore service url for issue without external link (TE-540)
+                return '';
+            }
             let url = (issue.serviceUrl || '').trim();
             if (url.length && url[url.length - 1] == '/') {
                 return url.substring(0, url.length - 1);
