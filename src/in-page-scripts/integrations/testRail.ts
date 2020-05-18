@@ -22,7 +22,10 @@
 
         let projectName = $$.try('.top-section.top-section-with-return.text-ppp a').textContent;
 
-        return { issueName, projectName };
+        // https://example.testrail.io/
+        let serviceUrl = source.protocol + source.host;
+
+        return { issueName, projectName, serviceUrl: serviceUrl, serviceType: 'TestRail' };
     }
 }
 

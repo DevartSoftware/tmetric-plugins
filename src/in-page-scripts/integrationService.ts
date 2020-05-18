@@ -102,8 +102,6 @@
                     if (!issue.issueUrl || !issue.serviceUrl || !issue.serviceType) {
                         issue.issueUrl = null;
                         issue.issueId = null;
-                        issue.serviceUrl = null;
-                        issue.serviceType = null;
                     }
 
                     if (issue.tagNames) {

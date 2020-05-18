@@ -49,7 +49,6 @@
         "in-page-scripts/integrations/gitLab.ts",
         "in-page-scripts/integrations/google-calendar.ts",
         "in-page-scripts/integrations/google-docs.ts",
-        "in-page-scripts/integrations/google-inbox.ts",
         "in-page-scripts/integrations/google-keep.ts",
         "in-page-scripts/integrations/google-mail.ts",
         "in-page-scripts/integrations/jira.ts",

@@ -42,7 +42,9 @@
             }
         }
 
-        return { issueName };
+        let serviceUrl = source.protocol + source.host;
+
+        return { issueName, serviceUrl: serviceUrl, serviceType: 'GoogleCalendar' };
     }
 }
 
@@ -79,7 +81,9 @@ class NewGoogleCalendar implements WebToolIntegration {
         let issueName = $$.try('#rAECCd').textContent // Event, task or reminder popup
             || (<any>$$.try('#xTiIn')).value; // Event editor
 
-        return { issueName };
+        let serviceUrl = source.protocol + source.host;
+
+        return { issueName, serviceUrl: serviceUrl, serviceType: 'GoogleCalendar' };
     }
 }
 
