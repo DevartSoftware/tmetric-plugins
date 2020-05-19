@@ -23,9 +23,11 @@ interface Source {
     path: string;
 }
 
-interface IntegrationInfo {
+interface Integration {
+    serviceType: string;
     serviceName: string;
     icon: string;
+    scripts: chrome.runtime.Manifest['content_scripts'][0];
 }
 
 interface WebToolIssueIdentifier {
@@ -139,4 +141,9 @@ interface IExtensionSettings {
 interface IExtensionSettingsMessage {
     action: string;
     data?: any;
+}
+
+interface IIntegrationMessage {
+    action: 'registerIntegrationScripts' | 'unregisterIntegrationScripts';
+    data?: string;
 }

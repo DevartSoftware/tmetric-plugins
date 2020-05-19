@@ -187,6 +187,8 @@ abstract class ExtensionBase extends BackgroundBase {
         else {
             this.extraHours = 0;
         }
+
+        this.registerContentScripts();
     }
 
     protected initConnection() {
@@ -663,16 +665,52 @@ abstract class ExtensionBase extends BackgroundBase {
         });
     }
 
+    // permissions
+
+    private contentScriptRegistrator = new ContentScriptsRegistrator();
+
+    protected registerContentScripts() {
+        getIntegrations()
+            .filter(i => i.serviceType && i.scripts && i.scripts.matches)
+            .forEach(integration => {
+
+                let permissions = <chrome.permissions.Permissions>{
+                    origins: integration.scripts.matches
+                };
+
+                chrome.permissions.contains(permissions, result => {
+                    if (result) {
+                        this.contentScriptRegistrator.register(integration.serviceType);
+                    }
+                });
+            });
+    }
+
+    protected onIntegrationMessage(message: IIntegrationMessage) {
+        if (message.action == 'registerIntegrationScripts') {
+            this.contentScriptRegistrator.register(message.data);
+        } else if (message.action == 'unregisterIntegrationScripts') {
+            this.contentScriptRegistrator.unregister(message.data);
+        }
+    }
+
     protected registerMessageListener() {
         chrome.runtime.onMessage.addListener((
-            message: ITabMessage | IPopupRequest | IExtensionSettingsMessage,
+            message: ITabMessage | IPopupRequest | IExtensionSettingsMessage | IIntegrationMessage,
             sender: chrome.runtime.MessageSender,
             senderResponse: (IPopupResponse) => void
         ) => {
 
+            console.log(message, sender)
+
             // Popup requests
-            if (!sender.url || sender.url.startsWith(this.constants.browserSchema)) {
+            if (!sender.url || sender.url.startsWith(chrome.runtime.getURL('popup'))) {
                 this.onPopupRequest(message, senderResponse);
+                return !!senderResponse;
+            }
+
+            if (sender.url.startsWith(chrome.runtime.getURL('permissions'))) {
+                this.onIntegrationMessage(<IIntegrationMessage>message);
                 return !!senderResponse;
             }
 

@@ -63,6 +63,9 @@ console.log(JSON.stringify(config, null, 2));
 
 var files = {
     common: [
+        "src/background/integrations.js",
+        'src/background/contentScriptsPolyfill.js',
+        'src/background/contentScriptsRegistrator.js',
         'src/background/serverConnection.js',
         'src/background/signalRHubProxy.js',
         'src/background/signalRConnection.js',
