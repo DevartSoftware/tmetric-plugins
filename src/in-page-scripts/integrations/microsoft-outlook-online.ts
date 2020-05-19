@@ -31,7 +31,9 @@
             return;
         }
 
-        return { issueName };
+        let serviceUrl = source.protocol + source.host;
+
+        return { issueName, serviceUrl, serviceType: 'MicrosoftOutlookOnline' };
     }
 }
 

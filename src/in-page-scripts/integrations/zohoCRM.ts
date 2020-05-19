@@ -43,10 +43,8 @@
         }
 
         let projectName: string;
-        let serviceUrl: string;
         let issueUrl: string;
         let issueId: string;
-        let serviceType: string;
 
         let urlRegexp = /^(.*)\/crm\/([^\/]+\/)?tab\/Activities\/(\d+)/;
         let matches = source.fullUrl.match(urlRegexp); // Single activity page
@@ -59,13 +57,14 @@
         }
 
         if (matches) {
-            serviceType = 'ZohoCRM';
-            serviceUrl = matches[1];
             issueId = matches[3] || matches[2];
             issueUrl = `/crm/tab/Activities/${issueId}`;
         }
 
-        return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType };
+        let matchUrl = source.fullUrl.match('^(.+)\/(?:crm|portal)\/.+');
+        let serviceUrl = matchUrl[1];
+
+        return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'ZohoCRM' };
     }
 }
 

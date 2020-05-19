@@ -30,27 +30,27 @@
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        var issueName = $$.try('.title', issueElement).textContent;
+        let issueName = $$.try('.title', issueElement).textContent;
         if (!issueName) {
             return;
         }
 
-        var projectNameElement = $$('a.products');
+        let projectNameElement = $$('a.products');
         if (projectNameElement) {
             var projectName = projectNameElement.textContent;
             var projectUrl = projectNameElement.getAttribute('href');
         }
 
-        var serviceType = 'Sprintly';
+        let serviceType = 'Sprintly';
+        let serviceUrl = source.protocol + source.host;
 
-        var issueNumberElement = $$('.number .value', issueElement);
+        let issueNumberElement = $$('.number .value', issueElement);
         if (issueNumberElement) {
             var issueId = issueNumberElement.textContent;
             if (projectUrl) {
                 var match = /^([^\d]*)(\d+)$/.exec(issueNumberElement.textContent);
                 if (match) {
                     var issueUrl = projectUrl + 'item/' + match[2];
-                    var serviceUrl = source.protocol + source.host;
                 }
             }
         }
