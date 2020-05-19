@@ -32,7 +32,7 @@
         let issueName: string;
         let issueUrl: string;
         let issueId: string;
-        let serviceUrl: string;
+        let serviceUrl = source.protocol + source.host;
 
         if (issueElement.matches(this.issueElementSelector[0])) { // if checklist
             issueName = $$.try('.notranslate', issueElement).textContent;
@@ -46,7 +46,6 @@
             if (matches) {
                 issueUrl = matches[0];
                 issueId = matches[1];
-                serviceUrl = source.protocol + source.host;
             }
         }
 

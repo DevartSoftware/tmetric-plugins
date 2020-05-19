@@ -25,7 +25,7 @@
         // https://example.testrail.io/
         let serviceUrl = source.protocol + source.host;
 
-        return { issueName, projectName, serviceUrl: serviceUrl, serviceType: 'TestRail' };
+        return { issueName, projectName, serviceUrl, serviceType: 'TestRail' };
     }
 }
 

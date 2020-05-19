@@ -33,7 +33,7 @@
 
         let serviceUrl = source.protocol + source.host;
 
-        return { issueName, serviceUrl: serviceUrl, serviceType: 'MicrosoftOutlookOnline' };
+        return { issueName, serviceUrl, serviceType: 'MicrosoftOutlookOnline' };
     }
 }
 

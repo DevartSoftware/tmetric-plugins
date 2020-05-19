@@ -24,7 +24,7 @@
 
         let projectName = $$.try('.ha:last-of-type .hN').textContent;
         let serviceUrl = source.protocol + source.host;
-        return { issueName, projectName, serviceUrl: serviceUrl, serviceType: 'GMail' };
+        return { issueName, projectName, serviceUrl, serviceType: 'Gmail' };
     }
 }
 
