@@ -102,8 +102,6 @@
                     if (!issue.issueUrl || !issue.serviceUrl || !issue.serviceType) {
                         issue.issueUrl = null;
                         issue.issueId = null;
-                        issue.serviceUrl = null;
-                        issue.serviceType = null;
                     }
 
                     if (issue.tagNames) {
@@ -383,7 +381,7 @@
     private static isSameIssue(oldIssue: WebToolIssue, newIssue: WebToolIssue) {
 
         function normalizeServiceUrl(issue: WebToolIssue) {
-            if (!issue.issueUrl) {
+            if (!issue.issueUrl) { // ignore service url for issue without external link (TE-540)
                 return '';
             }
             let url = (issue.serviceUrl || '').trim();

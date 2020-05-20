@@ -16,25 +16,25 @@
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        var issueNameElement = $$.visible<HTMLInputElement>('.ticket .editable input[name=subject]') ||
+        let issueNameElement = $$.visible<HTMLInputElement>('.ticket .editable input[name=subject]') ||
             $$.visible<HTMLInputElement>('.ticket .editable input[data-test-id=ticket-pane-subject]'); // TE-506
 
-        var issueName = issueNameElement && issueNameElement.value;
+        let issueName = issueNameElement && issueNameElement.value;
         if (!issueName) {
             return;
         }
 
         // Ticket url:
         // https://*.zendesk.com/agent/tickets/TICKET_ID
-        var match = /^\/agent\/tickets\/(\d+)$/.exec(source.path);
+        let match = /^\/agent\/tickets\/(\d+)$/.exec(source.path);
         if (match) {
             var issueId = '#' + match[1];
-            var serviceType = 'Zendesk';
-            var serviceUrl = source.protocol + source.host;
             var issueUrl = source.path;
         }
 
-        var projectName = ''; // zendesk have no predefined field for project
+        let projectName = ''; // zendesk have no predefined field for project
+        let serviceType = 'Zendesk';
+        let serviceUrl = source.protocol + source.host;
 
         return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
     }

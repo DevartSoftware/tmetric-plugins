@@ -11,7 +11,7 @@
     issueElementSelector = '.item-form-body';
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        var host = $$('.item-field-id', issueElement);
+        let host = $$('.item-field-id', issueElement);
         if (host) {
             linkElement.classList.add('devart-timer-link-axosoft');
             host.parentElement.insertBefore(linkElement, host.nextElementSibling);
@@ -27,28 +27,28 @@
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        var issueName =
+        let issueName =
             $$.try<HTMLInputElement>('.item-field-name input', issueElement).value ||
             $$.try('.item-field-name', issueElement).textContent;
         if (!issueName) {
             return;
         }
 
-        var projectNameCell = $$.all('.item-field-table .item-field-row > div', issueElement).filter(div => {
+        let projectNameCell = $$.all('.item-field-table .item-field-row > div', issueElement).filter(div => {
             return $$.try('.item-field-label', div).textContent == 'Project:';
         })[0];
-        var projectNameField = projectNameCell && $$('.field', projectNameCell);
+        let projectNameField = projectNameCell && $$('.field', projectNameCell);
         if (projectNameField) {
             var projectName = $$.try<HTMLInputElement>('input', projectNameField).value // edit form
                 || projectNameField.textContent; // view form
         }
 
-        var serviceType = 'Axosoft';
+        let serviceType = 'Axosoft';
+        let serviceUrl = source.protocol + source.host;
 
-        var issueId = $$.try('.item-field-id').textContent;
+        let issueId = $$.try('.item-field-id').textContent;
         if (issueId) {
-            var serviceUrl = source.protocol + source.host;
-            var issueType = this.issueTypes[$$.try('.form-subtitle').textContent] || this.issueTypes.Feature;
+            let issueType = this.issueTypes[$$.try('.form-subtitle').textContent] || this.issueTypes.Feature;
             var issueUrl = '/viewitem?id=' + issueId + '&type=' + issueType;
             if (/^\d+$/.test(issueId)) issueId = '#' + issueId;
         }

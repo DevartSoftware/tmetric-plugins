@@ -119,6 +119,14 @@
             return this.putTimer(<Models.Timer>{ isStarted: false });
         }
 
+        timer = Object.assign({}, timer);
+
+        // Reset service url to post issue without external link (TE-540)
+        if (!timer.issueUrl) {
+            timer.serviceType = null
+            timer.serviceUrl = null;
+        }
+
         return this.connect().then(profile => {
             let accountId = this.accountToPost || profile.activeAccountId;
             this.expectedTimerUpdate = true;

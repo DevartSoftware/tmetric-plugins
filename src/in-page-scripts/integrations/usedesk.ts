@@ -24,14 +24,13 @@
         let projectName = $$.try('#ticket-channel-name').textContent;
 
         let issueId: string;
-        let serviceUrl: string;
+        let serviceUrl = source.protocol + source.host;
         let issueUrl: string;
 
         // https://*.usedesk.ru/tickets/TICKET_ID
         let match = /^\/tickets\/(\d+)$/.exec(source.path);
         if (match) {
             issueId = `#${match[1]}`;
-            serviceUrl = source.protocol + source.host;
             issueUrl = source.path;
         }
 
