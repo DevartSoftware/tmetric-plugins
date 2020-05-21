@@ -80,7 +80,6 @@
         "in-page-scripts/integrations/userecho.ts",
         "in-page-scripts/integrations/uservoice.ts",
         "in-page-scripts/integrations/wrike.ts",
-        "in-page-scripts/integrations/wunderlist.ts",
         "in-page-scripts/integrations/youTrack.ts",
         "in-page-scripts/integrations/zammad.ts",
         "in-page-scripts/integrations/zendesk.ts",

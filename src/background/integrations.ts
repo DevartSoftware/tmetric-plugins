@@ -455,15 +455,6 @@
             }
         },
         {
-            serviceType: 'Wunderlist',
-            serviceName: 'Wunderlist',
-            icon: 'wunderlist.svg',
-            scripts: {
-                matches: ['https://www.wunderlist.com/*'],
-                js: ['in-page-scripts/integrations/wunderlist.js']
-            }
-        },
-        {
             serviceType: 'YouTrack',
             serviceName: 'YouTrack',
             icon: 'youtrack.svg',
