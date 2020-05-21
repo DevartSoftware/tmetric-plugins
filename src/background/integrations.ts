@@ -515,6 +515,14 @@
         {
             serviceName: 'Zenkit',
             icon: 'zenkit.svg'
+        },
+        {
+            serviceType: 'MicrosoftToDo',
+            serviceName: 'Microsoft ToDo',
+            scripts: {
+                matches: ['https://to-do.live.com/*'],
+                js: ['in-page-scripts/integrations/microsoft-todo.js']
+            }
         }
     ];
 }
