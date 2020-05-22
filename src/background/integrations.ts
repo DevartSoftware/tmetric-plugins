@@ -515,6 +515,14 @@
         {
             serviceName: 'Zenkit',
             icon: 'zenkit.svg'
+        },
+        {
+            serviceType: 'Evernote',
+            serviceName: 'Evernote',
+            scripts: {
+                matches: ['https://www.evernote.com/*'],
+                js: ['in-page-scripts/integrations/evernote.js']
+            }
         }
     ];
 }
