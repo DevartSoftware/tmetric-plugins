@@ -19,15 +19,17 @@
             linkElement.classList.add('section-title', 'devart-timer-link-microsoft-todo-details');
 
             let section = $$.all('.section', issueElement)[1];
-            let sectionItem = $$.create('div', 'section-item');
-            let btn = $$.create('button', 'section-innerClick');
-            let sectionInner = $$.create('div', 'section-inner');
+            if (section) {
+                let sectionItem = $$.create('div', 'section-item');
+                let btn = $$.create('button', 'section-innerClick');
+                let sectionInner = $$.create('div', 'section-inner');
 
-            sectionInner.appendChild(linkElement);
+                sectionInner.appendChild(linkElement);
 
-            btn.appendChild(sectionInner);
-            sectionItem.appendChild(btn);
-            section.appendChild(sectionItem);
+                btn.appendChild(sectionInner);
+                sectionItem.appendChild(btn);
+                section.appendChild(sectionItem);
+            }
         }
     }
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
