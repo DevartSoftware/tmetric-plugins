@@ -141,6 +141,13 @@
         });
     }
 
+    getServices() {
+        return this.checkProfile().then(profile =>
+            this.get<WebToolService[]>(
+                this.getServicesUrl()
+            ));
+    }
+
     getIntegration(identifier: Models.IntegratedProjectIdentifier, accountId?: number, keepAccount?: boolean) {
         return this.checkProfile().then(profile =>
             this.get<Models.IntegratedProjectStatus>(
@@ -291,6 +298,10 @@
                 reject(<AjaxStatus>{ statusCode, statusText, responseMessage });
             }
         });
+    }
+
+    getServicesUrl() {
+        return `api/userprofile/services`;
     }
 
     getIntegrationProjectUrl(accountId: number) {

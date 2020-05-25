@@ -30,6 +30,11 @@ interface Integration {
     scripts: chrome.runtime.Manifest['content_scripts'][0];
 }
 
+interface WebToolService {
+    serviceType: string;
+    serviceUrls: string[];
+}
+
 interface WebToolIssueIdentifier {
     serviceUrl?: string;
     issueUrl?: string;
