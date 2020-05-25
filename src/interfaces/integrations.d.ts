@@ -140,7 +140,11 @@ interface ITaskDescriptionMapping {
 }
 
 interface IExtensionSettings {
-    showPopup: Models.ShowPopupOption
+    showPopup: Models.ShowPopupOption;
+}
+
+interface IExtensionLocalSettings {
+    services: WebToolService[];
 }
 
 interface IExtensionSettingsMessage {

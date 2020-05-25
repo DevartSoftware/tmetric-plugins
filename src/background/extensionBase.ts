@@ -637,8 +637,14 @@ abstract class ExtensionBase extends BackgroundBase {
 
     private registerInstallListener() {
         chrome.runtime.onInstalled.addListener(() => {
-            let url = chrome.runtime.getURL('permissions/permissions.html');
-            chrome.tabs.create({ url, active: true });
+            this.connection.reconnect()
+                .then(() => {
+                    this.showPermissionsPage();
+                })
+                .catch(() => {
+                    this.actionOnConnect = () => this.showPermissionsPage();
+                    this.showLoginDialog();
+                });
         });
     }
 
@@ -666,6 +672,15 @@ abstract class ExtensionBase extends BackgroundBase {
     }
 
     // permissions
+
+    private showPermissionsPage() {
+        this.connection.getServices().then(services => {
+            chrome.storage.local.set(<IExtensionLocalSettings>{ services }, () => {
+                let url = chrome.runtime.getURL('permissions/permissionsCheck.html');
+                chrome.tabs.create({ url, active: true });
+            });
+        });
+    }
 
     private contentScriptRegistrator = new ContentScriptsRegistrator();
 
