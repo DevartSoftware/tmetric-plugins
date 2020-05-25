@@ -16,14 +16,13 @@
 @dropdown-link-disabled-color: lighten(#000, 73%);
 
 //== Logos
-@logo-width: 130px;
-@logo-height: 52px;
-@logo-box-padding: 15px;
+@logo-width: 120px;
+@logo-height: 48px;
+@logo-box-padding: 39px 20px 35px;
 @logo-box-margin: 10px;
 @logo-border-color: #E2E7EB;
 @logo-border-radius: 6px;
 @logo-active-border-color: #3070F0;
-@logo-active-background: #E7EDFC;
 
 //== Typografy
 @font-weight-base: 500;
@@ -193,7 +192,7 @@ p {
 
 .logos-section {
     border-top: 1px solid @border-color;
-    padding: 10px 16px 10px 32px;
+    padding: 10px 15px 10px 32px;
     box-sizing: border-box;
     overflow-y: auto;
 }
@@ -220,19 +219,29 @@ p {
             border-radius: @logo-border-radius;
             padding: @logo-box-padding;
             border: 1px solid @logo-border-color;
+            &:before,
             &:after {
                 content: '';
                 display: block;
                 clear: both;
                 position: absolute;
-                top: 8px;
-                right: 8px;
-                width: 16px;
+                top: 12px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 32px;
                 height: 16px;
-                background: url('../images/checkbox-checked.svg') no-repeat;
-                background-size: 100% 100%;
-                opacity: 0;
-                transition: opacity 0.5s ease;
+                background: @border-color;
+                border-radius: 8px;
+                transition: background 0.2s ease;
+            }
+            &:after {
+                top: 14px;
+                margin-left: -8px;
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                background: #fff;
+                transition: margin-left 0.2s ease;
             }
 
             &:hover {
@@ -688,14 +697,15 @@ p {
 
 .active-logo {
     border-color: @logo-active-border-color;
-    background: @logo-active-background;
     box-shadow: none;
+    &:before {
+        background-color: @logo-active-border-color;
+    }
+    &:after {
+        margin-left: 8px;
+    }
 
     img {
         filter: none;
-    }
-
-    &:after {
-        opacity: 1;
     }
 }
