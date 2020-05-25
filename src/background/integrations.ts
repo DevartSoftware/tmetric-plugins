@@ -519,6 +519,7 @@
         {
             serviceType: 'Evernote',
             serviceName: 'Evernote',
+            icon: 'evernote.svg',
             scripts: {
                 matches: ['https://www.evernote.com/*'],
                 js: ['in-page-scripts/integrations/evernote.js']
