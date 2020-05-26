@@ -39,21 +39,29 @@
     <div class="overlay"></div>
     <div class="popup location-popup">
         <a href="#" class="icon-close close-popup">Close</a>
-        <h2>Web App Location</h2>
-        <div class="form-group">
-            <label for="hosting">Hosting</label>
-            <select id="hosting" class="input form-control js-select">
-                <option>Cloud</option>
-                <option>Server</option>
-            </select>
-            <p class="notes">This field can contain numbers</p>
-        </div>
-        <div class="form-group hidden">
-            <label for="url">URL</label>
-            <input id="url" class="input form-control" type="text" placeholder="https://app.mycompany.com/" />
-        </div>
+        <h2>Allowed sites</h2>
+        <ul class="url-list">
+            <li>
+                <div class="input-holder">
+                    <input class="input form-control" type="text" placeholder="Placeholder" />
+                </div>
+                <button class="btn btn-secondary"><i class="fa fa-plus"></i> Add URL</button>
+            </li>
+            <li>
+                <span class="url">jira.acmeinc.com</span>
+                <button class="btn btn-icon"><i class="fa fa-times"></i></button>
+            </li>
+            <li>
+                <span class="url">jira.acmeinc.org</span>
+                <button class="btn btn-icon"><i class="fa fa-times"></i></button>
+            </li>
+            <li>
+                <span class="url">jira.acmeinc.net</span>
+                <button class="btn btn-icon"><i class="fa fa-times"></i></button>
+            </li>
+        </ul>
         <div class="btn-group">
-            <button class="btn btn-primary show-confirm">OK</button>
+            <button class="btn btn-primary show-confirm">Apply</button>
             <button class="btn btn-secondary close-popup">Cancel</button>
         </div>
     </div>

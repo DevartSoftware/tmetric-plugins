@@ -48,6 +48,10 @@
 @btn-success-bg: #17C22E;
 @btn-success-border: @border-color;
 
+@btn-icon-color: @border-color;
+@btn-icon-hover-color: #34393D;
+@btn-icon-hover-bg: #E2E7EB;
+
 @btn-font-weight: 500;
 
 //== Popup
@@ -352,21 +356,85 @@ p {
         padding-top: 20px;
     }
 
-    .btn {
-        margin-right: 12px;
+}
 
-        &.btn-primary {
-            min-width: 75px;
+.url-list {
+    margin: 0 0 20px;
+    padding: 0;
+    list-style: none;
+    border: 1px solid @border-color;
+    border-radius: 6px;
+
+    li {
+        padding: 8px 11px;
+        display: flex;
+        border-top: 1px solid @border-color;
+
+        &:first-child {
+            border-top: 0;
+            padding: 11px;
+        }
+    }
+
+    .input-holder,
+    .url {
+        flex-grow: 1;
+    }
+
+    .url {
+        line-height: 36px;
+    }
+
+    .btn-secondary {
+        margin: 0 0 0 12px;
+        min-width: 110px;
+
+        .fa {
+            vertical-align: middle;
+        }
+    }
+
+    .btn-icon {
+        margin-left: 12px;
+        width: 36px;
+        min-width: 36px;
+        height: 36px;
+        padding: 0;
+        font-weight: normal;
+        border: 0;
+        border-radius: 50%;
+        line-height: 36px;
+        text-align: center;
+        background-color: transparent;
+        color: @btn-icon-color;
+        letter-spacing: 0;
+
+        .fa {
+            margin: 0;
         }
 
-        &.btn-secondary {
-            min-width: 100px;
+        &:hover,
+        &:focus {
+            color: @btn-icon-hover-color;
+            background: @btn-icon-hover-bg;
         }
     }
 }
 
 .btn-group {
     display: flex;
+
+    .btn {
+        margin-right: 12px;
+
+        &.btn-primary {
+            min-width: 92px;
+        }
+
+        &.btn-secondary {
+            min-width: 100px;
+        }
+    }
 }
 
 // ================================================
