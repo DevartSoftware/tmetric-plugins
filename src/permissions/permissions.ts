@@ -55,16 +55,6 @@ $(document).ready(() => {
         });
     }
 
-    function checkSelect() {
-        $('.js-select').on("select2:selecting", function (e) {
-            if ($('.js-select').find(':selected').val() === 'Server') {
-                $('.form-group.hidden:visible').hide(500);
-            } else {
-                $('.form-group.hidden:hidden').show(500);
-            }
-        });
-    }
-
     function initPermissionCheckboxes() {
         $('.logo-wrapper input').change(event => {
 
@@ -156,11 +146,6 @@ $(document).ready(() => {
     setScrollArea();
     setAllLogos();
     showPopup();
-    checkSelect();
-
-    $('.js-select').select2({
-        minimumResultsForSearch: Infinity
-    });
 
     initPermissionCheckboxes();
 
