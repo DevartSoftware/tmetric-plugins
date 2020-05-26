@@ -22,22 +22,6 @@
             var issueName = ($$.try('en-noteheader textarea', frame.contentDocument) as HTMLTextAreaElement).value;
         }
 
-        // try to get issue name from sidebar
-        if (!issueName) {
-            let sidebarSelectedItem = $$('.TSUJykWrzFUwd6gUIDTTl');
-            if (sidebarSelectedItem) {
-                issueName = $$.try('[id$=qa-NOTES_SIDEBAR_NOTE_TITLE]', sidebarSelectedItem).textContent;
-            }
-        }
-
-        if (issueName == '') {
-            issueName = 'Untitled';
-        }
-
-        if (!issueName) {
-            return;
-        }
-
         let projectName = $$.try('#qa-NOTE_PARENT_NOTEBOOK_BTN', issueElement).textContent;
         let issueId = $$.searchParams(source.fullUrl)['n'];
         let issueUrl = issueId && `${source.path}#?n=${issueId}`;
