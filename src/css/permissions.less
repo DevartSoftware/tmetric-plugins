@@ -32,6 +32,9 @@
 @icon-font-size: 16px;
 
 //== Buttons
+@btn-line-height: 22px;
+@btn-font-weight: 500;
+
 @btn-default-color: @text-color;
 @btn-default-bg: #fff;
 @btn-default-border: @border-color;
@@ -52,8 +55,6 @@
 @btn-icon-hover-color: #34393D;
 @btn-icon-hover-bg: #E2E7EB;
 
-@btn-font-weight: 500;
-
 //== Popup
 @popup-border-radius: 6px;
 @popup-location-width: 480px;
@@ -63,12 +64,20 @@
 
 @body-min-width: 320px;
 @container-max-width: 1160px;
+@login-page-max-width: 440px;
+@login-page-min-height: 600px;
+@login-main-padding: 32px 47px;
 @border-raduis: 4px;
 @shadow: 0 2px 3px 0 rgba(47,47,47,.25);
 
 // ==============================================
 //                  COMMON
 // ==============================================
+
+html,
+body {
+    height: 100%;
+}
 
 body {
     margin: 0;
@@ -81,6 +90,11 @@ body {
     overflow: hidden;
 }
 
+.wrapper {
+    display: flex;
+    height: 100%;
+}
+
 .container {
     margin: 40px auto;
     box-sizing: border-box;
@@ -89,8 +103,20 @@ body {
     border-radius: 6px;
     position: relative;
     overflow: hidden;
+    width: 100%;
     max-width: @container-max-width;
     background: @container-color;
+
+    &.login-page {
+        margin: auto;
+        height: auto;
+        max-width: @login-page-max-width;
+        min-height: @login-page-min-height;
+
+        .main {
+            padding: @login-main-padding;
+        }
+    }
 }
 
 .header {
@@ -120,6 +146,10 @@ h1 {
 
 p {
     margin: 0 0 20px;
+}
+
+.w-100 {
+    width: 100%;
 }
 
 .filter-section {
@@ -558,7 +588,7 @@ p {
     background-image: none;
     border: 1px solid transparent;
     white-space: nowrap;
-    .button-size(6px, 12px, 14px, @line-height-base, 4px);
+    .button-size(6px, 12px, 14px, @btn-line-height, 4px);
 
     .fa {
         margin: 0 4px 0 2px;
