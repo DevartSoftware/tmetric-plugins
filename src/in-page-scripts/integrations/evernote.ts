@@ -20,6 +20,11 @@
         let frame = $$.try('#qa-COMMON_EDITOR_IFRAME');
         if (isIFrame(frame) && frame.contentDocument) {
             var issueName = ($$.try('en-noteheader textarea', frame.contentDocument) as HTMLTextAreaElement).value;
+
+            // if read-only note
+            if (!issueName) {
+                issueName = $$.try('[data-testid=view-only-title]', frame.contentDocument).textContent;
+            }
         }
 
         let projectName = $$.try('#qa-NOTE_PARENT_NOTEBOOK_BTN', issueElement).textContent;
