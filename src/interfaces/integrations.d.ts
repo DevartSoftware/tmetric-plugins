@@ -27,7 +27,7 @@ interface Integration {
     serviceType: string;
     serviceName: string;
     icon: string;
-    placeholder: string;
+    keywords: string;
     origins: string[];
     hasAdditionalOrigins: boolean; // means service have more online or/and self-hosted origins
     scripts: chrome.runtime.Manifest['content_scripts'][0];

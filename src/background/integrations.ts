@@ -46,6 +46,7 @@
         {
             serviceType: 'TFS',
             serviceName: 'Azure DevOps',
+            keywords: 'microsoft tfs visual studio team foundation server',
             icon: 'azuredevops.svg',
             origins: [
                 'https://*.visualstudio.com/*',
@@ -95,15 +96,17 @@
             serviceType: 'Bitrix24',
             serviceName: 'Bitrix24',
             icon: 'bitrix.svg',
+            keywords: 'битрикс24 бітрікс24 бітрыкс24',
             origins: [
+                'https://*.bitrix24.com/*',
+                'https://*.bitrix24.ru/*',
                 'https://*.bitrix24.eu/*',
                 'https://*.bitrix24.de/*',
+                'https://*.bitrix24.ua/*',
+                'https://*.bitrix24.by/*',
                 'https://*.bitrix24.fr/*',
                 'https://*.bitrix24.it/*',
                 'https://*.bitrix24.pl/*',
-                'https://*.bitrix24.ru/*',
-                'https://*.bitrix24.ua/*',
-                'https://*.bitrix24.by/*',
                 'https://*.bitrix24.kz/*',
                 'https://*.bitrix24.in/*',
                 'https://*.bitrix24.com.tr/*',
@@ -111,7 +114,6 @@
                 'https://*.bitrix24.cn/*',
                 'https://*.bitrix24.vn/*',
                 'https://*.bitrix24.jp/*',
-                'https://*.bitrix24.com/*',
                 'https://*.bitrix24.es/*',
                 'https://*.bitrix24.com.br/*'
             ],
@@ -229,6 +231,7 @@
         {
             serviceType: 'Gmail',
             serviceName: 'Gmail',
+            keywords: 'google email',
             icon: 'gmail.svg',
             origins: ['https://mail.google.com/*'],
             scripts: {
@@ -240,6 +243,7 @@
             serviceType: 'Jira',
             serviceName: 'Jira',
             icon: 'jira.svg',
+            keywords: 'atlassian',
             origins: [
                 'https://*.atlassian.com/*',
                 'https://*.atlassian.net/*'
@@ -265,6 +269,7 @@
             serviceType: 'Megaplan',
             serviceName: 'Megaplan',
             icon: 'megaplan.svg',
+            keywords: 'мегаплан',
             origins: [
                 'https://*.megaplan.ru/*',
                 'https://*.megaplan.ua/*',
@@ -283,13 +288,10 @@
             }
         },
         {
-            serviceName: 'Microsoft Excel',
-            icon: 'excel.svg'
-        },
-        {
             serviceType: 'MicrosoftOfficeOnline',
             serviceName: 'Microsoft Office',
             icon: 'msoffice.svg',
+            keywords: 'excel word powerpoint office 365 microsoft 365',
             origins: [
                 'https://onedrive.live.com/*',
                 'https://*.officeapps.live.com/*'
@@ -305,7 +307,8 @@
         },
         {
             serviceType: 'MicrosoftOutlookOnline',
-            serviceName: 'Outlook',
+            serviceName: 'Microsoft Outlook',
+            keywords: 'email',
             icon: 'outlook.svg',
             origins: ['https://outlook.live.com/*'],
             scripts: {
@@ -359,6 +362,7 @@
             serviceType: 'Redmine',
             serviceName: 'Redmine',
             icon: 'redmine.svg',
+            keywords: 'easyredmine',
             hasAdditionalOrigins: true,
             scripts: {
                 matches: [
@@ -387,6 +391,7 @@
             serviceType: 'Sprintly',
             serviceName: 'Sprintly',
             icon: 'sprintly.svg',
+            keywords: 'sprint.ly',
             origins: ['https://sprint.ly/*'],
             scripts: {
                 matches: ['https://sprint.ly/*'],
@@ -459,10 +464,6 @@
                 ],
                 js: ['in-page-scripts/integrations/testRail.js']
             }
-        },
-        {
-            serviceName: 'Visual Studio TFS',
-            icon: 'vstfs.svg'
         },
         {
             serviceType: 'Todoist',
@@ -578,10 +579,6 @@
             }
         },
         {
-            serviceName: 'ZenHub',
-            icon: 'zenhub.svg'
-        },
-        {
             serviceType: 'ZohoCRM',
             serviceName: 'Zoho CRM',
             icon: 'zoho.svg',
@@ -595,10 +592,6 @@
                 js: ['in-page-scripts/integrations/zohoCRM.js'],
                 all_frames: true
             }
-        },
-        {
-            serviceName: 'Zenkit',
-            icon: 'zenkit.svg'
         }
     ];
 }
