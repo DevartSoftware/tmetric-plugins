@@ -80,8 +80,12 @@ $(document).ready(() => {
     function updatePermissionCheckboxes() {
         integrations.forEach(integration => {
 
+            if (!integration.origins || !integration.origins.length) {
+                return;
+            }
+
             let permissions = <chrome.permissions.Permissions>{
-                origins: integration.scripts.matches
+                origins: integration.origins
             };
 
             chrome.permissions.contains(permissions, result => {
@@ -93,7 +97,7 @@ $(document).ready(() => {
     function requestPermissions(integration: Integration) {
 
         let permissions = <chrome.permissions.Permissions>{
-            origins: integration.scripts.matches
+            origins: integration.origins
         };
 
         chrome.permissions.request(permissions, result => {
@@ -107,7 +111,7 @@ $(document).ready(() => {
     function removePermissions(integration: Integration) {
 
         let permissions = <chrome.permissions.Permissions>{
-            origins: integration.scripts.matches
+            origins: integration.origins
         };
 
         chrome.permissions.remove(permissions, result => {
