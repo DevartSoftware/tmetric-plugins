@@ -28,11 +28,7 @@
         }
 
         let projectName = $$.try('#qa-NOTE_PARENT_NOTEBOOK_BTN', issueElement).textContent;
-
-        let query = source.fullUrl.split('#?')[1];
-        query = query ? query : source.fullUrl;
-        let issueId = $$.searchParams(query)['n'];
-
+        let issueId = $$.searchParams(location.hash)['n'];
         let issueUrl = issueId && `${source.path}#?n=${issueId}`;
         let serviceUrl = source.protocol + source.host;
 
