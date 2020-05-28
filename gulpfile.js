@@ -85,6 +85,8 @@ var files = {
         'src/popup/popupActivator.js',
         'src/permissions/permissions.html',
         'src/permissions/permissions.js',
+        'src/permissions/permissionsCheck.html',
+        'src/permissions/permissionsCheck.js',
         'src/settings/settings.html',
         'src/settings/settingsController.js',
         'src/background/backgroundBase.js',

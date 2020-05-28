@@ -27,7 +27,15 @@ interface Integration {
     serviceType: string;
     serviceName: string;
     icon: string;
+    keywords: string;
+    origins: string[];
+    hasAdditionalOrigins: boolean; // means service have more online or/and self-hosted origins
     scripts: chrome.runtime.Manifest['content_scripts'][0];
+}
+
+interface WebToolService {
+    serviceType: string;
+    serviceUrls: string[];
 }
 
 interface WebToolIssueIdentifier {
@@ -135,7 +143,11 @@ interface ITaskDescriptionMapping {
 }
 
 interface IExtensionSettings {
-    showPopup: Models.ShowPopupOption
+    showPopup: Models.ShowPopupOption;
+}
+
+interface IExtensionLocalSettings {
+    services: WebToolService[];
 }
 
 interface IExtensionSettingsMessage {

@@ -284,6 +284,7 @@
 
             var all = Promise.all([timer, timeEntries]);
             all.catch(() => this.disconnect());
+
             return all;
         });
     }
