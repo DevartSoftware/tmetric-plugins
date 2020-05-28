@@ -592,6 +592,15 @@
                 js: ['in-page-scripts/integrations/zohoCRM.js'],
                 all_frames: true
             }
-        }
+        },
+        {
+            serviceType: 'Monday',
+            serviceName: 'Monday',
+            icon: 'monday.svg',
+            scripts: {
+                matches: ['https://*.monday.com/*'],
+                js: ['in-page-scripts/integrations/monday.js']
+            }
+        },
     ];
 }
