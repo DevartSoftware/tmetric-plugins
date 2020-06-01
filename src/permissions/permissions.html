@@ -39,33 +39,22 @@
     <div class="popup location-popup">
         <a href="#" class="icon-close close-popup">Close</a>
         <h2>Allowed sites</h2>
-        <ul class="url-list">
-            <li>
-                <div class="input-holder">
-                    <input class="input form-control" type="text" placeholder="Placeholder" />
-                </div>
-                <button class="btn btn-secondary"><i class="fa fa-plus"></i> Add URL</button>
-            </li>
-            <li>
-                <span class="url">jira.acmeinc.com</span>
-                <button class="btn btn-icon"><i class="fa fa-times"></i></button>
-            </li>
-            <li>
-                <span class="url">jira.acmeinc.org</span>
-                <button class="btn btn-icon"><i class="fa fa-times"></i></button>
-            </li>
-            <li>
-                <span class="url">jira.acmeinc.net</span>
-                <button class="btn btn-icon"><i class="fa fa-times"></i></button>
-            </li>
-        </ul>
+        <div class="add-url-input-holder">
+            <div class="input-holder">
+                <input class="input form-control" type="text" placeholder="Placeholder" />
+            </div>
+            <button class="btn btn-secondary add-url"><i class="fa fa-plus"></i> Add URL</button>
+        </div>
+        <ul class="url-list"></ul>
         <div class="btn-group">
-            <button class="btn btn-primary show-confirm">Apply</button>
+            <button class="btn btn-primary apply-popup">Apply</button>
             <button class="btn btn-secondary close-popup">Cancel</button>
         </div>
     </div>
     <script src="../lib/jquery.min.js"></script>
     <script src="../background/integrations.js"></script>
+    <script src="../background/services.js"></script>
+    <script src="permissionManager.js"></script>
     <script src="permissions.js"></script>
 </body>
 </html>

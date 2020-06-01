@@ -95,6 +95,7 @@
         "popup/popupController.ts",
         "popup/pagePopupController.ts",
         "popup/popupActivator.ts",
+        "permissions/permissionManager.ts",
         "permissions/permissions.ts",
         "permissions/permissionsCheck.ts",
         "settings/settingsController.ts",

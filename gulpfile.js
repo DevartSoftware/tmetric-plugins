@@ -84,6 +84,7 @@ var files = {
         'src/popup/popupController.js',
         'src/popup/pagePopupController.js',
         'src/popup/popupActivator.js',
+        'src/permissions/permissionManager.js',
         'src/permissions/permissions.html',
         'src/permissions/permissions.js',
         'src/permissions/permissionsCheck.html',
