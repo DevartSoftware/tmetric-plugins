@@ -72,7 +72,8 @@
         // side panel on board page
         if (issueElement.matches(this.issueElementSelector[1])) {
             issueName = $$.try('.title-wrapper', issueElement).textContent;
-            issueId = source.path.match(/\/(?:pulses)\/([^\/]+)/)[1];
+            let matches = source.path.match(/(?<=pulses\/)(\d*)(?=\/|\?|.*)/);
+            issueId = matches ? matches[0] : null;
             issueUrl = source.path;
         }
 
