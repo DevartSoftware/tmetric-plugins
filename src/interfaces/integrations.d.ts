@@ -23,14 +23,22 @@ interface Source {
     path: string;
 }
 
+type ContentScripts = {
+    js?: string[];
+    css?: string;
+    paths?: string[];
+    allFrames?: boolean;
+    runAt?: string;
+};
+
 interface Integration {
     serviceType: string;
     serviceName: string;
     icon: string;
-    keywords: string;
+    keywords?: string;
     origins: string[];
-    hasAdditionalOrigins: boolean; // means service have more online or/and self-hosted origins
-    scripts: chrome.runtime.Manifest['content_scripts'][0];
+    hasAdditionalOrigins?: boolean; // means service have more online or/and self-hosted origins
+    scripts: ContentScripts;
 }
 
 interface WebToolService {
@@ -157,5 +165,5 @@ interface IExtensionSettingsMessage {
 
 interface IIntegrationMessage {
     action: 'registerIntegrationScripts' | 'unregisterIntegrationScripts';
-    data?: string;
+    data?: string[];
 }

@@ -12,11 +12,7 @@
 
     private scripts = <{ [serviceType: string]: RegisteredContentScript[] }>{};
 
-    private getIntegration(serviceType: string) {
-        return getIntegrations().find(i => i.serviceType == serviceType);
-    }
-
-    private getScriptOptions({ scripts }: Integration) {
+    private getScriptOptions(scripts: ContentScripts) {
 
         let js = [
             'in-page-scripts/utils.js',
@@ -33,35 +29,65 @@
 
         return <RegisteredContentScriptOptions[]>[
             {
-                matches: scripts.matches,
+                matches: scripts.paths,
                 js: js.map(file => ({ file })),
                 css: css.map(file => ({ file })),
-                allFrames: scripts.all_frames || false,
+                allFrames: scripts.allFrames || false,
                 runAt: 'document_end'
             },
             {
-                matches: scripts.matches,
+                matches: scripts.paths,
                 js: [
                     { file: 'in-page-scripts/topmostPage.js' }
                 ],
                 allFrames: false,
-                runAt: scripts.run_at
+                runAt: scripts.runAt
             }
         ];
     }
 
-    async register(serviceType: string) {
+    async register(serviceTypes?: string[]) {
 
-        const integration = this.getIntegration(serviceType);
-        if (!integration || !integration.scripts) {
-            return;
+        this.unregister(serviceTypes);
+
+        let services = await getServices();
+        if (serviceTypes) {
+            services = services.filter(s => serviceTypes.indexOf(s.serviceType) > -1);
         }
 
-        this.unregister(serviceType);
+        const integrations = getIntegrations();
 
-        let scriptsOptions = this.getScriptOptions(integration);
+        services.forEach(async service => {
 
-        this.scripts[serviceType] = [... await Promise.all(scriptsOptions.map(this.registerInternal))];
+            const { serviceType, serviceUrls } = service;
+
+            const integration = integrations.find(i => i.serviceType == serviceType);
+            if (!integration || !integration.scripts) {
+                return;
+            }
+
+            const paths = serviceUrls.reduce((matches, origin) => {
+                if (integration.scripts.paths) {
+                    integration.scripts.paths.forEach(path => {
+                        matches.push(origin.replace(/\*$/, path));
+                    });
+                } else {
+                    matches.push(origin);
+                }
+                return matches;
+            }, <string[]>[]);
+
+            const scripts: ContentScripts = {
+                allFrames: integration.scripts.allFrames,
+                js: integration.scripts.js,
+                css: integration.scripts.css,
+                paths
+            };
+
+            let scriptsOptions = this.getScriptOptions(scripts);
+
+            this.scripts[serviceType] = [... await Promise.all(scriptsOptions.map(this.registerInternal))];
+        });
     }
 
 
@@ -80,11 +106,15 @@
         return method(options);
     }
 
-    unregister(serviceType: string) {
-        let scripts = this.scripts[serviceType];
-        if (scripts) {
-            scripts.forEach(s => s.unregister());
-            delete this.scripts[serviceType];
-        }
+    unregister(serviceTypes?: string[]) {
+
+        (serviceTypes || Object.keys(this.scripts)).forEach(serviceType => {
+
+            let scripts = this.scripts[serviceType];
+            if (scripts) {
+                scripts.forEach(s => s.unregister());
+                delete this.scripts[serviceType];
+            }
+        });
     }
 }

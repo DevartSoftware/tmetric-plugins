@@ -1,5 +1,5 @@
 ﻿const getIntegrations = function () {
-    return <Integration[]>[
+    let integrations: Integration[] = [
         {
             serviceType: 'ActiveCollab',
             serviceName: 'ActiveCollab',
@@ -7,8 +7,8 @@
             origins: ['https://app.activecollab.com/*'],
             hasAdditionalOrigins: true,
             scripts: {
-                matches: ['https://*/projects/*'],
-                js: ['in-page-scripts/integrations/activeCollab.js']
+                js: ['in-page-scripts/integrations/activeCollab.js'],
+                paths: ['projects/*'],
             }
         },
         {
@@ -17,7 +17,6 @@
             icon: 'asana.svg',
             origins: ['https://app.asana.com/*'],
             scripts: {
-                matches: ['https://app.asana.com/*'],
                 js: ['in-page-scripts/integrations/asana.js']
             }
         },
@@ -28,8 +27,8 @@
             origins: ['https://*.assembla.com/*'],
             hasAdditionalOrigins: true,
             scripts: {
-                matches: ['https://*.assembla.com/spaces/*'],
-                js: ['in-page-scripts/integrations/assembla.js']
+                js: ['in-page-scripts/integrations/assembla.js'],
+                paths: ['spaces/*']
             }
         },
         {
@@ -39,7 +38,6 @@
             origins: ['https://*.axosoft.com/*'],
             hasAdditionalOrigins: true,
             scripts: {
-                matches: ['https://*.axosoft.com/*'],
                 js: ['in-page-scripts/integrations/axosoft.js']
             }
         },
@@ -54,19 +52,17 @@
             ],
             hasAdditionalOrigins: true,
             scripts: {
-                matches: [
-                    // Visual Studio Team Services
-                    '*://*.visualstudio.com/*',
+                js: ['in-page-scripts/integrations/tfs.js'],
+                paths: [
                     // Azure DevOps / Team Foundation Server
-                    '*://*/_home*',
-                    '*://*/_boards*',
-                    '*://*/_dashboards*',
-                    '*://*/_backlogs*',
-                    '*://*/_workitems*',
-                    '*://*/_sprints*',
-                    '*://*/_queries*',
-                ],
-                js: ['in-page-scripts/integrations/tfs.js']
+                    '_home*',
+                    '_boards*',
+                    '_dashboards*',
+                    '_backlogs*',
+                    '_workitems*',
+                    '_sprints*',
+                    '_queries*',
+                ]
             }
         },
         {
@@ -75,8 +71,8 @@
             icon: 'basecamp.svg',
             origins: ['https://*.basecamp.com/*'],
             scripts: {
-                matches: ['https://*.basecamp.com/*/buckets/*'],
-                js: ['in-page-scripts/integrations/tfs.js']
+                js: ['in-page-scripts/integrations/basecamp.js'],
+                paths: ['*/buckets/*']
             }
         },
         {
@@ -85,11 +81,11 @@
             icon: 'bitbucket.svg',
             origins: ['https://bitbucket.org/*'],
             scripts: {
-                matches: [
-                    'https://bitbucket.org/*/issues/*',
-                    'https://bitbucket.org/*/pull-requests/*'
-                ],
-                js: ['in-page-scripts/integrations/bitbucket.js']
+                js: ['in-page-scripts/integrations/bitbucket.js'],
+                paths: [
+                    '*/issues/*',
+                    '*/pull-requests/*'
+                ]
             }
         },
         {
@@ -119,19 +115,20 @@
             ],
             hasAdditionalOrigins: true,
             scripts: {
-                matches: ['https://*/*/tasks*'],
                 js: ['in-page-scripts/integrations/bitrix24.js'],
-                all_frames: true
+                paths: ['*/tasks*'],
+                allFrames: true
             }
         },
         {
             serviceType: 'Bugzilla',
             serviceName: 'Bugzilla',
             icon: 'bugzilla.svg',
+            origins: [],
             hasAdditionalOrigins: true,
             scripts: {
-                matches: ['*://*/show_bug.cgi*'],
-                js: ['in-page-scripts/integrations/bugzilla.js']
+                js: ['in-page-scripts/integrations/bugzilla.js'],
+                paths: ['show_bug.cgi*'],
             }
         },
         {
@@ -140,7 +137,6 @@
             icon: 'clickup.svg',
             origins: ['https://app.clickup.com/*'],
             scripts: {
-                matches: ['https://app.clickup.com/*'],
                 js: ['in-page-scripts/integrations/clickup.js']
             }
         },
@@ -150,8 +146,8 @@
             icon: 'doitim.svg',
             origins: ['https://i.doit.im/*'],
             scripts: {
-                matches: ['https://i.doit.im/home/*'],
-                js: ['in-page-scripts/integrations/doitIm.js']
+                js: ['in-page-scripts/integrations/doitIm.js'],
+                paths: ['home/*'],
             }
         },
         {
@@ -164,11 +160,11 @@
             ],
             hasAdditionalOrigins: true,
             scripts: {
-                matches: [
-                    '*://*/helpdesk/tickets/*',
-                    '*://*/a/tickets/*'
-                ],
-                js: ['in-page-scripts/integrations/freshdesk.js']
+                js: ['in-page-scripts/integrations/freshdesk.js'],
+                paths: [
+                    'helpdesk/tickets/*',
+                    'a/tickets/*'
+                ]
             }
         },
         {
@@ -177,11 +173,11 @@
             icon: 'github.svg',
             origins: ['https://github.com/*'],
             scripts: {
-                matches: [
-                    'https://github.com/*/issues/*',
-                    'https://github.com/*/pull/*'
-                ],
-                js: ['in-page-scripts/integrations/gitHub.js']
+                js: ['in-page-scripts/integrations/gitHub.js'],
+                paths: [
+                    '*/issues/*',
+                    '*/pull/*'
+                ]
             }
         },
         {
@@ -191,11 +187,11 @@
             origins: ['https://gitlab.com/*'],
             hasAdditionalOrigins: true,
             scripts: {
-                matches: [
-                    '*://*/issues/*',
-                    '*://*/merge_requests/*'
-                ],
-                js: ['in-page-scripts/integrations/gitLab.js']
+                js: ['in-page-scripts/integrations/gitLab.js'],
+                paths: [
+                    'issues/*',
+                    'merge_requests/*'
+                ]
             }
         },
         {
@@ -204,8 +200,8 @@
             icon: 'gcalendar.svg',
             origins: ['https://calendar.google.com/*'],
             scripts: {
-                matches: ['https://calendar.google.com/calendar/*'],
-                js: ['in-page-scripts/integrations/google-calendar.js']
+                js: ['in-page-scripts/integrations/google-calendar.js'],
+                paths: ['calendar/*']
             }
         },
         {
@@ -214,7 +210,6 @@
             icon: 'gdocs.svg',
             origins: ['https://docs.google.com/*'],
             scripts: {
-                matches: ['https://docs.google.com/*'],
                 js: ['in-page-scripts/integrations/google-docs.js']
             }
         },
@@ -224,7 +219,6 @@
             icon: 'gkeep.svg',
             origins: ['https://keep.google.com/*'],
             scripts: {
-                matches: ['https://keep.google.com/*'],
                 js: ['in-page-scripts/integrations/google-keep.js']
             }
         },
@@ -235,8 +229,8 @@
             icon: 'gmail.svg',
             origins: ['https://mail.google.com/*'],
             scripts: {
-                matches: ['https://mail.google.com/mail/*'],
-                js: ['in-page-scripts/integrations/google-mail.js']
+                js: ['in-page-scripts/integrations/google-mail.js'],
+                paths: ['mail/*']
             }
         },
         {
@@ -250,7 +244,6 @@
             ],
             hasAdditionalOrigins: true,
             scripts: {
-                matches: ['https://*/*'],
                 js: ['in-page-scripts/integrations/jira.js']
             }
         },
@@ -261,8 +254,8 @@
             origins: ['https://*.kayako.com/*'],
             hasAdditionalOrigins: true,
             scripts: {
-                matches: ['https://*/agent/conversations/*'],
-                js: ['in-page-scripts/integrations/kayako.js']
+                js: ['in-page-scripts/integrations/kayako.js'],
+                paths: ['agent/conversations/*']
             }
         },
         {
@@ -278,12 +271,6 @@
             ],
             hasAdditionalOrigins: true,
             scripts: {
-                matches: [
-                    'https://*.megaplan.ru/*',
-                    'https://*.megaplan.ua/*',
-                    'https://*.megaplan.by/*',
-                    'https://*.megaplan.kz/*'
-                ],
                 js: ['in-page-scripts/integrations/megaplan.js']
             }
         },
@@ -297,12 +284,8 @@
                 'https://*.officeapps.live.com/*'
             ],
             scripts: {
-                matches: [
-                    'https://onedrive.live.com/edit*',
-                    'https://*.officeapps.live.com/*'
-                ],
                 js: ['in-page-scripts/integrations/microsoft-office-online.js'],
-                all_frames: true
+                allFrames: true
             }
         },
         {
@@ -312,7 +295,6 @@
             icon: 'outlook.svg',
             origins: ['https://outlook.live.com/*'],
             scripts: {
-                matches: ['https://outlook.live.com/*'],
                 js: ['in-page-scripts/integrations/microsoft-outlook-online.js']
             }
         },
@@ -323,8 +305,8 @@
             origins: ['https://*.openproject.com/*'],
             hasAdditionalOrigins: true,
             scripts: {
-                matches: ['https://*.openproject.com/*/work_packages/*'],
-                js: ['in-page-scripts/integrations/openProject.js']
+                js: ['in-page-scripts/integrations/openProject.js'],
+                paths: ['*/work_packages/*']
             }
         },
         {
@@ -334,8 +316,8 @@
             origins: ['https://*.pipedrive.com/*'],
             hasAdditionalOrigins: true,
             scripts: {
-                matches: ['https://*.pipedrive.com/deal/*'],
-                js: ['in-page-scripts/integrations/pipedrive.js']
+                js: ['in-page-scripts/integrations/pipedrive.js'],
+                paths: ['deal/*']
             }
         },
         {
@@ -344,7 +326,6 @@
             icon: 'pivotal.svg',
             origins: ['https://www.pivotaltracker.com/*'],
             scripts: {
-                matches: ['https://www.pivotaltracker.com/*'],
                 js: ['in-page-scripts/integrations/pivotalTracker.js']
             }
         },
@@ -354,8 +335,8 @@
             icon: 'podio.svg',
             origins: ['https://podio.com/*'],
             scripts: {
-                matches: ['https://podio.com/tasks/*'],
-                js: ['in-page-scripts/integrations/podio.js']
+                js: ['in-page-scripts/integrations/podio.js'],
+                paths: ['tasks/*']
             }
         },
         {
@@ -363,17 +344,18 @@
             serviceName: 'Redmine',
             icon: 'redmine.svg',
             keywords: 'easyredmine',
+            origins: [],
             hasAdditionalOrigins: true,
             scripts: {
-                matches: [
-                    'https://*/issues/*',
-                    'https://*/easy_crm_cases/*',
-                    'https://*/test_cases/*'
-                ],
                 js: [
                     'in-page-scripts/integrations/easyRedmine.js',
                     'in-page-scripts/integrations/redmine.js'
                 ],
+                paths: [
+                    'issues/*',
+                    'easy_crm_cases/*',
+                    'test_cases/*'
+                ]
             }
         },
         {
@@ -383,7 +365,6 @@
             origins: ['https://*.lightning.force.com/*'],
             hasAdditionalOrigins: true,
             scripts: {
-                matches: ['https://*.lightning.force.com/*'],
                 js: ['in-page-scripts/integrations/salesforce.js']
             }
         },
@@ -394,7 +375,6 @@
             keywords: 'sprint.ly',
             origins: ['https://sprint.ly/*'],
             scripts: {
-                matches: ['https://sprint.ly/*'],
                 js: ['in-page-scripts/integrations/sprintly.js']
             }
         },
@@ -405,8 +385,8 @@
             origins: ['https://tree.taiga.io/*'],
             hasAdditionalOrigins: true,
             scripts: {
-                matches: ['https://*/project/*'],
-                js: ['in-page-scripts/integrations/taiga.js']
+                js: ['in-page-scripts/integrations/taiga.js'],
+                paths: ['project/*']
             }
         },
         {
@@ -419,19 +399,6 @@
             ],
             hasAdditionalOrigins: true,
             scripts: {
-                matches: [
-                    'https://*.teamwork.com/*',
-                    'https://*.seetodos.com/*',
-                    'https://*.companytodos.com/*',
-                    'https://*.worktodos.com/*',
-                    'https://*.companyworkflow.com/*',
-                    'https://*.projectgameplan.com/*',
-                    'https://*.peopleworkflow.com/*',
-                    'https://*.projecttodos.com/*',
-                    'https://*.projectorganiser.com/*',
-                    'https://*.seetasks.com/*',
-                    'https://*.teamworkpm.net/*'
-                ],
                 js: ['in-page-scripts/integrations/teamwork.js']
             }
         },
@@ -439,16 +406,15 @@
             serviceType: 'TestLink',
             serviceName: 'TestLink',
             icon: 'testlink.svg',
+            origins: [],
             hasAdditionalOrigins: true,
             scripts: {
-                matches: [
-                    'http://*/index.php*',
-                    'https://*/index.php*',
-                    'http://*/lib/execute/execSetResults.php*',
-                    'https://*/lib/execute/execSetResults.php*'
-                ],
                 js: ['in-page-scripts/integrations/testLink.js'],
-                all_frames: true
+                paths: [
+                    'index.php*',
+                    'lib/execute/execSetResults.php*'
+                ],
+                allFrames: true
             }
         },
         {
@@ -458,11 +424,10 @@
             origins: ['https://*.testrail.io/*'],
             hasAdditionalOrigins: true,
             scripts: {
-                matches: [
-                    'http://*/index.php?/runs/view/*',
-                    'https://*/index.php?/runs/view/*'
-                ],
-                js: ['in-page-scripts/integrations/testRail.js']
+                js: ['in-page-scripts/integrations/testRail.js'],
+                paths: [
+                    'index.php?/runs/view/*'
+                ]
             }
         },
         {
@@ -471,31 +436,29 @@
             icon: 'todoist.svg',
             origins: ['https://todoist.com/*'],
             scripts: {
-                matches: ['https://todoist.com/app/*'],
-                js: ['in-page-scripts/integrations/todoist.js']
+                js: ['in-page-scripts/integrations/todoist.js'],
+                paths: ['app/*']
             }
         },
         {
             serviceType: 'Trac',
             serviceName: 'Trac',
             icon: 'trac.svg',
+            origins: [],
             hasAdditionalOrigins: true,
             scripts: {
-                matches: [
-                    'http://*/ticket/*',
-                    'https://*/ticket/*'
-                ],
-                js: ['in-page-scripts/integrations/trac.js']
+                js: ['in-page-scripts/integrations/trac.js'],
+                paths: ['ticket/*']
             }
         },
         {
             serviceType: 'Trello',
             serviceName: 'Trello',
             icon: 'trello.svg',
-            matches: ['https://trello.com/*'],
+            origins: ['https://trello.com/*'],
             scripts: {
-                matches: ['https://trello.com/c/*'],
-                js: ['in-page-scripts/integrations/trello.js']
+                js: ['in-page-scripts/integrations/trello.js'],
+                paths: ['c/*']
             }
         },
         {
@@ -505,8 +468,8 @@
             origins: ['https://*.usedesk.com/*'],
             hasAdditionalOrigins: true,
             scripts: {
-                matches: ['https://*.usedesk.com/tickets/*'],
-                js: ['in-page-scripts/integrations/usedesk.js']
+                js: ['in-page-scripts/integrations/usedesk.js'],
+                paths: ['tickets/*']
             }
         },
         {
@@ -516,7 +479,6 @@
             origins: ['https://*.userecho.com/*'],
             hasAdditionalOrigins: true,
             scripts: {
-                matches: ['https://*.userecho.com/*'],
                 js: ['in-page-scripts/integrations/userecho.js']
             }
         },
@@ -527,7 +489,6 @@
             origins: ['https://*.uservoice.com/*'],
             hasAdditionalOrigins: true,
             scripts: {
-                matches: ['https://*.uservoice.com/*'],
                 js: ['in-page-scripts/integrations/uservoice.js']
             }
         },
@@ -537,7 +498,6 @@
             icon: 'wrike.svg',
             origins: ['https://*.wrike.com/*'],
             scripts: {
-                matches: ['https://*.wrike.com/*'],
                 js: ['in-page-scripts/integrations/wrike.js']
             }
         },
@@ -548,12 +508,12 @@
             origins: ['https://*.myjetbrains.com/*'],
             hasAdditionalOrigins: true,
             scripts: {
-                matches: [
-                    'https://*/issue/*',
-                    'https://*/agiles/*',
-                    'https://*/rest/agile/*/sprint/*'
-                ],
-                js: ['in-page-scripts/integrations/youTrack.js']
+                js: ['in-page-scripts/integrations/youTrack.js'],
+                paths: [
+                    'issue/*',
+                    'agiles/*',
+                    'rest/agile/*/sprint/*'
+                ]
             }
         },
         {
@@ -563,7 +523,6 @@
             origins: ['https://*.zammad.com/*'],
             hasAdditionalOrigins: true,
             scripts: {
-                matches: ['https://*/*'],
                 js: ['in-page-scripts/integrations/zammad.js']
             }
         },
@@ -571,36 +530,36 @@
             serviceType: 'Zendesk',
             serviceName: 'Zendesk',
             icon: 'zendesk.svg',
-            matches: ['https://*.zendesk.com/*'],
+            origins: ['https://*.zendesk.com/*'],
             hasAdditionalOrigins: true,
             scripts: {
-                matches: ['https://*.zendesk.com/agent/tickets/*'],
-                js: ['in-page-scripts/integrations/zendesk.js']
+                js: ['in-page-scripts/integrations/zendesk.js'],
+                paths: ['agent/tickets/*']
             }
         },
         {
             serviceType: 'ZohoCRM',
             serviceName: 'Zoho CRM',
             icon: 'zoho.svg',
-            matches: [
+            origins: [
                 'https://*.zoho.com/*',
                 'https://*.zoho.eu/*'
             ],
             hasAdditionalOrigins: true,
             scripts: {
-                matches: ['https://*/*'],
                 js: ['in-page-scripts/integrations/zohoCRM.js'],
-                all_frames: true
+                allFrames: true
             }
         },
         {
             serviceType: 'Evernote',
             serviceName: 'Evernote',
             icon: 'evernote.svg',
+            origins: ['https://www.evernote.com/*'],
             scripts: {
-                matches: ['https://www.evernote.com/*'],
                 js: ['in-page-scripts/integrations/evernote.js']
             }
         }
     ];
+    return integrations.sort((a, b) => a.serviceName.localeCompare(b.serviceName, [], { sensitivity: 'base' }));
 }

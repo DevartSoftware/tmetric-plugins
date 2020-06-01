@@ -38,6 +38,7 @@
             "lib/jquery.min.js",
             "lib/signalr.min.js",
             "background/integrations.js",
+            "background/services.js",
             "background/contentScriptsPolyfill.js",
             "background/contentScriptsRegistrator.js",
             "background/simpleEvent.js",

@@ -165,6 +165,8 @@ abstract class ExtensionBase extends BackgroundBase {
         this.registerTabsUpdateListener();
         this.registerTabsRemoveListener();
 
+        this.registerContentScripts();
+
         // Update hint once per minute
         let setUpdateTimeout = () => setTimeout(() => {
             this.updateState();
@@ -187,8 +189,6 @@ abstract class ExtensionBase extends BackgroundBase {
         else {
             this.extraHours = 0;
         }
-
-        this.registerContentScripts();
     }
 
     protected initConnection() {
@@ -673,32 +673,20 @@ abstract class ExtensionBase extends BackgroundBase {
 
     // permissions
 
-    private showPermissionsPage() {
-        this.connection.getServices().then(services => {
-            chrome.storage.local.set(<IExtensionLocalSettings>{ services }, () => {
-                let url = chrome.runtime.getURL('permissions/permissionsCheck.html');
-                chrome.tabs.create({ url, active: true });
-            });
-        });
+    private async showPermissionsPage() {
+
+        let services = await this.connection.getServices();
+
+        await setServices(services);
+
+        let url = chrome.runtime.getURL('permissions/permissionsCheck.html');
+        chrome.tabs.create({ url, active: true });
     }
 
     private contentScriptRegistrator = new ContentScriptsRegistrator();
 
     protected registerContentScripts() {
-        getIntegrations()
-            .filter(i => i.serviceType && i.scripts && i.scripts.matches)
-            .forEach(integration => {
-
-                let permissions = <chrome.permissions.Permissions>{
-                    origins: integration.scripts.matches
-                };
-
-                chrome.permissions.contains(permissions, result => {
-                    if (result) {
-                        this.contentScriptRegistrator.register(integration.serviceType);
-                    }
-                });
-            });
+        this.contentScriptRegistrator.register();
     }
 
     protected onIntegrationMessage(message: IIntegrationMessage) {
