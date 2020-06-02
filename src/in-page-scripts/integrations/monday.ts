@@ -53,9 +53,9 @@
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        let issueName;
-        let issueId;
-        let issueUrl;
+        let issueName: string;
+        let issueId: string;
+        let issueUrl: string;
         let projectName = $$('.board-name').textContent;
 
         // board
@@ -72,7 +72,7 @@
         // side panel on board page
         if (issueElement.matches(this.issueElementSelector[1])) {
             issueName = $$.try('.title-wrapper', issueElement).textContent;
-            let matches = source.path.match(/(?<=pulses\/)(\d*)(?=\/|\?|.*)/);
+            let matches = this.getIssueIdByUrlPath(source.path);
             issueId = matches ? matches[0] : null;
             issueUrl = source.path;
         }
@@ -86,7 +86,7 @@
                 if (task) {
                     let link = $$('.pulse-name-wrapper > a', task) as HTMLAnchorElement;
 
-                    issueId = link.pathname.match(/(?<=pulses\/)(\d*)(?=\/|\?|.*)/)[0];
+                    issueId = this.getIssueIdByUrlPath(link.pathname);
                     issueUrl = link.pathname;
                 }
             }
@@ -97,7 +97,7 @@
                     let links = $$.all(`.pulse-name-wrapper a[href*="${boardPath}"]`);
                     let link = links.find(link => link.textContent == issueName);
                     if (link) {
-                        issueId = (<HTMLAnchorElement>link).pathname.match(/(?<=pulses\/)(\d*)(?=\/|\?|.*)/)[0];
+                        issueId = this.getIssueIdByUrlPath((<HTMLAnchorElement>link).pathname);
                         issueUrl = (<HTMLAnchorElement>link).pathname;
                     }
                 }
@@ -120,6 +120,11 @@
         }
 
         return this.getTaskContentElement(el.parentElement);
+    }
+
+    getIssueIdByUrlPath(url: string): string {
+        let matches = url.match(/(?<=pulses\/)(\d*)(?=\/|\?|.*)/);
+        return matches ? matches[0] : null;
     }
 }
 
