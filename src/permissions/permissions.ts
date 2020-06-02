@@ -244,6 +244,14 @@ $(document).ready(() => {
         });
     }
 
+    function initClosePage() {
+        $('.close-page').click(() => {
+            chrome.tabs.getCurrent(tab => {
+                chrome.tabs.remove(tab.id);
+            });
+        });
+    }
+
     // init
 
     var permissionsManager = new PermissionManager();
@@ -254,8 +262,8 @@ $(document).ready(() => {
     setScrollArea();
     setAllLogos();
     initLogoClick();
-
     initPermissionCheckboxes();
+    initClosePage();
 
     $(window).resize(function () {
         setScrollArea();

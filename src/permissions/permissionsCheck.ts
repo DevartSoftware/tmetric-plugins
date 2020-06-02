@@ -3,17 +3,16 @@
     let services = await getServices();
     let permissionManager = new PermissionManager();
 
-    $('#continue').click(function () {
+    $('#continue').click(async () => {
         if (!services) {
             return;
         }
 
         if (services.length) {
-            permissionManager.requestPermissions(services)
-                .then(() => openPermissionsPage());
-        } else {
-            openPermissionsPage();
+            await permissionManager.requestPermissions(services);
         }
+
+        openPermissionsPage();
     });
 
     function openPermissionsPage() {
