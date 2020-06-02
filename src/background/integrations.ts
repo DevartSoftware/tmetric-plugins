@@ -566,7 +566,6 @@
             icon: 'monday.svg',
             origins: ['https://*.monday.com/*'],
             scripts: {
-                matches: ['https://*.monday.com/*'],
                 js: ['in-page-scripts/integrations/monday.js']
             }
         },
