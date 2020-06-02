@@ -569,6 +569,15 @@
                 js: ['in-page-scripts/integrations/monday.js']
             }
         },
+        {
+            serviceType: 'MicrosoftToDo',
+            serviceName: 'Microsoft ToDo',
+            icon: 'mstodo.svg',
+            origins: ['https://to-do.live.com/*'],
+            scripts: {
+                js: ['in-page-scripts/integrations/microsoft-todo.js']
+            }
+        }
     ];
     return integrations.sort((a, b) => a.serviceName.localeCompare(b.serviceName, [], { sensitivity: 'base' }));
 }
