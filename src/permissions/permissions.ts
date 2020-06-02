@@ -157,16 +157,31 @@ $(document).ready(() => {
     }
 
     function setAllLogos() {
-        $('.enable-all').click(function () {
-            $('.logos-list input:checkbox').each(function () {
-                $(this).prop('checked', true);
-            })
+        $('.enable-all').click(async () => {
+
+            let services = getIntegrations()
+                .filter(i => i.origins.length)
+                .map(i => (<WebToolService>{
+                    serviceType: i.serviceType,
+                    serviceUrls: i.origins
+                }));
+
+            await permissionsManager.requestPermissions(services);
+
+            updatePermissionCheckboxes();
         });
 
-        $('.disable-all').click(function () {
-            $('.logos-list input:checkbox').each(function () {
-                $(this).prop('checked', false);
-            })
+        $('.disable-all').click(async () => {
+
+            let services = getIntegrations()
+                .map(i => (<WebToolService>{
+                    serviceType: i.serviceType,
+                    serviceUrls: i.origins
+                }));
+
+            await permissionsManager.removePermissions(services);
+
+            updatePermissionCheckboxes();
         });
     }
 
