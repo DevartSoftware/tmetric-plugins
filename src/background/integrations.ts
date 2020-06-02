@@ -559,7 +559,17 @@
             scripts: {
                 js: ['in-page-scripts/integrations/evernote.js']
             }
-        }
+        },
+        {
+            serviceType: 'Monday',
+            serviceName: 'Monday',
+            icon: 'monday.svg',
+            origins: ['https://*.monday.com/*'],
+            scripts: {
+                matches: ['https://*.monday.com/*'],
+                js: ['in-page-scripts/integrations/monday.js']
+            }
+        },
     ];
     return integrations.sort((a, b) => a.serviceName.localeCompare(b.serviceName, [], { sensitivity: 'base' }));
 }
