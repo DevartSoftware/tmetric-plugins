@@ -179,6 +179,8 @@ $(document).ready(() => {
                     serviceUrls: i.origins
                 }));
 
+            services.push(...await getServices());
+
             await permissionsManager.removePermissions(services);
 
             updatePermissionCheckboxes();
