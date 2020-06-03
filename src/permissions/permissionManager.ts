@@ -66,4 +66,24 @@
             return result;
         });
     }
+
+    cleanupPermissions() {
+
+        let callback: (result: boolean) => void;
+
+        chrome.permissions.getAll(allPermissions => {
+
+            let requiredPermissions = chrome.runtime.getManifest().permissions;
+            let origins = allPermissions.origins.filter(o => requiredPermissions.indexOf(o) < 0);
+
+            let permissions = <chrome.permissions.Permissions>{
+                origins
+            };
+
+            chrome.permissions.remove(permissions, result => callback(result));
+        });
+
+        return new Promise<boolean>(resolve => callback = resolve);
+
+    }
 }

@@ -182,6 +182,7 @@ $(document).ready(() => {
             services.push(...await getServices());
 
             await permissionsManager.removePermissions(services);
+            await permissionsManager.cleanupPermissions();
 
             updatePermissionCheckboxes();
         });
