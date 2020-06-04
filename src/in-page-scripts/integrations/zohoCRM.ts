@@ -11,22 +11,28 @@
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
-        let table = $$('.historycontainer table.floatR');
-        if (!table) {
+        linkElement.classList.add('newwhitebtn', 'dIB');
+
+        let eventInfoTable = $$('.eventInfo table');
+        if (eventInfoTable) {
+            linkElement.classList.add('floatR');
+            let td = $$('td', eventInfoTable);
+            if (td) {
+                td.prepend(linkElement);
+            }
             return;
         }
 
-        linkElement.classList.add('newwhitebtn', 'dIB');
-        let button = $$.visible('.newbutton', table);
-
-        if (button) {
-            button.parentElement.insertBefore(linkElement, button);
-        } else {
+        let table = $$('.historycontainer table.floatR');
+        if (table) {
             let tr = $$.create('tr');
             let td = $$.create('td');
             td.appendChild(linkElement);
             tr.appendChild(td);
-            table.appendChild(tr);
+            let tbody = $$('tbody', table);
+            if (tbody) {
+                tbody.appendChild(tr);
+            }
         }
     }
 
