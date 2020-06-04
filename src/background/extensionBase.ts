@@ -637,14 +637,12 @@ abstract class ExtensionBase extends BackgroundBase {
 
     private registerInstallListener() {
         chrome.runtime.onInstalled.addListener(() => {
-            this.connection.reconnect()
-                .then(() => {
-                    this.showPermissionsPage();
-                })
-                .catch(() => {
-                    this.actionOnConnect = () => this.showPermissionsPage();
-                    this.showLoginDialog();
-                });
+            if (this.connection.hubConnected) {
+                this.showPermissionsPage();
+            } else {
+                this.actionOnConnect = () => this.showPermissionsPage();
+                this.showLoginDialog();
+            }
         });
     }
 
@@ -675,9 +673,10 @@ abstract class ExtensionBase extends BackgroundBase {
 
     private async showPermissionsPage() {
 
-        let services = await this.connection.getServices();
-
-        await setServices(services);
+        try {
+            let services = await this.connection.getServices();
+            await setServices(services);
+        } catch (error) { }
 
         let url = chrome.runtime.getURL('permissions/permissionsCheck.html');
         chrome.tabs.create({ url, active: true });
