@@ -1,8 +1,9 @@
 $(document).ready(() => {
 
     function renderIntegrations(holder: string, integrations: Integration[]) {
-        let content = integrations.map(item => $('<li>')
+        const content = integrations.map(item => $('<li>')
             .attr('title', item.serviceName)
+            .data('keywords', [item.serviceName].concat(item.keywords || []).map(k => k.toLowerCase()))
             .append(`
 <label class="logo-wrapper">
     <input type="checkbox" name="${item.serviceType}" />
@@ -247,6 +248,29 @@ $(document).ready(() => {
         });
     }
 
+    function initSearch() {
+
+        let search: string;
+
+        function containSearch(keyword: string) {
+            return !search || keyword.indexOf(search) >= 0;
+        }
+
+        function checkKeywords() {
+            const keywords: string[] = $(this).data('keywords');
+            if (keywords.some(containSearch)) {
+                $(this).show(500);
+            } else {
+                $(this).hide(500);
+            }
+        }
+
+        $('.search-input').on('input', function () {
+            search = (<string>$(this).val()).toLowerCase();
+            $('.logos-section ul li').each(checkKeywords);
+        }).focus();
+    }
+
     function initClosePage() {
         $('.close-page').click(() => {
             chrome.tabs.getCurrent(tab => {
@@ -266,6 +290,7 @@ $(document).ready(() => {
     setAllLogos();
     initLogoClick();
     initPermissionCheckboxes();
+    initSearch();
     initClosePage();
 
     $(window).resize(function () {
