@@ -3,7 +3,7 @@
         {
             serviceType: 'ActiveCollab',
             serviceName: 'ActiveCollab',
-            icon: '',
+            icon: 'activecollab.svg',
             origins: ['https://app.activecollab.com/*'],
             hasAdditionalOrigins: true,
             scripts: {
@@ -250,7 +250,7 @@
         {
             serviceType: 'Kayako',
             serviceName: 'Kayako',
-            icon: '',
+            icon: 'kayako.svg',
             origins: ['https://*.kayako.com/*'],
             hasAdditionalOrigins: true,
             scripts: {
@@ -519,7 +519,7 @@
         {
             serviceType: 'Zammad',
             serviceName: 'Zammad',
-            icon: '',
+            icon: 'zammad.svg',
             origins: ['https://*.zammad.com/*'],
             hasAdditionalOrigins: true,
             scripts: {
