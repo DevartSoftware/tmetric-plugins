@@ -8,44 +8,48 @@
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
 </head>
 <body>
-    <div class="container">
-        <header class="header">
-            <div class="header-logo">
-                <a id="site-link" href="#">TMETRIC Extension</a>
-            </div>
-            <h1>Integrate Time Tracking Into Your Workflow</h1>
-        </header>
-        <main class="main">
-            <div class="filter-section">
-                <p>Enable tools where you want to track time</p>
-                <div class="row-flex">
-                    <div class="search-holder">
-                        <span class="input-holder">
-                            <i class="fa fa-search"></i>
-                            <input type="text" class="search-input form-control" placeholder="Search" />
-                        </span>
-                        <button class="btn btn-default enable-all"><i class="fa fa-check"></i> Enable All Cloud</button>
-                        <button class="btn btn-default disable-all"><i class="fa fa-times"></i> Disable All</button>
-                    </div>
-                    <button class="btn btn-success close-page"><i class="fa fa-check"></i> Done</button>
+    <div class="wrapper">
+        <div class="container">
+            <header class="header">
+                <div class="header-logo">
+                    <a id="site-link" href="#">TMETRIC Extension</a>
                 </div>
-            </div>
-            <div class="logos-section">
-                <ul id="integrations" class="logos-list"></ul>
-            </div>
-        </main>
+                <h1>Integrate Time Tracking Into Your Workflow</h1>
+            </header>
+            <main class="main">
+                <div class="filter-section">
+                    <p>Enable tools where you want to track time</p>
+                    <div class="row-flex">
+                        <div class="search-holder">
+                            <span class="input-holder">
+                                <i class="fa fa-search"></i>
+                                <input type="text" class="search-input form-control" placeholder="Search" />
+                            </span>
+                            <button class="btn btn-default enable-all"><i class="fa fa-check"></i> Enable All Cloud</button>
+                            <button class="btn btn-default disable-all"><i class="fa fa-times"></i> Disable All</button>
+                        </div>
+                        <button class="btn btn-success close-page"><i class="fa fa-check"></i> Done</button>
+                    </div>
+                </div>
+                <div class="logos-section">
+                    <ul id="integrations" class="logos-list"></ul>
+                </div>
+            </main>
+        </div>
     </div>
     <div class="overlay"></div>
     <div class="popup location-popup">
         <a href="#" class="icon-close close-popup">Close</a>
         <h2>Allowed sites</h2>
-        <div class="add-url-input-holder">
-            <div class="input-holder">
-                <input class="input form-control" type="text" placeholder="Placeholder" />
+        <div class="list-holder">
+            <div class="add-url-input-holder">
+                <div class="input-holder">
+                    <input class="input form-control" type="text" placeholder="Placeholder" />
+                </div>
+                <button class="btn btn-secondary add-url"><i class="fa fa-plus"></i> Add URL</button>
             </div>
-            <button class="btn btn-secondary add-url"><i class="fa fa-plus"></i> Add URL</button>
+            <ul class="url-list"></ul>
         </div>
-        <ul class="url-list"></ul>
         <div class="btn-group">
             <button class="btn btn-primary apply-popup">Apply</button>
             <button class="btn btn-secondary close-popup">Cancel</button>

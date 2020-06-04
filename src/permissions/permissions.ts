@@ -9,8 +9,8 @@ $(document).ready(() => {
     <input type="checkbox" name="${item.serviceType}" />
     <span class="logo-area">
         <img src="../images/integrations/${item.icon}" alt="${item.serviceName}" />
+        <button class="btn btn-default show-popup" ${item.hasAdditionalOrigins ? '' : 'style="display:none"'}"><i class="fa fa-pencil"></i> Edit</button>
     </span>
-    <button class="btn btn-icon show-popup" ${item.hasAdditionalOrigins ? '' : 'style="display:none"'}"><i class="fa fa-pencil"> Edit</i></button>
 </label>`));
         $(holder).empty().append(content);
     }
@@ -26,7 +26,7 @@ $(document).ready(() => {
 
     function renderOriginListItem(origin: string) {
         return $('<li>').append(`
-<input class="url" type="text" value="${origin}" readonly />
+<input class="url input form-control" type="text" value="${origin}" readonly />
 <button class="btn btn-icon edit-url"><i class="fa fa-pencil"></i></button>
 <button class="btn btn-icon save-url" style="display:none"><i class="fa fa-check"></i></button>
 <button class="btn btn-icon remove-url"><i class="fa fa-times"></i></button>`);
@@ -89,7 +89,7 @@ $(document).ready(() => {
 
             event.stopPropagation();
 
-            const input = $(this).siblings('input:checkbox');
+            const input = $(this).parent().siblings('input:checkbox');
             const name = input.prop('name');
 
             const { origins, hasAdditionalOrigins } = await getOrigins(name);
