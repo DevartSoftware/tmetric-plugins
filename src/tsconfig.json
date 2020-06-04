@@ -56,6 +56,7 @@
         "in-page-scripts/integrations/google-docs.ts",
         "in-page-scripts/integrations/google-keep.ts",
         "in-page-scripts/integrations/google-mail.ts",
+        "in-page-scripts/integrations/hubspot.ts",
         "in-page-scripts/integrations/jira.ts",
         "in-page-scripts/integrations/kayako.ts",
         "in-page-scripts/integrations/megaplan.ts",
