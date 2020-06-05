@@ -31,19 +31,17 @@ type ContentScripts = {
     runAt?: string;
 };
 
-interface Integration {
+interface WebTool {
     serviceType: string;
+    origins: string[];
+}
+
+interface WebToolDescription extends WebTool {
     serviceName: string;
     icon: string;
     keywords?: string;
-    origins: string[];
-    hasAdditionalOrigins?: boolean; // means service have more online or/and self-hosted origins
+    hasAdditionalOrigins?: boolean; // means web service have more online or/and self-hosted origins
     scripts: ContentScripts;
-}
-
-interface WebToolService {
-    serviceType: string;
-    serviceUrls: string[];
 }
 
 interface WebToolIssueIdentifier {
@@ -156,7 +154,7 @@ interface IExtensionSettings {
 
 interface IExtensionLocalSettings {
     skipPermissionsCheck: boolean;
-    services: WebToolService[];
+    webTools: WebTool[];
 }
 
 interface IExtensionSettingsMessage {
@@ -164,7 +162,7 @@ interface IExtensionSettingsMessage {
     data?: any;
 }
 
-interface IIntegrationMessage {
-    action: 'registerIntegrationScripts' | 'unregisterIntegrationScripts';
+interface IContentScriptRegistratorMessage {
+    action: 'registerContentScripts' | 'unregisterContentScripts';
     data?: string[];
 }

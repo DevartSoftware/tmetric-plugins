@@ -1,15 +1,15 @@
 ﻿$(document).ready(async () => {
 
-    let services = await getServices();
+    let items = await getEnabledWebTools();
     let permissionManager = new PermissionManager();
 
     $('#continue').click(async () => {
-        if (!services) {
+        if (!items) {
             return;
         }
 
-        if (services.length) {
-            await permissionManager.requestPermissions(services);
+        if (items.length) {
+            await permissionManager.requestPermissions(items);
         }
 
         openPermissionsPage();

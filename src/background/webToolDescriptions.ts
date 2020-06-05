@@ -1,5 +1,5 @@
-﻿const getIntegrations = function () {
-    let integrations: Integration[] = [
+﻿const getWebToolDescriptions = function () {
+    let items: WebToolDescription[] = [
         {
             serviceType: 'ActiveCollab',
             serviceName: 'ActiveCollab',
@@ -597,5 +597,5 @@
             }
         }
     ];
-    return integrations.sort((a, b) => a.serviceName.localeCompare(b.serviceName, [], { sensitivity: 'base' }));
+    return items.sort((a, b) => a.serviceName.localeCompare(b.serviceName, [], { sensitivity: 'base' }));
 }

@@ -141,10 +141,10 @@
         });
     }
 
-    getServices() {
+    getIntegrations() {
         return this.checkProfile().then(profile =>
-            this.get<WebToolService[]>(
-                this.getServicesUrl()
+            this.get<Models.IntegrationInfo[]>(
+                this.getIntegrationsUrl()
             ));
     }
 
@@ -300,8 +300,8 @@
         });
     }
 
-    getServicesUrl() {
-        return `api/userprofile/services`;
+    getIntegrationsUrl() {
+        return `api/userprofile/integrations`;
     }
 
     getIntegrationProjectUrl(accountId: number) {

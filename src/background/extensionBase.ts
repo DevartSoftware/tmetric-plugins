@@ -681,8 +681,36 @@ abstract class ExtensionBase extends BackgroundBase {
     private async showPermissions() {
 
         try {
-            let services = await this.connection.getServices();
-            await setServices(services);
+            let integrations = await this.connection.getIntegrations();
+
+            let webToolsDictionary = integrations.reduce((result, item) => {
+
+                const { serviceType, serviceUrl } = item;
+
+                const origin = toOrigin(serviceUrl);
+                if (!origin) {
+                    return result;
+                }
+
+                const entry = result[serviceType];
+                if (entry) {
+                    if (entry.origins.indexOf(origin) == -1) {
+                        entry.origins.push(origin);
+                    }
+                } else {
+                    result[serviceType] = {
+                        serviceType,
+                        origins: [origin]
+                    };
+                }
+
+                return result;
+            }, <{ [serviceType: string]: WebTool }>{});
+
+            const webTools = Object.keys(webToolsDictionary).map(key => webToolsDictionary[key]);
+
+            await enableWebTools(webTools);
+
         } catch (error) {
             console.log(error)
         }
@@ -698,17 +726,17 @@ abstract class ExtensionBase extends BackgroundBase {
         this.contentScriptRegistrator.register();
     }
 
-    protected onIntegrationMessage(message: IIntegrationMessage) {
-        if (message.action == 'registerIntegrationScripts') {
+    protected onContentScriptRegistratorMessage(message: IContentScriptRegistratorMessage) {
+        if (message.action == 'registerContentScripts') {
             this.contentScriptRegistrator.register(message.data);
-        } else if (message.action == 'unregisterIntegrationScripts') {
+        } else if (message.action == 'unregisterContentScripts') {
             this.contentScriptRegistrator.unregister(message.data);
         }
     }
 
     protected registerMessageListener() {
         chrome.runtime.onMessage.addListener((
-            message: ITabMessage | IPopupRequest | IExtensionSettingsMessage | IIntegrationMessage,
+            message: ITabMessage | IPopupRequest | IExtensionSettingsMessage | IContentScriptRegistratorMessage,
             sender: chrome.runtime.MessageSender,
             senderResponse: (IPopupResponse) => void
         ) => {
@@ -722,7 +750,7 @@ abstract class ExtensionBase extends BackgroundBase {
             }
 
             if (sender.url.startsWith(chrome.runtime.getURL('permissions'))) {
-                this.onIntegrationMessage(<IIntegrationMessage>message);
+                this.onContentScriptRegistratorMessage(<IContentScriptRegistratorMessage>message);
                 return !!senderResponse;
             }
 

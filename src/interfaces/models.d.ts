@@ -245,4 +245,12 @@ declare module Models {
         amount: number;
         currency: string;
     }
+
+    interface IntegrationInfo {
+
+        serviceType: string;
+
+        serviceUrl: string;
+
+    }
 }

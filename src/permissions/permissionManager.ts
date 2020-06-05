@@ -1,20 +1,20 @@
 ﻿class PermissionManager {
 
-    private toPermissions(services: WebToolService[]) {
+    private toPermissions(items: WebTool[]) {
         return <chrome.permissions.Permissions>{
-            origins: services.reduce((origins, item) => {
-                let urls = item.serviceUrls.map(toOrigin).filter(o => !!o);
+            origins: items.reduce((origins, item) => {
+                let urls = item.origins.map(toOrigin).filter(o => !!o);
                 origins.push(...urls);
                 return origins;
             }, <string[]>[])
         };
     }
 
-    requestPermissions(services: WebToolService[]) {
+    requestPermissions(items: WebTool[]) {
 
         let callback: (result: boolean) => void;
 
-        let permissions = this.toPermissions(services);
+        let permissions = this.toPermissions(items);
 
         chrome.permissions.request(permissions, result => callback(result));
 
@@ -24,11 +24,11 @@
                 return result;
             }
 
-            await setServices(services);
+            await enableWebTools(items);
 
-            let message = <IIntegrationMessage>{
-                action: 'registerIntegrationScripts',
-                data: services.map(service => service.serviceType)
+            let message = <IContentScriptRegistratorMessage>{
+                action: 'registerContentScripts',
+                data: items.map(item => item.serviceType)
             };
 
             chrome.runtime.sendMessage(message);
@@ -37,11 +37,11 @@
         });
     }
 
-    removePermissions(services: WebToolService[]) {
+    removePermissions(items: WebTool[]) {
 
         let callback: (result: boolean) => void;
 
-        let permissions = this.toPermissions(services);
+        let permissions = this.toPermissions(items);
 
         chrome.permissions.remove(permissions, result => callback(result));
 
@@ -51,14 +51,11 @@
                 return result;
             }
 
-            await setServices(services.map(s => ({
-                serviceType: s.serviceType,
-                serviceUrls: []
-            })));
+            await disableWebTools(items);
 
-            let message = <IIntegrationMessage>{
-                action: 'unregisterIntegrationScripts',
-                data: services.map(service => service.serviceType)
+            let message = <IContentScriptRegistratorMessage>{
+                action: 'unregisterContentScripts',
+                data: items.map(item => item.serviceType)
             };
 
             chrome.runtime.sendMessage(message);

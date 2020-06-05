@@ -50,25 +50,25 @@
 
         this.unregister(serviceTypes);
 
-        let services = await getServices();
+        let webTools = await getEnabledWebTools();
         if (serviceTypes) {
-            services = services.filter(s => serviceTypes.indexOf(s.serviceType) > -1);
+            webTools = webTools.filter(s => serviceTypes.indexOf(s.serviceType) > -1);
         }
 
-        const integrations = getIntegrations();
+        const webToolDescriptions = getWebToolDescriptions();
 
-        services.forEach(async service => {
+        webTools.forEach(async webTool => {
 
-            const { serviceType, serviceUrls } = service;
+            const { serviceType, origins } = webTool;
 
-            const integration = integrations.find(i => i.serviceType == serviceType);
-            if (!integration || !integration.scripts) {
+            const webToolDescription = webToolDescriptions.find(i => i.serviceType == serviceType);
+            if (!webToolDescription || !webToolDescription.scripts) {
                 return;
             }
 
-            const paths = serviceUrls.reduce((matches, origin) => {
-                if (integration.scripts.paths) {
-                    integration.scripts.paths.forEach(path => {
+            const paths = origins.reduce((matches, origin) => {
+                if (webToolDescription.scripts.paths) {
+                    webToolDescription.scripts.paths.forEach(path => {
                         matches.push(origin.replace(/\*$/, path));
                     });
                 } else {
@@ -78,9 +78,9 @@
             }, <string[]>[]);
 
             const scripts: ContentScripts = {
-                allFrames: integration.scripts.allFrames,
-                js: integration.scripts.js,
-                css: integration.scripts.css,
+                allFrames: webToolDescription.scripts.allFrames,
+                js: webToolDescription.scripts.js,
+                css: webToolDescription.scripts.css,
                 paths
             };
 

@@ -1,7 +1,7 @@
 $(document).ready(() => {
 
-    function renderIntegrations(holder: string, integrations: Integration[]) {
-        const content = integrations.map(item => $('<li>')
+    function renderIntegrations(holder: string, items: WebToolDescription[]) {
+        const content = items.map(item => $('<li>')
             .attr('title', item.serviceName)
             .data('keywords', [item.serviceName].concat(item.keywords || []).map(k => k.toLowerCase()))
             .append(`
@@ -38,17 +38,17 @@ $(document).ready(() => {
 
         async function getOrigins(serviceType: string) {
 
-            let integration = integrations.find(i => i.serviceType == serviceType);
-            if (!integration) {
+            let webToolDescription = webToolDescriptions.find(i => i.serviceType == serviceType);
+            if (!webToolDescription) {
                 return {};
             }
 
-            let { origins = [], hasAdditionalOrigins } = integration;
+            let { origins = [], hasAdditionalOrigins } = webToolDescription;
 
-            let services = await getServices();
-            let service = services.find(service => service.serviceType == serviceType);
-            if (service) {
-                origins = service.serviceUrls;
+            let webTools = await getEnabledWebTools();
+            let webTool = webTools.find(item => item.serviceType == serviceType);
+            if (webTool) {
+                origins = webTool.origins;
             }
 
             return { origins, hasAdditionalOrigins };
@@ -148,10 +148,10 @@ $(document).ready(() => {
         $('.apply-popup', popup).click(async function () {
 
             let serviceType = $(popup).data('serviceType');
-            let serviceUrls = $('.url-list .url', popup).toArray().map((el: HTMLInputElement) => el.value);
-            let service: WebToolService = { serviceType, serviceUrls };
+            let origins = $('.url-list .url', popup).toArray().map((el: HTMLInputElement) => el.value);
+            let item: WebTool = { serviceType, origins };
 
-            if (await permissionsManager.requestPermissions([service])) {
+            if (await permissionsManager.requestPermissions([item])) {
                 closePopup();
             }
         });
@@ -160,29 +160,29 @@ $(document).ready(() => {
     function setAllLogos() {
         $('.enable-all').click(async () => {
 
-            let services = getIntegrations()
+            let items = getWebToolDescriptions()
                 .filter(i => i.origins.length)
-                .map(i => (<WebToolService>{
+                .map(i => (<WebTool>{
                     serviceType: i.serviceType,
-                    serviceUrls: i.origins
+                    origins: i.origins
                 }));
 
-            await permissionsManager.requestPermissions(services);
+            await permissionsManager.requestPermissions(items);
 
             updatePermissionCheckboxes();
         });
 
         $('.disable-all').click(async () => {
 
-            let services = getIntegrations()
-                .map(i => (<WebToolService>{
+            let items = getWebToolDescriptions()
+                .map(i => (<WebTool>{
                     serviceType: i.serviceType,
-                    serviceUrls: i.origins
+                    origins: i.origins
                 }));
 
-            services.push(...await getServices());
+            items.push(...await getEnabledWebTools());
 
-            await permissionsManager.removePermissions(services);
+            await permissionsManager.removePermissions(items);
             await permissionsManager.cleanupPermissions();
 
             updatePermissionCheckboxes();
@@ -193,19 +193,19 @@ $(document).ready(() => {
         $('.logo-wrapper input').change(async event => {
 
             let input = <HTMLInputElement>event.currentTarget;
-            let integration = integrations.find(i => i.serviceType == input.name);
+            let webToolDescription = webToolDescriptions.find(i => i.serviceType == input.name);
 
             try {
 
-                let service: WebToolService = {
-                    serviceType: integration.serviceType,
-                    serviceUrls: integration.origins
+                let item: WebTool = {
+                    serviceType: webToolDescription.serviceType,
+                    origins: webToolDescription.origins
                 };
 
                 if (input.checked) {
-                    await permissionsManager.requestPermissions([service]);
+                    await permissionsManager.requestPermissions([item]);
                 } else {
-                    await permissionsManager.removePermissions([service]);
+                    await permissionsManager.removePermissions([item]);
                 }
 
                 updatePermissionCheckboxes();
@@ -224,19 +224,19 @@ $(document).ready(() => {
 
     async function updatePermissionCheckboxes() {
 
-        const services = await getServices();
-        const integrations = getIntegrations();
+        const webTools = await getEnabledWebTools();
+        const webToolDescriptions = getWebToolDescriptions();
 
-        integrations.forEach(integration => {
+        webToolDescriptions.forEach(webToolDescription => {
 
-            const { serviceType } = integration;
+            const { serviceType } = webToolDescription;
 
-            const service = services.find(s => s.serviceType == serviceType);
+            const webTool = webTools.find(s => s.serviceType == serviceType);
 
-            if (service) {
+            if (webTool) {
 
                 let permissions = <chrome.permissions.Permissions>{
-                    origins: service.serviceUrls
+                    origins: webTool.origins
                 };
 
                 chrome.permissions.contains(permissions, result => {
@@ -283,8 +283,8 @@ $(document).ready(() => {
 
     var permissionsManager = new PermissionManager();
 
-    const integrations = getIntegrations().filter(i => i.serviceType && i.scripts);
-    renderIntegrations('#integrations', integrations);
+    const webToolDescriptions = getWebToolDescriptions().filter(i => i.serviceType && i.scripts);
+    renderIntegrations('#integrations', webToolDescriptions);
 
     setScrollArea();
     setAllLogos();
