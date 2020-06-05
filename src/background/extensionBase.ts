@@ -161,7 +161,6 @@ abstract class ExtensionBase extends BackgroundBase {
             this.removeIssuesDurationsFromCache(identifiers);
         });
 
-        this.registerInstallListener();
         this.registerTabsUpdateListener();
         this.registerTabsRemoveListener();
 
@@ -197,7 +196,8 @@ abstract class ExtensionBase extends BackgroundBase {
 
         this.connection
             .init({ serviceUrl: this.constants.serviceUrl, signalRUrl: this.signalRUrl })
-            .then(() => this.connection.getVersion());
+            .then(() => this.connection.getVersion())
+            .then(() => this.checkPermissions())
     }
 
     /** Handles messages from in-page scripts */
@@ -635,17 +635,6 @@ abstract class ExtensionBase extends BackgroundBase {
         });
     }
 
-    private registerInstallListener() {
-        chrome.runtime.onInstalled.addListener(() => {
-            if (this.connection.hubConnected) {
-                this.showPermissionsPage();
-            } else {
-                this.actionOnConnect = () => this.showPermissionsPage();
-                this.showLoginDialog();
-            }
-        });
-    }
-
     private registerTabsUpdateListener() {
         chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
             if (tabId == this.loginTabId && changeInfo.url) {
@@ -671,15 +660,36 @@ abstract class ExtensionBase extends BackgroundBase {
 
     // permissions
 
-    private async showPermissionsPage() {
+    private async checkPermissions() {
+
+        chrome.storage.local.get(<IExtensionLocalSettings>{ skipPermissionsCheck: false }, async ({ skipPermissionsCheck }: IExtensionLocalSettings) => {
+
+            if (!skipPermissionsCheck) {
+
+                chrome.storage.local.set(<IExtensionLocalSettings>{ skipPermissionsCheck: true });
+
+                if (this.connection.userProfile) {
+                    this.showPermissions();
+                } else {
+                    this.actionOnConnect = () => this.showPermissions();
+                    this.showLoginDialog();
+                }
+            }
+        });
+    }
+
+    private async showPermissions() {
 
         try {
             let services = await this.connection.getServices();
             await setServices(services);
-        } catch (error) { }
+        } catch (error) {
+            console.log(error)
+        }
 
         let url = chrome.runtime.getURL('permissions/permissionsCheck.html');
         chrome.tabs.create({ url, active: true });
+
     }
 
     private contentScriptRegistrator = new ContentScriptsRegistrator();

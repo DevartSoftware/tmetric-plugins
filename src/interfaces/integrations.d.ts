@@ -155,6 +155,7 @@ interface IExtensionSettings {
 }
 
 interface IExtensionLocalSettings {
+    skipPermissionsCheck: boolean;
     services: WebToolService[];
 }
 
