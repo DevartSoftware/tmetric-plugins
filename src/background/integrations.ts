@@ -586,6 +586,15 @@
             scripts: {
                 js: ['in-page-scripts/integrations/hubspot.js']
             }
+        },
+        {
+            serviceType: 'Insightly',
+            serviceName: 'Insightly',
+            icon: 'insightly.svg',
+            origins: ['https://*.insightly.com/*'],
+            scripts: {
+                js: ['in-page-scripts/integrations/insightly.js']
+            }
         }
     ];
     return integrations.sort((a, b) => a.serviceName.localeCompare(b.serviceName, [], { sensitivity: 'base' }));

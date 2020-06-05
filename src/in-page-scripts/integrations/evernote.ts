@@ -1,6 +1,6 @@
 ﻿class Evernote implements WebToolIntegration {
     matchUrl = '*://www.evernote.com/client/*';
-    issueElementSelector = '#qa-NOTE_HEADER';//'#qa-NOTE_DETAIL';
+    issueElementSelector = '#qa-NOTE_HEADER';
     showIssueId = false;
     observeMutations = true;
     render(issueElement: HTMLElement, linkElement: HTMLElement) {

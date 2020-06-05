@@ -20,6 +20,7 @@ web browsers are **Chrome**, **Firefox**, **Edge**, **Opera**, and **Safari**.
 * [GitHub](https://github.com)
 * [GitLab](https://gitlab.com)
 * [HubSpot](https://www.hubspot.com)
+* [Insightly](https://www.insightly.com/)
 * [JIRA](https://www.atlassian.com/software/jira)
 * [JIRA Service Desk](https://www.atlassian.com/software/jira/service-desk)
 * [Kayako](http://www.kayako.com)
