@@ -12,8 +12,7 @@
     ];
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        linkElement.classList.add('private-button', 'private-button--default');
-        linkElement.firstChild.remove();
+        linkElement.classList.add('private-button', 'private-button--default', 'devart-timer-link-text-only');
 
         // task side panel
         if (issueElement.matches(this.issueElementSelector[0])) {
