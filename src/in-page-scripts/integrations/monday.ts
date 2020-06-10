@@ -65,15 +65,14 @@
                 issueName = $$.try('.name-cell-text', colName).textContent;
                 issueId = colName.id.match(/(?<=focus-)\d*?(?=-name)/)[0];
                 let path = source.path.endsWith('/') ? source.path : `${source.path}/`;
-                issueUrl = issueId && `${path}pulses/${issueId}`;
+                issueUrl = issueId && path.includes('pulses/') ? path : `${path}pulses/${issueId}`;
             }
         }
 
         // side panel on board page
         if (issueElement.matches(this.issueElementSelector[1])) {
             issueName = $$.try('.title-wrapper', issueElement).textContent;
-            let matches = this.getIssueIdByUrlPath(source.path);
-            issueId = matches ? matches[0] : null;
+            issueId = this.getIssueIdByUrlPath(source.path);
             issueUrl = source.path;
         }
 
