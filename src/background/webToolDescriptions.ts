@@ -597,5 +597,16 @@
             }
         }
     ];
-    return items.sort((a, b) => a.serviceName.localeCompare(b.serviceName, [], { sensitivity: 'base' }));
+    items.sort((a, b) => a.serviceName.localeCompare(b.serviceName, [], { sensitivity: 'base' }));
+    return [...items, <WebToolDescription>{
+        serviceType: 'Generic',
+        serviceName: 'Generic',
+        keywords: 'custom',
+        icon: 'generic.png',
+        origins: [],
+        hasAdditionalOrigins: true,
+        scripts: {
+            js: ['in-page-scripts/integrations/generic.js']
+        }
+    }]
 }
