@@ -4,7 +4,7 @@
 
     observeMutations = true;
 
-    matchUrl = [/https:\/\/crm\..*\.insightly.com\/.*\?blade=\/details\/task\/.*/i, /https:\/\/crm\..*\.insightly.com\/details\/task\/.*/i];
+    matchUrl = [/https:\/\/crm\..*\.insightly\.com\/.*\?blade=\/details\/task\/.*/i, /https:\/\/crm\..*\.insightly\.com\/details\/task\/.*/i];
 
     issueElementSelector = () => [$$('#main-container.details') || $$('#main-container.details.details-single')];
 
