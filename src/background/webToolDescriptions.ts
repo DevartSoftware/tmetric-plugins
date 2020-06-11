@@ -601,8 +601,7 @@
     return [...items, <WebToolDescription>{
         serviceType: 'Generic',
         serviceName: 'Generic',
-        keywords: 'custom',
-        icon: 'generic.png',
+        icon: 'generic.svg',
         origins: [],
         hasAdditionalOrigins: true,
         scripts: {
