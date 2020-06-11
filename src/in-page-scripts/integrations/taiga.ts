@@ -20,12 +20,12 @@
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        let issueName = $$.try('.us-story-main-data .detail-subject').textContent;
+        let issueName = $$.try('.detail-header-container .detail-subject').textContent;
         if (!issueName) {
             return;
         }
 
-        let projectName = $$.try('.us-detail h1 > .project-name').textContent;
+        let projectName = $$.try('.detail-header-container .project-name').textContent;
 
         // https://taiga.some.server/project/PROJECT_NAME/TASK_TYPE/NUMBER
         let match = this.matchUrl.exec(source.fullUrl);
