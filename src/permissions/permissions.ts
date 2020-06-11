@@ -60,6 +60,8 @@ $(document).ready(() => {
 
             $('.add-url-input-holder input', popup).val('');
 
+            $('.add-url-input-holder input', popup).attr('placeholder', `https://${serviceType.toLowerCase()}.server.com`);
+
             $('.url-list', popup).empty().append(origins.map(renderOriginListItem));
 
             $('.location-popup, .overlay').addClass('visible');
@@ -209,7 +211,6 @@ $(document).ready(() => {
                 }
 
                 updatePermissionCheckboxes();
-
             } catch (err) {
                 console.error(err);
             }
@@ -296,5 +297,4 @@ $(document).ready(() => {
     $(window).resize(function () {
         setScrollArea();
     });
-
 });
