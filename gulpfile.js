@@ -172,6 +172,10 @@ gulp.task('version', (callback) => {
             file,
             /(["']?version["']?: ["'])([\d\.]+)(["'])/,
             (match, left, oldVersion, right) => (left + version + right)));
+        replaceInFile(
+            src + 'safari/TMetric for Safari.xcodeproj/project.pbxproj',
+            /((?:CURRENT_PROJECT|MARKETING)_VERSION = )([\d\.]+)(;)/g,
+            (match, left, oldVersion, right) => (left + version + right));
 
         if (version.split('.').length < 4) {
             version += '.0';
