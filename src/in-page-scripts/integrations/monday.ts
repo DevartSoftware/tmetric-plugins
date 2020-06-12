@@ -81,7 +81,7 @@
             issueName = $$.try('.pulse-name-value', issueElement).textContent;
             projectName = $$.try('.open-pulse-in-board-link').textContent;
             if (Monday._lastClickedElement) {
-                let task = this.getTaskContentElement(Monday._lastClickedElement);
+                let task = $$.closest('.deadline-task-component-content', Monday._lastClickedElement);
                 if (task) {
                     let link = $$('.pulse-name-wrapper > a', task) as HTMLAnchorElement;
 
@@ -108,21 +108,8 @@
         return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Monday' }
     }
 
-    getTaskContentElement(el: HTMLElement): HTMLElement {
-
-        if (!el) {
-            return;
-        }
-
-        if (el.classList.contains('deadline-task-component-content')) {
-            return el;
-        }
-
-        return this.getTaskContentElement(el.parentElement);
-    }
-
     getIssueIdByUrlPath(url: string): string {
-        let matches = url.match(/(?<=pulses\/)(\d*)(?=\/|\?|.*)/);
+        let matches = url.match(/(?<=pulses\/)(\d*)/);
         return matches ? matches[0] : null;
     }
 }
