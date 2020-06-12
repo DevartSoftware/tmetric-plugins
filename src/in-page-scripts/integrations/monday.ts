@@ -109,7 +109,7 @@
     }
 
     getIssueIdByUrlPath(url: string): string {
-        let matches = url.match(/(?<=pulses\/)(\d*)/);
+        let matches = url.match(/(?<=pulses\/)\d+/);
         return matches ? matches[0] : null;
     }
 }
