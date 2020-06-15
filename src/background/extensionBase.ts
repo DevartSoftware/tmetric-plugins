@@ -628,7 +628,12 @@ abstract class ExtensionBase extends BackgroundBase {
         }, {});
 
         let descriptions = getWebToolDescriptions();
-        descriptions = descriptions.filter(d => d.origins.indexOf(origin) > -1 && !enabledWebToolsDict[d.serviceType]);
+        descriptions = descriptions.filter(d => !enabledWebToolsDict[d.serviceType]);
+
+        let description = descriptions.find(d => d.origins.indexOf(origin) > -1);
+        if (description) {
+            descriptions = [description];
+        }
 
         possibleWebTools = descriptions.map(({ serviceType, serviceName, icon, keywords, origins, hasAdditionalOrigins }) => ({
             serviceType,
