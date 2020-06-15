@@ -581,7 +581,7 @@ abstract class ExtensionBase extends BackgroundBase {
             chrome.tabs.query({ currentWindow: true, active: true },
                 function (tabs) {
                     let activeTab = tabs && tabs[0];
-                    let title = activeTab && activeTab.title;
+                    let title = activeTab && activeTab.title || null;
                     resolve(title);
                 });
         });
@@ -592,10 +592,54 @@ abstract class ExtensionBase extends BackgroundBase {
             chrome.tabs.query({ currentWindow: true, active: true },
                 function (tabs) {
                     let activeTab = tabs && tabs[0];
-                    let id = activeTab && activeTab.id;
+                    let id = activeTab && activeTab.id || null;
                     resolve(id);
                 });
         });
+    }
+
+    protected getActiveTabUrl() {
+        return new Promise<string>((resolve, reject) => {
+            chrome.tabs.query({ currentWindow: true, active: true },
+                function (tabs) {
+                    let activeTab = tabs && tabs[0];
+                    let url = activeTab && activeTab.url || null;
+                    resolve(url);
+                });
+        });
+    }
+
+    protected async getActiveTabPossibleWebTools() {
+
+        let possibleWebTools: WebToolInfo[] = [];
+
+        let url = await this.getActiveTabUrl();
+        let origin = WebToolManager.toOrigin(url);
+        if (!origin) {
+            return possibleWebTools;
+        }
+
+        let enabledWebTools = await WebToolManager.getEnabledWebTools();
+        enabledWebTools = enabledWebTools.filter(t => t.origins.indexOf(origin) > -1);
+
+        let enabledWebToolsDict: { [serviceType: string]: string[] } = enabledWebTools.reduce((dict, webTool) => {
+            dict[webTool.serviceType] = webTool.origins;
+            return dict;
+        }, {});
+
+        let descriptions = getWebToolDescriptions();
+        descriptions = descriptions.filter(d => d.origins.indexOf(origin) > -1 && !enabledWebToolsDict[d.serviceType]);
+
+        possibleWebTools = descriptions.map(({ serviceType, serviceName, icon, keywords, origins, hasAdditionalOrigins }) => ({
+            serviceType,
+            serviceName,
+            icon,
+            keywords,
+            origins: [...origins],
+            hasAdditionalOrigins
+        }));
+
+        return possibleWebTools;
     }
 
     protected openPage(url: string) {
