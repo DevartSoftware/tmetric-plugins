@@ -151,6 +151,14 @@ $(document).ready(() => {
 
             let serviceType = $(popup).data('serviceType');
             let origins = $('.url-list .url', popup).toArray().map((el: HTMLInputElement) => el.value);
+
+            let input = $('.add-url-input-holder input', popup);
+            let value = input.val();
+            let origin = toOrigin(value);
+            if (origin && origins.indexOf(origin) < 0) {
+                origins.push(origin);
+            }
+
             let item: WebTool = { serviceType, origins };
 
             if (await permissionsManager.requestPermissions([item])) {

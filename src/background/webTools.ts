@@ -1,5 +1,9 @@
 ﻿const toOrigin = function (input: string) {
 
+    if (!input) {
+        return;
+    }
+
     // add protocol if not present
     // permission origins must start with http or https
     if (!input.startsWith('http')) {
