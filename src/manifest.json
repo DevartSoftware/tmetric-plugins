@@ -38,7 +38,7 @@
             "lib/jquery.min.js",
             "lib/signalr.min.js",
             "background/webToolDescriptions.js",
-            "background/webTools.js",
+            "background/webToolManager.js",
             "background/contentScriptsPolyfill.js",
             "background/contentScriptsRegistrator.js",
             "background/simpleEvent.js",

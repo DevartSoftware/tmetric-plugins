@@ -50,7 +50,7 @@
 
         this.unregister(serviceTypes);
 
-        let webTools = await getEnabledWebTools();
+        let webTools = await WebToolManager.getEnabledWebTools();
         if (serviceTypes) {
             webTools = webTools.filter(s => serviceTypes.indexOf(s.serviceType) > -1);
         }

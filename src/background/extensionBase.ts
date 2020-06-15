@@ -687,7 +687,7 @@ abstract class ExtensionBase extends BackgroundBase {
 
                 const { serviceType, serviceUrl } = item;
 
-                const origin = toOrigin(serviceUrl);
+                const origin = WebToolManager.toOrigin(serviceUrl);
                 if (!origin) {
                     return result;
                 }
@@ -709,7 +709,7 @@ abstract class ExtensionBase extends BackgroundBase {
 
             const webTools = Object.keys(webToolsDictionary).map(key => webToolsDictionary[key]);
 
-            await enableWebTools(webTools);
+            await WebToolManager.enableWebTools(webTools);
 
         } catch (error) {
             console.log(error)

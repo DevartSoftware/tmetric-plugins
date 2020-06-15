@@ -45,7 +45,7 @@ $(document).ready(() => {
 
             let { origins = [], hasAdditionalOrigins } = webToolDescription;
 
-            let webTools = await getEnabledWebTools();
+            let webTools = await WebToolManager.getEnabledWebTools();
             let webTool = webTools.find(item => item.serviceType == serviceType);
             if (webTool) {
                 origins = webTool.origins;
@@ -105,7 +105,7 @@ $(document).ready(() => {
 
             let input = $('input', $(this).parent('.add-url-input-holder'));
             let value = input.val();
-            let origin = toOrigin(value);
+            let origin = WebToolManager.toOrigin(value);
 
             input.toggleClass('invalid', !origin);
 
@@ -126,7 +126,7 @@ $(document).ready(() => {
 
             let input = $(this).siblings('input');
             let value = input.val();
-            let origin = toOrigin(value);
+            let origin = WebToolManager.toOrigin(value);
 
             input.toggleClass('invalid', !origin);
 
@@ -154,7 +154,7 @@ $(document).ready(() => {
 
             let input = $('.add-url-input-holder input', popup);
             let value = input.val();
-            let origin = toOrigin(value);
+            let origin = WebToolManager.toOrigin(value);
             if (origin && origins.indexOf(origin) < 0) {
                 origins.push(origin);
             }
@@ -190,7 +190,7 @@ $(document).ready(() => {
                     origins: i.origins
                 }));
 
-            items.push(...await getEnabledWebTools());
+            items.push(...await WebToolManager.getEnabledWebTools());
 
             await permissionsManager.removePermissions(items);
             await permissionsManager.cleanupPermissions();
@@ -233,7 +233,7 @@ $(document).ready(() => {
 
     async function updatePermissionCheckboxes() {
 
-        const webTools = await getEnabledWebTools();
+        const webTools = await WebToolManager.getEnabledWebTools();
         const webToolDescriptions = getWebToolDescriptions();
 
         webToolDescriptions.forEach(webToolDescription => {
