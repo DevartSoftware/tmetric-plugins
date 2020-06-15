@@ -64,16 +64,26 @@
             if (colName) {
                 issueName = $$.try('.name-cell-text', colName).textContent;
                 issueId = colName.id.match(/(?<=focus-)\d*?(?=-name)/)[0];
-                let path = source.path.endsWith('/') ? source.path : `${source.path}/`;
-                issueUrl = issueId && path.includes('pulses/') ? path : `${path}pulses/${issueId}`;
+                issueUrl = this.createIssueUrl(source.path, issueId);
             }
         }
 
         // side panel on board page
         if (issueElement.matches(this.issueElementSelector[1])) {
             issueName = $$.try('.title-wrapper', issueElement).textContent;
-            issueId = this.getIssueIdByUrlPath(source.path);
-            issueUrl = source.path;
+            let isSubItem = $$('.title-wrapper .with-subitem', issueElement);
+            if (isSubItem) {
+                if (Monday._lastClickedElement) {
+                    let task = $$.closest('.pulse-component-wrapper.subitem-pulse.subitem .pulse-component', Monday._lastClickedElement);
+                    if (task) {
+                        issueId = task.id.match(/(?<=pulse-)\d+/)[0];
+                        issueUrl = this.createIssueUrl(source.path, issueId);
+                    }
+                }
+            } else {
+                issueId = this.getIssueIdByUrlPath(source.path);
+                issueUrl = source.path;
+            }
         }
 
         // modal window on my week page
@@ -111,6 +121,11 @@
     getIssueIdByUrlPath(url: string): string {
         let matches = url.match(/(?<=pulses\/)\d+/);
         return matches ? matches[0] : null;
+    }
+
+    createIssueUrl(sourcePath: string, id: string) {
+        let path = sourcePath.match(/boards\/\d+/)[0];
+        return id && `${path}/pulses/${id}`;
     }
 }
 
