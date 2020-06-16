@@ -356,9 +356,10 @@
 
         return Promise.all([
             this.getActiveTabTitle(),
+            this.getActiveTabPossibleWebTool(),
             this.getAccountScope(accountId),
-            this.getDefaultWorkType(accountId)
-        ]).then(([title, scope, defaultWorkType]) => {
+            this.getDefaultWorkType(accountId),
+        ]).then(([title, webTool, scope, defaultWorkType]) => {
 
             let userRole = this.userProfile.accountMembership
                 .find(_ => _.account.accountId == accountId)
@@ -368,7 +369,7 @@
             let canCreateTags = scope.account.canMembersCreateTags;
             let isAdmin = (userRole == Models.ServiceRole.Admin || userRole == Models.ServiceRole.Owner);
 
-            let newIssue = this.newPopupIssue || <WebToolIssueTimer>{ // _newPopupIssue is null if called from toolbar popup
+            let newIssue: WebToolIssueTimer = this.newPopupIssue || { // _newPopupIssue is null if called from toolbar popup
                 isStarted: true,
                 description: title,
                 tagNames: defaultWorkType ? [defaultWorkType.tagName] : []
@@ -380,7 +381,7 @@
             const projectMap = this.getProjectMap(accountId);
 
             // Determine default project
-            let defaultProjectId = <number>null;
+            let defaultProjectId: number = null;
             if (projectMap) {
 
                 let projectName = newIssue.projectName || '';
@@ -415,7 +416,8 @@
                 canCreateTags,
                 constants: this.constants,
                 defaultProjectId,
-                requiredFields: scope.requiredFields
+                requiredFields: scope.requiredFields,
+                possibleWebTool: webTool
             };
         });
     }
@@ -471,6 +473,8 @@
     }
 
     protected abstract getActiveTabTitle(): Promise<string>;
+
+    protected abstract getActiveTabPossibleWebTool(): Promise<WebToolInfo>;
 
     protected openPage(url: string) {
         open(url);

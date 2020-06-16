@@ -64,7 +64,7 @@ console.log(JSON.stringify(config, null, 2));
 var files = {
     common: [
         'src/background/webToolDescriptions.js',
-        'src/background/webTools.js',
+        'src/background/webToolManager.js',
         'src/background/contentScriptsPolyfill.js',
         'src/background/contentScriptsRegistrator.js',
         'src/background/serverConnection.js',

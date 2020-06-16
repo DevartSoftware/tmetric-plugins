@@ -24,7 +24,7 @@
         "interfaces/integrations.d.ts",
         "interfaces/safari.d.ts",
         "background/webToolDescriptions.ts",
-        "background/webTools.ts",
+        "background/webToolManager.ts",
         "background/contentScriptsPolyfill.ts",
         "background/contentScriptsRegistrator.ts",
         "background/backgroundBase.ts",

@@ -36,11 +36,14 @@ interface WebTool {
     origins: string[];
 }
 
-interface WebToolDescription extends WebTool {
+interface WebToolInfo extends WebTool {
     serviceName: string;
     icon: string;
     keywords?: string;
     hasAdditionalOrigins?: boolean; // means web service have more online or/and self-hosted origins
+}
+
+interface WebToolDescription extends WebToolInfo {
     scripts: ContentScripts;
 }
 
@@ -77,12 +80,6 @@ interface AjaxStatus {
     statusCode: number;
     statusText: string;
     responseMessage: string;
-}
-
-interface ITabInfo {
-    url: string;
-    title: string;
-    issue: WebToolIssue;
 }
 
 interface ITabMessage {
@@ -130,6 +127,7 @@ interface IPopupInitData {
     canCreateTags: boolean;
     defaultProjectId: number;
     requiredFields: Models.RequiredFields;
+    possibleWebTool: WebToolInfo;
 }
 
 interface IPopupTimerData {

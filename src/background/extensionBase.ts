@@ -581,7 +581,7 @@ abstract class ExtensionBase extends BackgroundBase {
             chrome.tabs.query({ currentWindow: true, active: true },
                 function (tabs) {
                     let activeTab = tabs && tabs[0];
-                    let title = activeTab && activeTab.title;
+                    let title = activeTab && activeTab.title || null;
                     resolve(title);
                 });
         });
@@ -592,10 +592,49 @@ abstract class ExtensionBase extends BackgroundBase {
             chrome.tabs.query({ currentWindow: true, active: true },
                 function (tabs) {
                     let activeTab = tabs && tabs[0];
-                    let id = activeTab && activeTab.id;
+                    let id = activeTab && activeTab.id || null;
                     resolve(id);
                 });
         });
+    }
+
+    protected getActiveTabUrl() {
+        return new Promise<string>((resolve, reject) => {
+            chrome.tabs.query({ currentWindow: true, active: true },
+                function (tabs) {
+                    let activeTab = tabs && tabs[0];
+                    let url = activeTab && activeTab.url || null;
+                    resolve(url);
+                });
+        });
+    }
+
+    protected async getActiveTabPossibleWebTool() {
+
+        let url = await this.getActiveTabUrl();
+        let origin = WebToolManager.toOrigin(url);
+        if (!origin) {
+            return;
+        }
+
+        let enabledWebTools = await WebToolManager.getEnabledWebTools();
+        enabledWebTools = enabledWebTools.filter(t => t.origins.indexOf(origin) > -1);
+
+        let enabledWebToolsDict: { [serviceType: string]: string[] } = enabledWebTools.reduce((dict, webTool) => {
+            dict[webTool.serviceType] = webTool.origins;
+            return dict;
+        }, {});
+
+        let descriptions = getWebToolDescriptions();
+        let description = descriptions.find(d => d.origins.indexOf(origin) > -1 && !enabledWebToolsDict[d.serviceType]);
+
+        if (description) {
+            return <WebToolInfo>{
+                serviceType: description.serviceType,
+                serviceName: description.serviceName,
+                origins: [...description.origins]
+            };
+        }
     }
 
     protected openPage(url: string) {
@@ -687,7 +726,7 @@ abstract class ExtensionBase extends BackgroundBase {
 
                 const { serviceType, serviceUrl } = item;
 
-                const origin = toOrigin(serviceUrl);
+                const origin = WebToolManager.toOrigin(serviceUrl);
                 if (!origin) {
                     return result;
                 }
@@ -709,7 +748,7 @@ abstract class ExtensionBase extends BackgroundBase {
 
             const webTools = Object.keys(webToolsDictionary).map(key => webToolsDictionary[key]);
 
-            await enableWebTools(webTools);
+            await WebToolManager.enableWebTools(webTools);
 
         } catch (error) {
             console.log(error)

@@ -3,7 +3,7 @@
     private toPermissions(items: WebTool[]) {
         return <chrome.permissions.Permissions>{
             origins: items.reduce((origins, item) => {
-                let urls = item.origins.map(toOrigin).filter(o => !!o);
+                let urls = item.origins.map(WebToolManager.toOrigin).filter(o => !!o);
                 origins.push(...urls);
                 return origins;
             }, <string[]>[])
@@ -24,7 +24,7 @@
                 return result;
             }
 
-            await enableWebTools(items);
+            await WebToolManager.enableWebTools(items);
 
             let message = <IContentScriptRegistratorMessage>{
                 action: 'registerContentScripts',
@@ -51,7 +51,7 @@
                 return result;
             }
 
-            await disableWebTools(items);
+            await WebToolManager.disableWebTools(items);
 
             let message = <IContentScriptRegistratorMessage>{
                 action: 'unregisterContentScripts',
