@@ -179,7 +179,7 @@ abstract class ExtensionBase extends BackgroundBase {
 
         super.init();
 
-        this.signalRUrl = this.getUrl('tmetric.signalRUrl', 'https://signalr.tmetric.com/');
+        this.signalRUrl = this.getUrl('tmetric.signalRUrl', 'https://services.tmetric.com/signalr/');
 
         this.extraHours = this.getTestValue('tmetric.extraHours');
         if (this.extraHours) {
@@ -749,14 +749,12 @@ abstract class ExtensionBase extends BackgroundBase {
             const webTools = Object.keys(webToolsDictionary).map(key => webToolsDictionary[key]);
 
             await WebToolManager.enableWebTools(webTools);
-
         } catch (error) {
             console.log(error)
         }
 
         let url = chrome.runtime.getURL('permissions/permissionsCheck.html');
         chrome.tabs.create({ url, active: true });
-
     }
 
     private contentScriptRegistrator = new ContentScriptsRegistrator();
