@@ -179,12 +179,6 @@ gulp.task('version', (callback) => {
             /(MARKETING_VERSION = )([\d\.]+)(;)/g,
             (match, left, oldVersion, right) => (left + version + right));
 
-        // reset build number with new version
-        replaceInFile(
-            src + 'safari/TMetric for Safari.xcodeproj/project.pbxproj',
-            /(CURRENT_PROJECT_VERSION = )([\d\.]+)(;)/g,
-            (match, left, oldVersion, right) => (left + 0 + right));
-
         if (version.split('.').length < 4) {
             version += '.0';
         }
