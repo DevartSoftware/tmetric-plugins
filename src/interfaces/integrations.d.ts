@@ -38,6 +38,9 @@ interface WebTool {
 
 interface WebToolInfo extends WebTool {
     serviceName: string;
+    icon: string;
+    keywords?: string;
+    hasAdditionalOrigins?: boolean; // means web service have more online or/and self-hosted origins
 }
 
 interface WebToolDescription extends WebToolInfo {
