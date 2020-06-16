@@ -63,7 +63,8 @@
             let colName = $$('[id$=-name].col-identifier-name', issueElement)
             if (colName) {
                 issueName = $$.try('.name-cell-text', colName).textContent;
-                issueId = colName.id.match(/(?<=focus-)\d*?(?=-name)/)[0];
+                let match = colName.id.match(/(?<=focus-)\d*?(?=-name)/);
+                issueId = match && match[0];
                 issueUrl = this.createIssueUrl(source.path, issueId);
             }
         }
@@ -76,7 +77,8 @@
                 if (Monday._lastClickedElement) {
                     let task = $$.closest('.pulse-component-wrapper.subitem-pulse.subitem .pulse-component', Monday._lastClickedElement);
                     if (task) {
-                        issueId = task.id.match(/(?<=pulse-)\d+/)[0];
+                        let match = task.id.match(/(?<=pulse-)\d+/);
+                        issueId = match && match[0];
                         issueUrl = this.createIssueUrl(source.path, issueId);
                     }
                 }
@@ -124,7 +126,8 @@
     }
 
     createIssueUrl(sourcePath: string, id: string) {
-        let path = sourcePath.match(/boards\/\d+/)[0];
+        let match = sourcePath.match(/boards\/\d+/);
+        let path = match && match[0];
         return id && `${path}/pulses/${id}`;
     }
 }
