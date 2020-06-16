@@ -356,10 +356,10 @@
 
         return Promise.all([
             this.getActiveTabTitle(),
-            this.getActiveTabPossibleWebTools(),
+            this.getActiveTabPossibleWebTool(),
             this.getAccountScope(accountId),
             this.getDefaultWorkType(accountId),
-        ]).then(([title, webTools, scope, defaultWorkType]) => {
+        ]).then(([title, webTool, scope, defaultWorkType]) => {
 
             let userRole = this.userProfile.accountMembership
                 .find(_ => _.account.accountId == accountId)
@@ -417,7 +417,7 @@
                 constants: this.constants,
                 defaultProjectId,
                 requiredFields: scope.requiredFields,
-                possibleWebTools: webTools
+                possibleWebTool: webTool
             };
         });
     }
@@ -474,7 +474,7 @@
 
     protected abstract getActiveTabTitle(): Promise<string>;
 
-    protected abstract getActiveTabPossibleWebTools(): Promise<WebToolInfo[]>;
+    protected abstract getActiveTabPossibleWebTool(): Promise<WebToolInfo>;
 
     protected openPage(url: string) {
         open(url);

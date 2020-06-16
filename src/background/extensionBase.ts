@@ -609,14 +609,12 @@ abstract class ExtensionBase extends BackgroundBase {
         });
     }
 
-    protected async getActiveTabPossibleWebTools() {
-
-        let possibleWebTools: WebToolInfo[] = [];
+    protected async getActiveTabPossibleWebTool() {
 
         let url = await this.getActiveTabUrl();
         let origin = WebToolManager.toOrigin(url);
         if (!origin) {
-            return possibleWebTools;
+            return;
         }
 
         let enabledWebTools = await WebToolManager.getEnabledWebTools();
@@ -628,23 +626,15 @@ abstract class ExtensionBase extends BackgroundBase {
         }, {});
 
         let descriptions = getWebToolDescriptions();
-        descriptions = descriptions.filter(d => !enabledWebToolsDict[d.serviceType]);
+        let description = descriptions.find(d => d.origins.indexOf(origin) > -1 && !enabledWebToolsDict[d.serviceType]);
 
-        let description = descriptions.find(d => d.origins.indexOf(origin) > -1);
         if (description) {
-            descriptions = [description];
+            return <WebToolInfo>{
+                serviceType: description.serviceType,
+                serviceName: description.serviceName,
+                origins: [...description.origins]
+            };
         }
-
-        possibleWebTools = descriptions.map(({ serviceType, serviceName, icon, keywords, origins, hasAdditionalOrigins }) => ({
-            serviceType,
-            serviceName,
-            icon,
-            keywords,
-            origins: [...origins],
-            hasAdditionalOrigins
-        }));
-
-        return possibleWebTools;
     }
 
     protected openPage(url: string) {
