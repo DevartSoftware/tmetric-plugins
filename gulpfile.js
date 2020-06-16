@@ -530,7 +530,7 @@ gulp.task('package:safari', gulp.series('prepackage:safari'));
 
 gulp.task('build', gulp.series(
     'clean', 'lib', 'compile', 'version',
-    gulp.parallel('package:chrome', 'package:firefox', 'package:edge')
+    gulp.parallel('package:chrome', 'package:firefox', 'package:edge', 'package:safari')
 ));
 
 // =============================================================================
