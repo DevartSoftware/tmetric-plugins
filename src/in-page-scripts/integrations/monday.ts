@@ -56,8 +56,7 @@
         let issueName: string;
         let issueId: string;
         let issueUrl: string;
-        let projectNameEl = $$('.board-header-main .board-name');
-        let projectName = projectNameEl && projectNameEl.textContent;
+        let projectName = $$.try('.board-header-main .board-name').textContent;
 
         // board
         if (issueElement.matches(this.issueElementSelector[0])) {
