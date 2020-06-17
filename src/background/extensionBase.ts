@@ -692,7 +692,8 @@ abstract class ExtensionBase extends BackgroundBase {
             if (tabId == this.loginTabId) {
                 this.loginTabId = null;
                 this.loginWinId = null;
-                this.connection.reconnect();
+                this.connection.reconnect()
+                    .then(() => this.checkPermissions());
             }
         });
     }
@@ -700,20 +701,17 @@ abstract class ExtensionBase extends BackgroundBase {
     // permissions
 
     private async checkPermissions() {
-
-        chrome.storage.local.get(<IExtensionLocalSettings>{ skipPermissionsCheck: false }, async ({ skipPermissionsCheck }: IExtensionLocalSettings) => {
-
-            if (!skipPermissionsCheck) {
-
-
+        chrome.storage.local.get(
+            <IExtensionLocalSettings>{ skipPermissionsCheck: false },
+            async ({ skipPermissionsCheck }: IExtensionLocalSettings) => {
+                if (skipPermissionsCheck) {
+                    return;
+                }
                 if (this.connection.userProfile) {
                     this.showPermissions();
-                } else {
-                    this.actionOnConnect = () => this.showPermissions();
-                    this.showLoginDialog();
                 }
             }
-        });
+        );
     }
 
     private async showPermissions() {
