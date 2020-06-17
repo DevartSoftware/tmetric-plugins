@@ -94,4 +94,54 @@
             });
         });
     }
+
+    static addWebToolOrigins(item: WebTool) {
+        return this.getEnabledWebTools().then(enabledItems => {
+
+            if (!item) {
+                return;
+            }
+
+            let enabledItem = enabledItems.find(enabledItem => enabledItem.serviceType == item.serviceType);
+            if (!enabledItem) {
+                enabledItem = {
+                    serviceType: item.serviceType,
+                    origins: []
+                };
+                enabledItems.push(enabledItem);
+            }
+
+            enabledItem.origins.push(...item.origins);
+            enabledItem.origins = Object.keys(enabledItem.origins.reduce((dict, origin) => (dict[origin] = true) && dict, {}));
+            enabledItem.origins.sort();
+
+            return new Promise(resolve => {
+                chrome.storage.local.set(<IExtensionLocalSettings>{ webTools: enabledItems }, () => {
+                    resolve();
+                });
+            });
+        });
+    }
+
+    static removeWebToolOrigins(item: WebTool) {
+        return this.getEnabledWebTools().then(enabledItems => {
+
+            if (!item) {
+                return;
+            }
+
+            let enabledItem = enabledItems.find(enabledItem => enabledItem.serviceType == item.serviceType);
+            if (!enabledItem) {
+                return;
+            }
+
+            enabledItem.origins = enabledItem.origins.filter(origin => item.origins.indexOf(origin) < 0);
+
+            return new Promise(resolve => {
+                chrome.storage.local.set(<IExtensionLocalSettings>{ webTools: enabledItems }, () => {
+                    resolve();
+                });
+            });
+        });
+    }
 }

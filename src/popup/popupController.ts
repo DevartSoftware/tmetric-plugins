@@ -1008,6 +1008,7 @@
         $(this._forms.create + ' .project .input').change(() => (this.onProjectSelectChange(), false));
         $('.cancel-btn').click(() => (this.onCancelClick(), false));
         $('#settings-btn').click(() => (this.onSettingsClick(), false));
+        $('#integrate-webtool').click(() => (this.onIntegrateWebToolClick(), false));
 
         this.initDropdown('#account-selector', (accountId) => {
             this.changeAccount(accountId);
@@ -1081,6 +1082,11 @@
 
     private onSettingsClick() {
         this.openOptionsPage();
+    }
+
+    private onIntegrateWebToolClick() {
+        let manager = new PermissionManager();
+        manager.requestAdditionalOrigins(this._possibleWebTool);
     }
 
     private onProjectSelectChange() {

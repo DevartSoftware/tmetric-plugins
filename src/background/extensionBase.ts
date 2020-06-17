@@ -110,6 +110,7 @@ abstract class ExtensionBase extends BackgroundBase {
 
         this.listenPopupAction<void, boolean>('isConnectionRetryEnabled', this.isConnectionRetryEnabledPopupAction);
         this.listenPopupAction<void, void>('retry', this.retryConnectionPopupAction);
+        this.listenPopupAction<string[], void>('updateContentScripts', this.updateContentScriptsAction);
 
         this.updateState();
 
@@ -826,5 +827,9 @@ abstract class ExtensionBase extends BackgroundBase {
 
     private retryConnectionPopupAction() {
         return this.connection.retryConnection();
+    }
+
+    private updateContentScriptsAction(serviceTypes: string[]) {
+        return this.contentScriptRegistrator.register(serviceTypes);
     }
 }

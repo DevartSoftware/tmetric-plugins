@@ -161,6 +161,6 @@ interface IExtensionSettingsMessage {
 }
 
 interface IContentScriptRegistratorMessage {
-    action: 'registerContentScripts' | 'unregisterContentScripts';
+    action: 'registerContentScripts' | 'unregisterContentScripts' | 'updateContentScripts';
     data?: string[];
 }
