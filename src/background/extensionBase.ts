@@ -705,7 +705,6 @@ abstract class ExtensionBase extends BackgroundBase {
 
             if (!skipPermissionsCheck) {
 
-                chrome.storage.local.set(<IExtensionLocalSettings>{ skipPermissionsCheck: true });
 
                 if (this.connection.userProfile) {
                     this.showPermissions();
@@ -752,6 +751,8 @@ abstract class ExtensionBase extends BackgroundBase {
         } catch (error) {
             console.log(error)
         }
+
+        chrome.storage.local.set(<IExtensionLocalSettings>{ skipPermissionsCheck: true });
 
         let url = chrome.runtime.getURL('permissions/permissionsCheck.html');
         chrome.tabs.create({ url, active: true });
