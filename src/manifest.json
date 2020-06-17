@@ -27,8 +27,7 @@
         "tabs",
         "notifications",
         "storage",
-        "http://*/*",
-        "https://*/*"
+        "*://*.tmetric.com/*"
     ],
     "optional_permissions": [
         "http://*/*",
@@ -56,10 +55,7 @@
     ],
     "content_scripts": [
         {
-            "matches": [
-                "http://*/*",
-                "https://*/*"
-            ],
+            "matches": [ "*://*.tmetric.com/*" ],
             "js": [ "in-page-scripts/version.js" ],
             "run_at": "document_end"
         }
