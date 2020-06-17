@@ -611,28 +611,27 @@ abstract class ExtensionBase extends BackgroundBase {
 
     protected async getActiveTabPossibleWebTool() {
 
-        let url = await this.getActiveTabUrl();
-        let origin = WebToolManager.toOrigin(url);
+        const url = await this.getActiveTabUrl();
+        const origin = WebToolManager.toOrigin(url);
         if (!origin) {
             return;
         }
 
-        let enabledWebTools = await WebToolManager.getEnabledWebTools();
-        enabledWebTools = enabledWebTools.filter(t => t.origins.indexOf(origin) > -1);
+        const isMatchUrl = (origin: string) => WebToolManager.isMatch(url, origin);
 
-        let enabledWebToolsDict: { [serviceType: string]: string[] } = enabledWebTools.reduce((dict, webTool) => {
-            dict[webTool.serviceType] = webTool.origins;
-            return dict;
-        }, {});
+        const enabledWebTools = await WebToolManager.getEnabledWebTools();
+        const enabledWebTool = enabledWebTools.find(webTool => webTool.origins.some(isMatchUrl));
+        if (enabledWebTool) {
+            return;
+        }
 
-        let descriptions = getWebToolDescriptions();
-        let description = descriptions.find(d => d.origins.indexOf(origin) > -1 && !enabledWebToolsDict[d.serviceType]);
-
-        if (description) {
+        const webTools = getWebToolDescriptions();
+        const webTool = webTools.find(webTool => webTool.origins.some(isMatchUrl));
+        if (webTool) {
             return <WebToolInfo>{
-                serviceType: description.serviceType,
-                serviceName: description.serviceName,
-                origins: [...description.origins]
+                serviceType: webTool.serviceType,
+                serviceName: webTool.serviceName,
+                origins: [origin]
             };
         }
     }

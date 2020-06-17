@@ -18,6 +18,15 @@
         }
     }
 
+    static isMatch(url: string, origin: string) {
+        let urlOrigin = this.toOrigin(url);
+        let originRe = origin
+            .replace(/[\/\.]/g, '\\$&')
+            .replace(/\*/g, '.+');
+        let pattern = `^${originRe}`;
+        return new RegExp(pattern, 'i').test(urlOrigin);
+    }
+
     static getEnabledWebTools () {
         return new Promise<WebTool[]>(resolve => {
             chrome.storage.local.get(<IExtensionLocalSettings>{ webTools: [] }, ({ webTools }: IExtensionLocalSettings) => {
