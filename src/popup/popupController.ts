@@ -18,6 +18,7 @@
     private _canCreateTags: boolean;
     private _requiredFields: Models.RequiredFields;
     private _newIssue: WebToolIssueTimer;
+    private _possibleWebTool: WebToolInfo;
 
     getData(accountId: number) {
 
@@ -78,6 +79,7 @@
             this._canCreateProjects = data.canCreateProjects;
             this._canCreateTags = data.canCreateTags;
             this._requiredFields = data.requiredFields;
+            this._possibleWebTool = data.possibleWebTool;
         } else {
             this.close();
         }
@@ -280,6 +282,18 @@
         return { url, text };
     }
 
+    fillWebToolAlert() {
+
+        $(this._forms.create + ' .webtool-alert').toggle(!!this._possibleWebTool);
+
+        if (!this._possibleWebTool) {
+            return;
+        }
+
+        let message = `We have noticed that you are using ${this._possibleWebTool.serviceName}. Do you want to integrate TMetric with ${this._possibleWebTool.serviceName}?`;
+        $(this._forms.create + ' .webtool-alert .alert-text').text(message);
+    }
+
     fillTaskLink(link: JQuery, url: string, text: string) {
 
         if (!url) {
@@ -355,6 +369,8 @@
     }
 
     fillCreateForm(projectId?: number) {
+
+        this.fillWebToolAlert();
 
         $(this._forms.create + ' .task-recent').toggle(!this.isPagePopup);
 

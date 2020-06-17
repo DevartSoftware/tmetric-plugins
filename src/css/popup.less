@@ -76,6 +76,10 @@
 @btn-primary-bg: #545454;
 @btn-primary-border: @btn-primary-bg;
 
+@btn-secondary-color: @text-color;
+@btn-secondary-bg: #F6F7F8;
+@btn-secondary-border: #D0D6DB;
+
 @btn-success-color: #fff;
 @btn-success-bg: #00bc6a;
 @btn-success-border: @btn-success-bg;
@@ -515,10 +519,33 @@ input {
     }
 }
 
+.webtool-alert {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    margin: 0 -@padding-large;
+    padding: @padding-large;
+    color: @info-color;
+    background-color: @info-background-color;
+
+    .alert-icon-column {
+        .fa {
+            font-size: 16px;
+        }
+    }
+
+    .alert-text-column {
+        padding: 0 @padding;
+
+        .alert-text {
+            margin-bottom: @margin;
+        }
+    }
+}
+
 // ==============================================
 //                  BUTTONS
 // ==============================================
-
 .btn {
     min-width: 90px;
     display: inline-block;
@@ -637,6 +664,10 @@ input {
     .button-variant(@btn-primary-color, @btn-primary-bg, @btn-primary-border);
 }
 
+.btn-secondary {
+    .button-variant(@btn-secondary-color, @btn-secondary-bg, @btn-secondary-border);
+}
+
 .btn-full-width {
     width: 100% !important;
 }
@@ -660,7 +691,6 @@ input {
 // ==============================================
 //                  STATES
 // ==============================================
-
 content {
 
     & > * {
@@ -839,9 +869,9 @@ content.creating {
 
     .select2-selection__choice {
         color: @text-color !important;
-        background: @btn-default-bg !important;
+        background: @btn-secondary-bg !important;
         margin: @select2-selection-margin !important;
-        border: @select2-selection-border-width solid @btn-default-border !important;
+        border: @select2-selection-border-width solid @btn-secondary-border !important;
         border-radius: 3px !important;
         padding: 0 6px !important;
         cursor: default !important;
