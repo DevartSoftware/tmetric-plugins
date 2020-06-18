@@ -519,26 +519,29 @@ input {
     }
 }
 
-.webtool-alert {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    margin: 0 -@padding-large;
-    padding: @padding-large;
-    color: @info-color;
-    background-color: @info-background-color;
+#webtool-alert {
+    display: none;
 
-    .alert-icon-column {
-        .fa {
-            font-size: 16px;
+    .alert {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        padding: @padding-large;
+        color: @info-color;
+        background-color: @info-background-color;
+
+        .alert-icon-column {
+            .fa {
+                font-size: 16px;
+            }
         }
-    }
 
-    .alert-text-column {
-        padding: 0 @padding;
+        .alert-text-column {
+            padding: 0 @padding;
 
-        .alert-text {
-            margin-bottom: @margin;
+            .alert-text {
+                margin-bottom: @margin;
+            }
         }
     }
 }

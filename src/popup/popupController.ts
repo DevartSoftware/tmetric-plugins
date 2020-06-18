@@ -31,6 +31,8 @@
                 this.fillAccountSelector(data.profile, data.accountId);
             }
 
+            this.fillWebToolAlert();
+
             if (data.timer.isStarted && this.isLongRunning(data.timer.startTime)) {
                 this.fillFixForm(data.timer);
                 this.switchState(this._states.fixing);
@@ -284,14 +286,14 @@
 
     fillWebToolAlert() {
 
-        $(this._forms.create + ' .webtool-alert').toggle(!!this._possibleWebTool);
+        $('#webtool-alert').toggle(!!this._possibleWebTool);
 
         if (!this._possibleWebTool) {
             return;
         }
 
         let message = `We have noticed that you are using ${this._possibleWebTool.serviceName}. Do you want to integrate TMetric with ${this._possibleWebTool.serviceName}?`;
-        $(this._forms.create + ' .webtool-alert .alert-text').text(message);
+        $('#webtool-alert .alert-text').text(message);
     }
 
     fillTaskLink(link: JQuery, url: string, text: string) {
@@ -369,8 +371,6 @@
     }
 
     fillCreateForm(projectId?: number) {
-
-        this.fillWebToolAlert();
 
         $(this._forms.create + ' .task-recent').toggle(!this.isPagePopup);
 
