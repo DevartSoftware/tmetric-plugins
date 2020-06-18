@@ -83,4 +83,58 @@
         return new Promise<boolean>(resolve => callback = resolve);
 
     }
+
+    requestAdditionalOrigins(item: WebTool) {
+
+        let callback: (result: boolean) => void;
+
+        let permissions = this.toPermissions([item]);
+
+        chrome.permissions.request(permissions, result => callback(result));
+
+        return new Promise<boolean>(resolve => callback = resolve).then(async result => {
+
+            if (!result) {
+                return result;
+            }
+
+            await WebToolManager.addWebToolOrigins(item);
+
+            let message = <IContentScriptRegistratorMessage>{
+                action: 'updateContentScripts',
+                data: [item.serviceType]
+            };
+
+            chrome.runtime.sendMessage(message);
+
+            return result;
+        });
+    }
+
+    removeAdditionalOrigins(item: WebTool) {
+
+        let callback: (result: boolean) => void;
+
+        let permissions = this.toPermissions([item]);
+
+        chrome.permissions.request(permissions, result => callback(result));
+
+        return new Promise<boolean>(resolve => callback = resolve).then(async result => {
+
+            if (!result) {
+                return result;
+            }
+
+            await WebToolManager.removeWebToolOrigins(item);
+
+            let message = <IContentScriptRegistratorMessage>{
+                action: 'updateContentScripts',
+                data: [item.serviceType]
+            };
+
+            chrome.runtime.sendMessage(message);
+
+            return result;
+        });
+    }
 }

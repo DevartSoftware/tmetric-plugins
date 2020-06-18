@@ -110,6 +110,7 @@ abstract class ExtensionBase extends BackgroundBase {
 
         this.listenPopupAction<void, boolean>('isConnectionRetryEnabled', this.isConnectionRetryEnabledPopupAction);
         this.listenPopupAction<void, void>('retry', this.retryConnectionPopupAction);
+        this.listenPopupAction<string[], void>('updateContentScripts', this.updateContentScriptsAction);
 
         this.updateState();
 
@@ -611,28 +612,27 @@ abstract class ExtensionBase extends BackgroundBase {
 
     protected async getActiveTabPossibleWebTool() {
 
-        let url = await this.getActiveTabUrl();
-        let origin = WebToolManager.toOrigin(url);
+        const url = await this.getActiveTabUrl();
+        const origin = WebToolManager.toOrigin(url);
         if (!origin) {
             return;
         }
 
-        let enabledWebTools = await WebToolManager.getEnabledWebTools();
-        enabledWebTools = enabledWebTools.filter(t => t.origins.indexOf(origin) > -1);
+        const isMatchUrl = (origin: string) => WebToolManager.isMatch(url, origin);
 
-        let enabledWebToolsDict: { [serviceType: string]: string[] } = enabledWebTools.reduce((dict, webTool) => {
-            dict[webTool.serviceType] = webTool.origins;
-            return dict;
-        }, {});
+        const enabledWebTools = await WebToolManager.getEnabledWebTools();
+        const enabledWebTool = enabledWebTools.find(webTool => webTool.origins.some(isMatchUrl));
+        if (enabledWebTool) {
+            return;
+        }
 
-        let descriptions = getWebToolDescriptions();
-        let description = descriptions.find(d => d.origins.indexOf(origin) > -1 && !enabledWebToolsDict[d.serviceType]);
-
-        if (description) {
+        const webTools = getWebToolDescriptions();
+        const webTool = webTools.find(webTool => webTool.origins.some(isMatchUrl));
+        if (webTool) {
             return <WebToolInfo>{
-                serviceType: description.serviceType,
-                serviceName: description.serviceName,
-                origins: [...description.origins]
+                serviceType: webTool.serviceType,
+                serviceName: webTool.serviceName,
+                origins: [origin]
             };
         }
     }
@@ -692,7 +692,9 @@ abstract class ExtensionBase extends BackgroundBase {
             if (tabId == this.loginTabId) {
                 this.loginTabId = null;
                 this.loginWinId = null;
-                this.connection.reconnect();
+                this.connection.reconnect()
+                    .then(() => this.checkPermissions())
+                    .catch(() => { });
             }
         });
     }
@@ -700,21 +702,17 @@ abstract class ExtensionBase extends BackgroundBase {
     // permissions
 
     private async checkPermissions() {
-
-        chrome.storage.local.get(<IExtensionLocalSettings>{ skipPermissionsCheck: false }, async ({ skipPermissionsCheck }: IExtensionLocalSettings) => {
-
-            if (!skipPermissionsCheck) {
-
-                chrome.storage.local.set(<IExtensionLocalSettings>{ skipPermissionsCheck: true });
-
+        chrome.storage.local.get(
+            <IExtensionLocalSettings>{ skipPermissionsCheck: false },
+            async ({ skipPermissionsCheck }: IExtensionLocalSettings) => {
+                if (skipPermissionsCheck) {
+                    return;
+                }
                 if (this.connection.userProfile) {
                     this.showPermissions();
-                } else {
-                    this.actionOnConnect = () => this.showPermissions();
-                    this.showLoginDialog();
                 }
             }
-        });
+        );
     }
 
     private async showPermissions() {
@@ -752,6 +750,8 @@ abstract class ExtensionBase extends BackgroundBase {
         } catch (error) {
             console.log(error)
         }
+
+        chrome.storage.local.set(<IExtensionLocalSettings>{ skipPermissionsCheck: true });
 
         let url = chrome.runtime.getURL('permissions/permissionsCheck.html');
         chrome.tabs.create({ url, active: true });
@@ -827,5 +827,9 @@ abstract class ExtensionBase extends BackgroundBase {
 
     private retryConnectionPopupAction() {
         return this.connection.retryConnection();
+    }
+
+    private updateContentScriptsAction(serviceTypes: string[]) {
+        return this.contentScriptRegistrator.register(serviceTypes);
     }
 }

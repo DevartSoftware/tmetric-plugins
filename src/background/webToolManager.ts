@@ -18,6 +18,15 @@
         }
     }
 
+    static isMatch(url: string, origin: string) {
+        let urlOrigin = this.toOrigin(url);
+        let originRe = origin
+            .replace(/[\/\.]/g, '\\$&')
+            .replace(/\*/g, '.+');
+        let pattern = `^${originRe}`;
+        return new RegExp(pattern, 'i').test(urlOrigin);
+    }
+
     static getEnabledWebTools () {
         return new Promise<WebTool[]>(resolve => {
             chrome.storage.local.get(<IExtensionLocalSettings>{ webTools: [] }, ({ webTools }: IExtensionLocalSettings) => {
@@ -77,6 +86,56 @@
             }, <{ [serviceType: string]: WebTool }>{});
 
             enabledItems = enabledItems.filter(item => !itemsDictionary[item.serviceType]);
+
+            return new Promise(resolve => {
+                chrome.storage.local.set(<IExtensionLocalSettings>{ webTools: enabledItems }, () => {
+                    resolve();
+                });
+            });
+        });
+    }
+
+    static addWebToolOrigins(item: WebTool) {
+        return this.getEnabledWebTools().then(enabledItems => {
+
+            if (!item) {
+                return;
+            }
+
+            let enabledItem = enabledItems.find(enabledItem => enabledItem.serviceType == item.serviceType);
+            if (!enabledItem) {
+                enabledItem = {
+                    serviceType: item.serviceType,
+                    origins: []
+                };
+                enabledItems.push(enabledItem);
+            }
+
+            enabledItem.origins.push(...item.origins);
+            enabledItem.origins = Object.keys(enabledItem.origins.reduce((dict, origin) => (dict[origin] = true) && dict, {}));
+            enabledItem.origins.sort();
+
+            return new Promise(resolve => {
+                chrome.storage.local.set(<IExtensionLocalSettings>{ webTools: enabledItems }, () => {
+                    resolve();
+                });
+            });
+        });
+    }
+
+    static removeWebToolOrigins(item: WebTool) {
+        return this.getEnabledWebTools().then(enabledItems => {
+
+            if (!item) {
+                return;
+            }
+
+            let enabledItem = enabledItems.find(enabledItem => enabledItem.serviceType == item.serviceType);
+            if (!enabledItem) {
+                return;
+            }
+
+            enabledItem.origins = enabledItem.origins.filter(origin => item.origins.indexOf(origin) < 0);
 
             return new Promise(resolve => {
                 chrome.storage.local.set(<IExtensionLocalSettings>{ webTools: enabledItems }, () => {
