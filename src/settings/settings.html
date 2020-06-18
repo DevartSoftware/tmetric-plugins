@@ -2,19 +2,96 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>TMetric</title>
+    <title>TMetric Browser Extension Settings</title>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,700,400&amp;subset=latin,greek,cyrillic" rel="stylesheet" type="text/css">
+    <link href="../lib/select2/select2.min.css" rel="stylesheet" type="text/css">
     <link href="../css/settings.css" rel="stylesheet" type="text/css">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
 </head>
 <body style="visibility: hidden; background-color: rgba(0, 0, 0, 0)">
-    <div class="settings-container">
-        <div id="show-popup-option">
-            <label>Show popup before starting a timer</label>
-            <select id="show-popup-settings" class="input form-control"></select>
+    <div class="wrapper">
+        <div class="settings-page">
+            <header class="header">
+                <div class="header-logo">
+                    <a id="site-link" href="#">TMETRIC Extension</a>
+                </div>
+                <h1>TMetric Extension Settings</h1>
+            </header>
+            <main class="settings-main tabs-holder">
+                <!-- navigation sidebar begin -->
+                <aside class="sidebar">
+                    <ul class="nav tabset">
+                        <li class="active"><a href="#general-tab">General</a></li>
+                        <li><a href="#integrations-tab">Integrations</a></li>
+                    </ul>
+                    <p class="copyright">&copy; 2020 Devart rev 20.4.1.27558</p>
+                </aside>
+                <!-- navigation sidebar end -->
+                <div class="main-content">
+                    <!-- general settings content begin -->
+                    <div id="general-tab" class="general-content tab-box visible">
+                        <div class="settings-container">
+                            <div id="show-popup-option">
+                                <h2>General</h2>
+                                <label>Show popup before starting a timer</label>
+                                <div class="select-holder">
+                                    <select id="show-popup-settings" class="input form-control js-select"></select>
+                                </div>
+                                <p class="notes">This field can contain numbers</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- general settings content end -->
+                    <!-- integrations settings content begin -->
+                    <div id="integrations-tab" class="integrations-content tab-box">
+                        <div class="filter-section">
+                            <h2>Integrations</h2>
+                            <div class="row-flex">
+                                <div class="search-holder">
+                                    <span class="input-holder">
+                                        <i class="fa fa-search"></i>
+                                        <input type="text" class="search-input form-control" placeholder="Search" />
+                                    </span>
+                                    <button class="btn btn-default enable-all"><i class="fa fa-check"></i> Enable All Cloud</button>
+                                    <button class="btn btn-default disable-all"><i class="fa fa-times"></i> Disable All</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="logos-section">
+                            <ul id="integrations" class="logos-list"></ul>
+                        </div>
+                    </div>
+                    <!-- integrations settings content end -->
+                </div>
+            </main>
         </div>
     </div>
+    <!-- popup begin -->
+    <div class="overlay"></div>
+    <div class="popup location-popup">
+        <a href="#" class="icon-close close-popup">Close</a>
+        <h2>Allowed sites</h2>
+        <div class="list-holder">
+            <div class="add-url-input-holder">
+                <div class="input-holder">
+                    <input class="input form-control" type="text" />
+                </div>
+                <button class="btn btn-secondary add-url"><i class="fa fa-plus"></i> Add URL</button>
+            </div>
+            <ul class="url-list"></ul>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-primary apply-popup">Apply</button>
+            <button class="btn btn-secondary close-popup">Cancel</button>
+        </div>
+    </div>
+    <!-- popup end -->
     <script src="../lib/jquery.min.js"></script>
     <script src="../lib/select2/select2.full.min.js"></script>
+    <script src="../background/webToolDescriptions.js"></script>
+    <script src="../background/webToolManager.js"></script>
+    <script src="../permissions/permissionManager.js"></script>
+    <script src="../permissions/permissions.js"></script>
     <script src="settingsController.js"></script>
 </body>
 </html>

@@ -16,12 +16,14 @@ $(document).ready(() => {
     }
 
     function setScrollArea() {
-        let headerHeight = $('.header').outerHeight();
-        let filterHeight = $('.filter-section').outerHeight();
-        let bodyHeight = $(document).height();
-        let containerMargins = 82;
-        let scrollAreaHeight = bodyHeight - containerMargins - headerHeight - filterHeight;
-        $('.logos-section').css("height", scrollAreaHeight + "px");
+        if ($('.permissions-page').length > 0) {
+            let headerHeight = $('.header').outerHeight();
+            let filterHeight = $('.filter-section').outerHeight();
+            let bodyHeight = $(document).height();
+            let containerMargins = 82;
+            let scrollAreaHeight = bodyHeight - containerMargins - headerHeight - filterHeight;
+            $('.logos-section').css("height", scrollAreaHeight + "px");
+        }
     }
 
     function renderOriginListItem(origin: string) {
