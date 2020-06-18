@@ -693,7 +693,8 @@ abstract class ExtensionBase extends BackgroundBase {
                 this.loginTabId = null;
                 this.loginWinId = null;
                 this.connection.reconnect()
-                    .then(() => this.checkPermissions());
+                    .then(() => this.checkPermissions())
+                    .catch(() => { });
             }
         });
     }
