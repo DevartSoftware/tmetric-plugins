@@ -1,4 +1,4 @@
-﻿function initSettingsController() {
+﻿function initShowPopupSelector() {
     chrome.storage.sync.get(
         <IExtensionSettings>{showPopup: Models.ShowPopupOption.Always},
         (settings: IExtensionSettings) => {
@@ -22,7 +22,11 @@
                     chrome.storage.sync.set(<IExtensionSettings>{
                         showPopup: $('#show-popup-settings :selected').val()
                     });
-                });
+                })
+                .select2({
+                    minimumResultsForSearch: Infinity
+                })
+                .trigger('change');
         }
     )
 }
@@ -38,13 +42,13 @@ function navTabs() {
             let tabBox = $(this).attr('href');
             $(this).parent('li').addClass('active');
             $(tabBox).addClass('visible').fadeIn(400);
-            setSettingsScrollArea();
+            setIntegrationsScrollArea();
         }
     });
 }
 
-// Settings page scroll area
-function setSettingsScrollArea() {
+// Set Integrations list scroll area
+function setIntegrationsScrollArea() {
     if ($('.settings-page').length > 0) {
         let mainHeight = $('.settings-main .main-content').outerHeight();
         let filterHeight = $('.filter-section').outerHeight();
@@ -55,14 +59,11 @@ function setSettingsScrollArea() {
 }
 
 $(document).ready(() => {
-    initSettingsController();
-    $('#show-popup-settings').select2({
-        minimumResultsForSearch: Infinity
-    });
-    setSettingsScrollArea();
+    initShowPopupSelector();
+    setIntegrationsScrollArea();
     navTabs();
 
     $(window).resize(function () {
-        setSettingsScrollArea();
+        setIntegrationsScrollArea();
     });
 });
