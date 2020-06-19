@@ -595,6 +595,15 @@
             scripts: {
                 js: ['in-page-scripts/integrations/insightly.js']
             }
+        },
+        {
+            serviceType: 'ZenHub',
+            serviceName: 'ZenHub',
+            icon: 'zenhub.svg',
+            origins: ['https://app.zenhub.com/*'],
+            scripts: {
+                js: ['in-page-scripts/integrations/zenhub.js']
+            }
         }
     ];
     items.sort((a, b) => a.serviceName.localeCompare(b.serviceName, [], { sensitivity: 'base' }));
