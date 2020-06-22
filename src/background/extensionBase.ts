@@ -42,7 +42,8 @@ abstract class ExtensionBase extends BackgroundBase {
             height,
             url: this.getLoginUrl(),
             type: 'popup'
-        }, popupWindow => {
+        },
+        popupWindow => {
 
             let popupTab = popupWindow.tabs[0];
 
@@ -63,6 +64,15 @@ abstract class ExtensionBase extends BackgroundBase {
                 updateInfo.top = top - Math.round(deltaHeight / 2);
                 updateInfo.height = height + deltaHeight;
             }
+
+            if (navigator.userAgent.indexOf('OPR/') > -1) {
+                updateInfo.width = width;
+                updateInfo.height = height;
+                updateInfo.left = left;
+                updateInfo.top = top;
+            }
+
+            console.log({ initial: { width, height, left, top }, popup: { width: popupTab.width, height: popupTab.height }, updateInfo });
 
             chrome.windows.update(popupWindow.id, updateInfo);
         });
@@ -110,7 +120,6 @@ abstract class ExtensionBase extends BackgroundBase {
 
         this.listenPopupAction<void, boolean>('isConnectionRetryEnabled', this.isConnectionRetryEnabledPopupAction);
         this.listenPopupAction<void, void>('retry', this.retryConnectionPopupAction);
-        this.listenPopupAction<string[], void>('updateContentScripts', this.updateContentScriptsAction);
 
         this.updateState();
 
@@ -180,7 +189,9 @@ abstract class ExtensionBase extends BackgroundBase {
 
         super.init();
 
-        this.signalRUrl = this.getUrl('tmetric.signalRUrl', 'https://services.tmetric.com/signalr/');
+        //this.signalRUrl = this.getUrl('tmetric.signalRUrl', 'https://signalr.tmetric.com/');
+        //this.signalRUrl = this.getUrl('tmetric.signalRUrl', 'https://betasignalr.tmetric.com/');
+        this.signalRUrl = this.getUrl('tmetric.signalRUrl', 'http://local.tmetric.com:30600/');
 
         this.extraHours = this.getTestValue('tmetric.extraHours');
         if (this.extraHours) {
@@ -675,13 +686,15 @@ abstract class ExtensionBase extends BackgroundBase {
     }
 
     private registerTabsUpdateListener() {
-        chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+        chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+            console.log({tabId, changeInfo})
             if (tabId == this.loginTabId && changeInfo.url) {
                 let tabUrl = changeInfo.url.toLowerCase();
                 let serviceUrl = this.constants.serviceUrl.toLowerCase();
+                console.log({ tabUrl, serviceUrl })
                 if (tabUrl == serviceUrl || tabUrl.indexOf(serviceUrl + '#') == 0) {
-                    chrome.tabs.remove(tabId);
-                    return;
+                    console.log('remove', tabId)
+                    chrome.tabs.remove(tabId, () => { console.log('remove done') });
                 }
             }
         });
@@ -763,17 +776,9 @@ abstract class ExtensionBase extends BackgroundBase {
         this.contentScriptRegistrator.register();
     }
 
-    protected onContentScriptRegistratorMessage(message: IContentScriptRegistratorMessage) {
-        if (message.action == 'registerContentScripts') {
-            this.contentScriptRegistrator.register(message.data);
-        } else if (message.action == 'unregisterContentScripts') {
-            this.contentScriptRegistrator.unregister(message.data);
-        }
-    }
-
     protected registerMessageListener() {
         chrome.runtime.onMessage.addListener((
-            message: ITabMessage | IPopupRequest | IExtensionSettingsMessage | IContentScriptRegistratorMessage,
+            message: ITabMessage | IPopupRequest | IExtensionSettingsMessage,
             sender: chrome.runtime.MessageSender,
             senderResponse: (IPopupResponse) => void
         ) => {
@@ -783,11 +788,6 @@ abstract class ExtensionBase extends BackgroundBase {
             // Popup requests
             if (!sender.url || sender.url.startsWith(chrome.runtime.getURL('popup'))) {
                 this.onPopupRequest(message, senderResponse);
-                return !!senderResponse;
-            }
-
-            if (sender.url.startsWith(chrome.runtime.getURL('permissions'))) {
-                this.onContentScriptRegistratorMessage(<IContentScriptRegistratorMessage>message);
                 return !!senderResponse;
             }
 
@@ -827,9 +827,5 @@ abstract class ExtensionBase extends BackgroundBase {
 
     private retryConnectionPopupAction() {
         return this.connection.retryConnection();
-    }
-
-    private updateContentScriptsAction(serviceTypes: string[]) {
-        return this.contentScriptRegistrator.register(serviceTypes);
     }
 }

@@ -12,54 +12,34 @@
 
     requestPermissions(items: WebTool[]) {
 
-        let callback: (result: boolean) => void;
+        WebToolManager.setWebToolsOnHold(items);
+
+        let callback = (result: boolean) => void (result);
 
         let permissions = this.toPermissions(items);
-
         chrome.permissions.request(permissions, result => callback(result));
 
         return new Promise<boolean>(resolve => callback = resolve).then(async result => {
-
-            if (!result) {
-                return result;
+            if (result) {
+                await WebToolManager.enableWebTools();
             }
-
-            await WebToolManager.enableWebTools(items);
-
-            let message = <IContentScriptRegistratorMessage>{
-                action: 'registerContentScripts',
-                data: items.map(item => item.serviceType)
-            };
-
-            chrome.runtime.sendMessage(message);
-
             return result;
         });
     }
 
     removePermissions(items: WebTool[]) {
 
-        let callback: (result: boolean) => void;
+        WebToolManager.setWebToolsOnHold(items);
+
+        let callback = (result: boolean) => void (result);
 
         let permissions = this.toPermissions(items);
-
         chrome.permissions.remove(permissions, result => callback(result));
 
         return new Promise<boolean>(resolve => callback = resolve).then(async result => {
-
-            if (!result) {
-                return result;
+            if (result) {
+                await WebToolManager.disableWebTools();
             }
-
-            await WebToolManager.disableWebTools(items);
-
-            let message = <IContentScriptRegistratorMessage>{
-                action: 'unregisterContentScripts',
-                data: items.map(item => item.serviceType)
-            };
-
-            chrome.runtime.sendMessage(message);
-
             return result;
         });
     }
@@ -82,59 +62,5 @@
 
         return new Promise<boolean>(resolve => callback = resolve);
 
-    }
-
-    requestAdditionalOrigins(item: WebTool) {
-
-        let callback: (result: boolean) => void;
-
-        let permissions = this.toPermissions([item]);
-
-        chrome.permissions.request(permissions, result => callback(result));
-
-        return new Promise<boolean>(resolve => callback = resolve).then(async result => {
-
-            if (!result) {
-                return result;
-            }
-
-            await WebToolManager.addWebToolOrigins(item);
-
-            let message = <IContentScriptRegistratorMessage>{
-                action: 'updateContentScripts',
-                data: [item.serviceType]
-            };
-
-            chrome.runtime.sendMessage(message);
-
-            return result;
-        });
-    }
-
-    removeAdditionalOrigins(item: WebTool) {
-
-        let callback: (result: boolean) => void;
-
-        let permissions = this.toPermissions([item]);
-
-        chrome.permissions.request(permissions, result => callback(result));
-
-        return new Promise<boolean>(resolve => callback = resolve).then(async result => {
-
-            if (!result) {
-                return result;
-            }
-
-            await WebToolManager.removeWebToolOrigins(item);
-
-            let message = <IContentScriptRegistratorMessage>{
-                action: 'updateContentScripts',
-                data: [item.serviceType]
-            };
-
-            chrome.runtime.sendMessage(message);
-
-            return result;
-        });
     }
 }

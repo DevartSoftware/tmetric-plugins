@@ -153,14 +153,10 @@ interface IExtensionSettings {
 interface IExtensionLocalSettings {
     skipPermissionsCheck: boolean;
     webTools: WebTool[];
+    webToolsOnHold: WebTool[];
 }
 
 interface IExtensionSettingsMessage {
     action: string;
     data?: any;
-}
-
-interface IContentScriptRegistratorMessage {
-    action: 'registerContentScripts' | 'unregisterContentScripts' | 'updateContentScripts';
-    data?: string[];
 }

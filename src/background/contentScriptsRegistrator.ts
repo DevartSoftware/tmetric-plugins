@@ -3,14 +3,29 @@
     private static instance: ContentScriptsRegistrator;
 
     constructor() {
+
         if (!ContentScriptsRegistrator.instance) {
+
             ContentScriptsRegistrator.instance = this;
+
+            chrome.permissions.onAdded.addListener(event => this.onPermissionsAdded(event));
+            chrome.permissions.onRemoved.addListener(event => this.onPermissionsRemoved(event));
         }
 
         return ContentScriptsRegistrator.instance;
     }
 
-    private scripts = <{ [serviceType: string]: RegisteredContentScript[] }>{};
+    private async onPermissionsAdded(event: chrome.permissions.Permissions) {
+        await WebToolManager.enableWebTools();
+        this.register();
+    }
+
+    private async onPermissionsRemoved(event: chrome.permissions.Permissions) {
+        await WebToolManager.disableWebTools();
+        this.register();
+    }
+
+    private scripts: { [serviceType: string]: RegisteredContentScript[] } = {};
 
     private getScriptOptions(scripts: ContentScripts) {
 
@@ -46,15 +61,12 @@
         ];
     }
 
-    async register(serviceTypes?: string[]) {
+    async register() {
 
-        this.unregister(serviceTypes);
+        Object.keys(this.scripts).forEach(serviceType => this.scripts[serviceType].forEach(s => s.unregister()));
+        this.scripts = {};
 
-        let webTools = await WebToolManager.getEnabledWebTools();
-        if (serviceTypes) {
-            webTools = webTools.filter(s => serviceTypes.indexOf(s.serviceType) > -1);
-        }
-
+        const webTools = await WebToolManager.getEnabledWebTools();
         const webToolDescriptions = getWebToolDescriptions();
 
         webTools.forEach(async webTool => {
@@ -84,7 +96,7 @@
                 paths
             };
 
-            let scriptsOptions = this.getScriptOptions(scripts);
+            const scriptsOptions = this.getScriptOptions(scripts);
 
             this.scripts[serviceType] = [... await Promise.all(scriptsOptions.map(this.registerInternal))];
         });
@@ -104,17 +116,5 @@
         }
 
         return method(options);
-    }
-
-    unregister(serviceTypes?: string[]) {
-
-        (serviceTypes || Object.keys(this.scripts)).forEach(serviceType => {
-
-            let scripts = this.scripts[serviceType];
-            if (scripts) {
-                scripts.forEach(s => s.unregister());
-                delete this.scripts[serviceType];
-            }
-        });
     }
 }

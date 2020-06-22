@@ -1084,9 +1084,17 @@
         this.openOptionsPage();
     }
 
-    private onIntegrateWebToolClick() {
+    private async onIntegrateWebToolClick() {
         let manager = new PermissionManager();
-        manager.requestAdditionalOrigins(this._possibleWebTool);
+        let result = await manager.requestPermissions([this._possibleWebTool]);
+        // User interaction with browser permission popup causes tmetric popup to close.
+        // So no code will be execute after permission request.
+        // For case when permission was removed, Chrome does not display permissions popup second time.
+        // Permissions will be enabled on our request without distracting user.
+        // Close popup intentionally for this case.
+        if (result) {
+            this.close();
+        }
     }
 
     private onProjectSelectChange() {
