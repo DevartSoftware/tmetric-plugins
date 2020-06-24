@@ -1,6 +1,6 @@
 ﻿abstract class CustomOidc {
 
-    private static authority = "http://local.tmetric.com:30100";
+    private static authority = "https://id.tmetric.com";
     public static isCodeRequestInProgress = false;
 
     private static delay = millis => new Promise((resolve) => {
