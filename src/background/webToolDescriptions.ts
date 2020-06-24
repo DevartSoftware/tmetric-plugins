@@ -604,6 +604,15 @@
             scripts: {
                 js: ['in-page-scripts/integrations/zenhub.js']
             }
+        },
+        {
+            serviceType: 'Notion',
+            serviceName: 'Notion',
+            icon: 'notion.svg',
+            origins: ['https://www.notion.so/*'],
+            scripts: {
+                js: ['in-page-scripts/integrations/notion.js']
+            }
         }
     ];
     items.sort((a, b) => a.serviceName.localeCompare(b.serviceName, [], { sensitivity: 'base' }));
