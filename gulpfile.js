@@ -176,9 +176,11 @@ gulp.task('version', (callback) => {
             file,
             /(["']?version["']?: ["'])([\d\.]+)(["'])/,
             (match, left, oldVersion, right) => (left + version + right)));
+
+        // set app store version
         replaceInFile(
             src + 'safari/TMetric for Safari.xcodeproj/project.pbxproj',
-            /((?:CURRENT_PROJECT|MARKETING)_VERSION = )([\d\.]+)(;)/g,
+            /(MARKETING_VERSION = )([\d\.]+)(;)/g,
             (match, left, oldVersion, right) => (left + version + right));
     }
     callback();
@@ -450,7 +452,7 @@ gulp.task('package:safari', gulp.series('prepackage:safari'));
 
 gulp.task('build', gulp.series(
     'clean', 'lib', 'compile', 'version',
-    gulp.parallel('package:chrome', 'package:firefox')
+    gulp.parallel('package:chrome', 'package:firefox', 'package:safari')
 ));
 
 // =============================================================================
