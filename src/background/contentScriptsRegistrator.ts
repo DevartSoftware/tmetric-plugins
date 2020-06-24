@@ -8,24 +8,14 @@
 
             ContentScriptsRegistrator.instance = this;
 
-            chrome.permissions.onAdded.addListener(event => this.onPermissionsAdded(event));
-            chrome.permissions.onRemoved.addListener(event => this.onPermissionsRemoved(event));
+            chrome.permissions.onAdded.addListener(event => this.register(event.origins));
+            chrome.permissions.onRemoved.addListener(event => this.unregister(event.origins));
         }
 
         return ContentScriptsRegistrator.instance;
     }
 
-    private async onPermissionsAdded(event: chrome.permissions.Permissions) {
-        await WebToolManager.enableWebTools();
-        this.register();
-    }
-
-    private async onPermissionsRemoved(event: chrome.permissions.Permissions) {
-        await WebToolManager.disableWebTools();
-        this.register();
-    }
-
-    private scripts: { [serviceType: string]: RegisteredContentScript[] } = {};
+    private scripts: { [origin: string]: RegisteredContentScript[] } = {};
 
     private getScriptOptions(scripts: ContentScripts) {
 
@@ -61,33 +51,37 @@
         ];
     }
 
-    async register() {
+    async register(origins?: string[]) {
 
-        Object.keys(this.scripts).forEach(serviceType => this.scripts[serviceType].forEach(s => s.unregister()));
-        this.scripts = {};
+        this.unregister(origins);
 
-        const webTools = await WebToolManager.getEnabledWebTools();
-        const webToolDescriptions = getWebToolDescriptions();
+        const serviceTypes = await WebToolManager.getServiceTypes();
+        const webToolDescriptions: { [serviceType: string]: WebToolDescription } = getWebToolDescriptions().reduce((map, item) => (map[item.serviceType] = item) && map, {});
 
-        webTools.forEach(async webTool => {
+        origins = (await Promise.all(
+            (origins || Object.keys(serviceTypes)).map(
+                origin => new Promise<string>(
+                    resolve => chrome.permissions.contains({ origins: [origin] }, result => resolve(result ? origin : null))
+                )
+            )
+        )).filter(origin => !!origin);
 
-            const { serviceType, origins } = webTool;
+        origins.forEach(async origin => {
 
-            const webToolDescription = webToolDescriptions.find(i => i.serviceType == serviceType);
+            const serviceType = serviceTypes[origin];
+
+            const webToolDescription = webToolDescriptions[serviceType];
             if (!webToolDescription || !webToolDescription.scripts) {
                 return;
             }
 
-            const paths = origins.reduce((matches, origin) => {
-                if (webToolDescription.scripts.paths) {
-                    webToolDescription.scripts.paths.forEach(path => {
-                        matches.push(origin.replace(/\*$/, path));
-                    });
-                } else {
-                    matches.push(origin);
-                }
-                return matches;
-            }, <string[]>[]);
+            const paths: string[] = [];
+
+            if (webToolDescription.scripts.paths) {
+                paths.push(...webToolDescription.scripts.paths.map(path => origin.replace(/\*$/, path)))
+            } else {
+                paths.push(origin);
+            }
 
             const scripts: ContentScripts = {
                 allFrames: webToolDescription.scripts.allFrames,
@@ -98,10 +92,20 @@
 
             const scriptsOptions = this.getScriptOptions(scripts);
 
-            this.scripts[serviceType] = [... await Promise.all(scriptsOptions.map(this.registerInternal))];
+            this.scripts[origin] = [... await Promise.all(scriptsOptions.map(this.registerInternal))];
         });
     }
 
+    async unregister(origins?: string[]) {
+        (origins || Object.keys(this.scripts)).forEach(origin => {
+            let script = this.scripts[origin];
+            if (!script) {
+                return;
+            }
+            script.forEach(s => s.unregister());
+            delete this.scripts[origin];
+        });
+    }
 
     private registerInternal(options: RegisteredContentScriptOptions) {
 

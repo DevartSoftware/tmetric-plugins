@@ -12,36 +12,26 @@
 
     requestPermissions(items: WebTool[]) {
 
-        WebToolManager.setWebToolsOnHold(items);
+        WebToolManager.addServiceTypes(items);
 
         let callback = (result: boolean) => void (result);
 
         let permissions = this.toPermissions(items);
         chrome.permissions.request(permissions, result => callback(result));
 
-        return new Promise<boolean>(resolve => callback = resolve).then(async result => {
-            if (result) {
-                await WebToolManager.enableWebTools();
-            }
-            return result;
-        });
+        return new Promise<boolean>(resolve => callback = resolve);
     }
 
     removePermissions(items: WebTool[]) {
 
-        WebToolManager.setWebToolsOnHold(items);
+        WebToolManager.removeServiceTypes(items);
 
         let callback = (result: boolean) => void (result);
 
         let permissions = this.toPermissions(items);
         chrome.permissions.remove(permissions, result => callback(result));
 
-        return new Promise<boolean>(resolve => callback = resolve).then(async result => {
-            if (result) {
-                await WebToolManager.disableWebTools();
-            }
-            return result;
-        });
+        return new Promise<boolean>(resolve => callback = resolve);
     }
 
     cleanupPermissions() {

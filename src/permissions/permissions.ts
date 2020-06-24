@@ -47,7 +47,7 @@ $(document).ready(() => {
 
             let { origins = [], hasAdditionalOrigins } = webToolDescription;
 
-            let webTools = await WebToolManager.getEnabledWebTools();
+            let webTools = await WebToolManager.getWebTools();
             let webTool = webTools.find(item => item.serviceType == serviceType);
             if (webTool) {
                 origins = webTool.origins;
@@ -192,7 +192,7 @@ $(document).ready(() => {
                     origins: i.origins
                 }));
 
-            items.push(...await WebToolManager.getEnabledWebTools());
+            items.push(...await WebToolManager.getWebTools());
 
             await permissionsManager.removePermissions(items);
             await permissionsManager.cleanupPermissions();
@@ -235,7 +235,7 @@ $(document).ready(() => {
 
     async function updatePermissionCheckboxes() {
 
-        const webTools = await WebToolManager.getEnabledWebTools();
+        const webTools = await WebToolManager.getWebTools();
         const webToolDescriptions = getWebToolDescriptions();
 
         webToolDescriptions.forEach(webToolDescription => {

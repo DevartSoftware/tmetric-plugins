@@ -27,99 +27,53 @@
         return new RegExp(pattern, 'i').test(urlOrigin);
     }
 
-    static getEnabledWebTools () {
-        return new Promise<WebTool[]>(resolve => {
-            chrome.storage.local.get(<IExtensionLocalSettings>{ webTools: [] }, ({ webTools }: IExtensionLocalSettings) => {
-                resolve(webTools);
-            });
-        });
-    }
-
-    static getWebToolsOnHold() {
-        return new Promise<WebTool[]>(resolve => {
-            chrome.storage.local.get(
-                <IExtensionLocalSettings>{ webToolsOnHold: [] },
-                ({ webToolsOnHold }: IExtensionLocalSettings) => resolve(webToolsOnHold)
-            );
-        });
-    }
-
-    static setWebToolsOnHold(items?: WebTool[]) {
-        return new Promise<void>(resolve => {
-            chrome.storage.local.set(
-                <IExtensionLocalSettings>{ webToolsOnHold: items || null },
-                () => resolve()
-            );
-        });
-    }
-
-    static async enableWebTools(items?: WebTool[]) {
-
-        if (!items) {
-            items = await this.getWebToolsOnHold();
-        }
-
-        await this.setWebToolsOnHold();
-
-        let enabledItems = await this.getEnabledWebTools();
-
-        let enabledItemsDictionary = enabledItems.reduce((map, item) => {
-            map[item.serviceType] = item;
+    static async getWebTools() {
+        const serviceTypes = await this.getServiceTypes();
+        const webToolsMap = Object.keys(serviceTypes).sort().reduce((map, origin) => {
+            const serviceType = serviceTypes[origin];
+            let webTool = map[serviceType] || { serviceType, origins: [] };
+            webTool.origins.push(origin);
+            map[serviceType] = webTool;
             return map;
         }, <{ [serviceType: string]: WebTool }>{});
+        const webTools = Object.keys(webToolsMap).map(key => webToolsMap[key]);
+        return webTools;
+    }
 
-        items.forEach(item => {
+    static async isAllowed(origin: string) {
+        return new Promise<boolean>(resolve => chrome.permissions.contains({ origins: [origin] }, resolve));
+    }
 
-            let itemOrigins = item.origins.map(this.toOrigin).filter(o => !!o);
-
-            let storedItem = enabledItemsDictionary[item.serviceType];
-
-            if (storedItem) {
-
-                if (!storedItem.origins) {
-                    storedItem.origins = [];
-                }
-
-                storedItem.origins.splice(0);
-                storedItem.origins.push(...itemOrigins);
-
-            } else {
-
-                enabledItems.push({
-                    serviceType: item.serviceType,
-                    origins: itemOrigins
-                });
-            }
+    static async getServiceTypes() {
+        return new Promise<ServiceTypesMap>(resolve => {
+            chrome.storage.local.get(
+                <IExtensionLocalSettings>{ serviceTypes: {} },
+                ({ serviceTypes }: IExtensionLocalSettings) => resolve(serviceTypes)
+            );
         });
+    }
 
-        enabledItems = enabledItems.filter(item => !!item.origins.length);
+    static async addServiceTypes(items: WebTool[]) {
+
+        let serviceTypes = await this.getServiceTypes();
+
+        items.forEach(item => item.origins.forEach(origin => serviceTypes[origin] = item.serviceType));
 
         return new Promise(resolve => {
-            chrome.storage.local.set(<IExtensionLocalSettings>{ webTools: enabledItems }, () => {
+            chrome.storage.local.set(<IExtensionLocalSettings>{ serviceTypes }, () => {
                 resolve();
             });
         });
     }
 
-    static async disableWebTools(items?: WebTool[]) {
+    static async removeServiceTypes(items: WebTool[]) {
 
-        if (!items) {
-            items = await this.getWebToolsOnHold();
-        }
+        let serviceTypes = await this.getServiceTypes();
 
-        await this.setWebToolsOnHold();
-
-        let enabledItems = await this.getEnabledWebTools();
-
-        let itemsDictionary = items.reduce((map, item) => {
-            map[item.serviceType] = item;
-            return map;
-        }, <{ [serviceType: string]: WebTool }>{});
-
-        enabledItems = enabledItems.filter(item => !itemsDictionary[item.serviceType]);
+        items.forEach(item => item.origins.forEach(origin => delete serviceTypes[origin]));
 
         return new Promise(resolve => {
-            chrome.storage.local.set(<IExtensionLocalSettings>{ webTools: enabledItems }, () => {
+            chrome.storage.local.set(<IExtensionLocalSettings>{ serviceTypes }, () => {
                 resolve();
             });
         });

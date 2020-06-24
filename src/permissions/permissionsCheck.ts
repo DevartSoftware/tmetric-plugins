@@ -1,6 +1,6 @@
 ﻿$(document).ready(async () => {
 
-    let items = await WebToolManager.getEnabledWebTools();
+    let items = await WebToolManager.getWebTools();
     let permissionManager = new PermissionManager();
 
     $('#continue').click(async () => {

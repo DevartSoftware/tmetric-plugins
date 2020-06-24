@@ -65,15 +65,6 @@ abstract class ExtensionBase extends BackgroundBase {
                 updateInfo.height = height + deltaHeight;
             }
 
-            if (navigator.userAgent.indexOf('OPR/') > -1) {
-                updateInfo.width = width;
-                updateInfo.height = height;
-                updateInfo.left = left;
-                updateInfo.top = top;
-            }
-
-            console.log({ initial: { width, height, left, top }, popup: { width: popupTab.width, height: popupTab.height }, updateInfo });
-
             chrome.windows.update(popupWindow.id, updateInfo);
         });
     }
@@ -629,13 +620,11 @@ abstract class ExtensionBase extends BackgroundBase {
             return;
         }
 
-        const isMatchUrl = (origin: string) => WebToolManager.isMatch(url, origin);
-
-        const enabledWebTools = await WebToolManager.getEnabledWebTools();
-        const enabledWebTool = enabledWebTools.find(webTool => webTool.origins.some(isMatchUrl));
-        if (enabledWebTool) {
+        if (await WebToolManager.isAllowed(origin)) {
             return;
         }
+
+        const isMatchUrl = (origin: string) => WebToolManager.isMatch(url, origin);
 
         const webTools = getWebToolDescriptions();
         const webTool = webTools.find(webTool => webTool.origins.some(isMatchUrl));
@@ -731,7 +720,7 @@ abstract class ExtensionBase extends BackgroundBase {
     private async showPermissions() {
 
         try {
-            let integrations = await this.connection.getIntegrations();
+            const integrations = await this.connection.getIntegrations();
 
             let webToolsDictionary = integrations.reduce((result, item) => {
 
@@ -759,7 +748,8 @@ abstract class ExtensionBase extends BackgroundBase {
 
             const webTools = Object.keys(webToolsDictionary).map(key => webToolsDictionary[key]);
 
-            await WebToolManager.enableWebTools(webTools);
+            await WebToolManager.addServiceTypes(webTools);
+
         } catch (error) {
             console.log(error)
         }

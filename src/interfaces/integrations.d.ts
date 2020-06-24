@@ -150,10 +150,13 @@ interface IExtensionSettings {
     showPopup: Models.ShowPopupOption;
 }
 
+interface ServiceTypesMap {
+    [origin: string]: string;
+}
+
 interface IExtensionLocalSettings {
     skipPermissionsCheck: boolean;
-    webTools: WebTool[];
-    webToolsOnHold: WebTool[];
+    serviceTypes: ServiceTypesMap
 }
 
 interface IExtensionSettingsMessage {
