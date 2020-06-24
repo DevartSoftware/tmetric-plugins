@@ -180,9 +180,7 @@ abstract class ExtensionBase extends BackgroundBase {
 
         super.init();
 
-        //this.signalRUrl = this.getUrl('tmetric.signalRUrl', 'https://signalr.tmetric.com/');
-        //this.signalRUrl = this.getUrl('tmetric.signalRUrl', 'https://betasignalr.tmetric.com/');
-        this.signalRUrl = this.getUrl('tmetric.signalRUrl', 'http://local.tmetric.com:30600/');
+        this.signalRUrl = this.getUrl('tmetric.signalRUrl', 'https://services.tmetric.com/signalr/');
 
         this.extraHours = this.getTestValue('tmetric.extraHours');
         if (this.extraHours) {
