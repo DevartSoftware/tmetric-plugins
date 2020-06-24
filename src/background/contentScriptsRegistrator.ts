@@ -93,6 +93,15 @@
             const scriptsOptions = this.getScriptOptions(scripts);
 
             this.scripts[origin] = [... await Promise.all(scriptsOptions.map(this.registerInternal))];
+
+            chrome.tabs.query({ url: paths, status: 'complete' }, tabs => {
+                tabs.forEach(tab => {
+                    chrome.tabs.executeScript(tab.id, {
+                        code: `chrome.runtime.sendMessage({action:'injectContentScripts',data:{}})`,
+                        allFrames: true
+                    });
+                });
+            });
         });
     }
 

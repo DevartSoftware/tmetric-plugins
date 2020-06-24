@@ -55,17 +55,17 @@ if (typeof chrome === 'object' && !chrome.contentScripts) {
     }
 
     const injectCss = function (tabId, frameId, file) {
-        console.log({ tabId, frameId, file })
+        //console.log({ tabId, frameId, file })
         chrome.tabs.insertCSS(tabId, { frameId, file }, result => {
-            console.log({ tabId, frameId, file, result })
+            //console.log({ tabId, frameId, file, result })
             chrome.tabs.executeScript(tabId, { frameId, code: `(${setInjectedScript.toString()})('${file}')`, runAt: 'document_end' });
         });
     }
 
     const injectJs = function (tabId, frameId, file) {
-        console.log({ tabId, frameId, file })
+        //console.log({ tabId, frameId, file })
         chrome.tabs.executeScript(tabId, { frameId, file }, result => {
-            console.log({ tabId, frameId, file, result })
+            //console.log({ tabId, frameId, file, result })
             chrome.tabs.executeScript(tabId, { frameId, code: `(${setInjectedScript.toString()})('${file}')`, runAt: 'document_end' });
         });
     }
