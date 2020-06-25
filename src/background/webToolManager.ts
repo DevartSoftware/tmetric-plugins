@@ -1,21 +1,30 @@
 ﻿class WebToolManager {
 
+    private static urlRe = /^([^:]+:\/\/)?([^:/?#]+)(:\d+)?(\/[^?#]*)?(\?[^?#]*)?(\#[^?#]*)?$/i;
+
     static toOrigin (input: string) {
 
         if (!input) {
             return;
         }
 
-        // add protocol if not present
-        // permission origins must start with http or https
-        if (!input.startsWith('http')) {
-            input = 'https://' + input;
+        const match = WebToolManager.urlRe.exec(input);
+        if (!match) {
+            return;
         }
 
-        const match = /^https?:\/\/[^/]+/i.exec(input);
-        if (match) {
-            return `${match[0]}/*`;
+        const [all, protocol = 'https://', host, port = ''] = match;
+
+        if (!host) {
+            return;
         }
+
+        if (['http://', 'https://'].indexOf(protocol) < 0) {
+            return;
+        }
+
+        return `${protocol}${host}${port}/*`;
+
     }
 
     static isMatch(url: string, origin: string) {
