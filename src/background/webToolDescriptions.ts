@@ -336,7 +336,11 @@
             origins: ['https://podio.com/*'],
             scripts: {
                 js: ['in-page-scripts/integrations/podio.js'],
-                paths: ['tasks/*']
+                paths: [
+                    'tasks',
+                    '*/tasks',
+                    '*/apps/*'
+                ]
             }
         },
         {
