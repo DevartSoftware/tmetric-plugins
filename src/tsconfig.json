@@ -101,8 +101,8 @@
         "popup/pagePopupController.ts",
         "popup/popupActivator.ts",
         "permissions/permissionManager.ts",
+        "permissions/check.ts",
         "permissions/permissions.ts",
-        "permissions/permissionsCheck.ts",
         "settings/settingsController.ts",
         "safari/TMetric for Safari Extension/script.ts"
     ]

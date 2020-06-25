@@ -155,7 +155,7 @@ interface ServiceTypesMap {
 }
 
 interface IExtensionLocalSettings {
-    skipPermissionsCheck: boolean;
+    skipPermissionsRequest: boolean;
     serviceTypes: ServiceTypesMap
 }
 

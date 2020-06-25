@@ -197,8 +197,7 @@ abstract class ExtensionBase extends BackgroundBase {
 
         this.connection
             .init({ serviceUrl: this.constants.serviceUrl, signalRUrl: this.signalRUrl })
-            .then(() => this.connection.getVersion())
-            .then(() => this.checkPermissions())
+            .then(() => this.connection.getVersion());
     }
 
     /** Handles messages from in-page scripts */
@@ -701,22 +700,14 @@ abstract class ExtensionBase extends BackgroundBase {
 
     // permissions
 
-    private async checkPermissions() {
-        chrome.storage.local.get(
-            <IExtensionLocalSettings>{ skipPermissionsCheck: false },
-            async ({ skipPermissionsCheck }: IExtensionLocalSettings) => {
-                if (skipPermissionsCheck) {
-                    return;
-                }
-                if (this.connection.userProfile) {
-                    this.showPermissions();
-                }
-            }
-        );
+    private async onPermissionsMessage(message: ITabMessage, callback: (data: any) => void) {
+        if (message.action == 'getItegratedWebTools') {
+            const webTools = await this.getItegratedWebTools();
+            callback(webTools);
+        }
     }
 
-    private async showPermissions() {
-
+    private async getItegratedWebTools() {
         try {
             const integrations = await this.connection.getIntegrations();
 
@@ -744,17 +735,15 @@ abstract class ExtensionBase extends BackgroundBase {
                 return result;
             }, <{ [serviceType: string]: WebTool }>{});
 
-            const webTools = Object.keys(webToolsDictionary).map(key => webToolsDictionary[key]);
-
-            await WebToolManager.addServiceTypes(webTools);
+            return Object.keys(webToolsDictionary).map(key => webToolsDictionary[key]);
 
         } catch (error) {
             console.log(error)
         }
+    }
 
-        chrome.storage.local.set(<IExtensionLocalSettings>{ skipPermissionsCheck: true });
-
-        let url = chrome.runtime.getURL('permissions/permissionsCheck.html');
+    private async checkPermissions() {
+        let url = chrome.runtime.getURL('permissions/check.html');
         chrome.tabs.create({ url, active: true });
     }
 
@@ -776,6 +765,11 @@ abstract class ExtensionBase extends BackgroundBase {
             // Popup requests
             if (!sender.url || sender.url.startsWith(chrome.runtime.getURL('popup'))) {
                 this.onPopupRequest(message, senderResponse);
+                return !!senderResponse;
+            }
+
+            if (sender.url && sender.url.startsWith(chrome.runtime.getURL('permissions'))) {
+                this.onPermissionsMessage(message, senderResponse);
                 return !!senderResponse;
             }
 
