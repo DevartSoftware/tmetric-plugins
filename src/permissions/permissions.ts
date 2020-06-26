@@ -58,6 +58,7 @@ $(document).ready(() => {
         async function showPopup(serviceType: string, origins: string[]) {
 
             $(popup).data('serviceType', serviceType);
+            $(popup).data('originsInitial', origins);
 
             $('.add-url-input-holder input', popup).val('');
 
@@ -160,17 +161,12 @@ $(document).ready(() => {
                 originsAfter.push(origin);
             }
 
-            let originsBefore = (await getOrigins(serviceType)).origins || [];
-
-            let originsRemoved = originsBefore.filter(origin => originsAfter.indexOf(origin) < 0);
-            if (originsRemoved.length) {
-                await permissionsManager.removePermissions([{ serviceType, origins: originsRemoved }]);
-            }
+            let originsBefore: string[] = $(popup).data('originsInitial') || [];
 
             let originsAdded = originsAfter.filter(origin => originsBefore.indexOf(origin) < 0);
-            if (originsAdded.length) {
-                await permissionsManager.requestPermissions([{ serviceType, origins: originsAdded }]);
-            }
+            let originsRemoved = originsBefore.filter(origin => originsAfter.indexOf(origin) < 0);
+
+            await permissionsManager.updatePermissions([{ serviceType, origins: originsAdded }], [{ serviceType, origins: originsRemoved }]);
 
             closePopup();
 
@@ -213,13 +209,15 @@ $(document).ready(() => {
         $('.logo-wrapper input').change(async event => {
 
             let input = <HTMLInputElement>event.currentTarget;
-            let webToolDescription = webToolDescriptions.find(i => i.serviceType == input.name);
 
             try {
 
+                let serviceType = input.name;
+                let origins = $(input).data('origins');
+
                 let item: WebTool = {
-                    serviceType: webToolDescription.serviceType,
-                    origins: webToolDescription.origins
+                    serviceType: serviceType,
+                    origins: origins
                 };
 
                 if (input.checked) {
@@ -237,8 +235,10 @@ $(document).ready(() => {
         updatePermissionCheckboxes();
     }
 
-    function setPermissionCheckboxStatus(serviceType: string, checked: boolean) {
-        $(`.logo-wrapper input[name='${serviceType}']`).prop('checked', checked);
+    function setPermissionCheckboxStatus(serviceType: string, origins: string[], checked: boolean) {
+        $(`.logo-wrapper input[name='${serviceType}']`)
+            .prop('checked', checked)
+            .data('origins', origins);
     }
 
     async function updatePermissionCheckboxes() {
@@ -259,10 +259,10 @@ $(document).ready(() => {
                 };
 
                 chrome.permissions.contains(permissions, result => {
-                    setPermissionCheckboxStatus(serviceType, result);
+                    setPermissionCheckboxStatus(serviceType, webTool.origins, result);
                 });
             } else {
-                setPermissionCheckboxStatus(serviceType, false);
+                setPermissionCheckboxStatus(serviceType, webToolDescription.origins, false);
             }
         });
     }

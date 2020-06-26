@@ -12,26 +12,50 @@
 
     requestPermissions(items: WebTool[]) {
 
-        WebToolManager.addServiceTypes(items);
-
-        let callback = (result: boolean) => void (result);
+        let savePromise = WebToolManager.addServiceTypes(items);
 
         let permissions = this.toPermissions(items);
-        chrome.permissions.request(permissions, result => callback(result));
+        let permissionsPromise = typeof browser != 'undefined' ?
+            browser.permissions.request(<browser.permissions.Permissions>permissions) :
+            new Promise(resolve => chrome.permissions.request(permissions, result => resolve(result)));
 
-        return new Promise<boolean>(resolve => callback = resolve);
+        return savePromise.then(() => permissionsPromise);
     }
 
     removePermissions(items: WebTool[]) {
 
-        WebToolManager.removeServiceTypes(items);
-
-        let callback = (result: boolean) => void (result);
+        let savePromise = WebToolManager.removeServiceTypes(items);
 
         let permissions = this.toPermissions(items);
-        chrome.permissions.remove(permissions, result => callback(result));
+        let permissionsPromise = typeof browser != 'undefined' ?
+            browser.permissions.remove(<browser.permissions.Permissions>permissions) :
+            new Promise(resolve => chrome.permissions.remove(permissions, result => resolve(result)));
 
-        return new Promise<boolean>(resolve => callback = resolve);
+        return savePromise.then(() => permissionsPromise);
+    }
+
+    updatePermissions(itemsAdded: WebTool[], itemsRemoved: WebTool[]) {
+
+        let savePromise = WebToolManager.updateServiceTypes(itemsAdded, itemsRemoved);
+
+        let permissionsAdded = this.toPermissions(itemsAdded);
+        let permissionsRemoved = this.toPermissions(itemsRemoved);
+
+        let permissionsPromises: Promise<boolean>[] = [];
+
+        if (typeof browser != 'undefined') {
+            permissionsPromises = [
+                browser.permissions.request(<browser.permissions.Permissions>permissionsAdded),
+                browser.permissions.request(<browser.permissions.Permissions>permissionsRemoved)
+            ];
+        } else {
+            permissionsPromises = [
+                new Promise(resolve => chrome.permissions.request(permissionsAdded, result => resolve(result))),
+                new Promise(resolve => chrome.permissions.remove(permissionsRemoved, result => resolve(result)))
+            ];
+        }
+
+        return savePromise.then(() => Promise.all(permissionsPromises));
     }
 
     cleanupPermissions() {

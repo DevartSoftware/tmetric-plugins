@@ -87,4 +87,18 @@
             });
         });
     }
+
+    static async updateServiceTypes(itemsAdded: WebTool[], itemsRemoved: WebTool[]) {
+
+        let serviceTypes = await this.getServiceTypes();
+
+        itemsAdded.forEach(item => item.origins.forEach(origin => serviceTypes[origin] = item.serviceType));
+        itemsRemoved.forEach(item => item.origins.forEach(origin => delete serviceTypes[origin]));
+
+        return new Promise(resolve => {
+            chrome.storage.local.set(<IExtensionLocalSettings>{ serviceTypes }, () => {
+                resolve();
+            });
+        });
+    }
 }
