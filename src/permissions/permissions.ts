@@ -151,20 +151,29 @@ $(document).ready(() => {
         $('.apply-popup', popup).click(async function () {
 
             let serviceType = $(popup).data('serviceType');
-            let origins = $('.url-list .url', popup).toArray().map((el: HTMLInputElement) => el.value);
+            let originsAfter = $('.url-list .url', popup).toArray().map((el: HTMLInputElement) => el.value);
 
             let input = $('.add-url-input-holder input', popup);
             let value = input.val();
             let origin = WebToolManager.toOrigin(value);
-            if (origin && origins.indexOf(origin) < 0) {
-                origins.push(origin);
+            if (origin && originsAfter.indexOf(origin) < 0) {
+                originsAfter.push(origin);
             }
 
-            let item: WebTool = { serviceType, origins };
+            let originsBefore = (await getOrigins(serviceType)).origins || [];
 
-            if (await permissionsManager.requestPermissions([item])) {
-                closePopup();
+            let originsRemoved = originsBefore.filter(origin => originsAfter.indexOf(origin) < 0);
+            if (originsRemoved.length) {
+                await permissionsManager.removePermissions([{ serviceType, origins: originsRemoved }]);
             }
+
+            let originsAdded = originsAfter.filter(origin => originsBefore.indexOf(origin) < 0);
+            if (originsAdded.length) {
+                await permissionsManager.requestPermissions([{ serviceType, origins: originsAdded }]);
+            }
+
+            closePopup();
+
         });
     }
 
