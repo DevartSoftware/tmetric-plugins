@@ -2,10 +2,9 @@ $(document).ready(() => {
 
     function renderIntegrations(holder: string, items: WebToolDescription[]) {
         const content = items.map(item => $('<li>')
-            .attr('title', item.serviceName)
             .data('keywords', [item.serviceName].concat(item.keywords || []).map(k => k.toLowerCase()))
             .append(`
-<label class="logo-wrapper">
+<label title="${item.serviceName}" class="logo-wrapper">
     <input type="checkbox" name="${item.serviceType}" />
     <span class="logo-area">
         <img src="../images/integrations/${item.icon}" alt="${item.serviceName}" />
