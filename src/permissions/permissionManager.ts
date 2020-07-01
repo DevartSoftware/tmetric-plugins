@@ -46,7 +46,7 @@
         if (typeof browser != 'undefined') {
             permissionsPromises = [
                 browser.permissions.request(<browser.permissions.Permissions>permissionsAdded),
-                browser.permissions.request(<browser.permissions.Permissions>permissionsRemoved)
+                browser.permissions.remove(<browser.permissions.Permissions>permissionsRemoved)
             ];
         } else {
             permissionsPromises = [
