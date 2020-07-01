@@ -3,14 +3,19 @@
     private static instance: ContentScriptsRegistrator;
 
     constructor() {
+
         if (!ContentScriptsRegistrator.instance) {
+
             ContentScriptsRegistrator.instance = this;
+
+            chrome.permissions.onAdded.addListener(event => this.register(event.origins));
+            chrome.permissions.onRemoved.addListener(event => this.unregister(event.origins));
         }
 
         return ContentScriptsRegistrator.instance;
     }
 
-    private scripts = <{ [serviceType: string]: RegisteredContentScript[] }>{};
+    private scripts: { [origin: string]: RegisteredContentScript[] } = {};
 
     private getScriptOptions(scripts: ContentScripts) {
 
@@ -46,36 +51,37 @@
         ];
     }
 
-    async register(serviceTypes?: string[]) {
+    async register(origins?: string[]) {
 
-        this.unregister(serviceTypes);
+        this.unregister(origins);
 
-        let webTools = await WebToolManager.getEnabledWebTools();
-        if (serviceTypes) {
-            webTools = webTools.filter(s => serviceTypes.indexOf(s.serviceType) > -1);
-        }
+        const serviceTypes = await WebToolManager.getServiceTypes();
+        const webToolDescriptions: { [serviceType: string]: WebToolDescription } = getWebToolDescriptions().reduce((map, item) => (map[item.serviceType] = item) && map, {});
 
-        const webToolDescriptions = getWebToolDescriptions();
+        origins = (await Promise.all(
+            (origins || Object.keys(serviceTypes)).map(
+                origin => new Promise<string>(
+                    resolve => chrome.permissions.contains({ origins: [origin] }, result => resolve(result ? origin : null))
+                )
+            )
+        )).filter(origin => !!origin);
 
-        webTools.forEach(async webTool => {
+        origins.forEach(async origin => {
 
-            const { serviceType, origins } = webTool;
+            const serviceType = serviceTypes[origin];
 
-            const webToolDescription = webToolDescriptions.find(i => i.serviceType == serviceType);
+            const webToolDescription = webToolDescriptions[serviceType];
             if (!webToolDescription || !webToolDescription.scripts) {
                 return;
             }
 
-            const paths = origins.reduce((matches, origin) => {
-                if (webToolDescription.scripts.paths) {
-                    webToolDescription.scripts.paths.forEach(path => {
-                        matches.push(origin.replace(/\*$/, path));
-                    });
-                } else {
-                    matches.push(origin);
-                }
-                return matches;
-            }, <string[]>[]);
+            const paths: string[] = [];
+
+            if (webToolDescription.scripts.paths) {
+                paths.push(...webToolDescription.scripts.paths.map(path => origin.replace(/\*$/, path)))
+            } else {
+                paths.push(origin);
+            }
 
             const scripts: ContentScripts = {
                 allFrames: webToolDescription.scripts.allFrames,
@@ -84,12 +90,31 @@
                 paths
             };
 
-            let scriptsOptions = this.getScriptOptions(scripts);
+            const scriptsOptions = this.getScriptOptions(scripts);
 
-            this.scripts[serviceType] = [... await Promise.all(scriptsOptions.map(this.registerInternal))];
+            this.scripts[origin] = [... await Promise.all(scriptsOptions.map(this.registerInternal))];
+
+            chrome.tabs.query({ url: paths, status: 'complete' }, tabs => {
+                tabs.forEach(tab => {
+                    chrome.tabs.executeScript(tab.id, {
+                        code: `chrome.runtime.sendMessage({action:'injectContentScripts',data:{}})`,
+                        allFrames: true
+                    });
+                });
+            });
         });
     }
 
+    async unregister(origins?: string[]) {
+        (origins || Object.keys(this.scripts)).forEach(origin => {
+            let script = this.scripts[origin];
+            if (!script) {
+                return;
+            }
+            script.forEach(s => s.unregister());
+            delete this.scripts[origin];
+        });
+    }
 
     private registerInternal(options: RegisteredContentScriptOptions) {
 
@@ -104,17 +129,5 @@
         }
 
         return method(options);
-    }
-
-    unregister(serviceTypes?: string[]) {
-
-        (serviceTypes || Object.keys(this.scripts)).forEach(serviceType => {
-
-            let scripts = this.scripts[serviceType];
-            if (scripts) {
-                scripts.forEach(s => s.unregister());
-                delete this.scripts[serviceType];
-            }
-        });
     }
 }

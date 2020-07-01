@@ -24,7 +24,7 @@
             return;
         }
 
-        let projectName = $$.try('.repohead-details-container > h1 > strong > a').textContent;
+        let projectName = $$.try('[itemprop=name]').textContent;
 
         // https://github.com/NAMESPACE/PROJECT/issues/NUMBER
         // https://github.com/NAMESPACE/PROJECT/pull/NUMBER

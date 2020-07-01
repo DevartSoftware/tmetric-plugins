@@ -12,56 +12,50 @@
 
     requestPermissions(items: WebTool[]) {
 
-        let callback: (result: boolean) => void;
+        let savePromise = WebToolManager.addServiceTypes(items);
 
         let permissions = this.toPermissions(items);
+        let permissionsPromise = typeof browser != 'undefined' ?
+            browser.permissions.request(<browser.permissions.Permissions>permissions) :
+            new Promise(resolve => chrome.permissions.request(permissions, result => resolve(result)));
 
-        chrome.permissions.request(permissions, result => callback(result));
-
-        return new Promise<boolean>(resolve => callback = resolve).then(async result => {
-
-            if (!result) {
-                return result;
-            }
-
-            await WebToolManager.enableWebTools(items);
-
-            let message = <IContentScriptRegistratorMessage>{
-                action: 'registerContentScripts',
-                data: items.map(item => item.serviceType)
-            };
-
-            chrome.runtime.sendMessage(message);
-
-            return result;
-        });
+        return savePromise.then(() => permissionsPromise);
     }
 
     removePermissions(items: WebTool[]) {
 
-        let callback: (result: boolean) => void;
+        let savePromise = WebToolManager.removeServiceTypes(items);
 
         let permissions = this.toPermissions(items);
+        let permissionsPromise = typeof browser != 'undefined' ?
+            browser.permissions.remove(<browser.permissions.Permissions>permissions) :
+            new Promise(resolve => chrome.permissions.remove(permissions, result => resolve(result)));
 
-        chrome.permissions.remove(permissions, result => callback(result));
+        return savePromise.then(() => permissionsPromise);
+    }
 
-        return new Promise<boolean>(resolve => callback = resolve).then(async result => {
+    updatePermissions(itemsAdded: WebTool[], itemsRemoved: WebTool[]) {
 
-            if (!result) {
-                return result;
-            }
+        let savePromise = WebToolManager.updateServiceTypes(itemsAdded, itemsRemoved);
 
-            await WebToolManager.disableWebTools(items);
+        let permissionsAdded = this.toPermissions(itemsAdded);
+        let permissionsRemoved = this.toPermissions(itemsRemoved);
 
-            let message = <IContentScriptRegistratorMessage>{
-                action: 'unregisterContentScripts',
-                data: items.map(item => item.serviceType)
-            };
+        let permissionsPromises: Promise<boolean>[] = [];
 
-            chrome.runtime.sendMessage(message);
+        if (typeof browser != 'undefined') {
+            permissionsPromises = [
+                browser.permissions.request(<browser.permissions.Permissions>permissionsAdded),
+                browser.permissions.remove(<browser.permissions.Permissions>permissionsRemoved)
+            ];
+        } else {
+            permissionsPromises = [
+                new Promise(resolve => chrome.permissions.request(permissionsAdded, result => resolve(result))),
+                new Promise(resolve => chrome.permissions.remove(permissionsRemoved, result => resolve(result)))
+            ];
+        }
 
-            return result;
-        });
+        return savePromise.then(() => Promise.all(permissionsPromises));
     }
 
     cleanupPermissions() {

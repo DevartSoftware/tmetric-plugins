@@ -99,10 +99,10 @@
                 $$.try('.project_item__name', issueElement).textContent || // Today, 7 Days
                 $$.try('.project_link').textContent || // Project tab (new design)
                 $$.try('.task_list_item__project', issueElement).textContent || // Upcoming
-                $$.try('.pname', issueElement).textContent; // Project tab (old design)
+                $$.try('.pname', issueElement).textContent || // Project tab (old design)
+                $$.try('.view_header').textContent; // project tab and inbox
 
             tagNames = $$.all('.label, .task_list_item__info_tags__label', issueElement).map(label => label.textContent);
-
         } else if (issueElement.matches(this.issueElementSelector[1])) {
 
             issueNumber = $$.getAttribute('ul[data-subitem-list-id]', 'data-subitem-list-id', issueElement);

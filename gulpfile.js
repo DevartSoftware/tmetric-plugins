@@ -84,11 +84,11 @@ var files = {
         'src/popup/popupController.js',
         'src/popup/pagePopupController.js',
         'src/popup/popupActivator.js',
+        'src/permissions/check.html',
+        'src/permissions/check.js',
         'src/permissions/permissionManager.js',
         'src/permissions/permissions.html',
         'src/permissions/permissions.js',
-        'src/permissions/permissionsCheck.html',
-        'src/permissions/permissionsCheck.js',
         'src/settings/settings.html',
         'src/settings/settingsController.js',
         'src/background/backgroundBase.js',
@@ -176,9 +176,11 @@ gulp.task('version', (callback) => {
             file,
             /(["']?version["']?: ["'])([\d\.]+)(["'])/,
             (match, left, oldVersion, right) => (left + version + right)));
+
+        // set app store version
         replaceInFile(
             src + 'safari/TMetric for Safari.xcodeproj/project.pbxproj',
-            /((?:CURRENT_PROJECT|MARKETING)_VERSION = )([\d\.]+)(;)/g,
+            /(MARKETING_VERSION = )([\d\.]+)(;)/g,
             (match, left, oldVersion, right) => (left + version + right));
     }
     callback();
@@ -318,7 +320,7 @@ function modifyManifestFirefox() {
                 gecko: { id: '@tmetric' }
             };
 
-            delete manifest['options_ui']['open_in_tab'];
+            //delete manifest['options_ui']['open_in_tab'];
 
             return manifest;
         }))
@@ -450,7 +452,7 @@ gulp.task('package:safari', gulp.series('prepackage:safari'));
 
 gulp.task('build', gulp.series(
     'clean', 'lib', 'compile', 'version',
-    gulp.parallel('package:chrome', 'package:firefox')
+    gulp.parallel('package:chrome', 'package:firefox', 'package:safari')
 ));
 
 // =============================================================================

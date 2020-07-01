@@ -150,17 +150,16 @@ interface IExtensionSettings {
     showPopup: Models.ShowPopupOption;
 }
 
+interface ServiceTypesMap {
+    [origin: string]: string;
+}
+
 interface IExtensionLocalSettings {
-    skipPermissionsCheck: boolean;
-    webTools: WebTool[];
+    skipPermissionsRequest: boolean;
+    serviceTypes: ServiceTypesMap
 }
 
 interface IExtensionSettingsMessage {
     action: string;
     data?: any;
-}
-
-interface IContentScriptRegistratorMessage {
-    action: 'registerContentScripts' | 'unregisterContentScripts';
-    data?: string[];
 }

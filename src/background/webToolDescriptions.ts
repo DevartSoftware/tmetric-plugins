@@ -336,7 +336,11 @@
             origins: ['https://podio.com/*'],
             scripts: {
                 js: ['in-page-scripts/integrations/podio.js'],
-                paths: ['tasks/*']
+                paths: [
+                    'tasks',
+                    '*/tasks',
+                    '*/apps/*'
+                ]
             }
         },
         {
@@ -594,6 +598,24 @@
             origins: ['https://*.insightly.com/*'],
             scripts: {
                 js: ['in-page-scripts/integrations/insightly.js']
+            }
+        },
+        {
+            serviceType: 'ZenHub',
+            serviceName: 'ZenHub',
+            icon: 'zenhub.svg',
+            origins: ['https://app.zenhub.com/*'],
+            scripts: {
+                js: ['in-page-scripts/integrations/zenhub.js']
+            }
+        },
+        {
+            serviceType: 'Notion',
+            serviceName: 'Notion',
+            icon: 'notion.svg',
+            origins: ['https://www.notion.so/*'],
+            scripts: {
+                js: ['in-page-scripts/integrations/notion.js']
             }
         }
     ];

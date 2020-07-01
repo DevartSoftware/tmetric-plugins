@@ -2,10 +2,9 @@ $(document).ready(() => {
 
     function renderIntegrations(holder: string, items: WebToolDescription[]) {
         const content = items.map(item => $('<li>')
-            .attr('title', item.serviceName)
             .data('keywords', [item.serviceName].concat(item.keywords || []).map(k => k.toLowerCase()))
             .append(`
-<label class="logo-wrapper">
+<label title="${item.serviceName}" class="logo-wrapper">
     <input type="checkbox" name="${item.serviceType}" />
     <span class="logo-area">
         <img src="../images/integrations/${item.icon}" alt="${item.serviceName}" />
@@ -16,12 +15,14 @@ $(document).ready(() => {
     }
 
     function setScrollArea() {
-        let headerHeight = $('.header').outerHeight();
-        let filterHeight = $('.filter-section').outerHeight();
-        let bodyHeight = $(document).height();
-        let containerMargins = 82;
-        let scrollAreaHeight = bodyHeight - containerMargins - headerHeight - filterHeight;
-        $('.logos-section').css("height", scrollAreaHeight + "px");
+        if ($('.permissions-page').length > 0) {
+            let headerHeight = $('.header').outerHeight();
+            let filterHeight = $('.filter-section').outerHeight();
+            let bodyHeight = $(document).height();
+            let containerMargins = 82;
+            let scrollAreaHeight = bodyHeight - containerMargins - headerHeight - filterHeight;
+            $('.logos-section').css("height", scrollAreaHeight + "px");
+        }
     }
 
     function renderOriginListItem(origin: string) {
@@ -45,7 +46,7 @@ $(document).ready(() => {
 
             let { origins = [], hasAdditionalOrigins } = webToolDescription;
 
-            let webTools = await WebToolManager.getEnabledWebTools();
+            let webTools = await WebToolManager.getWebTools();
             let webTool = webTools.find(item => item.serviceType == serviceType);
             if (webTool) {
                 origins = webTool.origins;
@@ -57,6 +58,7 @@ $(document).ready(() => {
         async function showPopup(serviceType: string, origins: string[]) {
 
             $(popup).data('serviceType', serviceType);
+            $(popup).data('originsInitial', origins);
 
             $('.add-url-input-holder input', popup).val('');
 
@@ -150,20 +152,24 @@ $(document).ready(() => {
         $('.apply-popup', popup).click(async function () {
 
             let serviceType = $(popup).data('serviceType');
-            let origins = $('.url-list .url', popup).toArray().map((el: HTMLInputElement) => el.value);
+            let originsAfter = $('.url-list .url', popup).toArray().map((el: HTMLInputElement) => el.value);
 
             let input = $('.add-url-input-holder input', popup);
             let value = input.val();
             let origin = WebToolManager.toOrigin(value);
-            if (origin && origins.indexOf(origin) < 0) {
-                origins.push(origin);
+            if (origin && originsAfter.indexOf(origin) < 0) {
+                originsAfter.push(origin);
             }
 
-            let item: WebTool = { serviceType, origins };
+            let originsBefore: string[] = $(popup).data('originsInitial') || [];
 
-            if (await permissionsManager.requestPermissions([item])) {
-                closePopup();
-            }
+            let originsAdded = originsAfter.filter(origin => originsBefore.indexOf(origin) < 0);
+            let originsRemoved = originsBefore.filter(origin => originsAfter.indexOf(origin) < 0);
+
+            await permissionsManager.updatePermissions([{ serviceType, origins: originsAdded }], [{ serviceType, origins: originsRemoved }]);
+
+            closePopup();
+
         });
     }
 
@@ -190,7 +196,7 @@ $(document).ready(() => {
                     origins: i.origins
                 }));
 
-            items.push(...await WebToolManager.getEnabledWebTools());
+            items.push(...await WebToolManager.getWebTools());
 
             await permissionsManager.removePermissions(items);
             await permissionsManager.cleanupPermissions();
@@ -203,13 +209,15 @@ $(document).ready(() => {
         $('.logo-wrapper input').change(async event => {
 
             let input = <HTMLInputElement>event.currentTarget;
-            let webToolDescription = webToolDescriptions.find(i => i.serviceType == input.name);
 
             try {
 
+                let serviceType = input.name;
+                let origins = $(input).data('origins');
+
                 let item: WebTool = {
-                    serviceType: webToolDescription.serviceType,
-                    origins: webToolDescription.origins
+                    serviceType: serviceType,
+                    origins: origins
                 };
 
                 if (input.checked) {
@@ -227,13 +235,15 @@ $(document).ready(() => {
         updatePermissionCheckboxes();
     }
 
-    function setPermissionCheckboxStatus(serviceType: string, checked: boolean) {
-        $(`.logo-wrapper input[name='${serviceType}']`).prop('checked', checked);
+    function setPermissionCheckboxStatus(serviceType: string, origins: string[], checked: boolean) {
+        $(`.logo-wrapper input[name='${serviceType}']`)
+            .prop('checked', checked)
+            .data('origins', origins);
     }
 
     async function updatePermissionCheckboxes() {
 
-        const webTools = await WebToolManager.getEnabledWebTools();
+        const webTools = await WebToolManager.getWebTools();
         const webToolDescriptions = getWebToolDescriptions();
 
         webToolDescriptions.forEach(webToolDescription => {
@@ -249,10 +259,10 @@ $(document).ready(() => {
                 };
 
                 chrome.permissions.contains(permissions, result => {
-                    setPermissionCheckboxStatus(serviceType, result);
+                    setPermissionCheckboxStatus(serviceType, webTool.origins, result);
                 });
             } else {
-                setPermissionCheckboxStatus(serviceType, false);
+                setPermissionCheckboxStatus(serviceType, webToolDescription.origins, false);
             }
         });
     }

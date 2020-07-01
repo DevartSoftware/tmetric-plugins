@@ -42,7 +42,8 @@ abstract class ExtensionBase extends BackgroundBase {
             height,
             url: this.getLoginUrl(),
             type: 'popup'
-        }, popupWindow => {
+        },
+        popupWindow => {
 
             let popupTab = popupWindow.tabs[0];
 
@@ -196,8 +197,7 @@ abstract class ExtensionBase extends BackgroundBase {
 
         this.connection
             .init({ serviceUrl: this.constants.serviceUrl, signalRUrl: this.signalRUrl })
-            .then(() => this.connection.getVersion())
-            .then(() => this.checkPermissions())
+            .then(() => this.connection.getVersion());
     }
 
     /** Handles messages from in-page scripts */
@@ -611,28 +611,25 @@ abstract class ExtensionBase extends BackgroundBase {
 
     protected async getActiveTabPossibleWebTool() {
 
-        let url = await this.getActiveTabUrl();
-        let origin = WebToolManager.toOrigin(url);
+        const url = await this.getActiveTabUrl();
+        const origin = WebToolManager.toOrigin(url);
         if (!origin) {
             return;
         }
 
-        let enabledWebTools = await WebToolManager.getEnabledWebTools();
-        enabledWebTools = enabledWebTools.filter(t => t.origins.indexOf(origin) > -1);
+        if (await WebToolManager.isAllowed(origin)) {
+            return;
+        }
 
-        let enabledWebToolsDict: { [serviceType: string]: string[] } = enabledWebTools.reduce((dict, webTool) => {
-            dict[webTool.serviceType] = webTool.origins;
-            return dict;
-        }, {});
+        const isMatchUrl = (origin: string) => WebToolManager.isMatch(url, origin);
 
-        let descriptions = getWebToolDescriptions();
-        let description = descriptions.find(d => d.origins.indexOf(origin) > -1 && !enabledWebToolsDict[d.serviceType]);
-
-        if (description) {
+        const webTools = getWebToolDescriptions();
+        const webTool = webTools.find(webTool => webTool.origins.some(isMatchUrl));
+        if (webTool) {
             return <WebToolInfo>{
-                serviceType: description.serviceType,
-                serviceName: description.serviceName,
-                origins: [...description.origins]
+                serviceType: webTool.serviceType,
+                serviceName: webTool.serviceName,
+                origins: [origin]
             };
         }
     }
@@ -675,13 +672,15 @@ abstract class ExtensionBase extends BackgroundBase {
     }
 
     private registerTabsUpdateListener() {
-        chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+        chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+            console.log({tabId, changeInfo})
             if (tabId == this.loginTabId && changeInfo.url) {
                 let tabUrl = changeInfo.url.toLowerCase();
                 let serviceUrl = this.constants.serviceUrl.toLowerCase();
+                console.log({ tabUrl, serviceUrl })
                 if (tabUrl == serviceUrl || tabUrl.indexOf(serviceUrl + '#') == 0) {
-                    chrome.tabs.remove(tabId);
-                    return;
+                    console.log('remove', tabId)
+                    chrome.tabs.remove(tabId, () => { console.log('remove done') });
                 }
             }
         });
@@ -692,35 +691,25 @@ abstract class ExtensionBase extends BackgroundBase {
             if (tabId == this.loginTabId) {
                 this.loginTabId = null;
                 this.loginWinId = null;
-                this.connection.reconnect();
+                this.connection.reconnect()
+                    .then(() => this.checkPermissions())
+                    .catch(() => { });
             }
         });
     }
 
     // permissions
 
-    private async checkPermissions() {
-
-        chrome.storage.local.get(<IExtensionLocalSettings>{ skipPermissionsCheck: false }, async ({ skipPermissionsCheck }: IExtensionLocalSettings) => {
-
-            if (!skipPermissionsCheck) {
-
-                chrome.storage.local.set(<IExtensionLocalSettings>{ skipPermissionsCheck: true });
-
-                if (this.connection.userProfile) {
-                    this.showPermissions();
-                } else {
-                    this.actionOnConnect = () => this.showPermissions();
-                    this.showLoginDialog();
-                }
-            }
-        });
+    private async onPermissionsMessage(message: ITabMessage, callback: (data: any) => void) {
+        if (message.action == 'getItegratedWebTools') {
+            const webTools = await this.getItegratedWebTools();
+            callback(webTools);
+        }
     }
 
-    private async showPermissions() {
-
+    private async getItegratedWebTools() {
         try {
-            let integrations = await this.connection.getIntegrations();
+            const integrations = await this.connection.getIntegrations();
 
             let webToolsDictionary = integrations.reduce((result, item) => {
 
@@ -746,14 +735,15 @@ abstract class ExtensionBase extends BackgroundBase {
                 return result;
             }, <{ [serviceType: string]: WebTool }>{});
 
-            const webTools = Object.keys(webToolsDictionary).map(key => webToolsDictionary[key]);
+            return Object.keys(webToolsDictionary).map(key => webToolsDictionary[key]);
 
-            await WebToolManager.enableWebTools(webTools);
         } catch (error) {
             console.log(error)
         }
+    }
 
-        let url = chrome.runtime.getURL('permissions/permissionsCheck.html');
+    private async checkPermissions() {
+        let url = chrome.runtime.getURL('permissions/check.html');
         chrome.tabs.create({ url, active: true });
     }
 
@@ -763,17 +753,9 @@ abstract class ExtensionBase extends BackgroundBase {
         this.contentScriptRegistrator.register();
     }
 
-    protected onContentScriptRegistratorMessage(message: IContentScriptRegistratorMessage) {
-        if (message.action == 'registerContentScripts') {
-            this.contentScriptRegistrator.register(message.data);
-        } else if (message.action == 'unregisterContentScripts') {
-            this.contentScriptRegistrator.unregister(message.data);
-        }
-    }
-
     protected registerMessageListener() {
         chrome.runtime.onMessage.addListener((
-            message: ITabMessage | IPopupRequest | IExtensionSettingsMessage | IContentScriptRegistratorMessage,
+            message: ITabMessage | IPopupRequest | IExtensionSettingsMessage,
             sender: chrome.runtime.MessageSender,
             senderResponse: (IPopupResponse) => void
         ) => {
@@ -786,8 +768,8 @@ abstract class ExtensionBase extends BackgroundBase {
                 return !!senderResponse;
             }
 
-            if (sender.url.startsWith(chrome.runtime.getURL('permissions'))) {
-                this.onContentScriptRegistratorMessage(<IContentScriptRegistratorMessage>message);
+            if (sender.url && sender.url.startsWith(chrome.runtime.getURL('permissions'))) {
+                this.onPermissionsMessage(message, senderResponse);
                 return !!senderResponse;
             }
 
