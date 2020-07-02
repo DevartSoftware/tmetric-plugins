@@ -69,17 +69,39 @@
         return new Promise<boolean>(resolve => chrome.permissions.contains({ origins }, resolve));
     }
 
-    static async getServiceTypes() {
-        return new Promise<ServiceTypesMap>(resolve => {
-            chrome.storage.local.get(
-                <IExtensionLocalSettings>{ serviceTypes: {} },
-                ({ serviceTypes }: IExtensionLocalSettings) => resolve(serviceTypes)
-            );
-        });
+    private static _getServiceTypes() {
+        chrome.storage.local.get(
+            <IExtensionLocalSettings>{ serviceTypes: {} },
+            ({ serviceTypes }: IExtensionLocalSettings) => this.serviceTypes = serviceTypes
+        );
     }
 
-    static async getServiceUrls() {
-        const serviceTypes = await this.getServiceTypes();
+    private static _setServiceTypes(map: ServiceTypesMap) {
+        chrome.storage.local.set(
+            <IExtensionLocalSettings>{ serviceTypes: map }
+        );
+    }
+
+    private static onStoreChange(changes: { [key: string]: chrome.storage.StorageChange }, areaName: string) {
+
+        if (areaName != 'local') {
+            return;
+        }
+
+        const serviceTypes = changes['serviceTypes'];
+        if (serviceTypes) {
+            WebToolManager.serviceTypes = serviceTypes.newValue;
+        }
+    }
+
+    static serviceTypes: ServiceTypesMap = (() => {
+        chrome.storage.onChanged.addListener(WebToolManager.onStoreChange);
+        WebToolManager._getServiceTypes();
+        return {};
+    })();
+
+    static getServiceUrls() {
+        const serviceTypes = this.serviceTypes;
         const serviceUrls = Object.keys(serviceTypes).sort().reduce((map, url) => {
             const serviceType = serviceTypes[url];
             let urls = map[serviceType] || [];
@@ -90,43 +112,54 @@
         return serviceUrls;
     }
 
-    static async addServiceTypes(map: ServiceTypesMap) {
-
-        let serviceTypes = await this.getServiceTypes();
-
-        Object.keys(map).forEach(serviceUrl => serviceTypes[serviceUrl] = map[serviceUrl]);
-
-        return new Promise(resolve => {
-            chrome.storage.local.set(<IExtensionLocalSettings>{ serviceTypes }, () => {
-                resolve();
-            });
-        });
+    static addServiceTypes(serviceTypes: ServiceTypesMap) {
+        return this.updateServiceTypes(serviceTypes);
     }
 
-    static async removeServiceTypes(map: ServiceTypesMap) {
-
-        let serviceTypes = await this.getServiceTypes();
-
-        Object.keys(map).forEach(serviceUrl => delete serviceTypes[serviceUrl]);
-
-        return new Promise(resolve => {
-            chrome.storage.local.set(<IExtensionLocalSettings>{ serviceTypes }, () => {
-                resolve();
-            });
-        });
+    static removeServiceTypes(serviceTypes: ServiceTypesMap) {
+        return this.updateServiceTypes(undefined, serviceTypes);
     }
 
-    static async updateServiceTypes(itemsAdded: ServiceTypesMap, itemsRemoved: ServiceTypesMap) {
+    private static toOriginServiceTypesMap(serviceTypesMap: ServiceTypesMap) {
+        return Object.keys(serviceTypesMap).reduce(
+            (map, url) => {
+                const serviceType = serviceTypesMap[url];
+                const origin = WebToolManager.toOrigin(url);
+                map[origin] = (map[origin] || []).concat(serviceType);
+                return map;
+            },
+            <{ [origin: string]: string[] }>{}
+        );
+    }
 
-        let serviceTypes = await this.getServiceTypes();
+    static updateServiceTypes(serviceTypesAdded: ServiceTypesMap = {}, serviceTypesRemoved: ServiceTypesMap = {}) {
 
-        Object.keys(itemsAdded).forEach(serviceUrl => serviceTypes[serviceUrl] = itemsAdded[serviceUrl]);
-        Object.keys(itemsRemoved).forEach(serviceType => delete serviceTypes[serviceType]);
+        let serviceTypes = this.serviceTypes;
 
-        return new Promise(resolve => {
-            chrome.storage.local.set(<IExtensionLocalSettings>{ serviceTypes }, () => {
-                resolve();
-            });
+        Object.keys(serviceTypesAdded).forEach(serviceUrl => serviceTypes[serviceUrl] = serviceTypesAdded[serviceUrl]);
+        Object.keys(serviceTypesRemoved).forEach(serviceUrl => delete serviceTypes[serviceUrl]);
+
+        const origins = this.toOriginServiceTypesMap(serviceTypes);
+        const originsAdded = this.toOriginServiceTypesMap(serviceTypesAdded);
+        const originsRemoved = this.toOriginServiceTypesMap(serviceTypesRemoved);
+
+        // avoid permission removing for edited url
+        Object.keys(originsAdded).forEach(origin => {
+            if (originsAdded[origin] && originsRemoved[origin]) {
+                delete originsAdded[origin];
+                delete originsRemoved[origin];
+            }
         });
+
+        // avoid permission removing for another service with same origin but different path
+        Object.keys(originsRemoved).forEach(origin => {
+            if (origins[origin]) {
+                delete originsRemoved[origin];
+            }
+        });
+
+        this._setServiceTypes(serviceTypes);
+
+        return { originsAdded, originsRemoved };
     }
 }

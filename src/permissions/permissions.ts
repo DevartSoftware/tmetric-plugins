@@ -37,7 +37,7 @@ $(document).ready(() => {
 
         let popup = '.location-popup';
 
-        async function getServiceUrls(serviceType: string) {
+        function getServiceUrls(serviceType: string) {
 
             let webToolDescription = getWebToolDescriptions().find(i => i.serviceType == serviceType);
             if (!webToolDescription) {
@@ -46,7 +46,7 @@ $(document).ready(() => {
 
             let { origins = [], hasAdditionalOrigins } = webToolDescription;
 
-            let serviceUrlsMap = await WebToolManager.getServiceUrls();
+            let serviceUrlsMap = WebToolManager.getServiceUrls();
             let serviceUrls = serviceUrlsMap[serviceType] || origins;
 
             return { serviceUrls, hasAdditionalOrigins };
@@ -71,7 +71,7 @@ $(document).ready(() => {
             updatePermissionCheckboxes();
         }
 
-        $('.logo-wrapper').on('click', async function (event) {
+        $('.logo-wrapper').on('click', function (event) {
 
             event.stopPropagation();
 
@@ -79,21 +79,21 @@ $(document).ready(() => {
             const name = input.prop('name');
             const checked = input.prop('checked');
 
-            const { serviceUrls, hasAdditionalOrigins } = await getServiceUrls(name);
+            const { serviceUrls, hasAdditionalOrigins } = getServiceUrls(name);
 
             if (!checked && serviceUrls.length == 0 && hasAdditionalOrigins) {
                 showPopup(name, serviceUrls);
             }
         });
 
-        $('.logo-wrapper').on('click', '.show-popup', async function (event) {
+        $('.logo-wrapper').on('click', '.show-popup', function (event) {
 
             event.stopPropagation();
 
             const input = $(this).parent().siblings('input:checkbox');
             const name = input.prop('name');
 
-            const { serviceUrls, hasAdditionalOrigins } = await getServiceUrls(name);
+            const { serviceUrls, hasAdditionalOrigins } = getServiceUrls(name);
 
             if (hasAdditionalOrigins) {
                 showPopup(name, serviceUrls);
@@ -191,8 +191,8 @@ $(document).ready(() => {
             const webTools = getWebToolDescriptions();
             webTools.forEach(webTool => webTool.origins.map(origin => map[origin] = webTool.serviceType));
 
-            const serviceTypes = await WebToolManager.getServiceTypes();
-            Object.keys(await WebToolManager.getServiceTypes()).forEach(serviceUrl => map[serviceUrl] = serviceTypes[serviceUrl]);
+            const serviceTypes = WebToolManager.serviceTypes;
+            Object.keys(serviceTypes).forEach(serviceUrl => map[serviceUrl] = serviceTypes[serviceUrl]);
 
             await permissionsManager.removePermissions(map);
             await permissionsManager.cleanupPermissions();
@@ -235,7 +235,7 @@ $(document).ready(() => {
 
     async function updatePermissionCheckboxes() {
 
-        const serviceUrlsMap = await WebToolManager.getServiceUrls();
+        const serviceUrlsMap = WebToolManager.getServiceUrls();
         const webToolDescriptions = getWebToolDescriptions();
 
         webToolDescriptions.forEach(async webToolDescription => {

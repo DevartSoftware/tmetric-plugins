@@ -1,16 +1,5 @@
 ﻿class PermissionManager {
 
-    private toOriginsMap(map) {
-        return Object.keys(map).reduce(
-            (map, url) => (map[WebToolManager.toOrigin(url)] = true) && map,
-            <{ [origin: string]: boolean }>{}
-        );
-    }
-
-    private toOriginsArray(map) {
-        return Object.keys(this.toOriginsMap(map)).sort();
-    }
-
     private request(origins: string[]) {
         return typeof browser != 'undefined' ?
             browser.permissions.request({ origins }) :
@@ -23,38 +12,28 @@
             new Promise<boolean>(resolve => chrome.permissions.remove({ origins }, result => resolve(result)));
     }
 
-    requestPermissions(map: ServiceTypesMap) {
-        const save = WebToolManager.addServiceTypes(map);
-        const request = this.request(this.toOriginsArray(map));
-        return save.then(() => request);
+    requestPermissions(serviceTypes: ServiceTypesMap) {
+
+        const { originsAdded } = WebToolManager.addServiceTypes(serviceTypes);
+
+        return this.request(Object.keys(originsAdded));
     }
 
-    removePermissions(map: ServiceTypesMap) {
-        const save = WebToolManager.removeServiceTypes(map);
-        const remove = this.remove(this.toOriginsArray(map));
-        return save.then(() => remove);
+    removePermissions(serviceTypes: ServiceTypesMap) {
+
+        const { originsRemoved } = WebToolManager.removeServiceTypes(serviceTypes);
+
+        return this.remove(Object.keys(originsRemoved));
     }
 
-    updatePermissions(itemsAdded: ServiceTypesMap, itemsRemoved: ServiceTypesMap) {
+    updatePermissions(serviceTypesAdded: ServiceTypesMap, serviceTypesRemoved: ServiceTypesMap) {
 
-        const save = WebToolManager.updateServiceTypes(itemsAdded, itemsRemoved);
+        const { originsAdded, originsRemoved } = WebToolManager.updateServiceTypes(serviceTypesAdded, serviceTypesRemoved);
 
-        const originsAdded = this.toOriginsMap(itemsAdded);
-        const originsRemoved = this.toOriginsMap(itemsRemoved);
-
-        // avoid permission removing for edited url
-        Object.keys(originsAdded).forEach(origin => {
-            if (originsAdded[origin] && originsRemoved[origin]) {
-                delete originsAdded[origin];
-                delete originsRemoved[origin];
-            }
-        });
-
-        const update = Promise.all([
-            this.request(this.toOriginsArray(originsAdded)),
-            this.remove(this.toOriginsArray(originsRemoved)),
+        return Promise.all([
+            this.request(Object.keys(originsAdded)),
+            this.remove(Object.keys(originsRemoved)),
         ]);
-        return save.then(() => update);
     }
 
     cleanupPermissions() {
