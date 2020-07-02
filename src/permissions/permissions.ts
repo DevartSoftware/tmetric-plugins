@@ -235,18 +235,19 @@ $(document).ready(() => {
 
     async function updatePermissionCheckboxes() {
 
+        await WebToolManager.cleanupServiceTypes();
+
         const serviceUrlsMap = WebToolManager.getServiceUrls();
         const webToolDescriptions = getWebToolDescriptions();
 
-        webToolDescriptions.forEach(async webToolDescription => {
+        webToolDescriptions.forEach(webToolDescription => {
 
             const { serviceType } = webToolDescription;
 
             const serviceUrls = serviceUrlsMap[serviceType];
 
             if (serviceUrls) {
-                const result = await WebToolManager.isAllowed(serviceUrls);
-                setPermissionCheckboxStatus(serviceType, serviceUrls, result);
+                setPermissionCheckboxStatus(serviceType, serviceUrls, true);
             } else {
                 setPermissionCheckboxStatus(serviceType, webToolDescription.origins, false);
             }

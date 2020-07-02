@@ -162,4 +162,10 @@
 
         return { originsAdded, originsRemoved };
     }
+
+    static async cleanupServiceTypes() {
+        const serviceTypes = this.serviceTypes;
+        await Promise.all(Object.keys(serviceTypes).map(origin => this.isAllowed([origin]).then(result => !result && delete serviceTypes[origin])));
+        this._setServiceTypes(serviceTypes);
+    }
 }
