@@ -16,19 +16,19 @@
     if (!skipPermissionsRequest) {
 
         const message: ITabMessage = {
-            action: 'getItegratedWebTools'
+            action: 'getItegratedServices'
         }
 
-        const items = await new Promise<WebTool[]>(resolve => {
+        const map = await new Promise<ServiceTypesMap>(resolve => {
             chrome.runtime.sendMessage(message, resolve);
         });
 
         onClick = async () => {
 
-            if (items && items.length) {
+            if (map) {
 
                 let permissionManager = new PermissionManager();
-                await permissionManager.requestPermissions(items);
+                await permissionManager.requestPermissions(map);
 
                 await new Promise<boolean>(resolve => {
                     chrome.storage.local.set(

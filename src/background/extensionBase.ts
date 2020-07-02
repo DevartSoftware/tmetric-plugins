@@ -617,7 +617,7 @@ abstract class ExtensionBase extends BackgroundBase {
             return;
         }
 
-        if (await WebToolManager.isAllowed(origin)) {
+        if (await WebToolManager.isAllowed([origin])) {
             return;
         }
 
@@ -701,41 +701,22 @@ abstract class ExtensionBase extends BackgroundBase {
     // permissions
 
     private async onPermissionsMessage(message: ITabMessage, callback: (data: any) => void) {
-        if (message.action == 'getItegratedWebTools') {
-            const webTools = await this.getItegratedWebTools();
-            callback(webTools);
+        if (message.action == 'getItegratedServices') {
+            const items = await this.getItegratedServices();
+            callback(items);
         }
     }
 
-    private async getItegratedWebTools() {
+    private async getItegratedServices() {
         try {
+
             const integrations = await this.connection.getIntegrations();
 
-            let webToolsDictionary = integrations.reduce((result, item) => {
+            const serviceTypesMap = integrations
+                .filter(item => !!WebToolManager.toServiceUrl(item.serviceUrl))
+                .reduce((map, { serviceType, serviceUrl }) => (map[serviceUrl] = serviceType) && map, <ServiceTypesMap>{});
 
-                const { serviceType, serviceUrl } = item;
-
-                const origin = WebToolManager.toOrigin(serviceUrl);
-                if (!origin) {
-                    return result;
-                }
-
-                const entry = result[serviceType];
-                if (entry) {
-                    if (entry.origins.indexOf(origin) == -1) {
-                        entry.origins.push(origin);
-                    }
-                } else {
-                    result[serviceType] = {
-                        serviceType,
-                        origins: [origin]
-                    };
-                }
-
-                return result;
-            }, <{ [serviceType: string]: WebTool }>{});
-
-            return Object.keys(webToolsDictionary).map(key => webToolsDictionary[key]);
+            return serviceTypesMap;
 
         } catch (error) {
             console.log(error)

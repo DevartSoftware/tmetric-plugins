@@ -1,4 +1,5 @@
 ﻿const getWebToolDescriptions = function () {
+
     let items: WebToolDescription[] = [
         {
             serviceType: 'ActiveCollab',
@@ -619,7 +620,10 @@
             }
         }
     ];
+
+    items = items.filter(i => i.serviceType && i.scripts);
     items.sort((a, b) => a.serviceName.localeCompare(b.serviceName, [], { sensitivity: 'base' }));
+
     return [...items, <WebToolDescription>{
         serviceType: 'Generic',
         serviceName: 'Generic',
@@ -629,5 +633,5 @@
         scripts: {
             js: ['in-page-scripts/integrations/generic.js']
         }
-    }]
+    }];
 }

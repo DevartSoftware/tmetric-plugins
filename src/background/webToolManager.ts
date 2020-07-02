@@ -27,6 +27,31 @@
 
     }
 
+    static toServiceUrl(input: string) {
+
+        if (!input) {
+            return;
+        }
+
+        const match = WebToolManager.urlRe.exec(input);
+        if (!match) {
+            return;
+        }
+
+        const [all, protocol = 'https://', host, port = '', path = '/*'] = match;
+
+        if (!host) {
+            return;
+        }
+
+        if (['http://', 'https://'].indexOf(protocol) < 0) {
+            return;
+        }
+
+        return `${protocol}${host}${port}${path}`;
+
+    }
+
     static isMatch(url: string, origin: string) {
         let urlOrigin = this.toOrigin(url);
         let originRe = origin
@@ -36,21 +61,12 @@
         return new RegExp(pattern, 'i').test(urlOrigin);
     }
 
-    static async getWebTools() {
-        const serviceTypes = await this.getServiceTypes();
-        const webToolsMap = Object.keys(serviceTypes).sort().reduce((map, origin) => {
-            const serviceType = serviceTypes[origin];
-            let webTool = map[serviceType] || { serviceType, origins: [] };
-            webTool.origins.push(origin);
-            map[serviceType] = webTool;
-            return map;
-        }, <{ [serviceType: string]: WebTool }>{});
-        const webTools = Object.keys(webToolsMap).map(key => webToolsMap[key]);
-        return webTools;
+    static toServiceTypesMap(webTools: WebTool[]) {
+        return webTools.reduce((map, webTool) => webTool.origins.map(origin => map[origin] = webTool.serviceType) && map, <ServiceTypesMap>{});
     }
 
-    static async isAllowed(origin: string) {
-        return new Promise<boolean>(resolve => chrome.permissions.contains({ origins: [origin] }, resolve));
+    static async isAllowed(origins: string[]) {
+        return new Promise<boolean>(resolve => chrome.permissions.contains({ origins }, resolve));
     }
 
     static async getServiceTypes() {
@@ -62,11 +78,23 @@
         });
     }
 
-    static async addServiceTypes(items: WebTool[]) {
+    static async getServiceUrls() {
+        const serviceTypes = await this.getServiceTypes();
+        const serviceUrls = Object.keys(serviceTypes).sort().reduce((map, url) => {
+            const serviceType = serviceTypes[url];
+            let urls = map[serviceType] || [];
+            urls.push(url);
+            map[serviceType] = urls;
+            return map;
+        }, <ServiceUrlsMap>{});
+        return serviceUrls;
+    }
+
+    static async addServiceTypes(map: ServiceTypesMap) {
 
         let serviceTypes = await this.getServiceTypes();
 
-        items.forEach(item => item.origins.forEach(origin => serviceTypes[origin] = item.serviceType));
+        Object.keys(map).forEach(serviceUrl => serviceTypes[serviceUrl] = map[serviceUrl]);
 
         return new Promise(resolve => {
             chrome.storage.local.set(<IExtensionLocalSettings>{ serviceTypes }, () => {
@@ -75,11 +103,11 @@
         });
     }
 
-    static async removeServiceTypes(items: WebTool[]) {
+    static async removeServiceTypes(map: ServiceTypesMap) {
 
         let serviceTypes = await this.getServiceTypes();
 
-        items.forEach(item => item.origins.forEach(origin => delete serviceTypes[origin]));
+        Object.keys(map).forEach(serviceUrl => delete serviceTypes[serviceUrl]);
 
         return new Promise(resolve => {
             chrome.storage.local.set(<IExtensionLocalSettings>{ serviceTypes }, () => {
@@ -88,12 +116,12 @@
         });
     }
 
-    static async updateServiceTypes(itemsAdded: WebTool[], itemsRemoved: WebTool[]) {
+    static async updateServiceTypes(itemsAdded: ServiceTypesMap, itemsRemoved: ServiceTypesMap) {
 
         let serviceTypes = await this.getServiceTypes();
 
-        itemsAdded.forEach(item => item.origins.forEach(origin => serviceTypes[origin] = item.serviceType));
-        itemsRemoved.forEach(item => item.origins.forEach(origin => delete serviceTypes[origin]));
+        Object.keys(itemsAdded).forEach(serviceUrl => serviceTypes[serviceUrl] = itemsAdded[serviceUrl]);
+        Object.keys(itemsRemoved).forEach(serviceType => delete serviceTypes[serviceType]);
 
         return new Promise(resolve => {
             chrome.storage.local.set(<IExtensionLocalSettings>{ serviceTypes }, () => {

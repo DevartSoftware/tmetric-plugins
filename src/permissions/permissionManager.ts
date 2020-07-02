@@ -1,61 +1,60 @@
 ﻿class PermissionManager {
 
-    private toPermissions(items: WebTool[]) {
-        return <chrome.permissions.Permissions>{
-            origins: items.reduce((origins, item) => {
-                let urls = item.origins.map(WebToolManager.toOrigin).filter(o => !!o);
-                origins.push(...urls);
-                return origins;
-            }, <string[]>[])
-        };
+    private toOriginsMap(map) {
+        return Object.keys(map).reduce(
+            (map, url) => (map[WebToolManager.toOrigin(url)] = true) && map,
+            <{ [origin: string]: boolean }>{}
+        );
     }
 
-    requestPermissions(items: WebTool[]) {
-
-        let savePromise = WebToolManager.addServiceTypes(items);
-
-        let permissions = this.toPermissions(items);
-        let permissionsPromise = typeof browser != 'undefined' ?
-            browser.permissions.request(<browser.permissions.Permissions>permissions) :
-            new Promise(resolve => chrome.permissions.request(permissions, result => resolve(result)));
-
-        return savePromise.then(() => permissionsPromise);
+    private toOriginsArray(map) {
+        return Object.keys(this.toOriginsMap(map)).sort();
     }
 
-    removePermissions(items: WebTool[]) {
-
-        let savePromise = WebToolManager.removeServiceTypes(items);
-
-        let permissions = this.toPermissions(items);
-        let permissionsPromise = typeof browser != 'undefined' ?
-            browser.permissions.remove(<browser.permissions.Permissions>permissions) :
-            new Promise(resolve => chrome.permissions.remove(permissions, result => resolve(result)));
-
-        return savePromise.then(() => permissionsPromise);
+    private request(origins: string[]) {
+        return typeof browser != 'undefined' ?
+            browser.permissions.request({ origins }) :
+            new Promise<boolean>(resolve => chrome.permissions.request({ origins }, result => resolve(result)));
     }
 
-    updatePermissions(itemsAdded: WebTool[], itemsRemoved: WebTool[]) {
+    private remove(origins: string[]) {
+        return typeof browser != 'undefined' ?
+            browser.permissions.remove({ origins }) :
+            new Promise<boolean>(resolve => chrome.permissions.remove({ origins }, result => resolve(result)));
+    }
 
-        let savePromise = WebToolManager.updateServiceTypes(itemsAdded, itemsRemoved);
+    requestPermissions(map: ServiceTypesMap) {
+        const save = WebToolManager.addServiceTypes(map);
+        const request = this.request(this.toOriginsArray(map));
+        return save.then(() => request);
+    }
 
-        let permissionsAdded = this.toPermissions(itemsAdded);
-        let permissionsRemoved = this.toPermissions(itemsRemoved);
+    removePermissions(map: ServiceTypesMap) {
+        const save = WebToolManager.removeServiceTypes(map);
+        const remove = this.remove(this.toOriginsArray(map));
+        return save.then(() => remove);
+    }
 
-        let permissionsPromises: Promise<boolean>[] = [];
+    updatePermissions(itemsAdded: ServiceTypesMap, itemsRemoved: ServiceTypesMap) {
 
-        if (typeof browser != 'undefined') {
-            permissionsPromises = [
-                browser.permissions.request(<browser.permissions.Permissions>permissionsAdded),
-                browser.permissions.remove(<browser.permissions.Permissions>permissionsRemoved)
-            ];
-        } else {
-            permissionsPromises = [
-                new Promise(resolve => chrome.permissions.request(permissionsAdded, result => resolve(result))),
-                new Promise(resolve => chrome.permissions.remove(permissionsRemoved, result => resolve(result)))
-            ];
-        }
+        const save = WebToolManager.updateServiceTypes(itemsAdded, itemsRemoved);
 
-        return savePromise.then(() => Promise.all(permissionsPromises));
+        const originsAdded = this.toOriginsMap(itemsAdded);
+        const originsRemoved = this.toOriginsMap(itemsRemoved);
+
+        // avoid permission removing for edited url
+        Object.keys(originsAdded).forEach(origin => {
+            if (originsAdded[origin] && originsRemoved[origin]) {
+                delete originsAdded[origin];
+                delete originsRemoved[origin];
+            }
+        });
+
+        const update = Promise.all([
+            this.request(this.toOriginsArray(originsAdded)),
+            this.remove(this.toOriginsArray(originsRemoved)),
+        ]);
+        return save.then(() => update);
     }
 
     cleanupPermissions() {

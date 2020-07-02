@@ -151,7 +151,11 @@ interface IExtensionSettings {
 }
 
 interface ServiceTypesMap {
-    [origin: string]: string;
+    [serviceUrl: string]: string;
+}
+
+interface ServiceUrlsMap {
+    [serviceType: string]: string[];
 }
 
 interface IExtensionLocalSettings {

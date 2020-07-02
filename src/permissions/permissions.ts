@@ -25,9 +25,9 @@ $(document).ready(() => {
         }
     }
 
-    function renderOriginListItem(origin: string) {
+    function renderUrlListItem(url: string) {
         return $('<li>').append(`
-<input class="url input form-control" type="text" value="${origin}" readonly />
+<input class="url input form-control" type="text" value="${url}" readonly />
 <button class="btn btn-icon edit-url"><i class="fa fa-pencil"></i></button>
 <button class="btn btn-icon save-url" style="display:none"><i class="fa fa-check"></i></button>
 <button class="btn btn-icon remove-url"><i class="fa fa-times"></i></button>`);
@@ -37,34 +37,31 @@ $(document).ready(() => {
 
         let popup = '.location-popup';
 
-        async function getOrigins(serviceType: string) {
+        async function getServiceUrls(serviceType: string) {
 
-            let webToolDescription = webToolDescriptions.find(i => i.serviceType == serviceType);
+            let webToolDescription = getWebToolDescriptions().find(i => i.serviceType == serviceType);
             if (!webToolDescription) {
                 return {};
             }
 
             let { origins = [], hasAdditionalOrigins } = webToolDescription;
 
-            let webTools = await WebToolManager.getWebTools();
-            let webTool = webTools.find(item => item.serviceType == serviceType);
-            if (webTool) {
-                origins = webTool.origins;
-            }
+            let serviceUrlsMap = await WebToolManager.getServiceUrls();
+            let serviceUrls = serviceUrlsMap[serviceType] || origins;
 
-            return { origins, hasAdditionalOrigins };
+            return { serviceUrls, hasAdditionalOrigins };
         }
 
-        async function showPopup(serviceType: string, origins: string[]) {
+        async function showPopup(serviceType: string, serviceUrls: string[]) {
 
             $(popup).data('serviceType', serviceType);
-            $(popup).data('originsInitial', origins);
+            $(popup).data('serviceUrlsInitial', serviceUrls);
 
             $('.add-url-input-holder input', popup).val('');
 
             $('.add-url-input-holder input', popup).attr('placeholder', `https://${serviceType.toLowerCase()}.server.com`);
 
-            $('.url-list', popup).empty().append(origins.map(renderOriginListItem));
+            $('.url-list', popup).empty().append(serviceUrls.map(renderUrlListItem));
 
             $('.location-popup, .overlay').addClass('visible');
         }
@@ -82,10 +79,10 @@ $(document).ready(() => {
             const name = input.prop('name');
             const checked = input.prop('checked');
 
-            const { origins, hasAdditionalOrigins } = await getOrigins(name);
+            const { serviceUrls, hasAdditionalOrigins } = await getServiceUrls(name);
 
-            if (!checked && origins.length == 0 && hasAdditionalOrigins) {
-                showPopup(name, origins);
+            if (!checked && serviceUrls.length == 0 && hasAdditionalOrigins) {
+                showPopup(name, serviceUrls);
             }
         });
 
@@ -96,10 +93,10 @@ $(document).ready(() => {
             const input = $(this).parent().siblings('input:checkbox');
             const name = input.prop('name');
 
-            const { origins, hasAdditionalOrigins } = await getOrigins(name);
+            const { serviceUrls, hasAdditionalOrigins } = await getServiceUrls(name);
 
             if (hasAdditionalOrigins) {
-                showPopup(name, origins);
+                showPopup(name, serviceUrls);
             }
         });
 
@@ -107,15 +104,15 @@ $(document).ready(() => {
 
             let input = $('input', $(this).parent('.add-url-input-holder'));
             let value = input.val();
-            let origin = WebToolManager.toOrigin(value);
+            let serviceUrl = WebToolManager.toServiceUrl(value);
 
-            input.toggleClass('invalid', !origin);
+            input.toggleClass('invalid', !serviceUrl);
 
-            if (!origin) {
+            if (!serviceUrl) {
                 return;
             }
 
-            $('.url-list', popup).append(renderOriginListItem(origin));
+            $('.url-list', popup).append(renderUrlListItem(serviceUrl));
         });
 
         $('.url-list', popup).on('click', '.edit-url', function () {
@@ -128,11 +125,11 @@ $(document).ready(() => {
 
             let input = $(this).siblings('input');
             let value = input.val();
-            let origin = WebToolManager.toOrigin(value);
+            let serviceUrl = WebToolManager.toServiceUrl(value);
 
-            input.toggleClass('invalid', !origin);
+            input.toggleClass('invalid', !serviceUrl);
 
-            if (!origin) {
+            if (!serviceUrl) {
                 return;
             }
 
@@ -151,22 +148,27 @@ $(document).ready(() => {
 
         $('.apply-popup', popup).click(async function () {
 
-            let serviceType = $(popup).data('serviceType');
-            let originsAfter = $('.url-list .url', popup).toArray().map((el: HTMLInputElement) => el.value);
+            const serviceType = $(popup).data('serviceType');
+            const urlsAfter = $('.url-list .url', popup).toArray().map((el: HTMLInputElement) => el.value);
 
-            let input = $('.add-url-input-holder input', popup);
-            let value = input.val();
-            let origin = WebToolManager.toOrigin(value);
-            if (origin && originsAfter.indexOf(origin) < 0) {
-                originsAfter.push(origin);
+            const input = $('.add-url-input-holder input', popup);
+            const value = input.val();
+            const serviceUrl = WebToolManager.toServiceUrl(value);
+            if (serviceUrl && urlsAfter.indexOf(serviceUrl) < 0) {
+                urlsAfter.push(serviceUrl);
             }
 
-            let originsBefore: string[] = $(popup).data('originsInitial') || [];
+            const urlsBefore: string[] = $(popup).data('serviceUrlsInitial') || [];
 
-            let originsAdded = originsAfter.filter(origin => originsBefore.indexOf(origin) < 0);
-            let originsRemoved = originsBefore.filter(origin => originsAfter.indexOf(origin) < 0);
+            const urlsAdded = urlsAfter
+                .filter(url => urlsBefore.indexOf(url) < 0)
+                .reduce((map, url) => (map[url] = serviceType) && map, <ServiceTypesMap>{});
 
-            await permissionsManager.updatePermissions([{ serviceType, origins: originsAdded }], [{ serviceType, origins: originsRemoved }]);
+            const urlsRemoved = urlsBefore
+                .filter(url => urlsAfter.indexOf(url) < 0)
+                .reduce((map, url) => (map[url] = serviceType) && map, <ServiceTypesMap>{});
+
+            await permissionsManager.updatePermissions(urlsAdded, urlsRemoved);
 
             closePopup();
 
@@ -176,29 +178,23 @@ $(document).ready(() => {
     function setAllLogos() {
         $('.enable-all').click(async () => {
 
-            let items = getWebToolDescriptions()
-                .filter(i => i.origins.length)
-                .map(i => (<WebTool>{
-                    serviceType: i.serviceType,
-                    origins: i.origins
-                }));
-
-            await permissionsManager.requestPermissions(items);
+            const map = WebToolManager.toServiceTypesMap(getWebToolDescriptions());
+            await permissionsManager.requestPermissions(map);
 
             updatePermissionCheckboxes();
         });
 
         $('.disable-all').click(async () => {
 
-            let items = getWebToolDescriptions()
-                .map(i => (<WebTool>{
-                    serviceType: i.serviceType,
-                    origins: i.origins
-                }));
+            const map: ServiceTypesMap = {};
 
-            items.push(...await WebToolManager.getWebTools());
+            const webTools = getWebToolDescriptions();
+            webTools.forEach(webTool => webTool.origins.map(origin => map[origin] = webTool.serviceType));
 
-            await permissionsManager.removePermissions(items);
+            const serviceTypes = await WebToolManager.getServiceTypes();
+            Object.keys(await WebToolManager.getServiceTypes()).forEach(serviceUrl => map[serviceUrl] = serviceTypes[serviceUrl]);
+
+            await permissionsManager.removePermissions(map);
             await permissionsManager.cleanupPermissions();
 
             updatePermissionCheckboxes();
@@ -208,22 +204,18 @@ $(document).ready(() => {
     function initPermissionCheckboxes() {
         $('.logo-wrapper input').change(async event => {
 
-            let input = <HTMLInputElement>event.currentTarget;
+            const input = <HTMLInputElement>event.currentTarget;
 
             try {
 
-                let serviceType = input.name;
-                let origins = $(input).data('origins');
-
-                let item: WebTool = {
-                    serviceType: serviceType,
-                    origins: origins
-                };
+                const serviceType = input.name;
+                const serviceUrls = $(input).data('serviceUrls');
+                const map = serviceUrls.reduce((map, url) => (map[url] = serviceType) && map, <ServiceTypesMap>{});
 
                 if (input.checked) {
-                    await permissionsManager.requestPermissions([item]);
+                    await permissionsManager.requestPermissions(map);
                 } else {
-                    await permissionsManager.removePermissions([item]);
+                    await permissionsManager.removePermissions(map);
                 }
 
                 updatePermissionCheckboxes();
@@ -235,32 +227,26 @@ $(document).ready(() => {
         updatePermissionCheckboxes();
     }
 
-    function setPermissionCheckboxStatus(serviceType: string, origins: string[], checked: boolean) {
+    function setPermissionCheckboxStatus(serviceType: string, serviceUrls: string[], checked: boolean) {
         $(`.logo-wrapper input[name='${serviceType}']`)
             .prop('checked', checked)
-            .data('origins', origins);
+            .data('serviceUrls', serviceUrls);
     }
 
     async function updatePermissionCheckboxes() {
 
-        const webTools = await WebToolManager.getWebTools();
+        const serviceUrlsMap = await WebToolManager.getServiceUrls();
         const webToolDescriptions = getWebToolDescriptions();
 
-        webToolDescriptions.forEach(webToolDescription => {
+        webToolDescriptions.forEach(async webToolDescription => {
 
             const { serviceType } = webToolDescription;
 
-            const webTool = webTools.find(s => s.serviceType == serviceType);
+            const serviceUrls = serviceUrlsMap[serviceType];
 
-            if (webTool) {
-
-                let permissions = <chrome.permissions.Permissions>{
-                    origins: webTool.origins
-                };
-
-                chrome.permissions.contains(permissions, result => {
-                    setPermissionCheckboxStatus(serviceType, webTool.origins, result);
-                });
+            if (serviceUrls) {
+                const result = await WebToolManager.isAllowed(serviceUrls);
+                setPermissionCheckboxStatus(serviceType, serviceUrls, result);
             } else {
                 setPermissionCheckboxStatus(serviceType, webToolDescription.origins, false);
             }
@@ -300,10 +286,9 @@ $(document).ready(() => {
 
     // init
 
-    var permissionsManager = new PermissionManager();
+    const permissionsManager = new PermissionManager();
 
-    const webToolDescriptions = getWebToolDescriptions().filter(i => i.serviceType && i.scripts);
-    renderIntegrations('#integrations', webToolDescriptions);
+    renderIntegrations('#integrations', getWebToolDescriptions());
 
     setScrollArea();
     setAllLogos();

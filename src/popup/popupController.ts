@@ -1085,8 +1085,9 @@
     }
 
     private async onIntegrateWebToolClick() {
-        let manager = new PermissionManager();
-        let result = await manager.requestPermissions([this._possibleWebTool]);
+        const manager = new PermissionManager();
+        const map = WebToolManager.toServiceTypesMap([this._possibleWebTool]);
+        const result = await manager.requestPermissions(map);
         // User interaction with browser permission popup causes tmetric popup to close.
         // So no code will be execute after permission request.
         // For case when permission was removed, Chrome does not display permissions popup second time.
