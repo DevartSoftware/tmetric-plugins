@@ -714,7 +714,7 @@ abstract class ExtensionBase extends BackgroundBase {
 
             const serviceTypesMap = integrations
                 .filter(item => !!WebToolManager.toServiceUrl(item.serviceUrl))
-                .reduce((map, { serviceType, serviceUrl }) => (map[serviceUrl] = serviceType) && map, <ServiceTypesMap>{});
+                .reduce((map, { serviceType, serviceUrl }) => (map[WebToolManager.toServiceUrl(serviceUrl)] = serviceType) && map, <ServiceTypesMap>{});
 
             return serviceTypesMap;
 
