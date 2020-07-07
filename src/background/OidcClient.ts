@@ -10,7 +10,7 @@
         return `${this.authorityUrl}extension/login.html`;
     }
 
-    public static getTokensByCode(code) {
+    public static getTokensByAuthorizationCode(authorizationCode) {
 
         return new Promise<{ refresh_token, access_token }>((resolve, reject) => {
 
@@ -25,7 +25,7 @@
                 }
             }
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.send(`client_id=browser_extension&grant_type=authorization_code&code=${code}&redirect_uri=${this.authorityUrl}extension/callback.html`);
+            xhr.send(`client_id=browser_extension&grant_type=authorization_code&code=${authorizationCode}&redirect_uri=${this.authorityUrl}extension/callback.html`);
         });
     }
 
@@ -68,11 +68,11 @@
 
     public static async ajax<TReq, TRes>(url, options, dataReq?: TReq): Promise<TRes> {
 
-        // If have code - get new acces and refresh tokens
-        const code = await this.getStorageValue('code');
-        if (code) {
-            const tokens = await this.getTokensByCode(code);
-            await this.setStorageValue('code', null);
+        // If we have authorization code - get new acces and refresh tokens
+        const authorizationCode = await this.getStorageValue('authorization_code');
+        if (authorizationCode) {
+            const tokens = await this.getTokensByAuthorizationCode(authorizationCode);
+            await this.setStorageValue('authorization_code', null);
             if (tokens && tokens.refresh_token && tokens.access_token) {
                 await this.setStorageValue('refresh_token', tokens.refresh_token);
                 await this.setStorageValue('acces_token', tokens.access_token);

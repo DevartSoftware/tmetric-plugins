@@ -93,7 +93,7 @@
         "in-page-scripts/integrations/zenhub.ts",
         "in-page-scripts/integrations/zohoCRM.ts",
         "in-page-scripts/integrationService.ts",
-        "in-page-scripts/code.ts",
+        "in-page-scripts/authorizationCode.ts",
         "in-page-scripts/page.ts",
         "in-page-scripts/topmostPage.ts",
         "in-page-scripts/version.ts",
