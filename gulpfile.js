@@ -53,8 +53,6 @@ var chromeDir = distDir + 'chrome/';
 var chromeUnpackedDir = chromeDir + 'unpacked/';
 var firefoxDir = distDir + 'firefox/';
 var firefoxUnpackedDir = firefoxDir + 'unpacked/';
-var edgeDir = distDir + 'edge/';
-var edgeUnpackedDir = edgeDir + 'Extension/';
 var safariAppFolderName = 'TMetric for Safari';
 var safariAppExtensionFolderName = 'TMetric for Safari Extension';
 var safariDir = distDir + 'safari/';
@@ -65,6 +63,10 @@ console.log(JSON.stringify(config, null, 2));
 
 var files = {
     common: [
+        'src/background/webToolDescriptions.js',
+        'src/background/webToolManager.js',
+        'src/background/contentScriptsPolyfill.js',
+        'src/background/contentScriptsRegistrator.js',
         'src/background/serverConnection.js',
         'src/background/signalRHubProxy.js',
         'src/background/signalRConnection.js',
@@ -77,11 +79,16 @@ var files = {
         'src/in-page-scripts/version.js',
         'src/in-page-scripts/utils.js',
         'src/lib/**',
-        'src/images/*.png',
+        'src/images/**',
         'src/popup/popup.html',
         'src/popup/popupController.js',
         'src/popup/pagePopupController.js',
         'src/popup/popupActivator.js',
+        'src/permissions/check.html',
+        'src/permissions/check.js',
+        'src/permissions/permissionManager.js',
+        'src/permissions/permissions.html',
+        'src/permissions/permissions.js',
         'src/settings/settings.html',
         'src/settings/settingsController.js',
         'src/background/backgroundBase.js',
@@ -91,9 +98,6 @@ var files = {
     ],
     chrome: [
         'src/background/chromeExtension.js',
-    ],
-    edge: [
-        'src/background/edgeExtension.js'
     ],
     firefox: [
         'src/background/firefoxExtension.js'
@@ -178,14 +182,6 @@ gulp.task('version', (callback) => {
             src + 'safari/TMetric for Safari.xcodeproj/project.pbxproj',
             /(MARKETING_VERSION = )([\d\.]+)(;)/g,
             (match, left, oldVersion, right) => (left + version + right));
-
-        if (version.split('.').length < 4) {
-            version += '.0';
-        }
-        replaceInFile(
-            src + 'AppxManifest.xml',
-            /(Version=")([\d\.]+)(")/,
-            (match, left, oldVersion, right) => (left + version + right));
     }
     callback();
 });
@@ -261,7 +257,7 @@ gulp.task('compile:ts', () => {
     if (config.keepSources) {
         task = task.pipe(sourcemaps.write({ sourceRoot: '/', includeContent: true }))
     }
-        
+
     task = task.pipe(gulp.dest(src));
 
     return task;
@@ -324,7 +320,7 @@ function modifyManifestFirefox() {
                 gecko: { id: '@tmetric' }
             };
 
-            delete manifest['options_ui']['open_in_tab'];
+            //delete manifest['options_ui']['open_in_tab'];
 
             return manifest;
         }))
@@ -341,74 +337,6 @@ function packageFirefox() {
 }
 
 gulp.task('package:firefox', gulp.series('prepackage:firefox', packageFirefox));
-
-// =============================================================================
-// Tasks for building Edge addon
-// =============================================================================
-
-function copyFilesEdge() {
-    return gulp.src(files.common.concat(files.edge), { base: src })
-        .pipe(gulp.dest(edgeUnpackedDir));
-}
-
-function copyAppxManifest() {
-    return gulp.src('src/AppxManifest.xml', { base: src }).pipe(gulp.dest(edgeDir));
-}
-
-function copyFilesEdgeBridges() {
-    return gulp.src([
-        'src/edge-api-bridges/backgroundScriptsAPIBridge.js',
-        'src/edge-api-bridges/contentScriptsAPIBridge.js'
-    ], { base: src })
-    .pipe(rename({ dirname: '' }))
-    .pipe(gulp.dest(edgeUnpackedDir));
-}
-
-function stripDebugEdge() {
-    return stripDebugCommon(edgeUnpackedDir);
-}
-
-function modifyManifestEdge() {
-    return gulp.src(edgeUnpackedDir + '/manifest.json')
-        .pipe(modifyJSON(manifest => {
-
-            // Add -ms-preload property
-            manifest["-ms-preload"] = {
-                ["backgroundScript"]: "backgroundScriptsAPIBridge.js",
-                ["contentScript"]: "contentScriptsAPIBridge.js"
-            };
-
-            // Add persistent property to background
-            manifest['background']['persistent'] = true;
-
-            manifest['options_page'] = 'settings/settings.html';
-
-            delete manifest['options_ui'];
-
-            // Replace chromeExtension.js to edgeExtension.js
-            var scripts = manifest['background']['scripts'];
-            var index = scripts.indexOf('background/chromeExtension.js');
-            scripts[index] = 'background/edgeExtension.js';
-
-            // Show action button by default
-            manifest.browser_specific_settings = {
-                edge: {
-                    browser_action_next_to_addressbar: true
-                }
-            }
-
-            return manifest;
-        }))
-        .pipe(gulp.dest(edgeUnpackedDir));
-}
-
-gulp.task('prepackage:edge', gulp.series(
-    gulp.parallel(copyFilesEdge, copyFilesEdgeBridges, copyAppxManifest),
-    stripDebugEdge,
-    modifyManifestEdge
-));
-
-gulp.task('package:edge', gulp.series('prepackage:edge'));
 
 // =============================================================================
 // Tasks for building Safari App Extension xcode project
@@ -446,7 +374,7 @@ function bundleScriptsSafari() {
             let extensionContent = '';
 
             // add script file content
-            
+
             extensionContent += `${file.contents.toString(encoding)}`;
 
             // add common scripts
@@ -524,7 +452,7 @@ gulp.task('package:safari', gulp.series('prepackage:safari'));
 
 gulp.task('build', gulp.series(
     'clean', 'lib', 'compile', 'version',
-    gulp.parallel('package:chrome', 'package:firefox', 'package:edge', 'package:safari')
+    gulp.parallel('package:chrome', 'package:firefox', 'package:safari')
 ));
 
 // =============================================================================

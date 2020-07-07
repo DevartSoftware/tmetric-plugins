@@ -9,13 +9,11 @@
   <ItemGroup>
     <Compile Remove="wwwroot;node_modules\**\*;bower_components" />
     <EmbeddedResource Remove="wwwroot;node_modules\**\*;bower_components" />
+    <None Remove="**\*.js" />
+    <None Remove="**\*.css" />
     <None Update="node_modules\**\*;bower_components;**.xproj;**.user;**.vspscc">
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="typings\%40fake\node\" />
   </ItemGroup>
 
 </Project>

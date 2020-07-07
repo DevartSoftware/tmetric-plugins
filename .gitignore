@@ -1,5 +1,6 @@
 .DS_Store
 .vs/
+.idea/
 Thumbs.db
 *.js.map
 *.lock.json
@@ -17,6 +18,8 @@ node_modules/
 /src/in-page-scripts/**/*.js
 /src/safari/**/*.js
 /src/safari/**/*.css
+/src/permissions/*.js
+/src/permissions/*.css
 /src/popup/*.js
 /src/popup/*.css
 /src/settings/*.js

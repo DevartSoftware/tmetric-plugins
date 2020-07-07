@@ -1,0 +1,752 @@
+﻿//== Colors
+@body-color: #D0D4D8;
+@header-color: #E1F5FE;
+@container-color: #fff;
+@text-color: #34393D;
+@color: #34393D;
+@border-color: #D0D6DB;
+@control-border-color: #e0e0e0;
+
+//== Forms
+@cursor-disabled: default;
+@input-height: 36px;
+@input-color-placeholder: #A1A7B3;
+@control-focus-border-color: #178fe5;
+@control-error-border-color: #de0101;
+@dropdown-link-disabled-color: lighten(#000, 73%);
+
+//== Logos
+@logo-width: 120px;
+@logo-height: 48px;
+@logo-box-padding: 37px 20px;
+@logo-box-margin: 10px;
+@logo-border-color: #E2E7EB;
+@logo-border-radius: 6px;
+@logo-active-border-color: #3070F0;
+
+//== Typografy
+@font-weight-base: 500;
+@font-size-base: 14px;
+@line-height-base: 1.42857;
+@font-family: "Open Sans", sans-serif;
+@icon-font-size: 16px;
+
+//== Buttons
+@btn-line-height: 22px;
+@btn-font-weight: 500;
+
+@btn-default-color: @text-color;
+@btn-default-bg: #fff;
+@btn-default-border: @border-color;
+
+@btn-primary-color: #fff;
+@btn-primary-bg: #3070F0;
+@btn-primary-border: @btn-primary-bg;
+
+@btn-secondary-color: @color;
+@btn-secondary-bg: #EBEDF0;
+@btn-secondary-border: @btn-secondary-bg;
+
+@btn-success-color: #fff;
+@btn-success-bg: #17C22E;
+@btn-success-border: @border-color;
+
+@btn-icon-color: @border-color;
+@btn-icon-hover-color: #34393D;
+@btn-icon-hover-bg: #E2E7EB;
+
+//== Popup
+@popup-border-radius: 6px;
+@popup-location-width: 480px;
+@popup-confirm-width: 448px;
+
+//=============================
+
+@body-min-width: 320px;
+@container-max-width: 1160px;
+@login-page-max-width: 440px;
+@login-page-min-height: 600px;
+@login-main-padding: 32px 47px;
+@border-raduis: 4px;
+@shadow: 0 2px 3px 0 rgba(47,47,47,.25);
+
+// ==============================================
+//                  COMMON
+// ==============================================
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-weight: @font-weight-base;
+    font-family: @font-family !important;
+    font-size: @font-size-base;
+    color: @text-color;
+    background-color: @body-color;
+    min-width: @body-min-width;
+    overflow: hidden;
+}
+
+.wrapper {
+    display: flex;
+    height: 100%;
+}
+
+.container {
+    margin: auto;
+    box-sizing: border-box;
+    height: calc(100vh - 80px);
+    border: 1px solid @border-color;
+    border-radius: 6px;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    max-width: @container-max-width;
+    background: @container-color;
+
+    &.login-page {
+        height: auto;
+        max-width: @login-page-max-width;
+        min-height: @login-page-min-height;
+
+        .main {
+            padding: @login-main-padding;
+        }
+    }
+}
+
+.header {
+    padding: 37px 20px 26px;
+    text-align: center;
+    background: @header-color;
+}
+
+.header-logo {
+    margin: 0 auto 25px;
+    width: 163px;
+    height: 50px;
+    background: url('../images/logo-tmetric-with-title.svg') no-repeat;
+    .icon-svg;
+
+    a {
+        display: block;
+        height: 100%;
+    }
+}
+
+h1 {
+    margin: 0;
+    font: 700 27px/1.2857 @font-family;
+    letter-spacing: -1px;
+}
+
+p {
+    margin: 0 0 20px;
+}
+
+.w-100 {
+    width: 100%;
+}
+
+.filter-section {
+    padding: 24px 39px 0;
+}
+
+.row-flex {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+
+    .btn {
+        margin-bottom: 20px;
+    }
+}
+
+.search-holder {
+    display: flex;
+    flex-wrap: wrap;
+
+    .input-holder {
+        margin: 0 12px 20px 0;
+        width: 320px;
+        position: relative;
+
+        .fa {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            font-size: @icon-font-size;
+            transform: translateY(-50%);
+            color: #777E85;
+            z-index: 1;
+        }
+
+        .form-control {
+            padding-left: 34px;
+            position: relative;
+            z-index: 2;
+        }
+    }
+
+    .btn {
+        margin-right: 12px;
+    }
+}
+
+.form-control {
+    display: inline-block;
+    box-sizing: border-box;
+    width: 100%;
+    height: @input-height;
+    line-height: 1.5714;
+    margin: 0;
+    padding: 6px 12px;
+    border: 1px solid @border-color;
+    border-radius: 6px;
+    background-color: transparent;
+    color: @text-color;
+    font-size: @font-size-base;
+    transition: border-color ease-in-out .2s;
+    .placeholder;
+
+    &:focus {
+        border: 2px solid @control-focus-border-color;
+        outline: 0;
+        padding: 5px 11px;
+    }
+
+    .error & {
+        border-color: @control-error-border-color;
+    }
+}
+
+.logos-section {
+    border-top: 1px solid @border-color;
+    padding: 10px 15px 10px 32px;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+
+.logos-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+
+    li {
+        padding: @logo-box-margin;
+    }
+
+    .logo-wrapper {
+        display: block;
+        position: relative;
+
+        .logo-area {
+            display: block;
+            cursor: pointer;
+            transition: all 0.5s ease;
+            border-radius: @logo-border-radius;
+            padding: @logo-box-padding;
+            border: 1px solid @logo-border-color;
+            &:before,
+            &:after {
+                content: '';
+                display: block;
+                clear: both;
+                position: absolute;
+                top: 12px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 32px;
+                height: 16px;
+                background: @border-color;
+                border-radius: 8px;
+                transition: background 0.2s ease;
+            }
+            &:after {
+                top: 14px;
+                margin-left: -8px;
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                background: #fff;
+                transition: margin-left 0.2s ease;
+            }
+        }
+
+        &:hover {
+            .logo-area {
+                box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+            }
+        }
+
+        img {
+            display: block;
+            width: @logo-width;
+            height: @logo-height;
+            filter: grayscale(100%);
+            transition: all 0.5s ease;
+            opacity: 0.8;
+        }
+
+        input {
+            position: absolute;
+            visibility: hidden;
+
+            &:checked + .logo-area {
+                .active-logo;
+            }
+        }
+
+        .btn {
+            position: absolute;
+            bottom: 6px;
+            left: -9999px;
+            transform: translateX(-50%);
+            padding: 2px 10px;
+            min-width: 77px;
+            border-radius: 6px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        &.active {
+            .logo-area {
+                .active-logo;
+            }
+        }
+    }
+}
+
+.overlay {
+    position: fixed;
+    left: -9999px;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 800;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+
+    &.visible {
+        left: 0;
+        opacity: 1;
+    }
+}
+
+.popup {
+    position: fixed;
+    z-index: 900;
+    top: 50%;
+    left: -9999px;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 2px rgba(10, 31, 51, 0.2), 0 8px 12px rgba(10, 31, 51, 0.04), 0 24px 36px rgba(0, 26, 51, 0.16);
+    background: #fff;
+    border-radius: @popup-border-radius;
+    padding: 24px 20px 20px;
+    box-sizing: border-box;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+
+    &.visible {
+        left: 50%;
+        opacity: 1;
+    }
+}
+
+.location-popup {
+    width: @popup-location-width;
+
+    .icon-close {
+        position: absolute;
+        top: 0;
+        right: -48px;
+        width: 36px;
+        height: 36px;
+        background: url('../images/icon-close-dark.svg') no-repeat;
+        .icon-svg;
+    }
+
+    h2 {
+        margin: 0 0 24px;
+        font: 700 24px/1.333 @font-family;
+    }
+
+    .btn-group {
+        padding-top: 20px;
+    }
+}
+
+.list-holder {
+    margin: 0 0 20px;
+    padding: 0;
+    list-style: none;
+    border: 1px solid @border-color;
+    border-radius: 6px;
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+
+    .add-url-input-holder {
+        padding: 11px;
+        display: flex;
+    }
+
+    .url-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+
+        .form-control {
+            border: 1px solid @border-color;
+            padding: 6px 12px;
+
+            &[readonly] {
+                padding-left: 0;
+                border: 1px solid transparent;
+            }
+        }
+    }
+
+    li {
+        padding: 8px 11px;
+        display: flex;
+        border-top: 1px solid @border-color;
+    }
+
+    .input-holder,
+    .url {
+        flex-grow: 1;
+    }
+
+    .url {
+        line-height: 36px;
+    }
+
+    .btn-secondary {
+        margin: 0 0 0 12px;
+        min-width: 110px;
+
+        .fa {
+            vertical-align: middle;
+        }
+    }
+
+    .btn-icon {
+        margin-left: 4px;
+        width: 36px;
+        min-width: 36px;
+        height: 36px;
+        padding: 0;
+        font-weight: normal;
+        border: 1px solid transparent;
+        border-radius: 6px;
+        line-height: 36px;
+        text-align: center;
+        background-color: transparent;
+        color: @btn-icon-color;
+        letter-spacing: 0;
+        box-sizing: border-box;
+
+        .fa {
+            margin: 0;
+        }
+
+        &:hover,
+        &:focus {
+            color: @btn-icon-hover-color;
+            background: @btn-icon-hover-bg;
+            border-color: @btn-icon-hover-bg;
+        }
+
+        &.remove-url {
+            color: @btn-icon-hover-color;
+            border-color: @border-color;
+        }
+
+        &.save-url {
+            color: @btn-primary-color;
+            background: @btn-primary-bg;
+            border-color: @btn-primary-bg;
+
+            &:hover {
+                background: darken(@btn-primary-bg, 5%);
+                border-color: darken(@btn-primary-bg, 5%);
+            }
+
+            &[style*="none"] + .remove-url {
+                color: @btn-icon-color;
+                border-color: transparent;
+
+                &:hover,
+                &:focus {
+                    color: @btn-icon-hover-color;
+                    background: @btn-icon-hover-bg;
+                    border-color: @btn-icon-hover-bg;
+                }
+            }
+        }
+    }
+}
+
+.btn-group {
+    display: flex;
+
+    .btn {
+        margin-right: 12px;
+
+        &.btn-primary {
+            min-width: 92px;
+        }
+
+        &.btn-secondary {
+            min-width: 100px;
+        }
+    }
+}
+
+// ==============================================
+//                  BUTTONS
+// ==============================================
+.btn {
+    min-width: 90px;
+    display: inline-block;
+    margin-bottom: 0; // For input.btn
+    font-weight: @btn-font-weight;
+    text-align: center;
+    letter-spacing: .2px;
+    vertical-align: middle;
+    touch-action: manipulation;
+    cursor: pointer;
+    box-shadow: none !important;
+    background-image: none;
+    border: 1px solid transparent;
+    white-space: nowrap;
+    .button-size(6px, 12px, 14px, @btn-line-height, 4px);
+
+    .fa {
+        margin: 0 4px 0 2px;
+        font-size: @icon-font-size;
+    }
+
+    &,
+    &:active,
+    &.active {
+        &:focus,
+        &.focus {
+            outline: none;
+        }
+    }
+
+    &:hover,
+    &:focus,
+    &.focus {
+        color: @btn-default-color;
+        text-decoration: none;
+    }
+
+    &:active,
+    &.active {
+        outline: 0;
+        background-image: none;
+    }
+
+    &.disabled,
+    &[disabled],
+    fieldset[disabled] & {
+        cursor: @cursor-disabled;
+        opacity: 0.65;
+    }
+}
+
+.btn-default {
+    @color: @btn-default-color;
+    @background: @btn-default-bg;
+    @background-hover: rgba(0, 0, 0, 0.08);
+    @background-pressed: rgba(0, 0, 0, 0.11);
+    @border: @btn-default-border;
+    @border-hover: rgba(0, 0, 0, 0.1);
+    @border-pressed: rgba(0, 0, 0, 0.13);
+
+    color: @color;
+    background-color: @background;
+    border-color: @border;
+
+    &:focus,
+    &.focus {
+        color: @color;
+        background-color: @background-hover;
+        border-color: @border-hover;
+    }
+
+    &:hover {
+        color: @color;
+        background-color: @background-hover;
+        border-color: @border-hover;
+    }
+
+    &:active,
+    &.active {
+        color: @color;
+        background-color: @background-hover;
+        border-color: @border-hover;
+
+        &:hover,
+        &:focus,
+        &.focus {
+            color: @color;
+            background-color: @background-pressed;
+            border-color: @border-pressed;
+        }
+    }
+
+    &:active,
+    &.active {
+        background-image: none;
+    }
+
+    &.disabled,
+    &[disabled],
+    fieldset[disabled] & {
+        &:hover,
+        &:focus,
+        &.focus {
+            background-color: @background;
+            border-color: @border;
+        }
+    }
+}
+
+.btn-success {
+    .button-variant(@btn-success-color, @btn-success-bg, @btn-success-border);
+    min-width: 120px;
+    .fa {
+        width: 16px;
+        font-size: 12px;
+        line-height: 16px;
+        color: @btn-success-bg;
+        background: #fff;
+        border-radius: 50%;
+    }
+}
+
+.btn-primary {
+    .button-variant(@btn-primary-color, @btn-primary-bg, @btn-primary-border);
+}
+
+.btn-secondary {
+    .button-variant(@btn-secondary-color, @btn-secondary-bg, @btn-secondary-border);
+}
+
+// =================================================
+//                      MIXINS
+// =================================================
+
+.icon-svg {
+    text-indent: -9999px;
+    background-size: 100% 100%;
+    overflow: hidden;
+}
+
+.button-variant(@color, @background, @border) {
+    color: @color;
+    background-color: @background;
+    border-color: @border;
+
+    &:focus,
+    &.focus {
+        color: @color;
+        background-color: darken(@background, 5%);
+        border-color: darken(@border, 5%);
+    }
+
+    &:hover {
+        color: @color;
+        background-color: darken(@background, 5%);
+        border-color: darken(@border, 5%);
+    }
+
+    &:active,
+    &.active,
+    .open > &.dropdown-toggle {
+        color: @color;
+        background-color: darken(@background, 5%);
+        border-color: darken(@border, 5%);
+
+        &:hover,
+        &:focus,
+        &.focus {
+            color: @color;
+            background-color: darken(@background, 10%);
+            border-color: darken(@border, 10%);
+        }
+    }
+
+    &:active,
+    &.active,
+    .open > &.dropdown-toggle {
+        background-image: none;
+    }
+
+    &.disabled,
+    &[disabled],
+    fieldset[disabled] & {
+        &:hover,
+        &:focus,
+        &.focus {
+            background-color: @background;
+            border-color: @border;
+        }
+    }
+}
+
+.button-size(@padding-vertical, @padding-horizontal, @font-size, @line-height, @border-radius) {
+    padding: @padding-vertical @padding-horizontal;
+    font-size: @font-size;
+    line-height: @line-height;
+    border-radius: @border-radius;
+}
+
+.placeholder {
+
+    &::-moz-placeholder {
+        color: @input-color-placeholder !important;
+        opacity: 1; // Override Firefox's unusual default opacity; see https://github.com/twbs/bootstrap/pull/11526
+    }
+
+    &:-ms-input-placeholder {
+        color: @input-color-placeholder !important;
+    }
+
+    &::-webkit-input-placeholder {
+        color: @input-color-placeholder !important;
+    }
+    // reset input placeholder paddings in safari
+    &::-webkit-search-decoration {
+        -webkit-appearance: none;
+    }
+}
+
+.active-logo {
+    border-color: @logo-active-border-color;
+    &:before {
+        background-color: @logo-active-border-color;
+    }
+    &:after {
+        margin-left: 8px;
+    }
+
+    .btn {
+        left: 50%;
+        opacity: 1;
+    }
+
+    img {
+        filter: none;
+        opacity: 1;
+    }
+}

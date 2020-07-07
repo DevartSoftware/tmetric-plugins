@@ -11,6 +11,12 @@
     }
 }
 
+.devart-timer-link-text-only {
+    .devart-timer-link-icon {
+        display: none !important;
+    }
+}
+
 .devart-timer-link-icon {
     margin: -2px 0 !important;
     padding-right: 3px !important;
@@ -303,12 +309,6 @@
     font-size: 13px;
 }
 
-.devart-timer-link-wunderlist-detail {
-    .devart-timer-link-icon {
-        border: 8px solid transparent !important;
-    }
-}
-
 .devart-timer-link-zendesk {
     margin-top: 5px;
     float: right;
@@ -372,4 +372,86 @@
 .devart-timer-link-easy-redmine {
     display: inline-block;
     margin-bottom: 1rem;
+}
+
+.devart-timer-link-evernote {
+    display: flex;
+    font-size: 14px;
+
+    .devart-timer-link {
+        align-items: center;
+        display: flex;
+        padding: 0 7px 2px 2px;
+    }
+}
+
+.devart-timer-link-monday-slide-panel {
+    margin: 0 20px;
+
+    .devart-timer-link-icon {
+        vertical-align: bottom !important;
+    }
+}
+
+.devart-timer-link-monday-icon {
+    padding: 0 4px;
+    font-size: 20px;
+    opacity: 0.54;
+
+    &:hover {
+        opacity: 1;
+    }
+}
+
+.devart-timer-link-monday-card-dialog {
+    margin-right: 8px;
+
+    .devart-timer-link-icon {
+        vertical-align: bottom !important;
+    }
+}
+
+.devart-timer-link-microsoft-todo {
+    opacity: 0.54;
+    margin: 0 10px;
+
+    &:hover {
+        opacity: 1;
+    }
+}
+
+.devart-timer-link-microsoft-todo-details {
+    .devart-timer-link-icon {
+        margin-left: 8px !important;
+        margin-right: 12px !important;
+    }
+}
+
+.devart-timer-link-hubspot-li {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    display: block !important;
+}
+
+.devart-timer-link-zenhub {
+    align-items: flex-end !important;
+}
+
+.devart-timer-link-notion {
+    cursor: pointer !important;
+    padding-left: 8px;
+    padding-right: 8px;
+    font-size: 14px;
+    line-height: 1.2;
+    align-items: center !important;
+    display: inline-flex;
+    border-radius: 3px;
+
+    &:hover {
+        background: rgba(55, 53, 47, 0.08);
+    }
+
+    .devart-timer-link-icon {
+        margin-top: 2px !important;
+    }
 }

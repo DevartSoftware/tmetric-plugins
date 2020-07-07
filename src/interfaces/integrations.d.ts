@@ -23,6 +23,30 @@ interface Source {
     path: string;
 }
 
+type ContentScripts = {
+    js?: string[];
+    css?: string;
+    paths?: string[];
+    allFrames?: boolean;
+    runAt?: string;
+};
+
+interface WebTool {
+    serviceType: string;
+    origins: string[];
+}
+
+interface WebToolInfo extends WebTool {
+    serviceName: string;
+    icon: string;
+    keywords?: string;
+    hasAdditionalOrigins?: boolean; // means web service have more online or/and self-hosted origins
+}
+
+interface WebToolDescription extends WebToolInfo {
+    scripts: ContentScripts;
+}
+
 interface WebToolIssueIdentifier {
     serviceUrl?: string;
     issueUrl?: string;
@@ -56,12 +80,6 @@ interface AjaxStatus {
     statusCode: number;
     statusText: string;
     responseMessage: string;
-}
-
-interface ITabInfo {
-    url: string;
-    title: string;
-    issue: WebToolIssue;
 }
 
 interface ITabMessage {
@@ -109,6 +127,7 @@ interface IPopupInitData {
     canCreateTags: boolean;
     defaultProjectId: number;
     requiredFields: Models.RequiredFields;
+    possibleWebTool: WebToolInfo;
 }
 
 interface IPopupTimerData {
@@ -128,7 +147,20 @@ interface ITaskDescriptionMapping {
 }
 
 interface IExtensionSettings {
-    showPopup: Models.ShowPopupOption
+    showPopup: Models.ShowPopupOption;
+}
+
+interface ServiceTypesMap {
+    [serviceUrl: string]: string;
+}
+
+interface ServiceUrlsMap {
+    [serviceType: string]: string[];
+}
+
+interface IExtensionLocalSettings {
+    skipPermissionsRequest: boolean;
+    serviceTypes: ServiceTypesMap
 }
 
 interface IExtensionSettingsMessage {

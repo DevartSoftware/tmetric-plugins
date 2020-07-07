@@ -8,7 +8,7 @@
     },
     "dependencies": {
         "@aspnet/signalr": "1.1.4",
-        "jquery": "3.4.0",
+        "jquery": "3.5.0",
         "select2": "4.0.2"
     },
     "devDependencies": {
@@ -18,8 +18,8 @@
         "gulp-concat": "2.6.1",
         "gulp-less": "4.0.1",
         "gulp-rename": "1.4.0",
-        "gulp-strip-debug": "3.0.0",
         "gulp-sourcemaps": "2.6.5",
+        "gulp-strip-debug": "3.0.0",
         "gulp-typescript": "5.0.0",
         "gulp-zip": "4.2.0",
         "jsonfile": "5.0.0",

@@ -8,6 +8,7 @@ abstract class ExtensionBase extends BackgroundBase {
             maxTimerHours: constants.maxTimerHours,
             serviceUrl: this.getUrl('tmetric.url', constants.serviceUrl),
             storageUrl: this.getUrl('tmetric.storageUrl', constants.storageUrl),
+            authorityUrl: this.getUrl('tmetric.authorityUrl', constants.authorityUrl),
             extensionName: this.getExtensionName(),
             browserSchema: this.getBrowserSchema(),
             extensionUUID: this.getExtensionUUID()
@@ -26,46 +27,16 @@ abstract class ExtensionBase extends BackgroundBase {
         return this.normalizeUrlLastSlash(this.getTestValue(key) || defaultValue);
     }
 
-    /**
-     * Create popup window
-     * @param width
-     * @param height
-     * @param left
-     * @param top
-     */
-    private createLoginDialog(width: number, height: number, left: number, top: number) {
+    private createLoginDialog() {
 
-        chrome.windows.create(<chrome.windows.CreateData>{
-            left,
-            top,
-            width,
-            height,
-            url: this.getLoginUrl(),
-            type: 'popup'
-        }, popupWindow => {
-
-            let popupTab = popupWindow.tabs[0];
-
-            this.loginWinId = popupWindow.id;
-            this.loginTabId = popupTab.id;
-            this.loginWindowPending = false;
-
-            let updateInfo = <chrome.windows.UpdateInfo>{ focused: true };
-
-            if (popupTab.width) {
-                let deltaWidth = width - popupTab.width;
-                updateInfo.left = left - Math.round(deltaWidth / 2);
-                updateInfo.width = width + deltaWidth;
+        chrome.tabs.create(
+            { url: OidcClient.getLoginUrl() } as chrome.tabs.CreateProperties,
+            tab => {
+                this.loginWinId = tab.id;
+                this.loginTabId = tab.windowId;
+                this.loginWindowPending = false;
             }
-
-            if (popupTab.height) {
-                let deltaHeight = height - popupTab.height;
-                updateInfo.top = top - Math.round(deltaHeight / 2);
-                updateInfo.height = height + deltaHeight;
-            }
-
-            chrome.windows.update(popupWindow.id, updateInfo);
-        });
+        );
     }
 
     /**
@@ -164,6 +135,8 @@ abstract class ExtensionBase extends BackgroundBase {
         this.registerTabsUpdateListener();
         this.registerTabsRemoveListener();
 
+        this.registerContentScripts();
+
         // Update hint once per minute
         let setUpdateTimeout = () => setTimeout(() => {
             this.updateState();
@@ -177,7 +150,7 @@ abstract class ExtensionBase extends BackgroundBase {
 
         super.init();
 
-        this.signalRUrl = this.getUrl('tmetric.signalRUrl', 'https://signalr.tmetric.com/');
+        this.signalRUrl = this.getUrl('tmetric.signalRUrl', 'https://services.tmetric.com/signalr/');
 
         this.extraHours = this.getTestValue('tmetric.extraHours');
         if (this.extraHours) {
@@ -193,7 +166,7 @@ abstract class ExtensionBase extends BackgroundBase {
         this.connection = new SignalRConnection();
 
         this.connection
-            .init({ serviceUrl: this.constants.serviceUrl, signalRUrl: this.signalRUrl })
+            .init({ serviceUrl: this.constants.serviceUrl, signalRUrl: this.signalRUrl, authorityUrl: this.constants.authorityUrl })
             .then(() => this.connection.getVersion());
     }
 
@@ -517,20 +490,7 @@ abstract class ExtensionBase extends BackgroundBase {
             }
             this.loginWindowPending = true;
             try {
-
-                let width = 420;
-                let height = 635;
-                let left = 400;
-                let top = 250;
-
-                if (pageWindow.left != null && pageWindow.width != null) {
-                    left = Math.round(pageWindow.left + (pageWindow.width - width) / 2);
-                }
-                if (pageWindow.top != null && pageWindow.height != null) {
-                    top = Math.round(pageWindow.top + (pageWindow.height - height) / 2);
-                }
-
-                this.createLoginDialog(width, height, left, top);
+                this.createLoginDialog();
             }
             catch (e) {
                 this.loginWindowPending = false;
@@ -578,7 +538,7 @@ abstract class ExtensionBase extends BackgroundBase {
             chrome.tabs.query({ currentWindow: true, active: true },
                 function (tabs) {
                     let activeTab = tabs && tabs[0];
-                    let title = activeTab && activeTab.title;
+                    let title = activeTab && activeTab.title || null;
                     resolve(title);
                 });
         });
@@ -589,10 +549,46 @@ abstract class ExtensionBase extends BackgroundBase {
             chrome.tabs.query({ currentWindow: true, active: true },
                 function (tabs) {
                     let activeTab = tabs && tabs[0];
-                    let id = activeTab && activeTab.id;
+                    let id = activeTab && activeTab.id || null;
                     resolve(id);
                 });
         });
+    }
+
+    protected getActiveTabUrl() {
+        return new Promise<string>((resolve, reject) => {
+            chrome.tabs.query({ currentWindow: true, active: true },
+                function (tabs) {
+                    let activeTab = tabs && tabs[0];
+                    let url = activeTab && activeTab.url || null;
+                    resolve(url);
+                });
+        });
+    }
+
+    protected async getActiveTabPossibleWebTool() {
+
+        const url = await this.getActiveTabUrl();
+        const origin = WebToolManager.toOrigin(url);
+        if (!origin) {
+            return;
+        }
+
+        if (await WebToolManager.isAllowed([origin])) {
+            return;
+        }
+
+        const isMatchUrl = (origin: string) => WebToolManager.isMatch(url, origin);
+
+        const webTools = getWebToolDescriptions();
+        const webTool = webTools.find(webTool => webTool.origins.some(isMatchUrl));
+        if (webTool) {
+            return <WebToolInfo>{
+                serviceType: webTool.serviceType,
+                serviceName: webTool.serviceName,
+                origins: [origin]
+            };
+        }
     }
 
     protected openPage(url: string) {
@@ -633,13 +629,15 @@ abstract class ExtensionBase extends BackgroundBase {
     }
 
     private registerTabsUpdateListener() {
-        chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+        chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+            console.log({tabId, changeInfo})
             if (tabId == this.loginTabId && changeInfo.url) {
                 let tabUrl = changeInfo.url.toLowerCase();
                 let serviceUrl = this.constants.serviceUrl.toLowerCase();
+                console.log({ tabUrl, serviceUrl })
                 if (tabUrl == serviceUrl || tabUrl.indexOf(serviceUrl + '#') == 0) {
-                    chrome.tabs.remove(tabId);
-                    return;
+                    console.log('remove', tabId)
+                    chrome.tabs.remove(tabId, () => { console.log('remove done') });
                 }
             }
         });
@@ -650,9 +648,47 @@ abstract class ExtensionBase extends BackgroundBase {
             if (tabId == this.loginTabId) {
                 this.loginTabId = null;
                 this.loginWinId = null;
-                this.connection.reconnect();
+                this.connection.reconnect()
+                    .then(() => this.checkPermissions())
+                    .catch(() => { });
             }
         });
+    }
+
+    // permissions
+
+    private async onPermissionsMessage(message: ITabMessage, callback: (data: any) => void) {
+        if (message.action == 'getItegratedServices') {
+            const items = await this.getItegratedServices();
+            callback(items);
+        }
+    }
+
+    private async getItegratedServices() {
+        try {
+
+            const integrations = await this.connection.getIntegrations();
+
+            const serviceTypesMap = integrations
+                .filter(item => !!WebToolManager.toServiceUrl(item.serviceUrl))
+                .reduce((map, { serviceType, serviceUrl }) => (map[WebToolManager.toServiceUrl(serviceUrl)] = serviceType) && map, <ServiceTypesMap>{});
+
+            return serviceTypesMap;
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    private async checkPermissions() {
+        let url = chrome.runtime.getURL('permissions/check.html');
+        chrome.tabs.create({ url, active: true });
+    }
+
+    private contentScriptRegistrator = new ContentScriptsRegistrator();
+
+    protected registerContentScripts() {
+        this.contentScriptRegistrator.register();
     }
 
     protected registerMessageListener() {
@@ -662,9 +698,16 @@ abstract class ExtensionBase extends BackgroundBase {
             senderResponse: (IPopupResponse) => void
         ) => {
 
+            console.log(message, sender)
+
             // Popup requests
-            if (!sender.url || sender.url.startsWith(this.constants.browserSchema)) {
+            if (!sender.url || sender.url.startsWith(chrome.runtime.getURL('popup'))) {
                 this.onPopupRequest(message, senderResponse);
+                return !!senderResponse;
+            }
+
+            if (sender.url && sender.url.startsWith(chrome.runtime.getURL('permissions'))) {
+                this.onPermissionsMessage(message, senderResponse);
                 return !!senderResponse;
             }
 
