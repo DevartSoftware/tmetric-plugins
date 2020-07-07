@@ -62,7 +62,7 @@
         },
         {
             "matches": [ "*://*.tmetric.com/extension/callback.html?*" ],
-            "js": [ "in-page-scripts/code.js" ],
+            "js": [ "in-page-scripts/authorizationCode.js" ],
             "run_at": "document_end"
         }
     ],
