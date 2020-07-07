@@ -55,13 +55,15 @@ web browsers are **Chrome**, **Firefox**, **Edge**, **Opera**, and **Safari**.
 * [YouTrack](https://www.jetbrains.com/youtrack)
 * [Zammad](https://www.zammad.com)
 * [Zendesk](https://www.zendesk.com)
+* [ZenHub](https://www.zenhub.com/)
 * [Zoho CRM](https://www.zoho.com/crm)
 
 ## Installing from web store
 * **Chrome** -  https://chrome.google.com/webstore/detail/tmetric-extension/ffijoclmniipjbhecddgkfpdafpbdnen
 * **Firefox** - https://addons.mozilla.org/en-US/firefox/addon/tmetric-extension/
-* **Edge** - https://www.microsoft.com/store/apps/9n4sfvphnpxr
+* **Edge** - https://microsoftedge.microsoft.com/addons/detail/bkohhohbfioiffcejghnjljadblbifok
 * **Opera** - https://addons.opera.com/en/extensions/details/tmetric-extension/
+* **Safari** - https://apps.apple.com/app/tmetric-for-safari/id1483939427
 
 ## Installing from source code
 **Requirements**
