@@ -65,6 +65,7 @@ var files = {
     common: [
         'src/background/webToolDescriptions.js',
         'src/background/webToolManager.js',
+        'src/background/oidcClient.js',
         'src/background/contentScriptsPolyfill.js',
         'src/background/contentScriptsRegistrator.js',
         'src/background/serverConnection.js',
@@ -73,6 +74,7 @@ var files = {
         'src/css/*.css',
         'src/in-page-scripts/integrations/*.js',
         'src/in-page-scripts/integrationService.js',
+        'src/in-page-scripts/authorizationCode.js',
         'src/in-page-scripts/page.js',
         'src/in-page-scripts/init.js',
         'src/in-page-scripts/topmostPage.js',
