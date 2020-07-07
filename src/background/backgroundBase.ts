@@ -5,6 +5,7 @@
             maxTimerHours: 12,
             serviceUrl: 'https://app.tmetric.com/',
             storageUrl: 'https://services.tmetric.com/storage/',
+            authorityUrl: 'https://id.tmetric.com/'
         };
     }
 
@@ -64,7 +65,7 @@
 
         this.connection = new ServerConnection();
 
-        this.connection.init({ serviceUrl: this.constants.serviceUrl });
+        this.connection.init({ serviceUrl: this.constants.serviceUrl, authorityUrl: this.constants.authorityUrl });
     }
 
     protected async getProject(projectId: number, accountId?: number) {

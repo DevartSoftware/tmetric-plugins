@@ -8,6 +8,7 @@ abstract class ExtensionBase extends BackgroundBase {
             maxTimerHours: constants.maxTimerHours,
             serviceUrl: this.getUrl('tmetric.url', constants.serviceUrl),
             storageUrl: this.getUrl('tmetric.storageUrl', constants.storageUrl),
+            authorityUrl: this.getUrl('tmetric.authorityUrl', constants.authorityUrl),
             extensionName: this.getExtensionName(),
             browserSchema: this.getBrowserSchema(),
             extensionUUID: this.getExtensionUUID()
@@ -26,47 +27,16 @@ abstract class ExtensionBase extends BackgroundBase {
         return this.normalizeUrlLastSlash(this.getTestValue(key) || defaultValue);
     }
 
-    /**
-     * Create popup window
-     * @param width
-     * @param height
-     * @param left
-     * @param top
-     */
-    private createLoginDialog(width: number, height: number, left: number, top: number) {
+    private createLoginDialog() {
 
-        chrome.windows.create(<chrome.windows.CreateData>{
-            left,
-            top,
-            width,
-            height,
-            url: this.getLoginUrl(),
-            type: 'popup'
-        },
-        popupWindow => {
-
-            let popupTab = popupWindow.tabs[0];
-
-            this.loginWinId = popupWindow.id;
-            this.loginTabId = popupTab.id;
-            this.loginWindowPending = false;
-
-            let updateInfo = <chrome.windows.UpdateInfo>{ focused: true };
-
-            if (popupTab.width) {
-                let deltaWidth = width - popupTab.width;
-                updateInfo.left = left - Math.round(deltaWidth / 2);
-                updateInfo.width = width + deltaWidth;
+        chrome.tabs.create(
+            { url: OidcClient.getLoginUrl() } as chrome.tabs.CreateProperties,
+            tab => {
+                this.loginWinId = tab.id;
+                this.loginTabId = tab.windowId;
+                this.loginWindowPending = false;
             }
-
-            if (popupTab.height) {
-                let deltaHeight = height - popupTab.height;
-                updateInfo.top = top - Math.round(deltaHeight / 2);
-                updateInfo.height = height + deltaHeight;
-            }
-
-            chrome.windows.update(popupWindow.id, updateInfo);
-        });
+        );
     }
 
     /**
@@ -196,7 +166,7 @@ abstract class ExtensionBase extends BackgroundBase {
         this.connection = new SignalRConnection();
 
         this.connection
-            .init({ serviceUrl: this.constants.serviceUrl, signalRUrl: this.signalRUrl })
+            .init({ serviceUrl: this.constants.serviceUrl, signalRUrl: this.signalRUrl, authorityUrl: this.constants.authorityUrl })
             .then(() => this.connection.getVersion());
     }
 
@@ -520,20 +490,7 @@ abstract class ExtensionBase extends BackgroundBase {
             }
             this.loginWindowPending = true;
             try {
-
-                let width = 420;
-                let height = 635;
-                let left = 400;
-                let top = 250;
-
-                if (pageWindow.left != null && pageWindow.width != null) {
-                    left = Math.round(pageWindow.left + (pageWindow.width - width) / 2);
-                }
-                if (pageWindow.top != null && pageWindow.height != null) {
-                    top = Math.round(pageWindow.top + (pageWindow.height - height) / 2);
-                }
-
-                this.createLoginDialog(width, height, left, top);
+                this.createLoginDialog();
             }
             catch (e) {
                 this.loginWindowPending = false;

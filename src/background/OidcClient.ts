@@ -1,18 +1,13 @@
-﻿abstract class CustomOidc {
+﻿abstract class OidcClient {
 
-    private static authority = "https://id.tmetric.com";
-    public static isCodeRequestInProgress = false;
+    private static authorityUrl;
 
-    private static delay = millis => new Promise((resolve) => {
-        setTimeout(_ => resolve(), millis)
-    });
+    public static init(authorityUrl: string) {
+        this.authorityUrl = authorityUrl;
+    }
 
-    public static async getCodeRequest() {
-
-        if (this.isCodeRequestInProgress)
-            return;
-        this.isCodeRequestInProgress = true;
-        window.open(`${this.authority}/extension/login.html`);
+    public static getLoginUrl(): string {
+        return `${this.authorityUrl}extension/login.html`;
     }
 
     public static getTokensByCode(code) {
@@ -20,7 +15,7 @@
         return new Promise<{ refresh_token, access_token }>((resolve, reject) => {
 
             const xhr = new XMLHttpRequest();
-            xhr.open("POST", `${this.authority}/core/connect/token`);
+            xhr.open("POST", `${this.authorityUrl}core/connect/token`);
             xhr.onload = function () {
                 if (xhr.status === 200) {
                     resolve(JSON.parse(xhr.responseText));
@@ -30,7 +25,7 @@
                 }
             }
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.send(`client_id=browser_extension&grant_type=authorization_code&code=${code}&redirect_uri=${this.authority}/extension/callback.html`);
+            xhr.send(`client_id=browser_extension&grant_type=authorization_code&code=${code}&redirect_uri=${this.authorityUrl}extension/callback.html`);
         });
     }
 
@@ -39,7 +34,7 @@
         return new Promise<{ refresh_token, access_token }>((resolve, reject) => {
 
             const xhr = new XMLHttpRequest();
-            xhr.open("POST", `${this.authority}/core/connect/token`);
+            xhr.open("POST", `${this.authorityUrl}core/connect/token`);
             xhr.onload = function () {
                 if (xhr.status === 200) {
                     resolve(JSON.parse(xhr.responseText));
@@ -49,13 +44,13 @@
                 }
             }
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.send(`client_id=browser_extension&grant_type=refresh_token&refresh_token=${refreshToken}&redirect_uri=${this.authority}/extension/callback.html`);
+            xhr.send(`client_id=browser_extension&grant_type=refresh_token&refresh_token=${refreshToken}&redirect_uri=${this.authorityUrl}extension/callback.html`);
         });
     }
 
     public static getStorageValue(key: string): Promise<string> {
         return new Promise<string>((resolve) => {
-            chrome.storage.sync.get([key], function (result) {
+            chrome.storage.local.get([key], function (result) {
                 resolve(result[key]);
             });
         });
@@ -65,7 +60,7 @@
         return new Promise((resolve) => {
             const obj = {};
             obj[key] = value;
-            chrome.storage.sync.set(obj, function () {
+            chrome.storage.local.set(obj, function () {
                 resolve();
             });
         });
@@ -73,41 +68,39 @@
 
     public static async ajax<TReq, TRes>(url, options, dataReq?: TReq): Promise<TRes> {
 
+        // If have code - get new acces and refresh tokens
+        const code = await this.getStorageValue('code');
+        if (code) {
+            const tokens = await this.getTokensByCode(code);
+            await this.setStorageValue('code', null);
+            if (tokens && tokens.refresh_token && tokens.access_token) {
+                await this.setStorageValue('refresh_token', tokens.refresh_token);
+                await this.setStorageValue('acces_token', tokens.access_token);
+                return await this.ajaxInternal<TReq, TRes>(tokens.access_token, url, options, dataReq);
+            }
+        }
+
         // Try to connect with presaved acces token
-        let accesToken = await this.getStorageValue('acces_token');
+        const accesToken = await this.getStorageValue('acces_token');
         if (accesToken) {
             try {
                 return await this.ajaxInternal<TReq, TRes>(accesToken, url, options, dataReq);
             }
             catch (error) {
-                // Will try to reconnect on the next step
-            }
-        }
-
-        // Try to get new acces token with presaved refresh token
-        const refreshToken = await this.getStorageValue('refresh_token');
-        if (refreshToken) {
-            const tokens = await this.getTokensByRefresh(refreshToken);
-            if (tokens && tokens.refresh_token && tokens.access_token) {
-                await this.setStorageValue('refresh_token', tokens.refresh_token);
-                await this.setStorageValue('acces_token', tokens.access_token);
-                try {
-                    return await this.ajaxInternal<TReq, TRes>(accesToken, url, options, dataReq);
-                }
-                catch (error) {
-                    // Will try to reconnect on the next step
+                // Try to get new acces token with presaved refresh token
+                const refreshToken = await this.getStorageValue('refresh_token');
+                if (refreshToken) {
+                    const tokens = await this.getTokensByRefresh(refreshToken);
+                    if (tokens && tokens.refresh_token && tokens.access_token) {
+                        await this.setStorageValue('refresh_token', tokens.refresh_token);
+                        await this.setStorageValue('acces_token', tokens.access_token);
+                        return await this.ajaxInternal<TReq, TRes>(tokens.access_token, url, options, dataReq);
+                    }
                 }
             }
         }
 
-        // Try to get new acces and refresh tokens with user login form
-        await this.getCodeRequest();
-        do {
-            await this.delay(100);
-            accesToken = await this.getStorageValue('acces_token');
-        } while (this.isCodeRequestInProgress);
-
-        return await this.ajaxInternal<TReq, TRes>(accesToken, url, options, dataReq);
+        throw 'No credentials to connect';
     }
 
     private static ajaxInternal<TReq, TRes>(token: string, url: string, method: string, dataReq?: TReq): Promise<TRes> {
@@ -169,17 +162,3 @@
     }
 }
 
-(async function () {
-
-    const div = document.getElementById('code');
-    const code = div.innerText;
-    div.innerText = ''; // Say page to close itself
-
-    const tokens = await CustomOidc.getTokensByCode(code);
-    if (tokens && tokens.refresh_token && tokens.access_token) {
-        await CustomOidc.setStorageValue('refresh_token', tokens.refresh_token);
-        await CustomOidc.setStorageValue('acces_token', tokens.access_token);
-    }
-        
-    CustomOidc.isCodeRequestInProgress = false;
-})();

@@ -50,6 +50,7 @@
     init(options: any): Promise<void> {
 
         this.serviceUrl = options.serviceUrl;
+        OidcClient.init(options.authorityUrl);
 
         return this.reconnect().catch(() => { });
     }
@@ -232,17 +233,17 @@
     }
 
     get<TRes>(url: string): Promise<TRes> {
-        return CustomOidc.ajax(this.serviceUrl + url, 'GET');
+        return OidcClient.ajax(this.serviceUrl + url, 'GET');
     }
 
     post<TReq, TRes>(url: string, data: TReq): Promise<TRes>
     post<TReq>(url: string, data: TReq): Promise<void>
     post<TReq>(url: string, data: TReq): Promise<any> {
-        return CustomOidc.ajax<TReq, any>(this.serviceUrl + url, 'POST', data);
+        return OidcClient.ajax<TReq, any>(this.serviceUrl + url, 'POST', data);
     }
 
     put<TReq>(url: string, data: TReq): Promise<void> {
-        return CustomOidc.ajax<TReq, void>(this.serviceUrl + url, 'PUT', data);
+        return OidcClient.ajax<TReq, void>(this.serviceUrl + url, 'PUT', data);
     }
 
     getIntegrationsUrl() {

@@ -37,7 +37,7 @@
         "scripts": [
             "lib/jquery.min.js",
             "lib/signalr.min.js",
-            "in-page-scripts/customOidc.js",
+            "background/oidcClient.js",
             "background/webToolDescriptions.js",
             "background/webToolManager.js",
             "background/contentScriptsPolyfill.js",
@@ -62,7 +62,7 @@
         },
         {
             "matches": [ "*://*.tmetric.com/extension/callback.html?*" ],
-            "js": [ "in-page-scripts/customOidc.js" ],
+            "js": [ "in-page-scripts/code.js" ],
             "run_at": "document_end"
         }
     ],
