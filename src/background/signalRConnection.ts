@@ -57,6 +57,7 @@
 
         this.serviceUrl = options.serviceUrl;
         this.signalRUrl = options.signalRUrl;
+        OidcClient.init(options.authorityUrl);
 
         this.hubProxy.on('updateTimer', (accountId: number) => {
             if (this.userProfile && accountId != this.userProfile.activeAccountId) {

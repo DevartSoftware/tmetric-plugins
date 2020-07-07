@@ -50,6 +50,7 @@
     init(options: any): Promise<void> {
 
         this.serviceUrl = options.serviceUrl;
+        OidcClient.init(options.authorityUrl);
 
         return this.reconnect().catch(() => { });
     }
@@ -232,72 +233,17 @@
     }
 
     get<TRes>(url: string): Promise<TRes> {
-        return this.ajax(url, 'GET');
+        return OidcClient.ajax(this.serviceUrl + url, 'GET');
     }
 
     post<TReq, TRes>(url: string, data: TReq): Promise<TRes>
     post<TReq>(url: string, data: TReq): Promise<void>
     post<TReq>(url: string, data: TReq): Promise<any> {
-        return this.ajax<TReq, any>(url, 'POST', data);
+        return OidcClient.ajax<TReq, any>(this.serviceUrl + url, 'POST', data);
     }
 
     put<TReq>(url: string, data: TReq): Promise<void> {
-        return this.ajax<TReq, void>(url, 'PUT', data);
-    }
-
-    ajax<TReq, TRes>(url: string, method: string, dataReq?: TReq): Promise<TRes> {
-        var settings = <JQueryAjaxSettings>{};
-        settings.url = this.serviceUrl + url;
-
-        if (dataReq !== undefined) {
-            settings.data = JSON.stringify(dataReq);
-            settings.contentType = "application/json";
-        }
-
-        var isGet = method == 'GET';
-        var isPost = method == 'POST';
-
-        if (isGet || isPost) {
-            settings.type = method;
-        }
-        else {
-            settings.type = 'POST';
-            settings.headers = {};
-            settings.headers['X-HTTP-Method-Override'] = method;
-        }
-
-        return new Promise<TRes>((callback, reject) => {
-
-            var xhr = $.ajax(settings);
-
-            xhr.done(dataRes => {
-                if (xhr.status >= 200 && xhr.status < 400) {
-                    callback(dataRes);
-                }
-                else {
-                    reject(fail);
-                }
-            });
-
-            xhr.fail(fail);
-
-            function fail() {
-                var statusCode = xhr.status;
-                var statusText = xhr.statusText;
-                if (xhr.responseJSON) {
-                    var responseMessage = xhr.responseJSON.message;
-                }
-
-                if (statusText == 'error') // jQuery replaces empty status to 'error'
-                {
-                    statusText = '';
-                }
-                if (statusCode && !statusText) { // HTTP/2 does not define a way to carry the reason phrase
-                    statusText = ServerConnection.statusDescriptions[statusCode];
-                }
-                reject(<AjaxStatus>{ statusCode, statusText, responseMessage });
-            }
-        });
+        return OidcClient.ajax<TReq, void>(this.serviceUrl + url, 'PUT', data);
     }
 
     getIntegrationsUrl() {

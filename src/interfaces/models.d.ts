@@ -37,6 +37,7 @@ declare module Models {
         extensionUUID: string;
         serviceUrl: string;
         storageUrl: string;
+        authorityUrl: string;
     }
 
     interface TimeZoneInfo {
