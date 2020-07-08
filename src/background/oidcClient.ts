@@ -71,8 +71,8 @@
         // If we have authorization code - get new acces and refresh tokens
         const authorizationCode = await this.getStorageValue('authorization_code');
         if (authorizationCode) {
-            const tokens = await this.getTokensByAuthorizationCode(authorizationCode);
             await this.setStorageValue('authorization_code', null);
+            const tokens = await this.getTokensByAuthorizationCode(authorizationCode);
             if (tokens && tokens.refresh_token && tokens.access_token) {
                 await this.setStorageValue('refresh_token', tokens.refresh_token);
                 await this.setStorageValue('acces_token', tokens.access_token);
@@ -161,4 +161,3 @@
         });
     }
 }
-

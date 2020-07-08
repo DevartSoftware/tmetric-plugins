@@ -630,7 +630,7 @@ abstract class ExtensionBase extends BackgroundBase {
 
     private registerTabsUpdateListener() {
         chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-            console.log({tabId, changeInfo})
+            console.log({ tabId, changeInfo })
             if (tabId == this.loginTabId && changeInfo.url) {
                 let tabUrl = changeInfo.url.toLowerCase();
                 let serviceUrl = this.constants.serviceUrl.toLowerCase();
@@ -644,13 +644,20 @@ abstract class ExtensionBase extends BackgroundBase {
     }
 
     private registerTabsRemoveListener() {
+        chrome.storage.onChanged.addListener((changes) => {
+            const change = changes['authorization_code']
+            if (change && change.newValue) {
+                chrome.tabs.remove(this.loginTabId);
+                this.connection.reconnect()
+                    .then(() => this.checkPermissions())
+                    .catch(() => { });
+            }
+        });
+
         chrome.tabs.onRemoved.addListener((tabId) => {
             if (tabId == this.loginTabId) {
                 this.loginTabId = null;
                 this.loginWinId = null;
-                this.connection.reconnect()
-                    .then(() => this.checkPermissions())
-                    .catch(() => { });
             }
         });
     }
@@ -674,7 +681,6 @@ abstract class ExtensionBase extends BackgroundBase {
                 .reduce((map, { serviceType, serviceUrl }) => (map[WebToolManager.toServiceUrl(serviceUrl)] = serviceType) && map, <ServiceTypesMap>{});
 
             return serviceTypesMap;
-
         } catch (error) {
             console.log(error)
         }
