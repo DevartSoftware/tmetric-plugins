@@ -132,7 +132,6 @@ abstract class ExtensionBase extends BackgroundBase {
             this.removeIssuesDurationsFromCache(identifiers);
         });
 
-        this.registerTabsUpdateListener();
         this.registerTabsRemoveListener();
 
         this.registerContentScripts();
@@ -625,21 +624,6 @@ abstract class ExtensionBase extends BackgroundBase {
                     chrome.tabs.create({ active: true, windowId: currentWindowId, url });
                 }
             });
-        });
-    }
-
-    private registerTabsUpdateListener() {
-        chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-            console.log({ tabId, changeInfo })
-            if (tabId == this.loginTabId && changeInfo.url) {
-                let tabUrl = changeInfo.url.toLowerCase();
-                let serviceUrl = this.constants.serviceUrl.toLowerCase();
-                console.log({ tabUrl, serviceUrl })
-                if (tabUrl == serviceUrl || tabUrl.indexOf(serviceUrl + '#') == 0) {
-                    console.log('remove', tabId)
-                    chrome.tabs.remove(tabId, () => { console.log('remove done') });
-                }
-            }
         });
     }
 
