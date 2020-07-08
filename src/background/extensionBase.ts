@@ -132,6 +132,10 @@ abstract class ExtensionBase extends BackgroundBase {
             this.removeIssuesDurationsFromCache(identifiers);
         });
 
+        this.registerInstallListener();
+
+        this.registerStorageListener();
+
         this.registerTabsRemoveListener();
 
         this.registerContentScripts();
@@ -627,17 +631,27 @@ abstract class ExtensionBase extends BackgroundBase {
         });
     }
 
-    private registerTabsRemoveListener() {
+    private registerInstallListener() {
+        chrome.runtime.onInstalled.addListener(details => {
+            if (details.reason == 'install') {
+                this.showLoginDialog();
+            }
+        });
+    }
+
+    private registerStorageListener() {
         chrome.storage.onChanged.addListener((changes) => {
-            const change = changes['authorization_code']
-            if (change && change.newValue) {
+            const authorization_code = changes['authorization_code'];
+            if (authorization_code && authorization_code.newValue) {
                 chrome.tabs.remove(this.loginTabId);
                 this.connection.reconnect()
                     .then(() => this.checkPermissions())
                     .catch(() => { });
             }
         });
+    }
 
+    private registerTabsRemoveListener() {
         chrome.tabs.onRemoved.addListener((tabId) => {
             if (tabId == this.loginTabId) {
                 this.loginTabId = null;
