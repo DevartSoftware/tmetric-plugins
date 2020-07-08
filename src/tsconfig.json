@@ -41,7 +41,6 @@
         "in-page-scripts/integrations/asana.ts",
         "in-page-scripts/integrations/assembla.ts",
         "in-page-scripts/integrations/axosoft.ts",
-        "in-page-scripts/integrations/basecamp.ts",
         "in-page-scripts/integrations/bitbucket.ts",
         "in-page-scripts/integrations/bitrix24.ts",
         "in-page-scripts/integrations/bugzilla.ts",

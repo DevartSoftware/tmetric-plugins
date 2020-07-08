@@ -67,16 +67,6 @@
             }
         },
         {
-            serviceType: 'Basecamp',
-            serviceName: 'Basecamp',
-            icon: 'basecamp.svg',
-            origins: ['https://*.basecamp.com/*'],
-            scripts: {
-                js: ['in-page-scripts/integrations/basecamp.js'],
-                paths: ['*/buckets/*']
-            }
-        },
-        {
             serviceType: 'Bitbucket',
             serviceName: 'Bitbucket',
             icon: 'bitbucket.svg',
