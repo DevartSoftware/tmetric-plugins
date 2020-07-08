@@ -32,8 +32,8 @@ abstract class ExtensionBase extends BackgroundBase {
         chrome.tabs.create(
             { url: OidcClient.getLoginUrl() } as chrome.tabs.CreateProperties,
             tab => {
-                this.loginWinId = tab.id;
-                this.loginTabId = tab.windowId;
+                this.loginWinId = tab.windowId;
+                this.loginTabId = tab.id;
                 this.loginWindowPending = false;
             }
         );
