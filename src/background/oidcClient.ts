@@ -6,6 +6,13 @@
         this.authorityUrl = authorityUrl;
     }
 
+    public static isLoggedIn() {
+        return Promise.all([
+            this.getStorageValue('access_token'),
+            this.getStorageValue('refresh_token')
+        ]).then(tokens => tokens.every(_ => !!_));
+    }
+
     public static getLoginUrl(): string {
         return `${this.authorityUrl}extension/login.html`;
     }
@@ -75,13 +82,13 @@
             const tokens = await this.getTokensByAuthorizationCode(authorizationCode);
             if (tokens && tokens.refresh_token && tokens.access_token) {
                 await this.setStorageValue('refresh_token', tokens.refresh_token);
-                await this.setStorageValue('acces_token', tokens.access_token);
+                await this.setStorageValue('access_token', tokens.access_token);
                 return await this.ajaxInternal<TReq, TRes>(tokens.access_token, url, options, dataReq);
             }
         }
 
         // Try to connect with presaved acces token
-        const accesToken = await this.getStorageValue('acces_token');
+        const accesToken = await this.getStorageValue('access_token');
         if (accesToken) {
             try {
                 return await this.ajaxInternal<TReq, TRes>(accesToken, url, options, dataReq);
@@ -93,7 +100,7 @@
                     const tokens = await this.getTokensByRefresh(refreshToken);
                     if (tokens && tokens.refresh_token && tokens.access_token) {
                         await this.setStorageValue('refresh_token', tokens.refresh_token);
-                        await this.setStorageValue('acces_token', tokens.access_token);
+                        await this.setStorageValue('access_token', tokens.access_token);
                         return await this.ajaxInternal<TReq, TRes>(tokens.access_token, url, options, dataReq);
                     }
                 }

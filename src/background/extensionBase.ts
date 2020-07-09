@@ -632,9 +632,14 @@ abstract class ExtensionBase extends BackgroundBase {
     }
 
     private registerInstallListener() {
-        chrome.runtime.onInstalled.addListener(details => {
+        chrome.runtime.onInstalled.addListener(async details => {
             if (details.reason == 'install') {
                 this.showLoginDialog();
+            } else if (details.reason == 'update') {
+                const isLoggedIn = await OidcClient.isLoggedIn();
+                if (!isLoggedIn) {
+                    this.showLoginDialog();
+                }
             }
         });
     }
