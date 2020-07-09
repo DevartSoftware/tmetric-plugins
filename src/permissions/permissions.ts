@@ -176,6 +176,7 @@ $(document).ready(() => {
     }
 
     function setAllLogos() {
+
         $('.enable-all').click(async () => {
 
             const map = WebToolManager.toServiceTypesMap(getWebToolDescriptions());
@@ -237,6 +238,9 @@ $(document).ready(() => {
 
         await WebToolManager.cleanupServiceTypes();
 
+        let isAllCloudEnabled = true;
+        let isAllDisabled = true;
+
         const serviceUrlsMap = WebToolManager.getServiceUrls();
         const webToolDescriptions = getWebToolDescriptions();
 
@@ -248,10 +252,27 @@ $(document).ready(() => {
 
             if (serviceUrls) {
                 setPermissionCheckboxStatus(serviceType, serviceUrls, true);
+                isAllDisabled = false;
             } else {
                 setPermissionCheckboxStatus(serviceType, webToolDescription.origins, false);
+                if (webToolDescription.origins.length > 0) {
+                    isAllCloudEnabled = false;
+                }
             }
         });
+
+        if (isAllCloudEnabled) {
+            $('.enable-all').attr('disabled', '');
+        } else {
+            $('.enable-all').removeAttr('disabled');
+        }
+
+        if (isAllDisabled) {
+            $('.disable-all').attr('disabled', '');
+        } else {
+            $('.disable-all').removeAttr('disabled');
+        }
+
     }
 
     function initSearch() {
