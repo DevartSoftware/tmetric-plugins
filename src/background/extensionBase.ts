@@ -482,8 +482,21 @@ abstract class ExtensionBase extends BackgroundBase {
     }
 
     protected showLoginDialog() {
+
         if (this.loginWinId) {
-            chrome.windows.update(this.loginWinId, { focused: true });
+
+            chrome.tabs.query({ windowId: this.loginWinId }, tabs => {
+                const tab = tabs.find(tab => tab.id == this.loginTabId);
+                if (tab && tab.url.startsWith(this.constants.authorityUrl)) {
+                    chrome.tabs.update(tab.id, { active: true });
+                    chrome.windows.update(this.loginWinId, { focused: true });
+                } else {
+                    this.loginWinId = null;
+                    this.loginTabId = null;
+                    this.showLoginDialog();
+                }
+            });
+
             return;
         }
 
