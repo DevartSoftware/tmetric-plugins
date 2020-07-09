@@ -69,17 +69,27 @@
         return new Promise<boolean>(resolve => chrome.permissions.contains({ origins }, resolve));
     }
 
-    private static _getServiceTypes() {
+    private static _getServiceTypes(callback?: (serviceTypes: ServiceTypesMap) => void) {
         chrome.storage.local.get(
             <IExtensionLocalSettings>{ serviceTypes: {} },
-            ({ serviceTypes }: IExtensionLocalSettings) => this.serviceTypes = serviceTypes
+            ({ serviceTypes }: IExtensionLocalSettings) => {
+                this.serviceTypes = serviceTypes;
+                callback && callback(serviceTypes);
+            }
         );
     }
 
-    private static _setServiceTypes(map: ServiceTypesMap) {
+    private static _setServiceTypes(map: ServiceTypesMap, callback? : () => void) {
         chrome.storage.local.set(
-            <IExtensionLocalSettings>{ serviceTypes: map }
+            <IExtensionLocalSettings>{ serviceTypes: map },
+            () => {
+                callback && callback();
+            }
         );
+    }
+
+    static getServiceTypes() {
+        return new Promise<ServiceTypesMap>(resolve => this._getServiceTypes(resolve));
     }
 
     private static onStoreChange(changes: { [key: string]: chrome.storage.StorageChange }, areaName: string) {

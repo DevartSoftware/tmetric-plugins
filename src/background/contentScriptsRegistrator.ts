@@ -55,7 +55,7 @@
 
         this.unregister(origins);
 
-        const serviceTypes = WebToolManager.serviceTypes;
+        const serviceTypes = await WebToolManager.getServiceTypes();
         const webToolDescriptions: { [serviceType: string]: WebToolDescription } = getWebToolDescriptions().reduce((map, item) => (map[item.serviceType] = item) && map, {});
 
         origins = (await Promise.all(
