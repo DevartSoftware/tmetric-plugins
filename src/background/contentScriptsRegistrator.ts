@@ -17,31 +17,31 @@
 
     private scripts: { [origin: string]: RegisteredContentScript[] } = {};
 
-    private getScriptOptions(scripts: ContentScripts) {
+    private addRequiredScriptOptions(scripts: RegisteredContentScriptOptions) {
 
-        let js = [
-            'in-page-scripts/utils.js',
-            'in-page-scripts/integrationService.js',
-            'in-page-scripts/page.js',
+        let js: FileOrCode[] = [
+            { file: 'in-page-scripts/utils.js' },
+            { file: 'in-page-scripts/integrationService.js' },
+            { file: 'in-page-scripts/page.js' },
             ...(scripts.js || []),
-            'in-page-scripts/init.js'
+            { file: 'in-page-scripts/init.js' }
         ];
 
-        let css = [
-            'css/timer-link.css',
+        let css: FileOrCode[] = [
+            { file: 'css/timer-link.css' },
             ...(scripts.css || [])
         ];
 
         return <RegisteredContentScriptOptions[]>[
             {
-                matches: scripts.paths,
-                js: js.map(file => ({ file })),
-                css: css.map(file => ({ file })),
+                matches: scripts.matches,
+                js: js,
+                css: css,
                 allFrames: scripts.allFrames || false,
                 runAt: 'document_end'
             },
             {
-                matches: scripts.paths,
+                matches: scripts.matches,
                 js: [
                     { file: 'in-page-scripts/topmostPage.js' }
                 ],
@@ -75,33 +75,28 @@
                 return;
             }
 
-            const paths: string[] = [];
+            const scripts = webToolDescription.scripts;
+
+            const matches: string[] = [];
 
             if (webToolDescription.scripts.paths) {
-                paths.push(...webToolDescription.scripts.paths.map(path => origin.replace(/\*$/, path)))
+                matches.push(...scripts.paths.map(path => origin.replace(/\*$/, path)))
             } else {
-                paths.push(origin);
+                matches.push(origin);
             }
 
-            const scripts: ContentScripts = {
-                allFrames: webToolDescription.scripts.allFrames,
-                js: webToolDescription.scripts.js,
-                css: webToolDescription.scripts.css,
-                paths
+            const options: RegisteredContentScriptOptions = {
+                allFrames: scripts.allFrames,
+                js: (scripts.js || []).map(file => ({ file })),
+                css: (scripts.css || []).map(file => ({ file })),
+                matches: matches
             };
 
-            const scriptsOptions = this.getScriptOptions(scripts);
+            const scriptsOptions = this.addRequiredScriptOptions(options);
 
             this.scripts[origin] = [... await Promise.all(scriptsOptions.map(this.registerInternal))];
 
-            chrome.tabs.query({ url: paths, status: 'complete' }, tabs => {
-                tabs.forEach(tab => {
-                    chrome.tabs.executeScript(tab.id, {
-                        code: `chrome.runtime.sendMessage({action:'injectContentScripts',data:{}})`,
-                        allFrames: true
-                    });
-                });
-            });
+            this.checkContentScripts(matches, scripts.allFrames);
         });
     }
 
@@ -129,5 +124,24 @@
         }
 
         return method(options);
+    }
+
+    private checkContentScripts(matches: string[], allFrames: boolean) {
+
+        console.log('checkContentScripts', { matches, allFrames })
+
+        if (typeof chrome === 'object' && chrome.contentScripts) {
+            chrome.tabs.query({ url: matches, status: 'complete' }, tabs => {
+                tabs.forEach(tab => {
+
+                    console.log('checkContentScripts', tab.id, tab.url)
+
+                    chrome.tabs.executeScript(tab.id, {
+                        code: `chrome.runtime.sendMessage({action:'checkContentScripts'})`,
+                        allFrames
+                    });
+                });
+            });
+        }
     }
 }

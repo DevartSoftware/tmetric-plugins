@@ -25,7 +25,7 @@ interface Source {
 
 type ContentScripts = {
     js?: string[];
-    css?: string;
+    css?: string[];
     paths?: string[];
     allFrames?: boolean;
     runAt?: string;
