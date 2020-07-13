@@ -79,9 +79,10 @@
         );
     }
 
-    private static _setServiceTypes(map: ServiceTypesMap, callback? : () => void) {
+    private static _setServiceTypes(serviceTypes: ServiceTypesMap, callback?: () => void) {
+        this.serviceTypes = serviceTypes;
         chrome.storage.local.set(
-            <IExtensionLocalSettings>{ serviceTypes: map },
+            <IExtensionLocalSettings>{ serviceTypes: serviceTypes },
             () => {
                 callback && callback();
             }
