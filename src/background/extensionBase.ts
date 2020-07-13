@@ -540,7 +540,7 @@ abstract class ExtensionBase extends BackgroundBase {
                     // Ignore errors in broadcast messages
                     const error = chrome.runtime.lastError;
                     if (error) {
-                        console.log(`${message.action}: ${error}`)
+                        console.log(`${message.action}: ${error.message}`)
                     }
                 });
             }
