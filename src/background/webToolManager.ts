@@ -174,7 +174,7 @@
     }
 
     static async cleanupServiceTypes() {
-        const serviceTypes = this.serviceTypes;
+        const serviceTypes = await this.getServiceTypes();
         await Promise.all(Object.keys(serviceTypes).map(origin => this.isAllowed([origin]).then(result => !result && delete serviceTypes[origin])));
         this._setServiceTypes(serviceTypes);
     }
