@@ -1,8 +1,8 @@
 ﻿class SignalRHubProxy {
 
-    _handlers: { [methodName: string]: ((...args: any[]) => void)[] } = {};
+    private _handlers: { [methodName: string]: ((...args: any[]) => void)[] } = {};
 
-    _connection: signalR.HubConnection;
+    private _connection: signalR.HubConnection;
 
     on(methodName: string, newMethod: (...args: any[]) => void) {
         let handlers = this._handlers[methodName];
@@ -25,13 +25,16 @@
 
     onConnect(connection: signalR.HubConnection) {
         this._connection = connection;
-        for (let methodName in this._handlers) {
+        for (const methodName in this._handlers) {
             this.subscribe(methodName);
         }
     }
 
     onDisconnect(connection: signalR.HubConnection) {
         if (connection == this._connection) {
+            for (const methodName in this._handlers) {
+                this.unsubscribe(methodName);
+            }
             this._connection = undefined;
         }
     }
@@ -40,12 +43,22 @@
         return !!this._connection;
     }
 
+    private _subscriptions: { [methodName: string]: (...args) => void } = {};
+
     private subscribe(methodName: string) {
-        this._connection.on(methodName, (...args) => {
+        const subscription = (...args) => {
             let handlers = this._handlers[methodName];
             if (handlers) {
                 handlers.forEach(_ => _(...args));
             }
-        });
+        };
+        this._subscriptions[methodName] = subscription;
+        this._connection.on(methodName, subscription);
+    }
+
+    private unsubscribe(methodName: string) {
+        const subscription = this._subscriptions[methodName];
+        delete this._subscriptions[methodName];
+        this._connection.off(methodName, subscription);
     }
 }
