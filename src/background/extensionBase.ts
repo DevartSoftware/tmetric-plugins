@@ -3,7 +3,7 @@
 abstract class ExtensionBase extends BackgroundBase {
 
     protected getConstants() {
-        let constants = super.getConstants();
+        const constants = super.getConstants();
         return <Models.Constants>{
             maxTimerHours: constants.maxTimerHours,
             serviceUrl: this.getUrl('tmetric.url', constants.serviceUrl),
@@ -49,8 +49,8 @@ abstract class ExtensionBase extends BackgroundBase {
             chrome.notifications.clear(this.lastNotificationId, () => { });
         }
         title = title || 'TMetric';
-        let type = 'basic';
-        let iconUrl = 'images/icon80.png';
+        const type = 'basic';
+        const iconUrl = 'images/icon80.png';
         chrome.notifications.create(
             null,
             { title, message, type, iconUrl },
@@ -94,7 +94,7 @@ abstract class ExtensionBase extends BackgroundBase {
             this.timer = timer;
 
             if (timer && timer.details) {
-                let project = await this.getProject(timer.details.projectId);
+                const project = await this.getProject(timer.details.projectId);
                 timer.projectName = project && project.projectName;
             }
 
@@ -103,7 +103,7 @@ abstract class ExtensionBase extends BackgroundBase {
 
             // timer should be received from server on connect
             if (timer) {
-                let action = this.actionOnConnect;
+                const action = this.actionOnConnect;
                 if (action) {
                     this.actionOnConnect = null;
                     action();
@@ -120,7 +120,7 @@ abstract class ExtensionBase extends BackgroundBase {
             this.userProfile = profile;
         });
 
-        this.connection.onUpdateActiveAccount(acountId => {
+        this.connection.onUpdateActiveAccount(() => {
             this.clearIssuesDurationsCache();
         });
 
@@ -141,7 +141,7 @@ abstract class ExtensionBase extends BackgroundBase {
         this.registerContentScripts();
 
         // Update hint once per minute
-        let setUpdateTimeout = () => setTimeout(() => {
+        const setUpdateTimeout = () => setTimeout(() => {
             this.updateState();
             setUpdateTimeout();
         }, (60 - new Date().getSeconds()) * 1000);
@@ -197,9 +197,9 @@ abstract class ExtensionBase extends BackgroundBase {
 
                     // show extra time on link for test purposes
                     if (this.extraHours && this.timer && this.timer.isStarted) {
-                        let activeDetails = this.timer.details;
+                        const activeDetails = this.timer.details;
                         if (activeDetails && activeDetails.projectTask) {
-                            let activeTask = activeDetails.projectTask;
+                            const activeTask = activeDetails.projectTask;
                             for (let i = 0; i < durations.length; i++) {
                                 let duration = durations[i];
                                 if (duration.issueUrl == activeTask.relativeIssueUrl && duration.serviceUrl == activeTask.integrationUrl) {
@@ -219,7 +219,7 @@ abstract class ExtensionBase extends BackgroundBase {
     }
 
     private getSettings() {
-        return new Promise<IExtensionSettings>((resolve, reject) => {
+        return new Promise<IExtensionSettings>((resolve) => {
             chrome.storage.sync.get(
                 <IExtensionSettings>{ showPopup: Models.ShowPopupOption.Always },
                 resolve);
@@ -239,9 +239,11 @@ abstract class ExtensionBase extends BackgroundBase {
 
         this.putData(timer, async timer => {
 
+            let status: Models.IntegratedProjectStatus;
+            let scope: Models.AccountScope;
             try {
-                var status = await this.getIntegrationStatus(timer, accountId);
-                var scope = await this.getAccountScope(status.accountId);
+                status = await this.getIntegrationStatus(timer, accountId);
+                scope = await this.getAccountScope(status.accountId);
             } catch (err) {
                 this.connection.checkProfileChange(); // TE-179
                 return Promise.reject(err);
@@ -253,7 +255,7 @@ abstract class ExtensionBase extends BackgroundBase {
 
             if (timer.isStarted) {
 
-                let settings = await this.getSettings();
+                const settings = await this.getSettings();
 
                 // Set default work type before popup show (TE-299)
                 await this.validateTimerTags(timer, status.accountId);
@@ -299,14 +301,14 @@ abstract class ExtensionBase extends BackgroundBase {
 
     protected putData<T>(data: T, action: (data: T) => Promise<any>, retryAction?: (data: T) => Promise<any>) {
 
-        let onFail = (status: AjaxStatus, showDialog: boolean) => {
+        const onFail = (status: AjaxStatus, showDialog: boolean) => {
 
             this.actionOnConnect = null;
 
             // Zero status when server is unavailable or certificate fails (#59755). Show dialog in that case too.
             if (!status || status.statusCode == HttpStatusCode.Unauthorized || status.statusCode == 0) {
 
-                let disconnectPromise = this.connection.disconnect();
+                const disconnectPromise = this.connection.disconnect();
 
                 if (showDialog) {
                     disconnectPromise.then(() => {
@@ -317,10 +319,10 @@ abstract class ExtensionBase extends BackgroundBase {
             }
             else {
 
-                let error = this.getErrorText(status);
+                const error = this.getErrorText(status);
 
                 if (status.statusCode == HttpStatusCode.Forbidden && retryAction) {
-                    let promise = retryAction(data);
+                    const promise = retryAction(data);
                     if (promise) {
                         promise.catch(() => this.showError(error));
                         return;
@@ -331,7 +333,7 @@ abstract class ExtensionBase extends BackgroundBase {
             }
         };
 
-        let onConnect = (showDialog: boolean) => {
+        const onConnect = (showDialog: boolean) => {
 
             if (this.isLongTimer()) {
 
@@ -358,7 +360,7 @@ abstract class ExtensionBase extends BackgroundBase {
         let state = ButtonState.connect;
         let text = 'Not Connected';
         if (this.timer) {
-            let todayTotal = 'Today Total - '
+            const todayTotal = 'Today Total - '
                 + this.durationToString(this.getDuration(this.timeEntries))
                 + ' hours';
             if (this.timer.isStarted) {
@@ -368,7 +370,7 @@ abstract class ExtensionBase extends BackgroundBase {
                 }
                 else {
                     state = ButtonState.stop;
-                    let description = this.timer.details.description || '(No task description)';
+                    const description = this.timer.details.description || '(No task description)';
                     text = `Started (${todayTotal})\n${description}`;
                 }
             }
@@ -389,11 +391,11 @@ abstract class ExtensionBase extends BackgroundBase {
     private getDuration(timeEntries: Models.TimeEntry[]): number
     private getDuration(arg: any): any {
         if (arg) {
-            let now = new Date().getTime();
+            const now = new Date().getTime();
             if ((<Models.TimeEntry[]>arg).reduce) {
                 return (<Models.TimeEntry[]>arg).reduce((duration, entry) => {
-                    let startTime = Date.parse(entry.startTime);
-                    let endTime = entry.endTime ? Date.parse(entry.endTime) : now;
+                    const startTime = Date.parse(entry.startTime);
+                    const endTime = entry.endTime ? Date.parse(entry.endTime) : now;
                     return duration + (endTime - startTime);
                 }, 0);
             }
@@ -412,9 +414,9 @@ abstract class ExtensionBase extends BackgroundBase {
             sign = '-';
         }
 
-        let totalMinutes = Math.floor(duration / 60000);
-        let hours = Math.floor(totalMinutes / 60);
-        let minutes = totalMinutes % 60;
+        const totalMinutes = Math.floor(duration / 60000);
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
 
         return sign + hours + (minutes < 10 ? ':0' : ':') + minutes;
     }
@@ -449,14 +451,14 @@ abstract class ExtensionBase extends BackgroundBase {
 
     protected getIssuesDurations(identifiers: WebToolIssueIdentifier[]): Promise<WebToolIssueDuration[]> {
 
-        let durations = <WebToolIssueDuration[]>[];
-        let fetchIdentifiers = <WebToolIssueIdentifier[]>[];
+        const durations = <WebToolIssueDuration[]>[];
+        const fetchIdentifiers = <WebToolIssueIdentifier[]>[];
 
         // Do not show durations of tasks without url
         identifiers = identifiers.filter(_ => !!_.serviceUrl && !!_.issueUrl);
 
         identifiers.forEach(identifier => {
-            let duration = this.getIssueDurationFromCache(identifier);
+            const duration = this.getIssueDurationFromCache(identifier);
             if (duration) {
                 durations.push(duration);
             }
@@ -500,7 +502,7 @@ abstract class ExtensionBase extends BackgroundBase {
             return;
         }
 
-        chrome.windows.getLastFocused(pageWindow => {
+        chrome.windows.getLastFocused(() => {
             if (this.loginWindowPending) {
                 return;
             }
@@ -533,10 +535,10 @@ abstract class ExtensionBase extends BackgroundBase {
 
         chrome.tabs.query({}, tabs => tabs && tabs.forEach(tab => {
             if (tab.url && tab.url.startsWith('http')) {
-                chrome.tabs.sendMessage(tab.id, message, response => {
+                chrome.tabs.sendMessage(tab.id, message, () => {
 
                     // Ignore errors in broadcast messages
-                    let error = chrome.runtime.lastError;
+                    const error = chrome.runtime.lastError;
                     if (error) {
                         console.log(`${message.action}: ${error}`)
                     }
@@ -550,33 +552,33 @@ abstract class ExtensionBase extends BackgroundBase {
     }
 
     protected getActiveTabTitle() {
-        return new Promise<string>((resolve, reject) => {
+        return new Promise<string>((resolve) => {
             chrome.tabs.query({ currentWindow: true, active: true },
                 function (tabs) {
-                    let activeTab = tabs && tabs[0];
-                    let title = activeTab && activeTab.title || null;
+                    const activeTab = tabs && tabs[0];
+                    const title = activeTab && activeTab.title || null;
                     resolve(title);
                 });
         });
     }
 
     protected getActiveTabId() {
-        return new Promise<number>((resolve, reject) => {
+        return new Promise<number>((resolve) => {
             chrome.tabs.query({ currentWindow: true, active: true },
                 function (tabs) {
-                    let activeTab = tabs && tabs[0];
-                    let id = activeTab && activeTab.id || null;
+                    const activeTab = tabs && tabs[0];
+                    const id = activeTab && activeTab.id || null;
                     resolve(id);
                 });
         });
     }
 
     protected getActiveTabUrl() {
-        return new Promise<string>((resolve, reject) => {
+        return new Promise<string>((resolve) => {
             chrome.tabs.query({ currentWindow: true, active: true },
                 function (tabs) {
-                    let activeTab = tabs && tabs[0];
-                    let url = activeTab && activeTab.url || null;
+                    const activeTab = tabs && tabs[0];
+                    const url = activeTab && activeTab.url || null;
                     resolve(url);
                 });
         });
@@ -611,13 +613,13 @@ abstract class ExtensionBase extends BackgroundBase {
 
         chrome.tabs.query({ active: true, windowId: chrome.windows.WINDOW_ID_CURRENT }, tabs => {
 
-            let currentWindowId = tabs && tabs.length && tabs[0].windowId;
+            const currentWindowId = tabs && tabs.length && tabs[0].windowId;
 
             // chrome.tabs.query do not support tab search with hashed urls
             // https://developer.chrome.com/extensions/match_patterns
             chrome.tabs.query({ url: url.split('#')[0] + '*' }, tabs => {
                 // filter tabs queried without hashes by actual url
-                let pageTabs = tabs && tabs.filter(tab => tab.url == url);
+                const pageTabs = tabs && tabs.filter(tab => tab.url == url);
                 if (pageTabs && pageTabs.length) {
 
                     let anyWindowTab: chrome.tabs.Tab, anyWindowActiveTab: chrome.tabs.Tab, currentWindowTab: chrome.tabs.Tab, currentWindowActiveTab: chrome.tabs.Tab;
@@ -634,7 +636,7 @@ abstract class ExtensionBase extends BackgroundBase {
                         }
                     }
 
-                    let tabToActivate = currentWindowActiveTab || currentWindowTab || anyWindowActiveTab || anyWindowTab;
+                    const tabToActivate = currentWindowActiveTab || currentWindowTab || anyWindowActiveTab || anyWindowTab;
                     chrome.windows.update(tabToActivate.windowId, { focused: true });
                     chrome.tabs.update(tabToActivate.id, { active: true });
                 } else {
@@ -659,8 +661,8 @@ abstract class ExtensionBase extends BackgroundBase {
 
     private registerStorageListener() {
         chrome.storage.onChanged.addListener((changes) => {
-            const authorization_code = changes['authorization_code'];
-            if (authorization_code && authorization_code.newValue) {
+            const authorizationCode = changes['authorization_code'];
+            if (authorizationCode && authorizationCode.newValue) {
                 chrome.tabs.remove(this.loginTabId);
                 this.connection.reconnect()
                     .then(() => this.checkPermissions())
@@ -703,7 +705,7 @@ abstract class ExtensionBase extends BackgroundBase {
     }
 
     private async checkPermissions() {
-        let url = chrome.runtime.getURL('permissions/check.html');
+        const url = chrome.runtime.getURL('permissions/check.html');
         chrome.tabs.create({ url, active: true });
     }
 
@@ -743,7 +745,7 @@ abstract class ExtensionBase extends BackgroundBase {
             }
 
             // Tab page requests
-            let tabId = sender.tab.id;
+            const tabId = sender.tab.id;
             this.onTabMessage(message, tabId);
 
             senderResponse(null);
