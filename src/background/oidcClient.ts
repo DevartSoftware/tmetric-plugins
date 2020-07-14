@@ -73,7 +73,7 @@
         });
     }
 
-    public static async ajax<TReq, TRes>(url, options, dataReq?: TReq): Promise<TRes> {
+    public static async authorize() {
 
         // If we have authorization code - get new acces and refresh tokens
         const authorizationCode = await this.getStorageValue('authorization_code');
@@ -83,15 +83,20 @@
             if (tokens && tokens.refresh_token && tokens.access_token) {
                 await this.setStorageValue('refresh_token', tokens.refresh_token);
                 await this.setStorageValue('access_token', tokens.access_token);
-                return await this.ajaxInternal<TReq, TRes>(tokens.access_token, url, options, dataReq);
+                return true;
             }
         }
 
+        return false;
+    }
+
+    public static async ajax<TReq, TRes>(url, options, dataReq?: TReq): Promise<TRes> {
+
         // Try to connect with presaved acces token
-        const accesToken = await this.getStorageValue('access_token');
-        if (accesToken) {
+        const accessToken = await this.getStorageValue('access_token');
+        if (accessToken) {
             try {
-                return await this.ajaxInternal<TReq, TRes>(accesToken, url, options, dataReq);
+                return await this.ajaxInternal<TReq, TRes>(accessToken, url, options, dataReq);
             }
             catch (error) {
                 // Try to get new acces token with presaved refresh token

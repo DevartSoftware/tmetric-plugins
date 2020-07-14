@@ -660,13 +660,15 @@ abstract class ExtensionBase extends BackgroundBase {
     }
 
     private registerStorageListener() {
-        chrome.storage.onChanged.addListener((changes) => {
+        chrome.storage.onChanged.addListener(async (changes) => {
             const authorizationCode = changes['authorization_code'];
             if (authorizationCode && authorizationCode.newValue) {
                 chrome.tabs.remove(this.loginTabId);
-                this.connection.reconnect()
-                    .then(() => this.checkPermissions())
-                    .catch(() => { });
+                if (await OidcClient.authorize()) {
+                    this.connection.reconnect()
+                        .then(() => this.checkPermissions())
+                        .catch(() => { });
+                }
             }
         });
     }
