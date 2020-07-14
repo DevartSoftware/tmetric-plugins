@@ -38,7 +38,11 @@
             return;
         }
 
-        const [all, protocol = 'https://', host, port = '', path = '/*'] = match;
+        let [all, protocol = 'https://', host, port = '', path = '/'] = match;
+
+        if (path == '/') {
+            path += '*';
+        }
 
         if (!host) {
             return;
