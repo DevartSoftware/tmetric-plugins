@@ -112,6 +112,11 @@ $(document).ready(() => {
                 return;
             }
 
+            const existingUrls = $('.url-list .url', popup).toArray().map((el: HTMLInputElement) => el.value);
+            if (existingUrls.indexOf(serviceUrl) > -1) {
+                return;
+            }
+
             $('.url-list', popup).append(renderUrlListItem(serviceUrl));
         });
 
