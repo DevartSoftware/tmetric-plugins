@@ -6,14 +6,6 @@
 
     accountToPost: number;
 
-    retryInProgress: boolean;
-
-    retryTimeout: number;
-
-    retryPendingHandle: number;
-
-    retryTimeStamp = new Date();
-
     expectedTimerUpdate = false;
 
     serverApiVersion: number;
@@ -56,7 +48,7 @@
     }
 
     isProfileChanged() {
-        let previousProfileId = this.userProfile && this.userProfile.userProfileId;
+        const previousProfileId = this.userProfile && this.userProfile.userProfileId;
         return this.getProfile().then(profile => profile.userProfileId != previousProfileId);
     }
 
@@ -98,10 +90,10 @@
     putTimer(timer: Models.Timer) {
         return this.connect().then(profile => {
 
-            let accountId = this.accountToPost || profile.activeAccountId;
+            const accountId = this.accountToPost || profile.activeAccountId;
             this.expectedTimerUpdate = true;
 
-            let promise = this
+            const promise = this
                 .put(this.getTimerUrl(accountId), timer)
                 .then(() => this.checkProfileChange());
 
@@ -129,9 +121,9 @@
         }
 
         return this.connect().then(profile => {
-            let accountId = this.accountToPost || profile.activeAccountId;
+            const accountId = this.accountToPost || profile.activeAccountId;
             this.expectedTimerUpdate = true;
-            var promise = this.post(this.getIssueTimerUrl(accountId), timer).then(() => {
+            const promise = this.post(this.getIssueTimerUrl(accountId), timer).then(() => {
                 this.checkProfileChange();
             });
             promise.catch(() => {
@@ -179,7 +171,7 @@
 
     checkProfile() {
         return new Promise<Models.UserProfile>((callback, reject) => {
-            var profile = this.userProfile;
+            const profile = this.userProfile;
             if (profile && profile.activeAccountId) {
                 callback(profile);
             }
@@ -190,7 +182,7 @@
     }
 
     getProfile() {
-        var profile = this.get<Models.UserProfile>('api/userprofile').then(profile => {
+        const profile = this.get<Models.UserProfile>('api/userprofile').then(profile => {
             this.userProfile = profile;
             return profile;
         });
@@ -207,8 +199,8 @@
 
     getTimer() {
         return this.checkProfile().then(profile => {
-            var accountId = profile.activeAccountId;
-            var url = this.getTimerUrl(accountId);
+            const accountId = profile.activeAccountId;
+            const url = this.getTimerUrl(accountId);
             return this.get<Models.TimerEx>(url);
         });
     }
@@ -218,13 +210,13 @@
             if (!accountId) {
                 accountId = profile.activeAccountId;
             }
-            var url = 'api/accounts/' + accountId + '/scope';
+            const url = 'api/accounts/' + accountId + '/scope';
             return this.get<Models.AccountScope>(url);
         });
     }
 
     getRecentWorkTasks(accountId: number) {
-        var url = 'api/accounts/' + accountId + '/timeentries/recent';
+        const url = 'api/accounts/' + accountId + '/timeentries/recent';
         return this.get<Models.RecentWorkTask[]>(url);
     }
 

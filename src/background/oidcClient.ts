@@ -23,13 +23,16 @@
 
             const xhr = new XMLHttpRequest();
             xhr.open("POST", `${this.authorityUrl}core/connect/token`);
-            xhr.onload = function () {
+            xhr.onload = () => {
                 if (xhr.status === 200) {
                     resolve(JSON.parse(xhr.responseText));
                 }
                 else {
                     reject(xhr.status);
                 }
+            }
+            xhr.onerror = () => {
+                reject(xhr.status);
             }
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
             xhr.send(`client_id=browser_extension&grant_type=authorization_code&code=${authorizationCode}&redirect_uri=${this.authorityUrl}extension/callback.html`);
@@ -42,13 +45,16 @@
 
             const xhr = new XMLHttpRequest();
             xhr.open("POST", `${this.authorityUrl}core/connect/token`);
-            xhr.onload = function () {
+            xhr.onload = () => {
                 if (xhr.status === 200) {
                     resolve(JSON.parse(xhr.responseText));
                 }
                 else {
                     reject(xhr.status);
                 }
+            }
+            xhr.onerror = () => {
+                reject(xhr.status);
             }
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
             xhr.send(`client_id=browser_extension&grant_type=refresh_token&refresh_token=${refreshToken}&redirect_uri=${this.authorityUrl}extension/callback.html`);
@@ -143,22 +149,12 @@
 
             const xhr = $.ajax(settings);
 
-            xhr.done(dataRes => {
-                if (xhr.status >= 200 && xhr.status < 400) {
-                    callback(dataRes);
-                }
-                else {
-                    reject(fail);
-                }
-            });
-
-            xhr.fail(fail);
-
             function fail() {
                 const statusCode = xhr.status;
                 let statusText = xhr.statusText;
+                let responseMessage: string;
                 if (xhr.responseJSON) {
-                    var responseMessage = xhr.responseJSON.message;
+                    responseMessage = xhr.responseJSON.message;
                 }
 
                 if (statusText == 'error') // jQuery replaces empty status to 'error'
@@ -170,6 +166,17 @@
                 }
                 reject(<AjaxStatus>{ statusCode, statusText, responseMessage });
             }
+
+            xhr.done(dataRes => {
+                if (xhr.status >= 200 && xhr.status < 400) {
+                    callback(dataRes);
+                }
+                else {
+                    reject(fail);
+                }
+            });
+
+            xhr.fail(fail);
         });
     }
 }
