@@ -15,7 +15,7 @@
         return ContentScriptsRegistrator.instance;
     }
 
-    private scripts: { [origin: string]: RegisteredContentScript[] } = {};
+    private scripts: { [serviceUrl: string]: RegisteredContentScript[] } = {};
 
     private addRequiredScriptOptions(scripts: RegisteredContentScriptOptions) {
 
@@ -53,22 +53,28 @@
 
     async register(origins?: string[]) {
 
-        this.unregister(origins);
+        console.log('ContentScriptsRegistrator.register origins', origins)
+
+        await this.unregister(origins);
 
         const serviceTypes = await WebToolManager.getServiceTypes();
         const webToolDescriptions: { [serviceType: string]: WebToolDescription } = getWebToolDescriptions().reduce((map, item) => (map[item.serviceType] = item) && map, {});
 
-        origins = (await Promise.all(
-            (origins || Object.keys(serviceTypes)).map(
-                origin => new Promise<string>(
-                    resolve => chrome.permissions.contains({ origins: [origin] }, result => resolve(result ? origin : null))
+        let serviceUrls = Object.keys(serviceTypes).filter(url => origins ? origins.some(origin => WebToolManager.isMatch(url, origin)) : true);
+
+        serviceUrls = (await Promise.all(
+            serviceUrls.map(
+                serviceUrl => new Promise<string>(
+                    resolve => chrome.permissions.contains({ origins: [serviceUrl] }, result => resolve(result ? serviceUrl : null))
                 )
             )
-        )).filter(origin => !!origin);
+        )).filter(item => !!item);
 
-        origins.forEach(async origin => {
+        console.log('ContentScriptsRegistrator.register serviceUrls', serviceUrls)
 
-            const serviceType = serviceTypes[origin];
+        serviceUrls.forEach(async serviceUrl => {
+
+            const serviceType = serviceTypes[serviceUrl];
 
             const webToolDescription = webToolDescriptions[serviceType];
             if (!webToolDescription || !webToolDescription.scripts) {
@@ -80,9 +86,9 @@
             const matches: string[] = [];
 
             if (webToolDescription.scripts.paths) {
-                matches.push(...scripts.paths.map(path => origin.replace(/\*$/, path)));
+                matches.push(...scripts.paths.map(path => serviceUrl.replace(/\*$/, path)));
             } else {
-                matches.push(origin);
+                matches.push(serviceUrl);
             }
 
             const options: RegisteredContentScriptOptions = {
@@ -94,20 +100,25 @@
 
             const scriptsOptions = this.addRequiredScriptOptions(options);
 
-            this.scripts[origin] = [... await Promise.all(scriptsOptions.map(this.registerInternal))];
+            this.scripts[serviceUrl] = [... await Promise.all(scriptsOptions.map(this.registerInternal))];
 
             this.checkContentScripts(matches, scripts.allFrames);
         });
     }
 
     async unregister(origins?: string[]) {
-        (origins || Object.keys(this.scripts)).forEach(origin => {
-            let script = this.scripts[origin];
+
+        console.log('ContentScriptsRegistrator.unregister origins', origins)
+
+        const serviceUrls = Object.keys(this.scripts).filter(url => origins ? origins.some(origin => WebToolManager.isMatch(url, origin)) : true);
+
+        serviceUrls.forEach(serviceUrl => {
+            let script = this.scripts[serviceUrl];
             if (!script) {
                 return;
             }
             script.forEach(s => s.unregister());
-            delete this.scripts[origin];
+            delete this.scripts[serviceUrl];
         });
     }
 
@@ -130,7 +141,9 @@
 
         console.log('checkContentScripts', { matches, allFrames })
 
-        if (typeof chrome === 'object' && chrome.contentScripts) {
+        if (typeof browser === 'object' && browser.contentScripts) {
+           // browser.contentScripts inject scripts only to new pages
+        } else if (typeof chrome === 'object' && chrome.contentScripts) {
             chrome.tabs.query({ url: matches, status: 'complete' }, tabs => {
                 tabs.forEach(tab => {
 
