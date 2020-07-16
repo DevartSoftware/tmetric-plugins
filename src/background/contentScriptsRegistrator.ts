@@ -80,7 +80,7 @@
             const matches: string[] = [];
 
             if (webToolDescription.scripts.paths) {
-                matches.push(...scripts.paths.map(path => origin.replace(/\*$/, path)))
+                matches.push(...scripts.paths.map(path => origin.replace(/\*$/, path)));
             } else {
                 matches.push(origin);
             }
