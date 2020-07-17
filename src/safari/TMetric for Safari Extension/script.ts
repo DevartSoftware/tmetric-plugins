@@ -118,7 +118,7 @@ function openPopupTimer(timer: WebToolIssueTimer) {
 
 // Bundle inclusion
 
-declare type ContentScriptsManifest = chrome.runtime.Manifest['content_scripts'];
+declare type ManifestScriptsOptions = chrome.runtime.Manifest['content_scripts'][number];
 
 function patternToRegExp(pattern: string, ) {
     return new RegExp(pattern.replace(/\./g, '\.').replace(/\*/g, '.*'), 'i');
@@ -136,8 +136,23 @@ function isLocationMatchPattern(pattern: string) {
         patternToRegExp(patternPath).test(location.pathname);
 }
 
-function shouldIncludeScripts(item: ContentScriptsManifest[number]) {
+function shouldIncludeManifestScripts(item: ManifestScriptsOptions) {
     let isMatch = item.matches && item.matches.some(match => isLocationMatchPattern(match));
     let isTopWindow = window.top == window;
     return isMatch && (isTopWindow || item.all_frames);
+}
+
+const matchedWebToolDescriptions = getWebToolDescriptions().filter(item => {
+    const isTopWindow = window.top == window;
+    if (item.hasAdditionalOrigins) {
+        return isTopWindow || item.scripts.allFrames;
+    }
+    const isMatch = item.origins && item.origins.some(match => isLocationMatchPattern(match));
+    return isMatch && (isTopWindow || item.scripts.allFrames);
+});
+
+console.log(matchedWebToolDescriptions, location.href);
+
+function shouldIncludeIntegrationScripts(file: string) {
+    return matchedWebToolDescriptions.some(item => item.scripts.js.indexOf(file) > -1);
 }
