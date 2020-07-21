@@ -181,7 +181,8 @@
                 js: ['in-page-scripts/integrations/gitLab.js'],
                 paths: [
                     '*/issues/*',
-                    '*/merge_requests/*'
+                    '*/merge_requests/*',
+                    '*/boards'
                 ]
             }
         },
