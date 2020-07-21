@@ -6,14 +6,6 @@
 
     accountToPost: number;
 
-    retryInProgress: boolean;
-
-    retryTimeout: number;
-
-    retryPendingHandle: number;
-
-    retryTimeStamp = new Date();
-
     expectedTimerUpdate = false;
 
     serverApiVersion: number;
@@ -50,12 +42,13 @@
     init(options: any): Promise<void> {
 
         this.serviceUrl = options.serviceUrl;
+        OidcClient.init(options.authorityUrl);
 
         return this.reconnect().catch(() => { });
     }
 
     isProfileChanged() {
-        let previousProfileId = this.userProfile && this.userProfile.userProfileId;
+        const previousProfileId = this.userProfile && this.userProfile.userProfileId;
         return this.getProfile().then(profile => profile.userProfileId != previousProfileId);
     }
 
@@ -97,10 +90,10 @@
     putTimer(timer: Models.Timer) {
         return this.connect().then(profile => {
 
-            let accountId = this.accountToPost || profile.activeAccountId;
+            const accountId = this.accountToPost || profile.activeAccountId;
             this.expectedTimerUpdate = true;
 
-            let promise = this
+            const promise = this
                 .put(this.getTimerUrl(accountId), timer)
                 .then(() => this.checkProfileChange());
 
@@ -128,9 +121,9 @@
         }
 
         return this.connect().then(profile => {
-            let accountId = this.accountToPost || profile.activeAccountId;
+            const accountId = this.accountToPost || profile.activeAccountId;
             this.expectedTimerUpdate = true;
-            var promise = this.post(this.getIssueTimerUrl(accountId), timer).then(() => {
+            const promise = this.post(this.getIssueTimerUrl(accountId), timer).then(() => {
                 this.checkProfileChange();
             });
             promise.catch(() => {
@@ -139,6 +132,13 @@
             });
             return promise;
         });
+    }
+
+    getIntegrations() {
+        return this.checkProfile().then(profile =>
+            this.get<Models.IntegrationInfo[]>(
+                this.getIntegrationsUrl()
+            ));
     }
 
     getIntegration(identifier: Models.IntegratedProjectIdentifier, accountId?: number, keepAccount?: boolean) {
@@ -171,7 +171,7 @@
 
     checkProfile() {
         return new Promise<Models.UserProfile>((callback, reject) => {
-            var profile = this.userProfile;
+            const profile = this.userProfile;
             if (profile && profile.activeAccountId) {
                 callback(profile);
             }
@@ -182,7 +182,7 @@
     }
 
     getProfile() {
-        var profile = this.get<Models.UserProfile>('api/userprofile').then(profile => {
+        const profile = this.get<Models.UserProfile>('api/userprofile').then(profile => {
             this.userProfile = profile;
             return profile;
         });
@@ -199,8 +199,8 @@
 
     getTimer() {
         return this.checkProfile().then(profile => {
-            var accountId = profile.activeAccountId;
-            var url = this.getTimerUrl(accountId);
+            const accountId = profile.activeAccountId;
+            const url = this.getTimerUrl(accountId);
             return this.get<Models.TimerEx>(url);
         });
     }
@@ -210,13 +210,13 @@
             if (!accountId) {
                 accountId = profile.activeAccountId;
             }
-            var url = 'api/accounts/' + accountId + '/scope';
+            const url = 'api/accounts/' + accountId + '/scope';
             return this.get<Models.AccountScope>(url);
         });
     }
 
     getRecentWorkTasks(accountId: number) {
-        var url = 'api/accounts/' + accountId + '/timeentries/recent';
+        const url = 'api/accounts/' + accountId + '/timeentries/recent';
         return this.get<Models.RecentWorkTask[]>(url);
     }
 
@@ -225,72 +225,21 @@
     }
 
     get<TRes>(url: string): Promise<TRes> {
-        return this.ajax(url, 'GET');
+        return OidcClient.ajax(this.serviceUrl + url, 'GET');
     }
 
     post<TReq, TRes>(url: string, data: TReq): Promise<TRes>
     post<TReq>(url: string, data: TReq): Promise<void>
     post<TReq>(url: string, data: TReq): Promise<any> {
-        return this.ajax<TReq, any>(url, 'POST', data);
+        return OidcClient.ajax<TReq, any>(this.serviceUrl + url, 'POST', data);
     }
 
     put<TReq>(url: string, data: TReq): Promise<void> {
-        return this.ajax<TReq, void>(url, 'PUT', data);
+        return OidcClient.ajax<TReq, void>(this.serviceUrl + url, 'PUT', data);
     }
 
-    ajax<TReq, TRes>(url: string, method: string, dataReq?: TReq): Promise<TRes> {
-        var settings = <JQueryAjaxSettings>{};
-        settings.url = this.serviceUrl + url;
-
-        if (dataReq !== undefined) {
-            settings.data = JSON.stringify(dataReq);
-            settings.contentType = "application/json";
-        }
-
-        var isGet = method == 'GET';
-        var isPost = method == 'POST';
-
-        if (isGet || isPost) {
-            settings.type = method;
-        }
-        else {
-            settings.type = 'POST';
-            settings.headers = {};
-            settings.headers['X-HTTP-Method-Override'] = method;
-        }
-
-        return new Promise<TRes>((callback, reject) => {
-
-            var xhr = $.ajax(settings);
-
-            xhr.done(dataRes => {
-                if (xhr.status >= 200 && xhr.status < 400) {
-                    callback(dataRes);
-                }
-                else {
-                    reject(fail);
-                }
-            });
-
-            xhr.fail(fail);
-
-            function fail() {
-                var statusCode = xhr.status;
-                var statusText = xhr.statusText;
-                if (xhr.responseJSON) {
-                    var responseMessage = xhr.responseJSON.message;
-                }
-
-                if (statusText == 'error') // jQuery replaces empty status to 'error'
-                {
-                    statusText = '';
-                }
-                if (statusCode && !statusText) { // HTTP/2 does not define a way to carry the reason phrase
-                    statusText = ServerConnection.statusDescriptions[statusCode];
-                }
-                reject(<AjaxStatus>{ statusCode, statusText, responseMessage });
-            }
-        });
+    getIntegrationsUrl() {
+        return `api/userprofile/integrations`;
     }
 
     getIntegrationProjectUrl(accountId: number) {

@@ -7,7 +7,6 @@ web browsers are **Chrome**, **Firefox**, **Edge**, **Opera**, and **Safari**.
 * [Asana](https://asana.com)
 * [Assembla](https://www.assembla.com)
 * [Axosoft](https://www.axosoft.com)
-* [Basecamp](https://basecamp.com)
 * [Bitbucket](https://bitbucket.org)
 * [Bitrix24](https://www.bitrix24.com)
 * [Bugzilla](https://www.bugzilla.org)
@@ -15,16 +14,22 @@ web browsers are **Chrome**, **Firefox**, **Edge**, **Opera**, and **Safari**.
 * [ClubHouse](https://clubhouse.io/)
 * [Doit.im](https://doit.im)
 * [Easy Redmine](https://easyredmine.com)
+* [Evernote](https://evernote.com)
 * [Freshdesk](https://freshdesk.com)
 * [G Suite](https://gsuite.google.com)
 * [GitHub](https://github.com)
 * [GitLab](https://gitlab.com)
+* [HubSpot](https://www.hubspot.com)
+* [Insightly](https://www.insightly.com/)
 * [JIRA](https://www.atlassian.com/software/jira)
 * [JIRA Service Desk](https://www.atlassian.com/software/jira/service-desk)
 * [Kayako](http://www.kayako.com)
 * [Microsoft Office Online](https://products.office.com/office-online)
 * [Microsoft Outlook Online](https://outlook.live.com)
+* [Microsoft ToDo](https://todo.microsoft.com)
+* [Monday](https://monday.com)
 * [Megaplan](https://megaplan.ru)
+* [Notion](https://www.notion.so)
 * [OpenProject](https://www.openproject.org)
 * [Pipedrive](https://www.pipedrive.com)
 * [Pivotal Tracker](https://www.pivotaltracker.com)
@@ -50,13 +55,15 @@ web browsers are **Chrome**, **Firefox**, **Edge**, **Opera**, and **Safari**.
 * [YouTrack](https://www.jetbrains.com/youtrack)
 * [Zammad](https://www.zammad.com)
 * [Zendesk](https://www.zendesk.com)
+* [ZenHub](https://www.zenhub.com/)
 * [Zoho CRM](https://www.zoho.com/crm)
 
 ## Installing from web store
 * **Chrome** -  https://chrome.google.com/webstore/detail/tmetric-extension/ffijoclmniipjbhecddgkfpdafpbdnen
 * **Firefox** - https://addons.mozilla.org/en-US/firefox/addon/tmetric-extension/
-* **Edge** - https://www.microsoft.com/store/apps/9n4sfvphnpxr
+* **Edge** - https://microsoftedge.microsoft.com/addons/detail/bkohhohbfioiffcejghnjljadblbifok
 * **Opera** - https://addons.opera.com/en/extensions/details/tmetric-extension/
+* **Safari** - https://apps.apple.com/app/tmetric-for-safari/id1483939427
 
 ## Installing from source code
 **Requirements**

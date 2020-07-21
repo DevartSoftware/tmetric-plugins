@@ -18,6 +18,7 @@
     private _canCreateTags: boolean;
     private _requiredFields: Models.RequiredFields;
     private _newIssue: WebToolIssueTimer;
+    private _possibleWebTool: WebToolInfo;
 
     getData(accountId: number) {
 
@@ -29,6 +30,8 @@
             if (this._profile.accountMembership.length > 1) {
                 this.fillAccountSelector(data.profile, data.accountId);
             }
+
+            this.fillWebToolAlert();
 
             if (data.timer.isStarted && this.isLongRunning(data.timer.startTime)) {
                 this.fillFixForm(data.timer);
@@ -78,6 +81,7 @@
             this._canCreateProjects = data.canCreateProjects;
             this._canCreateTags = data.canCreateTags;
             this._requiredFields = data.requiredFields;
+            this._possibleWebTool = data.possibleWebTool;
         } else {
             this.close();
         }
@@ -278,6 +282,18 @@
         }
 
         return { url, text };
+    }
+
+    fillWebToolAlert() {
+
+        $('#webtool-alert').toggle(!!this._possibleWebTool);
+
+        if (!this._possibleWebTool) {
+            return;
+        }
+
+        let message = `We have noticed that you are using ${this._possibleWebTool.serviceName}. Do you want to integrate TMetric with ${this._possibleWebTool.serviceName}?`;
+        $('#webtool-alert .alert-text').text(message);
     }
 
     fillTaskLink(link: JQuery, url: string, text: string) {
@@ -992,6 +1008,7 @@
         $(this._forms.create + ' .project .input').change(() => (this.onProjectSelectChange(), false));
         $('.cancel-btn').click(() => (this.onCancelClick(), false));
         $('#settings-btn').click(() => (this.onSettingsClick(), false));
+        $('#integrate-webtool').click(() => (this.onIntegrateWebToolClick(), false));
 
         this.initDropdown('#account-selector', (accountId) => {
             this.changeAccount(accountId);
@@ -1065,6 +1082,20 @@
 
     private onSettingsClick() {
         this.openOptionsPage();
+    }
+
+    private async onIntegrateWebToolClick() {
+        const manager = new PermissionManager();
+        const map = WebToolManager.toServiceTypesMap([this._possibleWebTool]);
+        const result = await manager.requestPermissions(map);
+        // User interaction with browser permission popup causes tmetric popup to close.
+        // So no code will be execute after permission request.
+        // For case when permission was removed, Chrome does not display permissions popup second time.
+        // Permissions will be enabled on our request without distracting user.
+        // Close popup intentionally for this case.
+        if (result) {
+            this.close();
+        }
     }
 
     private onProjectSelectChange() {

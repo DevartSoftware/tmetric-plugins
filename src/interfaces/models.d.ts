@@ -37,6 +37,7 @@ declare module Models {
         extensionUUID: string;
         serviceUrl: string;
         storageUrl: string;
+        authorityUrl: string;
     }
 
     interface TimeZoneInfo {
@@ -244,5 +245,13 @@ declare module Models {
     interface Money {
         amount: number;
         currency: string;
+    }
+
+    interface IntegrationInfo {
+
+        serviceType: string;
+
+        serviceUrl: string;
+
     }
 }
