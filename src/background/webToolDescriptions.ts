@@ -506,6 +506,9 @@
             scripts: {
                 js: ['in-page-scripts/integrations/youTrack.js'],
                 paths: [
+                    'issue/*',
+                    'agiles/*',
+                    'rest/agile/*/sprint/*',
                     '*/issue/*',
                     '*/agiles/*',
                     '*/rest/agile/*/sprint/*'
