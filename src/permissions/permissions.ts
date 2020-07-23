@@ -4,13 +4,14 @@ $(document).ready(() => {
         const content = items.map(item => $('<li>')
             .data('keywords', [item.serviceName].concat(item.keywords || []).map(k => k.toLowerCase()))
             .append(`
-<label title="${item.serviceName}" class="logo-wrapper">
+<span title="${item.serviceName}" class="logo-wrapper">
     <input type="checkbox" name="${item.serviceType}" />
     <span class="logo-area">
         <img src="../images/integrations/${item.icon}" alt="${item.serviceName}" />
-        <button class="btn btn-default show-popup" ${item.hasAdditionalOrigins ? '' : 'style="display:none"'}"><i class="fa fa-pencil"></i> Edit</button>
     </span>
-</label>`));
+    <button class="switch"></button>
+    <button class="btn btn-default show-popup" ${item.hasAdditionalOrigins ? '' : 'style="display:none"'}"><i class="fa fa-pencil"></i> Edit</button>
+</span>`));
         $(holder).empty().append(content);
     }
 
@@ -52,6 +53,42 @@ $(document).ready(() => {
             return { serviceUrls, hasAdditionalOrigins };
         }
 
+        function togglePermissionCheckbox(input: JQuery) {
+
+            const name = input.prop('name');
+            const checked = input.prop('checked');
+
+            input.prop('checked', !checked);
+
+            const { serviceUrls, hasAdditionalOrigins } = getServiceUrls(name);
+
+            if (!checked && serviceUrls.length == 0 && hasAdditionalOrigins) {
+                showPopup(name, serviceUrls);
+            } else {
+                updatePermissions(input);
+            }
+        }
+
+        async function updatePermissions(input: JQuery) {
+            try {
+
+                const checked = input.prop('checked');
+                const serviceType = input.prop('name');
+                const serviceUrls = input.data('serviceUrls');
+                const map = serviceUrls.reduce((map, url) => (map[url] = serviceType) && map, <ServiceTypesMap>{});
+
+                if (checked) {
+                    await permissionsManager.requestPermissions(map);
+                } else {
+                    await permissionsManager.removePermissions(map);
+                }
+
+                updatePermissionCheckboxes();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
         async function showPopup(serviceType: string, serviceUrls: string[]) {
 
             $(popup).data('serviceType', serviceType);
@@ -71,18 +108,24 @@ $(document).ready(() => {
             updatePermissionCheckboxes();
         }
 
-        $('.logo-wrapper').on('click', function (event) {
+        $('.logo-wrapper').on('click', '.switch', function (event) {
 
             event.stopPropagation();
 
-            const input = $(this).find('input:checkbox');
-            const name = input.prop('name');
+            const input = $(this).siblings('input:checkbox');
+
+            togglePermissionCheckbox(input);
+        });
+
+        $('.logo-wrapper').on('click', '.logo-area', function (event) {
+
+            event.stopPropagation();
+
+            const input = $(this).siblings('input:checkbox');
             const checked = input.prop('checked');
 
-            const { serviceUrls, hasAdditionalOrigins } = getServiceUrls(name);
-
-            if (!checked && serviceUrls.length == 0 && hasAdditionalOrigins) {
-                showPopup(name, serviceUrls);
+            if (!checked) {
+                togglePermissionCheckbox(input);
             }
         });
 
@@ -90,7 +133,7 @@ $(document).ready(() => {
 
             event.stopPropagation();
 
-            const input = $(this).parent().siblings('input:checkbox');
+            const input = $(this).siblings('input:checkbox');
             const name = input.prop('name');
 
             const { serviceUrls, hasAdditionalOrigins } = getServiceUrls(name);
@@ -109,6 +152,11 @@ $(document).ready(() => {
             input.toggleClass('invalid', !serviceUrl);
 
             if (!serviceUrl) {
+                return;
+            }
+
+            const existingUrls = $('.url-list .url', popup).toArray().map((el: HTMLInputElement) => el.value);
+            if (existingUrls.indexOf(serviceUrl) > -1) {
                 return;
             }
 
@@ -176,6 +224,7 @@ $(document).ready(() => {
     }
 
     function setAllLogos() {
+
         $('.enable-all').click(async () => {
 
             const map = WebToolManager.toServiceTypesMap(getWebToolDescriptions());
@@ -201,32 +250,6 @@ $(document).ready(() => {
         });
     }
 
-    function initPermissionCheckboxes() {
-        $('.logo-wrapper input').change(async event => {
-
-            const input = <HTMLInputElement>event.currentTarget;
-
-            try {
-
-                const serviceType = input.name;
-                const serviceUrls = $(input).data('serviceUrls');
-                const map = serviceUrls.reduce((map, url) => (map[url] = serviceType) && map, <ServiceTypesMap>{});
-
-                if (input.checked) {
-                    await permissionsManager.requestPermissions(map);
-                } else {
-                    await permissionsManager.removePermissions(map);
-                }
-
-                updatePermissionCheckboxes();
-            } catch (err) {
-                console.error(err);
-            }
-        });
-
-        updatePermissionCheckboxes();
-    }
-
     function setPermissionCheckboxStatus(serviceType: string, serviceUrls: string[], checked: boolean) {
         $(`.logo-wrapper input[name='${serviceType}']`)
             .prop('checked', checked)
@@ -236,6 +259,9 @@ $(document).ready(() => {
     async function updatePermissionCheckboxes() {
 
         await WebToolManager.cleanupServiceTypes();
+
+        let isAllCloudEnabled = true;
+        let isAllDisabled = true;
 
         const serviceUrlsMap = WebToolManager.getServiceUrls();
         const webToolDescriptions = getWebToolDescriptions();
@@ -248,10 +274,27 @@ $(document).ready(() => {
 
             if (serviceUrls) {
                 setPermissionCheckboxStatus(serviceType, serviceUrls, true);
+                isAllDisabled = false;
             } else {
                 setPermissionCheckboxStatus(serviceType, webToolDescription.origins, false);
+                if (webToolDescription.origins.length > 0) {
+                    isAllCloudEnabled = false;
+                }
             }
         });
+
+        if (isAllCloudEnabled) {
+            $('.enable-all').attr('disabled', '');
+        } else {
+            $('.enable-all').removeAttr('disabled');
+        }
+
+        if (isAllDisabled) {
+            $('.disable-all').attr('disabled', '');
+        } else {
+            $('.disable-all').removeAttr('disabled');
+        }
+
     }
 
     function initSearch() {
@@ -294,9 +337,10 @@ $(document).ready(() => {
     setScrollArea();
     setAllLogos();
     initLogoClick();
-    initPermissionCheckboxes();
     initSearch();
     initClosePage();
+
+    updatePermissionCheckboxes();
 
     $(window).resize(function () {
         setScrollArea();

@@ -22,7 +22,7 @@
 
     private readonly intervalMultiplierTimeout = 5 * 60000; // 5 mins
 
-    retryInProgress: boolean;
+    private _retryInProgress: boolean;
 
     private _retryTimeout: number;
 
@@ -117,12 +117,12 @@
     }
 
     private get canRetryConnection() {
-        return !this.hubConnected && !this.retryInProgress;
+        return !this.hubConnected && !this._retryInProgress;
     }
 
     isConnectionRetryEnabled() {
-        console.log('retryPending: ' + !!this.retryPendingHandle + ', retryInProgress: ' + !!this.retryInProgress);
-        return Promise.resolve(!!(this.retryPendingHandle || this.retryInProgress));
+        console.log('retryPending: ' + !!this._retryTimeoutHandle + ', retryInProgress: ' + !!this._retryInProgress);
+        return Promise.resolve(!!(this._retryTimeoutHandle || this._retryInProgress));
     }
 
     reconnect() {
@@ -148,7 +148,7 @@
                 .then(([version, profile]) => {
 
                     if (!this.hub) {
-                        let hub = new signalR.HubConnectionBuilder()
+                        const hub = new signalR.HubConnectionBuilder()
                             .withUrl(this.signalRUrl + 'appHub')
                             .configureLogging(signalR.LogLevel.Warning)
                             .build();
@@ -192,13 +192,13 @@
 
         console.log('setRetryPending: ' + value);
 
-        if (!!this.retryPendingHandle == value) {
+        if (!!this._retryTimeoutHandle == value) {
             return;
         }
 
         if (value) {
-            var timeout = this._retryTimeout;
-            var fromPreviousRetry = new Date().getTime() - this._retryTimeStamp.getTime();
+            let timeout = this._retryTimeout;
+            const fromPreviousRetry = new Date().getTime() - this._retryTimeStamp.getTime();
             if (!timeout || timeout < this.minRetryInterval && fromPreviousRetry > this.intervalMultiplierTimeout) {
                 timeout = this.minRetryInterval; // Start from 15 second interval when reconnected more than 5 mins ago
             } else {
@@ -217,18 +217,19 @@
     }
 
     retryConnection() {
-        console.log('retryConnection');
+        console.log(`retryConnection. hubConnected: ${this.hubConnected}, retryInProgress: ${this._retryInProgress}`);
         this.setRetryPending(false);
         if (this.canRetryConnection) {
-            this.retryInProgress = true;
+            this._retryInProgress = true;
             this.reconnect()
                 .catch((err: AjaxStatus) => {
                     // Stop retrying when server returns error code
                     if (!(err.statusCode > 0)) {
+                        console.log(`Retry error: ${err.statusCode}`);
                         this.setRetryPending(true);
                     }
                 })
-                .then(() => this.retryInProgress = false);
+                .then(() => this._retryInProgress = false);
         }
         return Promise.resolve();
     }
@@ -245,7 +246,7 @@
             console.log('disconnect: stop hub');
             disconnectPromise = this.hub.stop();
         }
-        let promise = disconnectPromise.then(() => {
+        const promise = disconnectPromise.then(() => {
             console.log('disconnect: disable retrying');
             this.setRetryPending(false);
         });
@@ -256,7 +257,7 @@
     }
 
     async getProfile() {
-        let profile = await super.getProfile();
+        const profile = await super.getProfile();
         this.onUpdateProfile.emit(profile);
         return profile;
     }
@@ -265,25 +266,25 @@
 
         return this.checkProfile().then(profile => {
 
-            var accountId = profile.activeAccountId;
-            var userProfileId = profile.userProfileId;
+            const accountId = profile.activeAccountId;
+            const userProfileId = profile.userProfileId;
 
-            var url = this.getTimerUrl(accountId);
-            var timer = this.get<Models.TimerEx>(url).then(timer => {
+            let url = this.getTimerUrl(accountId);
+            const timer = this.get<Models.TimerEx>(url).then(timer => {
                 this.onUpdateTimer.emit(timer);
                 return timer;
             });
 
-            var now = new Date();
-            var startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toJSON();
-            var endTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toJSON();
+            const now = new Date();
+            const startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toJSON();
+            const endTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toJSON();
             url = this.getTimeEntriesUrl(accountId, userProfileId) + `?startTime=${startTime}&endTime=${endTime}`;
-            var timeEntries = this.get<Models.TimeEntry[]>(url).then(timeEntries => {
+            const timeEntries = this.get<Models.TimeEntry[]>(url).then(timeEntries => {
                 this.onUpdateTracker.emit(timeEntries);
                 return timeEntries;
             });
 
-            var all = Promise.all([timer, timeEntries]);
+            const all = Promise.all([timer, timeEntries]);
             all.catch(() => this.disconnect());
 
             return all;
@@ -292,8 +293,9 @@
 }
 
 {
-    let p: { invokeClientMethod: (this: signalR.HubConnection, message: signalR.InvocationMessage) => void };
-    p = <any>signalR.HubConnection.prototype;
+    const p: { invokeClientMethod: (this: signalR.HubConnection, message: signalR.InvocationMessage) => void } =
+        <any>signalR.HubConnection.prototype;
+
     const oldInvoke = p.invokeClientMethod;
     p.invokeClientMethod = function (message) {
         if (message && message.target) {

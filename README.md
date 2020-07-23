@@ -7,7 +7,6 @@ web browsers are **Chrome**, **Firefox**, **Edge**, **Opera**, and **Safari**.
 * [Asana](https://asana.com)
 * [Assembla](https://www.assembla.com)
 * [Axosoft](https://www.axosoft.com)
-* [Basecamp](https://basecamp.com)
 * [Bitbucket](https://bitbucket.org)
 * [Bitrix24](https://www.bitrix24.com)
 * [Bugzilla](https://www.bugzilla.org)

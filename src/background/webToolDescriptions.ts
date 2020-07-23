@@ -9,7 +9,7 @@
             hasAdditionalOrigins: true,
             scripts: {
                 js: ['in-page-scripts/integrations/activeCollab.js'],
-                paths: ['projects/*'],
+                paths: ['*/projects/*'],
             }
         },
         {
@@ -56,24 +56,14 @@
                 js: ['in-page-scripts/integrations/tfs.js'],
                 paths: [
                     // Azure DevOps / Team Foundation Server
-                    '_home*',
-                    '_boards*',
-                    '_dashboards*',
-                    '_backlogs*',
-                    '_workitems*',
-                    '_sprints*',
-                    '_queries*',
+                    '*/_home*',
+                    '*/_boards*',
+                    '*/_dashboards*',
+                    '*/_backlogs*',
+                    '*/_workitems*',
+                    '*/_sprints*',
+                    '*/_queries*',
                 ]
-            }
-        },
-        {
-            serviceType: 'Basecamp',
-            serviceName: 'Basecamp',
-            icon: 'basecamp.svg',
-            origins: ['https://*.basecamp.com/*'],
-            scripts: {
-                js: ['in-page-scripts/integrations/basecamp.js'],
-                paths: ['*/buckets/*']
             }
         },
         {
@@ -190,8 +180,9 @@
             scripts: {
                 js: ['in-page-scripts/integrations/gitLab.js'],
                 paths: [
-                    'issues/*',
-                    'merge_requests/*'
+                    '*/issues/*',
+                    '*/merge_requests/*',
+                    '*/boards'
                 ]
             }
         },
@@ -453,7 +444,7 @@
             hasAdditionalOrigins: true,
             scripts: {
                 js: ['in-page-scripts/integrations/trac.js'],
-                paths: ['ticket/*']
+                paths: ['*/ticket/*']
             }
         },
         {
@@ -517,7 +508,10 @@
                 paths: [
                     'issue/*',
                     'agiles/*',
-                    'rest/agile/*/sprint/*'
+                    'rest/agile/*/sprint/*',
+                    '*/issue/*',
+                    '*/agiles/*',
+                    '*/rest/agile/*/sprint/*'
                 ]
             }
         },

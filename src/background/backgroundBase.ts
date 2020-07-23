@@ -11,7 +11,7 @@
 
     protected showError(message: string) {
         // This needed to prevent alert cleaning via build.
-        let a = alert;
+        const a = alert;
         a(message);
     }
 
@@ -71,7 +71,7 @@
     protected async getProject(projectId: number, accountId?: number) {
         accountId = accountId || this.userProfile.activeAccountId;
 
-        let scope = await this.getAccountScope(accountId);
+        const scope = await this.getAccountScope(accountId);
         if (scope) {
             return scope.projects.find(_ => _.projectId == projectId);
         }
@@ -110,7 +110,7 @@
                 }
             }
             else if (status.projectStatus != Models.ProjectStatus.Open) {
-                let statusText = status.projectStatus == Models.ProjectStatus.Archived ? 'archived' : 'done';
+                const statusText = status.projectStatus == Models.ProjectStatus.Archived ? 'archived' : 'done';
                 notification = `Project '${timer.projectName}' exists, but it has '${statusText}' status. You cannot log time to this project.\n\n${contactAdmin}`;
                 timer.projectName = undefined;
             }
@@ -176,9 +176,11 @@
 
         this.putData(timer, async timer => {
 
+            let status: Models.IntegratedProjectStatus;
+            let scope: Models.AccountScope;
             try {
-                var status = await this.getIntegrationStatus(timer, accountId);
-                var scope = await this.getAccountScope(status.accountId);
+                status = await this.getIntegrationStatus(timer, accountId);
+                scope = await this.getAccountScope(status.accountId);
             } catch (err) {
                 this.connection.checkProfileChange(); // TE-179
                 return Promise.reject(err);
@@ -208,7 +210,7 @@
         });
     }
 
-    protected putData<T>(data: T, action: (data: T) => Promise<any>, retryAction?: (data: T) => Promise<any>) {
+    protected putData<T>(data: T, action: (data: T) => Promise<any>) {
         action(data).catch(status => this.showError(this.getErrorText(status)));
     }
 
@@ -220,7 +222,7 @@
     }
 
     protected getErrorText(status: AjaxStatus) {
-        let result = status && (status.responseMessage || status.statusText || status.statusCode);
+        const result = status && (status.responseMessage || status.statusText || status.statusCode);
         if (result) {
             return result.toString();
         }
@@ -231,10 +233,10 @@
 
         accountId = accountId || this.userProfile.activeAccountId;
 
-        let scope = await this.getAccountScope(accountId);
+        const scope = await this.getAccountScope(accountId);
 
         let hasWorkType = false;
-        let tagByName: { [name: string]: Models.Tag } = {};
+        const tagByName: { [name: string]: Models.Tag } = {};
         scope.tags.forEach(tag => {
             tagByName[tag.tagName.toLowerCase()] = tag;
         });
@@ -242,7 +244,7 @@
         timer.tagNames = (timer.tagNames || [])
             .map(name => {
 
-                let tag = tagByName[name.toLowerCase()];
+                const tag = tagByName[name.toLowerCase()];
 
                 if (!tag) {
                     return name; // new tag
@@ -260,7 +262,7 @@
             .filter(name => !!name);
 
         if (!hasWorkType) {
-            let defaultWorkType = await this.getDefaultWorkType(accountId);
+            const defaultWorkType = await this.getDefaultWorkType(accountId);
             if (defaultWorkType) {
                 timer.tagNames.push(defaultWorkType.tagName);
             }
@@ -281,8 +283,8 @@
 
         accountId = accountId || this.userProfile.activeAccountId;
 
-        let scope = await this.getAccountScope(accountId);
-        let member = this.userProfile.accountMembership.find(_ => _.account.accountId == accountId);
+        const scope = await this.getAccountScope(accountId);
+        const member = this.userProfile.accountMembership.find(_ => _.account.accountId == accountId);
 
         return scope.tags.find(tag => tag.tagId == member.defaultWorkTypeId);
     }
@@ -322,8 +324,8 @@
     }
 
     protected onPopupRequest(request: IPopupRequest, callback: (response: IPopupResponse) => void) {
-        let action = request.action;
-        let handler = this._popupActions[action];
+        const action = request.action;
+        const handler = this._popupActions[action];
         if (action && handler) {
             handler.call(this, request.data).then((result: IPopupInitData) => {
                 callback({ action: action, data: result });
@@ -362,21 +364,21 @@
             this.getDefaultWorkType(accountId),
         ]).then(([title, webTool, scope, defaultWorkType]) => {
 
-            let userRole = this.userProfile.accountMembership
+            const userRole = this.userProfile.accountMembership
                 .find(_ => _.account.accountId == accountId)
                 .role;
 
-            let canMembersManagePublicProjects = scope.account.canMembersManagePublicProjects;
-            let canCreateTags = scope.account.canMembersCreateTags;
-            let isAdmin = (userRole == Models.ServiceRole.Admin || userRole == Models.ServiceRole.Owner);
+            const canMembersManagePublicProjects = scope.account.canMembersManagePublicProjects;
+            const canCreateTags = scope.account.canMembersCreateTags;
+            const isAdmin = (userRole == Models.ServiceRole.Admin || userRole == Models.ServiceRole.Owner);
 
-            let newIssue: WebToolIssueTimer = this.newPopupIssue || { // _newPopupIssue is null if called from toolbar popup
+            const newIssue: WebToolIssueTimer = this.newPopupIssue || { // _newPopupIssue is null if called from toolbar popup
                 isStarted: true,
                 description: title,
                 tagNames: defaultWorkType ? [defaultWorkType.tagName] : []
             };
 
-            let filteredProjects = this.getTrackedProjects(scope)
+            const filteredProjects = this.getTrackedProjects(scope)
                 .sort((a, b) => a.projectName.localeCompare(b.projectName, [], { sensitivity: 'base' }));
 
             const projectMap = this.getProjectMap(accountId);
@@ -385,7 +387,7 @@
             let defaultProjectId: number = null;
             if (projectMap) {
 
-                let projectName = newIssue.projectName || '';
+                const projectName = newIssue.projectName || '';
 
                 defaultProjectId = projectMap[projectName];
 
@@ -487,8 +489,8 @@
 
     private accountToProjectMap: {
         [accountId: number]: {
-            [key: string]: number
-        }
+            [key: string]: number;
+        };
     };
 
     private accountToProjectMapKey = 'accountToProjectMap';
@@ -525,7 +527,7 @@
     // task name to description map
 
     private taskNameToDescriptionMap: {
-        [key: string]: string
+        [key: string]: string;
     };
 
     private taskNameToDescriptionMapKey = 'taskNameToDescriptionMap';
@@ -569,12 +571,12 @@
 
     protected async getRecentTasksAction(accountId: number) {
 
-        let [recentTasks, scope] = await Promise.all([
+        const [recentTasks, scope] = await Promise.all([
             this.getRecentTasks(accountId),
             this.getAccountScope(accountId)
         ]);
 
-        let trackedProjectsMap: { [id: number]: boolean } = {};
+        const trackedProjectsMap: { [id: number]: boolean } = {};
         scope.trackedProjects.forEach(tp => trackedProjectsMap[tp] = true);
 
         return recentTasks ? recentTasks.filter(t => !t.details.projectId || trackedProjectsMap[t.details.projectId]).slice(0, 25) : null;

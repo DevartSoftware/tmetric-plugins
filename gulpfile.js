@@ -65,6 +65,7 @@ var files = {
     common: [
         'src/background/webToolDescriptions.js',
         'src/background/webToolManager.js',
+        'src/background/oidcClient.js',
         'src/background/contentScriptsPolyfill.js',
         'src/background/contentScriptsRegistrator.js',
         'src/background/serverConnection.js',
@@ -73,6 +74,7 @@ var files = {
         'src/css/*.css',
         'src/in-page-scripts/integrations/*.js',
         'src/in-page-scripts/integrationService.js',
+        'src/in-page-scripts/authorizationCode.js',
         'src/in-page-scripts/page.js',
         'src/in-page-scripts/init.js',
         'src/in-page-scripts/topmostPage.js',
@@ -353,8 +355,12 @@ function bundleScriptsSafari() {
 
     var manifestFile = src + 'manifest.json';
     var manifest = jsonfile.readFileSync(manifestFile);
-    var contentScripts = manifest.content_scripts;
+    var manifestScripts = manifest.content_scripts;
 
+    var integrationScriptsFolder = `${src}/in-page-scripts/integrations`;
+    var integrationScripts = fs.readdirSync(integrationScriptsFolder)
+        .filter(filename => filename.endsWith('.js'))
+        .map(filename => `in-page-scripts/integrations/${filename}`);
 
     function loadFilesContent(filePaths) {
         return filePaths.map(filePath => {
@@ -373,6 +379,10 @@ function bundleScriptsSafari() {
 
             let extensionContent = '';
 
+            // add web tool descriptions
+
+            extensionContent += '\n\n' + loadFilesContent(["background/webToolDescriptions.js"]);
+
             // add script file content
 
             extensionContent += `${file.contents.toString(encoding)}`;
@@ -385,16 +395,16 @@ function bundleScriptsSafari() {
                 "in-page-scripts/page.js"
             ]);
 
+            // add manifest scripts
+
+            manifestScripts.forEach(info => {
+                extensionContent += `\n\nif (shouldIncludeManifestScripts(${JSON.stringify(info, null, 4)})) {\n${loadFilesContent([info.js])}\n}`;
+            });
+
             // add integrations scripts
 
-            contentScripts.forEach(info => {
-
-                let integrations = info.js.filter(filePath => /\/integrations\//.test(filePath));
-                if (!integrations.length) {
-                    return;
-                }
-
-                extensionContent += `\n\nif (shouldIncludeScripts(${JSON.stringify(info, null, 4)})) {\n${loadFilesContent(integrations)}\n}`;
+            integrationScripts.forEach(file => {
+                extensionContent += `\n\nif (shouldIncludeIntegrationScripts(${JSON.stringify(file, null, 4)})) {\n${loadFilesContent([file])}\n}`;
             });
 
             // add init script

@@ -38,7 +38,11 @@
             return;
         }
 
-        const [all, protocol = 'https://', host, port = '', path = '/*'] = match;
+        let [all, protocol = 'https://', host, port = '', path = '/'] = match;
+
+        if (path == '/') {
+            path += '*';
+        }
 
         if (!host) {
             return;
@@ -69,17 +73,28 @@
         return new Promise<boolean>(resolve => chrome.permissions.contains({ origins }, resolve));
     }
 
-    private static _getServiceTypes() {
+    private static _getServiceTypes(callback?: (serviceTypes: ServiceTypesMap) => void) {
         chrome.storage.local.get(
             <IExtensionLocalSettings>{ serviceTypes: {} },
-            ({ serviceTypes }: IExtensionLocalSettings) => this.serviceTypes = serviceTypes
+            ({ serviceTypes }: IExtensionLocalSettings) => {
+                this.serviceTypes = serviceTypes;
+                callback && callback(serviceTypes);
+            }
         );
     }
 
-    private static _setServiceTypes(map: ServiceTypesMap) {
+    private static _setServiceTypes(serviceTypes: ServiceTypesMap, callback?: () => void) {
+        this.serviceTypes = serviceTypes;
         chrome.storage.local.set(
-            <IExtensionLocalSettings>{ serviceTypes: map }
+            <IExtensionLocalSettings>{ serviceTypes: serviceTypes },
+            () => {
+                callback && callback();
+            }
         );
+    }
+
+    static getServiceTypes() {
+        return new Promise<ServiceTypesMap>(resolve => this._getServiceTypes(resolve));
     }
 
     private static onStoreChange(changes: { [key: string]: chrome.storage.StorageChange }, areaName: string) {
@@ -164,7 +179,7 @@
     }
 
     static async cleanupServiceTypes() {
-        const serviceTypes = this.serviceTypes;
+        const serviceTypes = await this.getServiceTypes();
         await Promise.all(Object.keys(serviceTypes).map(origin => this.isAllowed([origin]).then(result => !result && delete serviceTypes[origin])));
         this._setServiceTypes(serviceTypes);
     }

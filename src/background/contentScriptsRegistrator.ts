@@ -15,33 +15,33 @@
         return ContentScriptsRegistrator.instance;
     }
 
-    private scripts: { [origin: string]: RegisteredContentScript[] } = {};
+    private scripts: { [serviceUrl: string]: RegisteredContentScript[] } = {};
 
-    private getScriptOptions(scripts: ContentScripts) {
+    private addRequiredScriptOptions(scripts: RegisteredContentScriptOptions) {
 
-        let js = [
-            'in-page-scripts/utils.js',
-            'in-page-scripts/integrationService.js',
-            'in-page-scripts/page.js',
+        let js: FileOrCode[] = [
+            { file: 'in-page-scripts/utils.js' },
+            { file: 'in-page-scripts/integrationService.js' },
+            { file: 'in-page-scripts/page.js' },
             ...(scripts.js || []),
-            'in-page-scripts/init.js'
+            { file: 'in-page-scripts/init.js' }
         ];
 
-        let css = [
-            'css/timer-link.css',
+        let css: FileOrCode[] = [
+            { file: 'css/timer-link.css' },
             ...(scripts.css || [])
         ];
 
         return <RegisteredContentScriptOptions[]>[
             {
-                matches: scripts.paths,
-                js: js.map(file => ({ file })),
-                css: css.map(file => ({ file })),
+                matches: scripts.matches,
+                js: js,
+                css: css,
                 allFrames: scripts.allFrames || false,
                 runAt: 'document_end'
             },
             {
-                matches: scripts.paths,
+                matches: scripts.matches,
                 js: [
                     { file: 'in-page-scripts/topmostPage.js' }
                 ],
@@ -53,66 +53,72 @@
 
     async register(origins?: string[]) {
 
-        this.unregister(origins);
+        console.log('ContentScriptsRegistrator.register origins', origins)
 
-        const serviceTypes = WebToolManager.serviceTypes;
+        await this.unregister(origins);
+
+        const serviceTypes = await WebToolManager.getServiceTypes();
         const webToolDescriptions: { [serviceType: string]: WebToolDescription } = getWebToolDescriptions().reduce((map, item) => (map[item.serviceType] = item) && map, {});
 
-        origins = (await Promise.all(
-            (origins || Object.keys(serviceTypes)).map(
-                origin => new Promise<string>(
-                    resolve => chrome.permissions.contains({ origins: [origin] }, result => resolve(result ? origin : null))
+        let serviceUrls = Object.keys(serviceTypes).filter(url => origins ? origins.some(origin => WebToolManager.isMatch(url, origin)) : true);
+
+        serviceUrls = (await Promise.all(
+            serviceUrls.map(
+                serviceUrl => new Promise<string>(
+                    resolve => chrome.permissions.contains({ origins: [serviceUrl] }, result => resolve(result ? serviceUrl : null))
                 )
             )
-        )).filter(origin => !!origin);
+        )).filter(item => !!item);
 
-        origins.forEach(async origin => {
+        console.log('ContentScriptsRegistrator.register serviceUrls', serviceUrls)
 
-            const serviceType = serviceTypes[origin];
+        serviceUrls.forEach(async serviceUrl => {
+
+            const serviceType = serviceTypes[serviceUrl];
 
             const webToolDescription = webToolDescriptions[serviceType];
             if (!webToolDescription || !webToolDescription.scripts) {
                 return;
             }
 
-            const paths: string[] = [];
+            const scripts = webToolDescription.scripts;
+
+            const matches: string[] = [];
 
             if (webToolDescription.scripts.paths) {
-                paths.push(...webToolDescription.scripts.paths.map(path => origin.replace(/\*$/, path)))
+                matches.push(...scripts.paths.map(path => serviceUrl.replace(/\*$/, path)));
             } else {
-                paths.push(origin);
+                matches.push(serviceUrl);
             }
 
-            const scripts: ContentScripts = {
-                allFrames: webToolDescription.scripts.allFrames,
-                js: webToolDescription.scripts.js,
-                css: webToolDescription.scripts.css,
-                paths
+            const options: RegisteredContentScriptOptions = {
+                allFrames: scripts.allFrames,
+                js: (scripts.js || []).map(file => ({ file })),
+                css: (scripts.css || []).map(file => ({ file })),
+                matches: matches
             };
 
-            const scriptsOptions = this.getScriptOptions(scripts);
+            const scriptsOptions = this.addRequiredScriptOptions(options);
 
-            this.scripts[origin] = [... await Promise.all(scriptsOptions.map(this.registerInternal))];
+            this.scripts[serviceUrl] = [... await Promise.all(scriptsOptions.map(this.registerInternal))];
 
-            chrome.tabs.query({ url: paths, status: 'complete' }, tabs => {
-                tabs.forEach(tab => {
-                    chrome.tabs.executeScript(tab.id, {
-                        code: `chrome.runtime.sendMessage({action:'injectContentScripts',data:{}})`,
-                        allFrames: true
-                    });
-                });
-            });
+            this.checkContentScripts(matches, scripts.allFrames);
         });
     }
 
     async unregister(origins?: string[]) {
-        (origins || Object.keys(this.scripts)).forEach(origin => {
-            let script = this.scripts[origin];
+
+        console.log('ContentScriptsRegistrator.unregister origins', origins)
+
+        const serviceUrls = Object.keys(this.scripts).filter(url => origins ? origins.some(origin => WebToolManager.isMatch(url, origin)) : true);
+
+        serviceUrls.forEach(serviceUrl => {
+            let script = this.scripts[serviceUrl];
             if (!script) {
                 return;
             }
             script.forEach(s => s.unregister());
-            delete this.scripts[origin];
+            delete this.scripts[serviceUrl];
         });
     }
 
@@ -129,5 +135,26 @@
         }
 
         return method(options);
+    }
+
+    private checkContentScripts(matches: string[], allFrames: boolean) {
+
+        console.log('checkContentScripts', { matches, allFrames })
+
+        if (typeof browser === 'object' && browser.contentScripts) {
+           // browser.contentScripts inject scripts only to new pages
+        } else if (typeof chrome === 'object' && chrome.contentScripts) {
+            chrome.tabs.query({ url: matches, status: 'complete' }, tabs => {
+                tabs.forEach(tab => {
+
+                    console.log('checkContentScripts', tab.id, tab.url)
+
+                    chrome.tabs.executeScript(tab.id, {
+                        code: `chrome.runtime.sendMessage({action:'checkContentScripts'})`,
+                        allFrames
+                    });
+                });
+            });
+        }
     }
 }

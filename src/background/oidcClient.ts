@@ -6,6 +6,13 @@
         this.authorityUrl = authorityUrl;
     }
 
+    public static isLoggedIn() {
+        return Promise.all([
+            this.getStorageValue('access_token'),
+            this.getStorageValue('refresh_token')
+        ]).then(tokens => tokens.every(_ => !!_));
+    }
+
     public static getLoginUrl(): string {
         return `${this.authorityUrl}extension/login.html`;
     }
@@ -16,13 +23,16 @@
 
             const xhr = new XMLHttpRequest();
             xhr.open("POST", `${this.authorityUrl}core/connect/token`);
-            xhr.onload = function () {
+            xhr.onload = () => {
                 if (xhr.status === 200) {
                     resolve(JSON.parse(xhr.responseText));
                 }
                 else {
                     reject(xhr.status);
                 }
+            }
+            xhr.onerror = () => {
+                reject(xhr.status);
             }
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
             xhr.send(`client_id=browser_extension&grant_type=authorization_code&code=${authorizationCode}&redirect_uri=${this.authorityUrl}extension/callback.html`);
@@ -35,13 +45,16 @@
 
             const xhr = new XMLHttpRequest();
             xhr.open("POST", `${this.authorityUrl}core/connect/token`);
-            xhr.onload = function () {
+            xhr.onload = () => {
                 if (xhr.status === 200) {
                     resolve(JSON.parse(xhr.responseText));
                 }
                 else {
                     reject(xhr.status);
                 }
+            }
+            xhr.onerror = () => {
+                reject(xhr.status);
             }
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
             xhr.send(`client_id=browser_extension&grant_type=refresh_token&refresh_token=${refreshToken}&redirect_uri=${this.authorityUrl}extension/callback.html`);
@@ -66,25 +79,30 @@
         });
     }
 
-    public static async ajax<TReq, TRes>(url, options, dataReq?: TReq): Promise<TRes> {
+    public static async authorize() {
 
         // If we have authorization code - get new acces and refresh tokens
         const authorizationCode = await this.getStorageValue('authorization_code');
         if (authorizationCode) {
-            const tokens = await this.getTokensByAuthorizationCode(authorizationCode);
             await this.setStorageValue('authorization_code', null);
+            const tokens = await this.getTokensByAuthorizationCode(authorizationCode);
             if (tokens && tokens.refresh_token && tokens.access_token) {
                 await this.setStorageValue('refresh_token', tokens.refresh_token);
-                await this.setStorageValue('acces_token', tokens.access_token);
-                return await this.ajaxInternal<TReq, TRes>(tokens.access_token, url, options, dataReq);
+                await this.setStorageValue('access_token', tokens.access_token);
+                return true;
             }
         }
 
+        return false;
+    }
+
+    public static async ajax<TReq, TRes>(url, options, dataReq?: TReq): Promise<TRes> {
+
         // Try to connect with presaved acces token
-        const accesToken = await this.getStorageValue('acces_token');
-        if (accesToken) {
+        const accessToken = await this.getStorageValue('access_token');
+        if (accessToken) {
             try {
-                return await this.ajaxInternal<TReq, TRes>(accesToken, url, options, dataReq);
+                return await this.ajaxInternal<TReq, TRes>(accessToken, url, options, dataReq);
             }
             catch (error) {
                 // Try to get new acces token with presaved refresh token
@@ -93,7 +111,7 @@
                     const tokens = await this.getTokensByRefresh(refreshToken);
                     if (tokens && tokens.refresh_token && tokens.access_token) {
                         await this.setStorageValue('refresh_token', tokens.refresh_token);
-                        await this.setStorageValue('acces_token', tokens.access_token);
+                        await this.setStorageValue('access_token', tokens.access_token);
                         return await this.ajaxInternal<TReq, TRes>(tokens.access_token, url, options, dataReq);
                     }
                 }
@@ -131,22 +149,12 @@
 
             const xhr = $.ajax(settings);
 
-            xhr.done(dataRes => {
-                if (xhr.status >= 200 && xhr.status < 400) {
-                    callback(dataRes);
-                }
-                else {
-                    reject(fail);
-                }
-            });
-
-            xhr.fail(fail);
-
             function fail() {
                 const statusCode = xhr.status;
                 let statusText = xhr.statusText;
+                let responseMessage: string;
                 if (xhr.responseJSON) {
-                    var responseMessage = xhr.responseJSON.message;
+                    responseMessage = xhr.responseJSON.message;
                 }
 
                 if (statusText == 'error') // jQuery replaces empty status to 'error'
@@ -158,7 +166,17 @@
                 }
                 reject(<AjaxStatus>{ statusCode, statusText, responseMessage });
             }
+
+            xhr.done(dataRes => {
+                if (xhr.status >= 200 && xhr.status < 400) {
+                    callback(dataRes);
+                }
+                else {
+                    reject(fail);
+                }
+            });
+
+            xhr.fail(fail);
         });
     }
 }
-

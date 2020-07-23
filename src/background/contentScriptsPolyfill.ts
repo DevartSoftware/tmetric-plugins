@@ -1,4 +1,4 @@
-﻿type FileOrCode = { file: string, code: never } | { code: string, file: never };
+﻿type FileOrCode = { file?: string, code?: string };
 
 type RegisteredContentScriptOptions = browser.contentScripts.RegisteredContentScriptOptions;
 
@@ -16,7 +16,7 @@ if (typeof chrome === 'object' && !chrome.contentScripts) {
 
     const getContentScriptOptions = function (url: string, frameUrl?: string) {
         return contentScriptOptionsStore
-            .filter(i => i.matches.test(url) && (frameUrl ? i.matches.test(frameUrl) : true))
+            .filter(i => frameUrl ? i.matches.test(frameUrl) : i.matches.test(url))
             .map(i => i.options);
     }
 
@@ -36,6 +36,10 @@ if (typeof chrome === 'object' && !chrome.contentScripts) {
         });
     }
 
+    const checkContentScripts = function (tabId: number, frameId: number = 0) {
+        chrome.tabs.executeScript(tabId, { frameId, code: `(${getInjectedScripts.toString()})()`, runAt: 'document_end' });
+    }
+
     const getInjectedScripts = function () {
 
         let scripts = document['tmetricContentScripts'] || {};
@@ -49,8 +53,10 @@ if (typeof chrome === 'object' && !chrome.contentScripts) {
     }
 
     const setInjectedScript = function (file: string) {
+
         let scripts = document['tmetricContentScripts'] || {};
         scripts[file] = true;
+
         document['tmetricContentScripts'] = scripts;
     }
 
@@ -87,32 +93,29 @@ if (typeof chrome === 'object' && !chrome.contentScripts) {
         });
     }
 
-    const addTabListener = function () {
-        chrome.tabs.onUpdated.addListener(async (tabId, { status, url }, tab) => {
+    const addWebNavigationListener = function () {
+        chrome.webNavigation.onCompleted.addListener(async ({ tabId, frameId, url }) => {
 
-            console.log(tabId, status, url, tab.url)
+            console.log({ tabId, frameId, url })
 
-            if (status !== 'complete') {
+            if (!['http:', 'https:'].some(protocol => url.startsWith(protocol))) {
+                console.log('no protocol')
                 return;
             }
 
-            if (!tab || !tab.url || !['http:', 'https:'].some(protocol => tab.url.startsWith(protocol))) {
-                console.log('no tab')
-                return;
-            }
-
-            if (!await isOriginPermitted(tab.url)) {
+            if (!await isOriginPermitted(url)) {
                 console.log('no permission')
                 return;
             }
 
-            const options = getContentScriptOptions(tab.url);
+            const options = getContentScriptOptions(url);
             if (!options.length) {
                 console.log('no options')
                 return;
             }
 
-            chrome.tabs.executeScript(tab.id, { code: `(${getInjectedScripts.toString()})()`, allFrames: true, runAt: 'document_end' });
+            checkContentScripts(tabId, frameId);
+
         });
     }
 
@@ -125,14 +128,17 @@ if (typeof chrome === 'object' && !chrome.contentScripts) {
                 return;
             }
 
-            if (message.action == 'injectContentScripts') {
+            if (message.action == 'checkContentScripts') {
+                checkContentScripts(sender.tab.id, sender.frameId);
+                senderResponse(null);
+            } else if (message.action == 'injectContentScripts') {
                 injectContentScripts(sender.tab, sender.frameId, sender.url, message.data);
                 senderResponse(null);
             }
         });
     }
 
-    addTabListener();
+    addWebNavigationListener();
     addMessageListener();
 
     chrome.contentScripts = {
