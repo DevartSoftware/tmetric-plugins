@@ -132,6 +132,16 @@
             }
         },
         {
+            serviceType: 'Clubhouse',
+            serviceName: 'Clubhouse',
+            icon: 'clubhouse.svg',
+            origins: ['https://app.clubhouse.io/*'],
+            scripts: {
+                js: ['in-page-scripts/integrations/clubhouse.js'],
+                paths: ['*/story/*']
+            }
+        },
+        {
             serviceType: 'Doit.im',
             serviceName: 'Doit.im',
             icon: 'doitim.svg',
