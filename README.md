@@ -11,7 +11,7 @@ web browsers are **Chrome**, **Firefox**, **Edge**, **Opera**, and **Safari**.
 * [Bitrix24](https://www.bitrix24.com)
 * [Bugzilla](https://www.bugzilla.org)
 * [ClickUp](https://clickup.com)
-* [ClubHouse](https://clubhouse.io/)
+* [Clubhouse](https://clubhouse.io/)
 * [Doit.im](https://doit.im)
 * [Easy Redmine](https://easyredmine.com)
 * [Evernote](https://evernote.com)

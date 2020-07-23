@@ -1,4 +1,4 @@
-﻿class ClubHouse implements WebToolIntegration {
+﻿class Clubhouse implements WebToolIntegration {
 
     showIssueId = true;
 
@@ -7,7 +7,7 @@
     matchUrl = '*://app.clubhouse.io/*/story/*';
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        var host = $$('.right-column', issueElement);
+        const host = $$('.right-column', issueElement);
         if (host) {
             let linkContainer = $$.create('div', 'devart-timer-link-clubhouse');
             linkContainer.appendChild(linkElement);
@@ -17,12 +17,12 @@
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        var issueId = $$.try<HTMLInputElement>('input[class=clipboard]', issueElement).value;
-        var issueName = $$.try('h2.story-name').textContent;
-        var serviceUrl = source.protocol + source.host;
-        var issueUrl = source.path;
-        var projectName = $$.try('.story-epic .value').textContent;
-        var tagNames = $$.all('.story-labels .tag', issueElement).map(label => label.textContent);
+        const issueId = $$.try<HTMLInputElement>('input[class=clipboard]', issueElement).value;
+        const issueName = $$.try('h2.story-name').textContent;
+        const serviceUrl = source.protocol + source.host;
+        const issueUrl = source.path;
+        const projectName = $$.try('.story-epic .value').textContent;
+        const tagNames = $$.all('.story-labels .tag', issueElement).map(label => label.textContent);
 
         return {
             issueId,
@@ -30,10 +30,10 @@
             issueUrl,
             projectName,
             serviceUrl,
-            serviceType: 'ClubHouse',
+            serviceType: 'Clubhouse',
             tagNames
         };
     }
 }
 
-IntegrationService.register(new ClubHouse());
+IntegrationService.register(new Clubhouse());
