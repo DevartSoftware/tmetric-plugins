@@ -694,13 +694,32 @@ abstract class ExtensionBase extends BackgroundBase {
     private async getItegratedServices() {
         try {
 
-            const integrations = await this.connection.getIntegrations();
+            const integrations = (await this.connection.getIntegrations()).filter(item => !!WebToolManager.toServiceUrl(item.serviceUrl));
+            const descriptions = getWebToolDescriptions().reduce((map, description) => (map[description.serviceType] = description) && map, <{ [serviceType: string]: WebToolDescription }>{});
 
-            const serviceTypesMap = integrations
-                .filter(item => !!WebToolManager.toServiceUrl(item.serviceUrl))
-                .reduce((map, { serviceType, serviceUrl }) => (map[WebToolManager.toServiceUrl(serviceUrl)] = serviceType) && map, <ServiceTypesMap>{});
+            const serviceTypesMap = integrations.reduce((map, { serviceType, serviceUrl }) => {
+
+                const description = descriptions[serviceType];
+                if (description) {
+
+                    // add known origins
+                    description.origins.forEach(origin => map[origin] = serviceType);
+
+                    // add additional origins
+                    if (description.hasAdditionalOrigins) {
+                        const serviceUrlNormalized = WebToolManager.toServiceUrl(serviceUrl);
+                        const isServiceUrlMatchKnownOrigin = description.origins.some(origin => WebToolManager.isMatch(serviceUrl, origin));
+                        if (serviceUrlNormalized && !isServiceUrlMatchKnownOrigin) {
+                            map[serviceUrlNormalized] = serviceType;
+                        }
+                    }
+                }
+
+                return map;
+            }, <ServiceTypesMap>{});
 
             return serviceTypesMap;
+
         } catch (error) {
             console.log(error)
         }
