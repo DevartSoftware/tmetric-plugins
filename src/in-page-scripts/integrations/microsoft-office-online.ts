@@ -56,8 +56,6 @@
 
             // Word
 
-            (new URL(location.href)).searchParams.forEach(console.log);
-
             let resourceParam = (new URL(location.href)).searchParams.get('wopisrc');
             let match = /^https:\/\/wopi\.onedrive\.com\/wopi\/files\/(.+)$/.exec(resourceParam);
             if (!match) {
