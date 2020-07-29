@@ -40,8 +40,12 @@
 
         let [all, protocol = 'https://', host, port = '', path = '/'] = match;
 
-        if (path == '/') {
+        if (!path.endsWith('*')) {
             path += '*';
+        }
+
+        if (!path.endsWith('/*')) {
+            path = path.replace(/\*$/, '/*');
         }
 
         if (!host) {
