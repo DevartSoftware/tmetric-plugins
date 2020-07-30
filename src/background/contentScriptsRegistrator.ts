@@ -32,6 +32,10 @@
             ...(scripts.css || [])
         ];
 
+        let origins = Object.keys(scripts.matches.reduce(
+            (map, url) => (map[WebToolManager.toOrigin(url)] = true) && map,
+            <{ [origin: string]: boolean }>{}));
+
         return <RegisteredContentScriptOptions[]>[
             {
                 matches: scripts.matches,
@@ -41,7 +45,7 @@
                 runAt: 'document_end'
             },
             {
-                matches: scripts.matches,
+                matches: origins,
                 js: [
                     { file: 'in-page-scripts/topmostPage.js' }
                 ],
