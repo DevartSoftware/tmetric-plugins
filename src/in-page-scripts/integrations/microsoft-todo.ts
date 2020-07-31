@@ -1,5 +1,9 @@
 ﻿class MicrosoftToDo implements WebToolIntegration {
-    matchUrl = '*://to-do.live.com/tasks/*';
+    matchUrl = [
+        'https://to-do.live.com/tasks/*',
+        'https://to-do.office.com/tasks/*'
+    ];
+
     issueElementSelector = () => $$.all('.taskItem-body')
         .concat($$.all('.details-body'));
 

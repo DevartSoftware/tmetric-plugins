@@ -295,7 +295,10 @@
             serviceName: 'Microsoft Outlook',
             keywords: 'email',
             icon: 'outlook.svg',
-            origins: ['https://outlook.live.com/*'],
+            origins: [
+                'https://outlook.live.com/*',
+                'https://outlook.office.com/*'
+            ],
             scripts: {
                 js: ['in-page-scripts/integrations/microsoft-outlook-online.js']
             }
@@ -582,7 +585,10 @@
             serviceType: 'MicrosoftToDo',
             serviceName: 'Microsoft ToDo',
             icon: 'mstodo.svg',
-            origins: ['https://to-do.live.com/*'],
+            origins: [
+                'https://to-do.live.com/*',
+                'https://to-do.office.com/*'
+            ],
             scripts: {
                 js: ['in-page-scripts/integrations/microsoft-todo.js']
             }

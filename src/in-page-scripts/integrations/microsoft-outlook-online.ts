@@ -2,7 +2,10 @@
 
     showIssueId = false;
 
-    matchUrl = 'https://outlook.live.com';
+    matchUrl = [
+        'https://outlook.live.com',
+        'https://outlook.office.com'
+    ];
 
     observeMutations = true;
 
