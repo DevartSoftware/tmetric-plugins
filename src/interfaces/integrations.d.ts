@@ -36,10 +36,18 @@ interface WebTool {
 }
 
 interface WebToolInfo extends WebTool {
+
     serviceName: string;
+
     icon: string;
+
     keywords?: string;
-    hasAdditionalOrigins?: boolean; // means web service have more online or/and self-hosted origins
+
+    /** Flag indicating that service has online or/and self-hosted urls not listed in property WebTool.origins */
+    hasAdditionalOrigins?: boolean;
+
+    /** Flag indicating that service requires all origins listed in property WebTool.origins */
+    allOriginsRequired?: boolean; // means
 }
 
 interface WebToolDescription extends WebToolInfo {

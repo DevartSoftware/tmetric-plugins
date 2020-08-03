@@ -249,6 +249,7 @@
                 'https://onedrive.live.com/*',
                 'https://*.officeapps.live.com/*'
             ],
+            allOriginsRequired: true,
             scripts: {
                 js: ['in-page-scripts/integrations/microsoft-office-online.js'],
                 allFrames: true

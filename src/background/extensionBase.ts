@@ -604,7 +604,7 @@ abstract class ExtensionBase extends BackgroundBase {
             return <WebToolInfo>{
                 serviceType: webTool.serviceType,
                 serviceName: webTool.serviceName,
-                origins: [origin]
+                origins: webTool.allOriginsRequired ? webTool.origins : [origin]
             };
         }
     }
