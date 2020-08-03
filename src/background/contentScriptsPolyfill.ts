@@ -145,7 +145,6 @@ if (typeof chrome === 'object' && !chrome.contentScripts) {
 
     const addWebNavigationListeners = function () {
         chrome.webNavigation.onCompleted.addListener(onNavigation);
-        chrome.webNavigation.onHistoryStateUpdated.addListener(onNavigation);
     }
 
     const addMessageListener = function () {

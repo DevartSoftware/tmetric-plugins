@@ -87,13 +87,7 @@
 
             const scripts = webToolDescription.scripts;
 
-            const matches: string[] = [];
-
-            if (webToolDescription.scripts.paths) {
-                matches.push(...scripts.paths.map(path => serviceUrl.replace(/\*$/, path)));
-            } else {
-                matches.push(serviceUrl);
-            }
+            const matches = [ serviceUrl ];
 
             const options: RegisteredContentScriptOptions = {
                 allFrames: scripts.allFrames,
