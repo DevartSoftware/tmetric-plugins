@@ -17,7 +17,8 @@
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
         let issueNameElement = $$.visible<HTMLInputElement>('.ticket .editable input[name=subject]') ||
-            $$.visible<HTMLInputElement>('.ticket .editable input[data-test-id=ticket-pane-subject]'); // TE-506
+            $$.visible<HTMLInputElement>('.ticket .editable input[data-test-id=ticket-pane-subject]') || // TE-506
+            $$.visible<HTMLInputElement>('.ticket input[data-test-id=omni-header-subject]'); // TE-669
 
         let issueName = issueNameElement && issueNameElement.value;
         if (!issueName) {
