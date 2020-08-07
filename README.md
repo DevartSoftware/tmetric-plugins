@@ -26,7 +26,7 @@ web browsers are **Chrome**, **Firefox**, **Edge**, **Opera**, and **Safari**.
 * [Kayako](http://www.kayako.com)
 * [Microsoft Office Online](https://products.office.com/office-online)
 * [Microsoft Outlook Online](https://outlook.live.com)
-* [Microsoft ToDo](https://todo.microsoft.com)
+* [Microsoft To Do](https://todo.microsoft.com)
 * [Monday](https://monday.com)
 * [Megaplan](https://megaplan.ru)
 * [Notion](https://www.notion.so)
