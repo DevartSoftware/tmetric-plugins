@@ -16,7 +16,7 @@
         if (host) {
             linkElement.style.marginRight = '0.5rem';
             linkElement.style.alignSelf = 'center';
-            host.insertBefore(linkElement, host.firstElementChild);
+            host.parentNode.insertBefore(linkElement, host);
         }
     }
 
@@ -32,7 +32,11 @@
 
         let match = /\/lightning\/r\/(\w+)\/(\w+)\/view$/.exec(source.path);
         if (match) {
-            issueName = $$.try('h1 .uiOutputText', issueElement).textContent;
+            let title = $$.visible('h1 .slds-page-header__title, h1 .uiOutputText', issueElement);
+            if (!title) {
+                return;
+            }
+            issueName = title.textContent;
             issueId = match[2];
         }
 
