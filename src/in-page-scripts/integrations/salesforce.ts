@@ -35,24 +35,25 @@
             return;
         }
 
-        issueName = title.textContent;
-        if (!issueName) {
-            return;
-        }
-
         let match = /\/lightning\/r\/(\w+)\/(\w+)\/view$/.exec(source.path);
         if (match) {
+            issueName = title.textContent;
             issueId = match[2];
-        } else if (/\/lightning\/o\/Task\/home$/.test(source.path)) {
-            let recentTask = $$.all('.forceListViewManagerSplitViewList .slds-split-view__list-item-action').find(el => {
+        } else if (/\/lightning\/o\/Task\//.test(source.path)) {
+            let recentTasks = $$.all('.forceListViewManagerSplitViewList .slds-split-view__list-item-action').filter(el => {
                 let textEl = $$.visible('.uiOutputText', el);
                 if (textEl) {
                     return textEl.textContent == title.textContent;
                 }
             });
-            if (recentTask) {
-                issueId = recentTask.getAttribute('data-recordid');
+            if (recentTasks.length == 1) {
+                issueName = title.textContent;
+                issueId = recentTasks[0].getAttribute('data-recordid');
             }
+        }
+
+        if (!issueName) {
+            return;
         }
 
         if (issueId) {
