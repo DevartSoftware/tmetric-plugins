@@ -30,18 +30,29 @@
         let issueId: string;
         let issueUrl: string;
 
-        let match = /\/lightning\/r\/(\w+)\/(\w+)\/view$/.exec(source.path);
-        if (match) {
-            let title = $$.visible('h1 .slds-page-header__title, h1 .uiOutputText', issueElement);
-            if (!title) {
-                return;
-            }
-            issueName = title.textContent;
-            issueId = match[2];
+        let title = $$.visible('h1 .slds-page-header__title, h1 .uiOutputText', issueElement);
+        if (!title) {
+            return;
         }
 
+        issueName = title.textContent;
         if (!issueName) {
             return;
+        }
+
+        let match = /\/lightning\/r\/(\w+)\/(\w+)\/view$/.exec(source.path);
+        if (match) {
+            issueId = match[2];
+        } else if (/\/lightning\/o\/Task\/home$/.test(source.path)) {
+            let recentTask = $$.all('.forceListViewManagerSplitViewList .slds-split-view__list-item-action').find(el => {
+                let textEl = $$.visible('.uiOutputText', el);
+                if (textEl) {
+                    return textEl.textContent == title.textContent;
+                }
+            });
+            if (recentTask) {
+                issueId = recentTask.getAttribute('data-recordid');
+            }
         }
 
         if (issueId) {
