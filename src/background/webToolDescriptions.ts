@@ -515,7 +515,8 @@
         },
         {
             serviceType: 'MicrosoftToDo',
-            serviceName: 'Microsoft ToDo',
+            serviceName: 'Microsoft To Do',
+            keywords: 'todo',
             icon: 'mstodo.svg',
             origins: [
                 'https://to-do.live.com/*',
