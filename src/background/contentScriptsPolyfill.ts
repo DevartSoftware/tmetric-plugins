@@ -14,9 +14,9 @@ if (typeof chrome === 'object' && !chrome.contentScripts) {
 
     const contentScriptOptionsStore: { matches: RegExp, options: RegisteredContentScriptOptions }[] = [];
 
-    const getContentScriptOptions = function (url: string, frameUrl?: string) {
+    const getContentScriptOptions = function (url: string) {
         return contentScriptOptionsStore
-            .filter(i => frameUrl ? i.matches.test(frameUrl) : i.matches.test(url))
+            .filter(i => i.matches.test(url))
             .map(i => i.options);
     }
 
@@ -36,109 +36,134 @@ if (typeof chrome === 'object' && !chrome.contentScripts) {
         });
     }
 
-    const checkContentScripts = function (tabId: number, frameId: number = 0) {
-        chrome.tabs.executeScript(tabId, { frameId, code: `(${getInjectedScripts.toString()})()`, runAt: 'document_end' });
-    }
-
-    const getInjectedScripts = function () {
-
+    const getInjectedScriptsFunction = function () {
         let scripts = document['tmetricContentScripts'] || {};
-
-        let message = <ITabMessage>{
-            action: 'injectContentScripts',
-            data: scripts
-        };
-
-        chrome.runtime.sendMessage(message);
+        return scripts;
     }
 
-    const setInjectedScript = function (file: string) {
-
+    const setInjectedScriptFunction = function (file: string) {
         let scripts = document['tmetricContentScripts'] || {};
         scripts[file] = true;
-
         document['tmetricContentScripts'] = scripts;
     }
 
+    const getInjectedScripts = function (tabId: number, frameId: number) {
+        return new Promise<string[]>(resolve => {
+            chrome.tabs.executeScript(
+                tabId,
+                {
+                    frameId,
+                    code: `(${getInjectedScriptsFunction.toString()})()`,
+                    runAt: 'document_end'
+                },
+                result => resolve(result[0])
+            );
+        });
+    }
+
+    const setInjectedScript = function (tabId, frameId, file) {
+        return new Promise<void>(resolve => {
+            chrome.tabs.executeScript(
+                tabId,
+                {
+                    frameId,
+                    code: `(${setInjectedScriptFunction.toString()})('${file}')`,
+                    runAt: 'document_end'
+                },
+                () => resolve()
+            );
+        });
+    }
+
     const injectCss = function (tabId, frameId, file) {
-        //console.log({ tabId, frameId, file })
-        chrome.tabs.insertCSS(tabId, { frameId, file }, result => {
-            //console.log({ tabId, frameId, file, result })
-            chrome.tabs.executeScript(tabId, { frameId, code: `(${setInjectedScript.toString()})('${file}')`, runAt: 'document_end' });
+        return new Promise<void>(resolve => {
+            chrome.tabs.insertCSS(
+                tabId,
+                { frameId, file },
+                () => setInjectedScript(tabId, frameId, file).then(resolve)
+            );
         });
     }
 
     const injectJs = function (tabId, frameId, file) {
-        //console.log({ tabId, frameId, file })
-        chrome.tabs.executeScript(tabId, { frameId, file }, result => {
-            //console.log({ tabId, frameId, file, result })
-            chrome.tabs.executeScript(tabId, { frameId, code: `(${setInjectedScript.toString()})('${file}')`, runAt: 'document_end' });
+        return new Promise<void>(resolve => {
+            chrome.tabs.executeScript(
+                tabId,
+                { frameId, file },
+                () => setInjectedScript(tabId, frameId, file).then(resolve)
+            );
         });
     }
 
-    const injectContentScripts = function ({ id, url }: chrome.tabs.Tab, frameId: number, frameUrl: string, injectedScripts: {}) {
+    const injectContentScripts = async function (tabId: number, frameId: number, options: browser.contentScripts.RegisteredContentScriptOptions[], injectedScripts: {}) {
 
-        console.log({ url, frameId, frameUrl, injectedScripts });
+        console.log(injectContentScripts.name, { tabId, frameId, options, injectedScripts });
 
         const isFrame = frameId > 0;
 
-        getContentScriptOptions(url, frameUrl).forEach(options => {
+        await Promise.all(options.map(options => {
 
             if (isFrame && !options.allFrames) {
                 return;
             }
 
-            (options.css || []).forEach(({ file }: FileOrCode) => !injectedScripts[file] && injectCss(id, frameId, file));
-            (options.js || []).forEach(({ file }: FileOrCode) => !injectedScripts[file] && injectJs(id, frameId, file));
-        });
+            return Promise.all([
+                ...(options.css || []).map(({ file }: FileOrCode) => !injectedScripts[file] && injectCss(tabId, frameId, file)),
+                ...(options.js || []).map(({ file }: FileOrCode) => !injectedScripts[file] && injectJs(tabId, frameId, file))
+            ]);
+        }));
     }
 
-    const addWebNavigationListener = function () {
-        chrome.webNavigation.onCompleted.addListener(async ({ tabId, frameId, url }) => {
+    const checkInProgress: { [tabFrameKey: string]: boolean } = {};
 
-            console.log({ tabId, frameId, url })
+    const checkFrame = async function (tabId: number, frameId: number, url: string) {
 
-            if (!['http:', 'https:'].some(protocol => url.startsWith(protocol))) {
-                console.log('no protocol')
-                return;
+        console.log(checkFrame.name, { tabId, frameId, url })
+
+        if (checkInProgress[`${tabId}-${frameId}`]) {
+            console.log('check in progress');
+            return;
+        }
+
+        checkInProgress[`${tabId}-${frameId}`] = true;
+
+        const options = getContentScriptOptions(url);
+        if (options.length) {
+            if (await isOriginPermitted(url)) {
+                const scripts = await getInjectedScripts(tabId, frameId);
+                await injectContentScripts(tabId, frameId, options, scripts);
             }
+        }
 
-            if (!await isOriginPermitted(url)) {
-                console.log('no permission')
-                return;
-            }
+        delete checkInProgress[`${tabId}-${frameId}`];
+    }
 
-            const options = getContentScriptOptions(url);
-            if (!options.length) {
-                console.log('no options')
-                return;
-            }
+    const onNavigation = function (details: chrome.webNavigation.WebNavigationFramedCallbackDetails) {
+        const { tabId, frameId, url } = details;
+        checkFrame(tabId, frameId, url);
+    }
 
-            checkContentScripts(tabId, frameId);
-
-        });
+    const addWebNavigationListeners = function () {
+        chrome.webNavigation.onCompleted.addListener(onNavigation);
     }
 
     const addMessageListener = function () {
         chrome.runtime.onMessage.addListener((message: ITabMessage, sender, senderResponse) => {
 
-            console.log(message, sender)
+            //console.log(message, sender)
 
             if (!sender.tab) {
                 return;
             }
 
             if (message.action == 'checkContentScripts') {
-                checkContentScripts(sender.tab.id, sender.frameId);
-                senderResponse(null);
-            } else if (message.action == 'injectContentScripts') {
-                injectContentScripts(sender.tab, sender.frameId, sender.url, message.data);
+                checkFrame(sender.tab.id, sender.frameId, sender.url);
                 senderResponse(null);
             }
         });
     }
 
-    addWebNavigationListener();
+    addWebNavigationListeners();
     addMessageListener();
 
     chrome.contentScripts = {

@@ -44,6 +44,7 @@
         "in-page-scripts/integrations/bitbucket.ts",
         "in-page-scripts/integrations/bitrix24.ts",
         "in-page-scripts/integrations/bugzilla.ts",
+        "in-page-scripts/integrations/clubhouse.ts",
         "in-page-scripts/integrations/clickup.ts",
         "in-page-scripts/integrations/doitIm.ts",
         "in-page-scripts/integrations/easyRedmine.ts",
