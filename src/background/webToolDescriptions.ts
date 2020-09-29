@@ -322,7 +322,7 @@
         },
         {
             serviceType: 'Salesforce',
-            serviceName: 'Saleforce',
+            serviceName: 'Salesforce',
             icon: 'salesforce.svg',
             origins: ['https://*.lightning.force.com/*'],
             hasAdditionalOrigins: true,
