@@ -414,7 +414,7 @@
         },
         {
             serviceType: 'UseDesk',
-            serviceName: 'Usedesk',
+            serviceName: 'UseDesk',
             icon: 'usedesk.svg',
             origins: ['https://*.usedesk.com/*'],
             hasAdditionalOrigins: true,

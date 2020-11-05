@@ -37,14 +37,14 @@
                 this.fillFixForm(data.timer);
                 this.switchState(this._states.fixing);
             } else if (!this.isPagePopup && data.timer && data.timer.isStarted) {
-                this.fillViewForm(data.timer, data.accountId);
+                this.fillViewForm(data.timer);
                 this.fillCreateForm(data.defaultProjectId);
                 this.switchState(this._states.viewing);
             } else {
                 this.fillCreateForm(data.defaultProjectId);
                 this.switchState(this._states.creating);
             }
-        }).catch(error => {
+        }).catch(() => {
             this.isConnectionRetryEnabledAction().then(retrying => {
                 if (retrying) {
                     this.switchState(this._states.retrying);
@@ -56,7 +56,7 @@
     }
 
     callBackground(request: IPopupRequest): Promise<IPopupResponse> {
-        return new Promise((resolve, reject) => {
+        return new Promise(resolve => {
             chrome.runtime.sendMessage(request, (response: IPopupResponse) => {
                 resolve(response);
             });
@@ -96,14 +96,14 @@
     private compareTags(t1: Models.Tag, t2: Models.Tag) {
 
         // sort by type, from tag to worktype
-        let diff = (t1.isWorkType ? 1 : 0) - (t2.isWorkType ? 1 : 0);
+        const diff = (t1.isWorkType ? 1 : 0) - (t2.isWorkType ? 1 : 0);
         if (diff) {
             return diff;
         }
 
         // sort by name
-        let name1 = t1.tagName.toLowerCase();
-        let name2 = t2.tagName.toLowerCase();
+        const name1 = t1.tagName.toLowerCase();
+        const name2 = t2.tagName.toLowerCase();
         return name1 == name2 ? 0 : (name1 > name2 ? 1 : -1);
     }
 
@@ -136,8 +136,8 @@
     retryAction = this.wrapBackgroundAction<void, void>('retry');
     fixTimerAction = this.wrapBackgroundAction<void, void>('fixTimer');
     putTimerAction = this.wrapBackgroundAction<IPopupTimerData, void>('putTimer');
-    saveProjectMapAction = this.wrapBackgroundAction<{ accountId: number, projectName: string, projectId: number }, void>('saveProjectMap');
-    saveDescriptionMapAction = this.wrapBackgroundAction<{ taskName: string, description: string }, void>('saveDescriptionMap');
+    saveProjectMapAction = this.wrapBackgroundAction<{ accountId: number; projectName: string; projectId: number }, void>('saveProjectMap');
+    saveDescriptionMapAction = this.wrapBackgroundAction<{ taskName: string; description: string }, void>('saveDescriptionMap');
     openOptionsPage = this.wrapBackgroundAction<void, void>('openOptionsPage');
     getRecentTasksAction = this.wrapBackgroundAction<number, Models.RecentWorkTask[]>('getRecentTasks');
 
@@ -150,12 +150,6 @@
         create: '#create-form'
     };
 
-    private _messageTypes = {
-        error: 'error',
-        warning: 'warning',
-        info: 'info'
-    };
-
     private _states = {
         loading: 'loading',
         retrying: 'retrying',
@@ -166,7 +160,7 @@
     };
 
     switchState(name: string) {
-        let state = $('content').attr('class');
+        const state = $('content').attr('class');
         if (state == name) {
             return;
         }
@@ -218,18 +212,18 @@
             return;
         }
 
-        let membership = profile.accountMembership;
-        let selectedAccount = membership.find(_ => _.account.accountId == accountId).account;
+        const membership = profile.accountMembership;
+        const selectedAccount = membership.find(_ => _.account.accountId == accountId).account;
 
-        let dropdown = $('#account-selector');
+        const dropdown = $('#account-selector');
 
         $('.dropdown-toggle-text', dropdown).text(selectedAccount.accountName);
 
-        let menu = $('.dropdown-menu', dropdown);
+        const menu = $('.dropdown-menu', dropdown);
         menu.empty();
 
-        let items = membership.map(_ => {
-            let item = $('<button></button>')
+        const items = membership.map(_ => {
+            const item = $('<button></button>')
                 .addClass('dropdown-menu-item')
                 .toggleClass('selected', _.account.accountId == accountId)
                 .attr('data-value', _.account.accountId)
@@ -243,7 +237,7 @@
     }
 
     private changeAccount(accountId: number) {
-        let state = $('content').attr('class');
+        const state = $('content').attr('class');
         this._newIssue = <WebToolIssueTimer>{};
         this.getData(accountId).then(() => {
             this.switchState(state);
@@ -278,7 +272,7 @@
                 text = issueId;
             }
         } else if (issueId) { // Internal task
-            url = `${this._constants.serviceUrl}#/tasks/${this._accountId}?id=${issueId}`;
+            url = `${this._constants.serviceUrl}#/tasks/${this._accountId}/${issueId}`;
         }
 
         return { url, text };
@@ -292,7 +286,7 @@
             return;
         }
 
-        let message = `We have noticed that you are using ${this._possibleWebTool.serviceName}. Do you want to integrate TMetric with ${this._possibleWebTool.serviceName}?`;
+        const message = `We have noticed that you are using ${this._possibleWebTool.serviceName}. Do you want to integrate TMetric with ${this._possibleWebTool.serviceName}?`;
         $('#webtool-alert .alert-text').text(message);
     }
 
@@ -315,18 +309,18 @@
         }
     }
 
-    fillViewForm(timer: Models.Timer, accountId: number) {
+    fillViewForm(timer: Models.Timer) {
 
-        let details = timer && timer.details;
+        const details = timer && timer.details;
         if (!details) {
             return
         }
 
         $(this._forms.view + ' .time').text(this.toDurationString(timer.startTime));
 
-        let projectTask = details.projectTask;
+        const projectTask = details.projectTask;
 
-        let { url, text } = this.getTaskLinkData(projectTask);
+        const { url, text } = this.getTaskLinkData(projectTask);
 
         if (url) {
 
@@ -341,7 +335,7 @@
             if (projectTask.description == details.description) {
                 $(this._forms.view + ' .notes').hide();
             } else {
-                let description = this.toDescription(details.description);
+                const description = this.toDescription(details.description);
                 $(this._forms.view + ' .notes')
                     .attr('title', description)
                     .find('.description')
@@ -355,7 +349,7 @@
             $(this._forms.view + ' .notes').hide();
         }
 
-        let projectName = this.toProjectName(details.projectId);
+        const projectName = this.toProjectName(details.projectId);
 
         if (projectName) {
             $(this._forms.view + ' .project .name').text(projectName).show();
@@ -374,14 +368,14 @@
 
         $(this._forms.create + ' .task-recent').toggle(!this.isPagePopup);
 
-        let task = $(this._forms.create + ' .task');
-        let description = $(this._forms.create + ' .description');
-        let descriptionInput = description.find('.input');
+        const task = $(this._forms.create + ' .task');
+        const description = $(this._forms.create + ' .description');
+        const descriptionInput = description.find('.input');
         descriptionInput.attr('maxlength', Models.Limits.maxTask);
 
-        let issue = this._newIssue;
+        const issue = this._newIssue;
 
-        let { url, text } = this.getTaskLinkData(issue);
+        const { url, text } = this.getTaskLinkData(issue);
 
         if (url) {
             this.fillTaskLink(task.find('.link'), url, text);
@@ -426,12 +420,12 @@
 
     fillRecentTaskSelector() {
 
-        let dropdown = $('#recent-task-selector');
+        const dropdown = $('#recent-task-selector');
 
-        let toggle = $('.dropdown-toggle', dropdown);
+        const toggle = $('.dropdown-toggle', dropdown);
         toggle.prop('disabled', true);
 
-        let menu = $('.dropdown-menu', dropdown);
+        const menu = $('.dropdown-menu', dropdown);
         menu.empty();
 
         return this.getRecentTasksAction(this._accountId).then(recentTasks => {
@@ -440,7 +434,7 @@
 
             if (this._recentTasks && this._recentTasks.length) {
                 toggle.prop('disabled', false);
-                let items = this._recentTasks.map((task, index) =>
+                const items = this._recentTasks.map((task, index) =>
                     this.formatRecentTaskSelectorItem(task, index));
                 menu.append(items);
             }
@@ -449,16 +443,16 @@
 
     private formatRecentTaskSelectorItem(task: Models.RecentWorkTask, index: number) {
 
-        let item = $('<button></button>')
+        const item = $('<button></button>')
             .addClass('dropdown-menu-item')
             .attr('data-value', index);
 
-        let description = $('<span>').text(task.details.description);
+        const description = $('<span>').text(task.details.description);
         description.attr('title', task.details.description);
         item.append(description);
 
         if (task.details.projectId) {
-            let project = this.formatExistingProjectCompact(task.details.projectId);
+            const project = this.formatExistingProjectCompact(task.details.projectId);
             item.append(project);
         }
 
@@ -471,32 +465,32 @@
             return;
         }
 
-        let task = this._recentTasks[index];
+        const task = this._recentTasks[index];
         if (!task) {
             return;
         }
 
-        let issue = <WebToolIssueTimer>{};
+        const issue = <WebToolIssueTimer>{};
         let projectId = null;
 
         issue.description = task.details.description;
 
         if (task.tagsIdentifiers) {
             issue.tagNames = task.tagsIdentifiers.map(id => {
-                let tag = this.getTag(id);
+                const tag = this.getTag(id);
                 return tag && tag.tagName;
             }).filter(_ => !!_);
         }
 
         if (task.details) {
 
-            let project = this.getProject(task.details.projectId);
+            const project = this.getProject(task.details.projectId);
             if (project) {
                 issue.projectName = project.projectName;
                 projectId = project.projectId;
             }
 
-            let projectTask = task.details.projectTask;
+            const projectTask = task.details.projectTask;
             if (projectTask) {
                 issue.issueId = projectTask.externalIssueId || '' + (projectTask.projectTaskId || '');
                 issue.issueName = projectTask.description;
@@ -517,8 +511,8 @@
     private _monthsShort = 'Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec'.split('_');
 
     getDuration(startTime: Date | string) {
-        let startDate = startTime instanceof Date ? startTime : new Date(<string>startTime);
-        let result = new Date().getTime() - startDate.getTime();
+        const startDate = startTime instanceof Date ? startTime : new Date(<string>startTime);
+        const result = new Date().getTime() - startDate.getTime();
         return result > 0 ? result : 0;
     }
 
@@ -527,11 +521,11 @@
         const MINUTE = 1000 * 60;
         const HOUR = MINUTE * 60;
 
-        let duration = this.getDuration(startTime);
-        let hours = Math.floor(duration / HOUR);
-        let minutes = Math.floor((duration - hours * HOUR) / MINUTE);
+        const duration = this.getDuration(startTime);
+        const hours = Math.floor(duration / HOUR);
+        const minutes = Math.floor((duration - hours * HOUR) / MINUTE);
 
-        let result = [];
+        const result = [];
         if (hours) {
             result.push(hours + ' h');
         }
@@ -545,21 +539,21 @@
         const HOUR = 1000 * 60 * 60;
         const LONG_RUNNING_DURATION = this._constants.maxTimerHours * HOUR;
 
-        let duration = this.getDuration(startTime);
+        const duration = this.getDuration(startTime);
 
         return duration >= LONG_RUNNING_DURATION;
     }
 
     toLongRunningDurationString(startTime: string) {
 
-        let duration = this.getDuration(startTime);
+        const duration = this.getDuration(startTime);
 
-        let now = new Date();
+        const now = new Date();
 
-        let durationToday = this.getDuration(new Date(now.getFullYear(), now.getMonth(), now.getDate()));
-        let durationYesterday = this.getDuration(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1));
+        const durationToday = this.getDuration(new Date(now.getFullYear(), now.getMonth(), now.getDate()));
+        const durationYesterday = this.getDuration(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1));
 
-        let startDate = new Date(startTime);
+        const startDate = new Date(startTime);
 
         // Output:
         // Started Wed, 03 Feb at 15:31
@@ -573,7 +567,7 @@
         }
 
         let hours = startDate.getHours();
-        let minutes = startDate.getMinutes();
+        const minutes = startDate.getMinutes();
 
         if (this._timeFormat == 'H:mm') {
             result += ' at ' + hours + ':' + (minutes < 10 ? '0' + minutes : minutes);
@@ -597,7 +591,7 @@
 
     toProjectName(projectId: number): string {
         if (projectId && this._projects) {
-            let projects = this._projects.filter(_ => _.projectId === projectId);
+            const projects = this._projects.filter(_ => _.projectId === projectId);
             if (projects.length) {
                 return projects[0].projectName;
             }
@@ -608,7 +602,7 @@
     getProject(id: number): Models.ProjectLite {
         let project = null;
         if (this._projects) {
-            let projects = this._projects.filter(project => project.projectId === id);
+            const projects = this._projects.filter(project => project.projectId === id);
             if (projects.length) {
                 project = projects[0];
             }
@@ -618,7 +612,7 @@
 
     getClient(id: number): Models.Client {
         if (this._clients) {
-            let clients = this._clients.filter(client => client.clientId === id);
+            const clients = this._clients.filter(client => client.clientId === id);
             if (clients.length) {
                 return clients[0];
             }
@@ -628,7 +622,7 @@
 
     getTag(id: number): Models.Tag {
         if (this._tags) {
-            let tags = this._tags.filter(tag => tag.tagId === id);
+            const tags = this._tags.filter(tag => tag.tagId === id);
             if (tags.length) {
                 return tags[0];
             }
@@ -637,17 +631,17 @@
     }
 
     makeTimerTagsElement(timerTags: number[]) {
-        let sortedTags = timerTags.map(id => this.getTag(id))
+        const sortedTags = timerTags.map(id => this.getTag(id))
             .filter(tag => !!tag)
             .sort(this.compareTags);
 
-        let container = $('<span>');
+        const container = $('<span>');
 
         sortedTags.forEach((tag, i) => {
-            let span = $('<span>').addClass('tag').addClass('tag-default');
+            const span = $('<span>').addClass('tag').addClass('tag-default');
 
             if (tag.isWorkType) {
-                let i = $('<i>').addClass('tag-icon').addClass('fa fa-dollar');
+                const i = $('<i>').addClass('tag-icon').addClass('fa fa-dollar');
                 span.append(i);
             }
             span.append($('<span>').text(tag.tagName));
@@ -671,11 +665,11 @@
 
     makeTagItems(projectId: number = null) {
 
-        let items: IdTextTagType[] = [];
-        let accountTagNames: { [name: string]: boolean } = {};
-        let projectWorkTypeIds: { [id: number]: boolean } = {};
+        const items: IdTextTagType[] = [];
+        const accountTagNames: { [name: string]: boolean } = {};
+        const projectWorkTypeIds: { [id: number]: boolean } = {};
 
-        let project = this.getProject(projectId);
+        const project = this.getProject(projectId);
         if (project) {
             project.workTypeIdentifires.forEach(id => {
                 projectWorkTypeIds[id] = true;
@@ -683,7 +677,7 @@
         }
 
         this._tags.forEach(tag => {
-            let key = tag.tagName.toLowerCase();
+            const key = tag.tagName.toLowerCase();
             accountTagNames[key] = true;
             if (!project || !tag.isWorkType || projectWorkTypeIds[tag.tagId]) {
                 items.push(this.makeTagItem(tag.tagName, tag.isWorkType));
@@ -692,7 +686,7 @@
 
         if (this._canCreateTags && this._newIssue.tagNames) {
             this._newIssue.tagNames.forEach(tagName => {
-                let key = tagName.toLowerCase();
+                const key = tagName.toLowerCase();
                 if (!accountTagNames[key]) {
                     items.push(this.makeTagItem(tagName, false));
                 }
@@ -708,19 +702,19 @@
 
     initProjectSelector(defaultProjectId: number) {
 
-        let query = this._forms.create + ' .project .input';
+        const query = this._forms.create + ' .project .input';
 
         let existingProjectId: number;
-        let newProjectName = this._newIssue && this._newIssue.projectName;
+        const newProjectName = this._newIssue && this._newIssue.projectName;
 
-        let items = <IdTextPair[]>[];
+        const items = <IdTextPair[]>[];
         if (this._canCreateProjects) {
             items.push(this.createProjectOption);
         }
         items.push(this.noProjectOption);
         items.push(...this._projects.map(project => {
-            let projectCode = project.projectCode ? ` [${project.projectCode}]` : '';
-            let projectClient = project.clientId ? ` / ${this.getClient(project.clientId).clientName}` : '';
+            const projectCode = project.projectCode ? ` [${project.projectCode}]` : '';
+            const projectClient = project.clientId ? ` / ${this.getClient(project.clientId).clientName}` : '';
 
             // Find project if it is specified in new issue (TE-219)
             if (newProjectName && project.projectName.toLowerCase() == newProjectName.toLowerCase()) {
@@ -751,8 +745,8 @@
 
         // Force set selected flag in true value for default project.
         // Because select2 does not do it itself.
-        let data: Select2SelectionObject[] = $(query).select2('data');
-        let selectedItem = data[0];
+        const data: Select2SelectionObject[] = $(query).select2('data');
+        const selectedItem = data[0];
         if (selectedItem) {
             selectedItem.selected = true;
         }
@@ -760,7 +754,7 @@
 
     private formatProjectItem(data: Select2SelectionObject) {
 
-        let id = parseInt(data.id);
+        const id = parseInt(data.id);
 
         // No project
         if (!id) {
@@ -778,7 +772,7 @@
 
     private formatSelectedProject(data: Select2SelectionObject) {
 
-        let id = parseInt(data.id);
+        const id = parseInt(data.id);
 
         // No project
         if (!id) {
@@ -796,21 +790,21 @@
 
     private formatExistingProject(data: Select2SelectionObject, includeCodeAndClient: boolean) {
 
-        let projectId = parseInt(data.id);
+        const projectId = parseInt(data.id);
 
-        let result = $('<span class="flex-container-with-overflow" />');
-        let projectPartsContainer = $('<span class="text-overflow" />');
+        const result = $('<span class="flex-container-with-overflow" />');
+        const projectPartsContainer = $('<span class="text-overflow" />');
 
         // Find project
-        let project = this.getProject(projectId);
+        const project = this.getProject(projectId);
 
         // Add avatar
-        let avatarElement = this.formatProjectAvatar(project);
+        const avatarElement = this.formatProjectAvatar(project);
         result.append(avatarElement);
 
         // Add project name
-        let projectName = project ? project.projectName : data.text;
-        let projectNameElement = $('<span class="text-overflow">').text(projectName);
+        const projectName = project ? project.projectName : data.text;
+        const projectNameElement = $('<span class="text-overflow">').text(projectName);
         projectPartsContainer.append(projectNameElement);
 
         // Add project client and code
@@ -820,15 +814,15 @@
         if (project && includeCodeAndClient) {
 
             if (project.projectCode) {
-                let projectCode = ' [' + project.projectCode + ']';
-                let projectCodeElement = $('<span />').text(projectCode);
+                const projectCode = ' [' + project.projectCode + ']';
+                const projectCodeElement = $('<span />').text(projectCode);
                 projectPartsContainer.append(projectCodeElement);
                 projectTitle += projectCode;
             }
 
             if (project.clientId) {
-                let projectClient = ' / ' + this.getClient(project.clientId).clientName;
-                let projectClientElement = $('<span class="text-muted" />').text(projectClient);
+                const projectClient = ' / ' + this.getClient(project.clientId).clientName;
+                const projectClientElement = $('<span class="text-muted" />').text(projectClient);
                 projectPartsContainer.append(projectClientElement);
                 projectTitle += projectClient;
             }
@@ -843,16 +837,16 @@
 
     private formatExistingProjectCompact(id: number) {
 
-        let result = $('<span class="" />');
+        const result = $('<span class="" />');
 
         // Find project
-        let project = this.getProject(id);
+        const project = this.getProject(id);
 
         // Add avatar
         result.append(this.formatProjectAvatar(project));
 
         // Add name
-        let name = project ? project.projectName : '';
+        const name = project ? project.projectName : '';
         result.append(name);
 
         result.attr('title', name);
@@ -872,11 +866,11 @@
 
     initTagSelector(projectId: number = null) {
 
-        let query = this._forms.create + ' .tags';
+        const query = this._forms.create + ' .tags';
 
-        let items = this.makeTagItems(projectId);
-        let selectedItems = this.makeTagSelectedItems();
-        let allowNewItems = this._canCreateTags;
+        const items = this.makeTagItems(projectId);
+        const selectedItems = this.makeTagSelectedItems();
+        const allowNewItems = this._canCreateTags;
 
         $(query + ' .input')
             .empty()
@@ -884,15 +878,15 @@
                 data: items,
                 tags: allowNewItems,
                 matcher: (a: any, b: any) => {
-                    let params = <{ term: string }>a;
-                    let option = <Select2SelectionObject>b;
+                    const params = <{ term: string }>a;
+                    const option = <Select2SelectionObject>b;
 
-                    let term = $.trim(params.term || "").toLowerCase();
-                    let text = $(option.element).text().toLowerCase();
+                    const term = $.trim(params.term || "").toLowerCase();
+                    const text = $(option.element).text().toLowerCase();
 
-                    let isSelected = !!(option.element && option.element.selected);
-                    let isTermIncluded = text.length >= term.length && text.indexOf(term) > -1;
-                    let isEqual = text == term;
+                    const isSelected = !!(option.element && option.element.selected);
+                    const isTermIncluded = text.length >= term.length && text.indexOf(term) > -1;
+                    const isEqual = text == term;
 
                     if (
                         (isSelected && isEqual) || // match selected option to avoid message about not found option during input
@@ -904,9 +898,9 @@
                     return <any>null;
                 },
                 createTag: (params) => {
-                    let name = $.trim(params.term);
+                    const name = $.trim(params.term);
                     if (name) {
-                        let foundOptions = $(query)
+                        const foundOptions = $(query)
                             .find('option')
                             .filter((i, option) => $(option).text().toLowerCase() == name.toLowerCase());
                         if (!foundOptions.length) {
@@ -914,8 +908,8 @@
                         }
                     }
                 },
-                templateSelection: (options: ITagSelection) => this.formatTag(options, false),
-                templateResult: (options: ITagSelection) => this.formatTag(options, true)
+                templateSelection: (options: TagSelection) => this.formatTag(options, false),
+                templateResult: (options: TagSelection) => this.formatTag(options, true)
             })
             .val(selectedItems)
             .trigger('change');
@@ -923,12 +917,12 @@
         $(query + ' .select2-search__field').attr('maxlength', Models.Limits.maxTag);
     }
 
-    private formatTag(data: ITagSelection, useIndentForTag: boolean) {
+    private formatTag(data: TagSelection, useIndentForTag: boolean) {
 
-        let textSpan = $('<span>').text(data.text);
+        const textSpan = $('<span>').text(data.text);
 
         if (data.isWorkType) {
-            let i = $('<i>').addClass('tag-icon').addClass('fa fa-dollar');
+            const i = $('<i>').addClass('tag-icon').addClass('fa fa-dollar');
             return $('<span>').append(i).append(textSpan);
         }
 
@@ -942,8 +936,8 @@
     // required fields
 
     private showRequiredInputError(query: string) {
-        let field = $(query);
-        let fieldInput = $('.input', field);
+        const field = $(query);
+        const fieldInput = $('.input', field);
 
         field.addClass('error');
         fieldInput.focus();
@@ -957,8 +951,8 @@
     }
 
     private showRequiredSelectError(query: string) {
-        let field = $(query);
-        let fieldSelect = $('.input', field);
+        const field = $(query);
+        const fieldSelect = $('.input', field);
 
         field.addClass('error');
         fieldSelect.select2('open').select2('close'); // focus select2
@@ -1032,14 +1026,14 @@
 
     initDropdown(selector: string, onItemClick: (value: any) => void) {
 
-        let dropdown = $(selector);
-        let toggle = $('.dropdown-toggle', dropdown);
-        let toggleText = $('.dropdown-toggle-text', toggle);
-        let toggleIcon = $('.fa', toggle);
-        let menu = $('.dropdown-menu', dropdown);
+        const dropdown = $(selector);
+        const toggle = $('.dropdown-toggle', dropdown);
+        const toggleIcon = $('.fa', toggle);
+        const menu = $('.dropdown-menu', dropdown);
 
         function checkCloseClick(event) {
             if (!$(event.target).closest(dropdown).length) {
+                /* eslint-disable-next-line */
                 toggleDropdown(false);
             }
         }
@@ -1060,17 +1054,17 @@
             if (toggle.prop('disabled')) {
                 return;
             }
-            let isOpen = dropdown.hasClass('open');
+            const isOpen = dropdown.hasClass('open');
             toggleDropdown(!isOpen);
         });
 
         menu.click(event => {
-            let target = $(event.target);
-            let item = target.hasClass('dropdown-menu-item') ? target : target.closest('.dropdown-menu-item');
+            const target = $(event.target);
+            const item = target.hasClass('dropdown-menu-item') ? target : target.closest('.dropdown-menu-item');
             if (!item.length) {
                 return;
             }
-            let value = $(item).attr('data-value');
+            const value = $(item).attr('data-value');
             onItemClick(value);
             toggleDropdown(false);
         });
@@ -1102,9 +1096,9 @@
         const newProjectContainer = $(this._forms.create + ' .new-project');
         const newProjectInput = $('.input', newProjectContainer);
 
-        let value = parseInt($(this._forms.create + ' .project .input').val());
+        const value = parseInt($(this._forms.create + ' .project .input').val());
         if (value == -1) { // create new project option
-            let issueProjectName = (this._newIssue.projectName) || '';
+            const issueProjectName = (this._newIssue.projectName) || '';
             newProjectInput.val(issueProjectName);
             newProjectContainer.css('display', 'block');
         } else {
@@ -1120,7 +1114,7 @@
     }
 
     private async onTaskLinkClick() {
-        let url = $('#task-link').attr('href');
+        const url = $('#task-link').attr('href');
         if (url) {
             await this.openPageAction(url);
             this.close();
@@ -1145,16 +1139,16 @@
     private onStartClick() {
 
         // Clone issue
-        let timer = Object.assign({}, this._newIssue);
+        const timer = Object.assign({}, this._newIssue);
 
         // Set project
-        let selectedProject = <Select2SelectionObject>$(this._forms.create + ' .project .input').select2('data')[0];
-        let selectedProjectId = Number(selectedProject.id);
+        const selectedProject = <Select2SelectionObject>$(this._forms.create + ' .project .input').select2('data')[0];
+        const selectedProjectId = Number(selectedProject.id);
 
         if (!selectedProject || !selectedProject.selected || !selectedProjectId) {
             timer.projectName = ''; // No project
         } else if (selectedProjectId > 0) {
-            let project = this._projects.filter(_ => _.projectId == selectedProjectId)[0];
+            const project = this._projects.filter(_ => _.projectId == selectedProjectId)[0];
             timer.projectName = project && project.projectName; // Existing project
             timer.projectId = project && project.projectId;
         } else {
@@ -1170,16 +1164,16 @@
             return;
         }
 
-        let accountId = this._accountId;
+        const accountId = this._accountId;
 
         // Put timer
         this.putTimer(accountId, timer).then(() => {
 
             // Save project map
-            let projectName = this._newIssue.projectName || '';
-            let newProjectName = timer.projectName || '';
-            let existingProjects = this._projects.filter(_ => _.projectName == newProjectName);
-            let existingProject = existingProjects.find(p => p.projectId == timer.projectId) || existingProjects[0];
+            const projectName = this._newIssue.projectName || '';
+            const newProjectName = timer.projectName || '';
+            const existingProjects = this._projects.filter(_ => _.projectName == newProjectName);
+            const existingProject = existingProjects.find(p => p.projectId == timer.projectId) || existingProjects[0];
 
             if (newProjectName == projectName && existingProjects.length < 2) {
                 this.saveProjectMapAction({ accountId, projectName, projectId: null });
@@ -1212,7 +1206,7 @@
     }
 }
 
-interface ITagSelection extends Select2SelectionObject {
+interface TagSelection extends Select2SelectionObject {
     isWorkType: boolean;
 }
 
