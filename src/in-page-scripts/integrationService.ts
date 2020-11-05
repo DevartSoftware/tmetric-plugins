@@ -22,14 +22,14 @@
             return regexp;
         }
 
-        let matchUrl = integration.matchUrl;
+        const matchUrl = integration.matchUrl;
         if (!matchUrl) {
             return true;
         }
 
-        let patterns = (matchUrl instanceof Array ? <any[]>matchUrl : [<any>matchUrl]);
+        const patterns = (matchUrl instanceof Array ? <any[]>matchUrl : [<any>matchUrl]);
         return patterns.some(pattern => {
-            let regexp = typeof pattern === 'string' ? convertPatternToRegExp(pattern) : <RegExp>pattern;
+            const regexp = typeof pattern === 'string' ? convertPatternToRegExp(pattern) : <RegExp>pattern;
             return regexp.test(url);
         });
     }
@@ -46,14 +46,14 @@
         // Find 'Stop' link or 'Start' link associated with current timer.
         // If it is found we should refresh links on a page.
         return $$.all('a.' + this.affix).some(link => {
-            let linkTimer = this.parseLinkTimer(link);
+            const linkTimer = this.parseLinkTimer(link);
             this.checkTimerExternalTask(linkTimer);
             return !linkTimer.isStarted || this.isIssueStarted(linkTimer);
         });
     }
 
     static updateLinks(checkAllIntegrations: boolean) {
-        let source = this.getSourceInfo(document.URL);
+        const source = this.getSourceInfo(document.URL);
 
         if (!this._possibleIntegrations || checkAllIntegrations) {
             this._possibleIntegrations = this._allIntegrations;
@@ -63,13 +63,13 @@
             this.isUrlMatched(integration, source.fullUrl) &&
             (!integration.match || integration.match(source)));
 
-        let issues = <WebToolIssue[]>[];
-        let parsedIssues = <WebToolParsedIssue[]>[];
+        const issues = <WebToolIssue[]>[];
+        const parsedIssues = <WebToolParsedIssue[]>[];
 
         this._possibleIntegrations.some(integration => {
 
             let elements = [<HTMLElement>null];
-            let selector = integration.issueElementSelector;
+            const selector = integration.issueElementSelector;
             if (selector) {
                 if (typeof selector === 'function') {
                     elements = (<() => HTMLElement[]>selector)().filter(_ => !!_);
@@ -79,7 +79,7 @@
             }
 
             elements.forEach(element => {
-                let issue = integration.getIssue(element, source);
+                const issue = integration.getIssue(element, source);
                 if (!issue || !issue.issueName && !issue.issueId && !issue.projectName) {
                     // Remove link when issue can not be parsed after DOM changes
                     this.updateLink(element, null, null, null);
@@ -122,7 +122,7 @@
                 this._possibleIntegrations = [integration];
 
                 // render new links immediately to prevent flickering on task services which observe mutations
-                let newParsedIssues = parsedIssues.filter(issue => !$$('a.' + this.affix, issue.element));
+                const newParsedIssues = parsedIssues.filter(issue => !$$('a.' + this.affix, issue.element));
                 IntegrationService.updateIssues(integration, newParsedIssues);
                 this.onIssueLinksUpdated();
 
@@ -153,7 +153,7 @@
 
             if (issue.issueUrl && this.isIssueStarted(issue)) {
                 // Show zero duration if client clock is late (TMET-947)
-                let timerDuration = Math.max(0, Date.now() - Date.parse(this._timer.startTime));
+                const timerDuration = Math.max(0, Date.now() - Date.parse(this._timer.startTime));
                 if (timerDuration <= this._constants.maxTimerHours * HOUR) {
                     // Add current timer duration if timer is not long running
                     duration += timerDuration;
@@ -168,14 +168,14 @@
     private static _issueDurationsCache: WebToolIssueDuration[] = [];
 
     private static _pendingIssuesDurations = <{
-        identifiers: WebToolIssueIdentifier[],
-        resolve: (data: WebToolIssueDuration[]) => void,
-        reject: (reason?: any) => void
+        identifiers: WebToolIssueIdentifier[];
+        resolve: (data: WebToolIssueDuration[]) => void;
+        reject: (reason?: any) => void;
     }>null;
 
     static setIssuesDurations(durations) {
         if (this._pendingIssuesDurations) {
-            let resolve = this._pendingIssuesDurations.resolve;
+            const resolve = this._pendingIssuesDurations.resolve;
             this._pendingIssuesDurations = null;
             resolve(durations);
         }
@@ -193,8 +193,8 @@
             return Promise.resolve([]);
         }
 
-        let newIdentifiers: WebToolIssueIdentifier[] = [];
-        let oldIdentifiers: { [name: string]: boolean } = {};
+        const newIdentifiers: WebToolIssueIdentifier[] = [];
+        const oldIdentifiers: { [name: string]: boolean } = {};
 
         let pendingDurations = this._pendingIssuesDurations;
 
@@ -224,7 +224,7 @@
         }
 
         // Create new promise
-        let promise = new Promise<WebToolIssueDuration[]>((resolve, reject) => {
+        const promise = new Promise<WebToolIssueDuration[]>((resolve, reject) => {
             pendingDurations.resolve = resolve;
             pendingDurations.reject = reject;
         });
@@ -239,7 +239,7 @@
     }
 
     static getIssueDuration(issue: WebToolIssueIdentifier) {
-        for (let duration of IntegrationService._issueDurationsCache) {
+        for (const duration of IntegrationService._issueDurationsCache) {
             if (duration.issueUrl == issue.issueUrl && duration.serviceUrl == issue.serviceUrl) {
                 return duration.duration;
             }
@@ -265,9 +265,9 @@
             sign = '-';
         }
 
-        let totalMinutes = Math.floor(duration / 60000);
-        let hours = Math.floor(totalMinutes / 60);
-        let minutes = totalMinutes % 60;
+        const totalMinutes = Math.floor(duration / 60000);
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
 
         return sign + hours + (minutes < 10 ? ':0' : ':') + minutes;
     }
@@ -286,21 +286,21 @@
 
     static updateLink(element: HTMLElement, integration: WebToolIntegration, newIssue: WebToolIssue, newIssueDuration: number) {
 
-        let oldLink = $$('a.' + this.affix, element);
+        const oldLink = $$('a.' + this.affix, element);
 
         if (!newIssue) {
             this.removeLink(oldLink);
             return;
         }
 
-        let isIssueStarted = this.isIssueStarted(newIssue);
+        const isIssueStarted = this.isIssueStarted(newIssue);
 
-        let newIssueTimer = <WebToolIssueTimer & WebToolIssueDuration>{};
+        const newIssueTimer = <WebToolIssueTimer & WebToolIssueDuration>{};
         newIssueTimer.isStarted = !isIssueStarted;
         newIssueTimer.showIssueId = integration.showIssueId;
         newIssueTimer.duration = newIssueDuration;
 
-        for (let i in newIssue) {
+        for (const i in newIssue) {
             newIssueTimer[i] = newIssue[i];
         }
 
@@ -330,7 +330,7 @@
         this.removeLink(oldLink);
 
         // Create new timer link
-        let newLink = document.createElement('a');
+        const newLink = document.createElement('a');
         newLink.classList.add(this.affix);
         newLink.classList.add(this.affix + (isIssueStarted ? '-stop' : '-start'));
         newLink.setAttribute('data-' + this.affix, JSON.stringify(newIssueTimer));
@@ -344,10 +344,10 @@
             sendBackgroundMessage({ action: 'putTimer', data: newIssueTimer });
             return false;
         };
-        let spanWithIcon = document.createElement('span');
+        const spanWithIcon = document.createElement('span');
         spanWithIcon.classList.add(this.affix + '-icon');
         newLink.appendChild(spanWithIcon);
-        let span = document.createElement('span');
+        const span = document.createElement('span');
         span.textContent = isIssueStarted ? 'Stop timer' : 'Start timer';
         if (newIssue.issueUrl && (newIssueTimer.duration || isIssueStarted)) {
             span.textContent += ' (' + this.durationToString(newIssueTimer.duration) + ')';
@@ -366,7 +366,7 @@
             && this._timer
             && this._timer.isStarted) {
 
-            let projectTask = this._timer.details && this._timer.details.projectTask;
+            const projectTask = this._timer.details && this._timer.details.projectTask;
             if (projectTask
                 && projectTask.relativeIssueUrl
                 && projectTask.description == issue.issueName) {
@@ -384,7 +384,7 @@
             if (!issue.issueUrl) { // ignore service url for issue without external link (TE-540)
                 return '';
             }
-            let url = (issue.serviceUrl || '').trim();
+            const url = (issue.serviceUrl || '').trim();
             if (url.length && url[url.length - 1] == '/') {
                 return url.substring(0, url.length - 1);
             }
@@ -454,7 +454,7 @@
         if (set1.length != set2.length) {
             return false;
         }
-        let hasValue: { [key: string]: boolean } = {};
+        const hasValue: { [key: string]: boolean } = {};
         set1.forEach(item => hasValue[item && item.toString()] = true);
         return set2.every(item => hasValue[item && item.toString()]);
     }
@@ -479,14 +479,14 @@
 
     private static isIssueStarted(issue: WebToolIssue) {
 
-        let timer = this._timer;
+        const timer = this._timer;
         if (!timer || !timer.isStarted || !timer.details) {
             return false;
         }
 
         let startedIssue: WebToolIssue;
 
-        let task = timer.details.projectTask;
+        const task = timer.details.projectTask;
         if (task) {
             startedIssue = {
                 issueId: task.externalIssueId,
