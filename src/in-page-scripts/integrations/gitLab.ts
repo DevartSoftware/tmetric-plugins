@@ -74,14 +74,21 @@
 
         const serviceType = 'GitLab';
 
-        let serviceUrl = (<HTMLAnchorElement>$$('a#logo')).href;
+        let serviceUrl = ($$('a#logo') as HTMLAnchorElement).href;
         if (!serviceUrl || !source.fullUrl.startsWith(serviceUrl)) {
             serviceUrl = source.protocol + source.host;
         }
 
         const issueUrl = $$.getRelativeUrl(serviceUrl, source.fullUrl).match(/[^#]*/)[0]; // trim hash
 
-        const tagNames = $$.all('.labels .label, .issuable-show-labels .badge, .issuable-show-labels .gl-label').map(label => label.textContent);
+        const tagNames = [
+                '.issuable-show-labels .gl-label .gl-label-text',
+                '.issuable-show-labels .gl-label',
+                '.issuable-show-labels .badge',
+                '.labels .label',
+            ]
+            .reduce((tags, selector) => tags.length ? tags : $$.all(selector), [] as HTMLElement[])
+            .map(label => label.textContent);
 
         return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
     }
@@ -121,7 +128,7 @@ class GitLabSidebar implements WebToolIntegration {
         const projectName = $$.try('.sidebar-context-title').textContent;
         const serviceType = 'GitLab';
 
-        let serviceUrl = (<HTMLAnchorElement>$$('a#logo')).href;
+        let serviceUrl = ($$('a#logo') as HTMLAnchorElement).href;
         if (!serviceUrl || !source.fullUrl.startsWith(serviceUrl)) {
             serviceUrl = source.protocol + source.host;
         }
@@ -156,7 +163,14 @@ class GitLabSidebar implements WebToolIntegration {
             }
         }
 
-        const tagNames = $$.all('.issuable-show-labels > a span, .issuable-show-labels .badge').map(label => label.textContent);
+        const tagNames = [
+            '.issuable-show-labels .gl-label .gl-label-text',
+            '.issuable-show-labels .gl-label',
+            '.issuable-show-labels .badge',
+            '.issuable-show-labels > a span',
+        ]
+            .reduce((tags, selector) => tags.length ? tags : $$.all(selector), [] as HTMLElement[])
+            .map(label => label.textContent);
 
         return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
     }
