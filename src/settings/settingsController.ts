@@ -31,6 +31,17 @@
     )
 }
 
+// Set Integrations list scroll area
+function setIntegrationsScrollArea() {
+    if ($('.settings-page').length > 0) {
+        const mainHeight = $('.settings-main .main-content').outerHeight();
+        const filterHeight = $('.filter-section').outerHeight();
+        const containerMargins = 22;
+        const scrollAreaHeight = mainHeight - containerMargins - filterHeight;
+        $('.settings-page .logos-section').css("height", scrollAreaHeight + "px");
+    }
+}
+
 // Navigation Tabs
 function navTabs() {
     $('.tabset a').on('click', function(e){
@@ -39,23 +50,12 @@ function navTabs() {
             $('.tab-box.visible').hide().removeClass('visible');
             $('.tabset li.active').removeClass('active');
 
-            let tabBox = $(this).attr('href');
+            const tabBox = $(this).attr('href');
             $(this).parent('li').addClass('active');
             $(tabBox).addClass('visible').fadeIn(400);
             setIntegrationsScrollArea();
         }
     });
-}
-
-// Set Integrations list scroll area
-function setIntegrationsScrollArea() {
-    if ($('.settings-page').length > 0) {
-        let mainHeight = $('.settings-main .main-content').outerHeight();
-        let filterHeight = $('.filter-section').outerHeight();
-        let containerMargins = 22;
-        let scrollAreaHeight = mainHeight - containerMargins - filterHeight;
-        $('.settings-page .logos-section').css("height", scrollAreaHeight + "px");
-    }
 }
 
 $(document).ready(() => {
