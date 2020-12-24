@@ -16,13 +16,13 @@
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
         linkElement.classList.add('btn');
-        let header = $$('.detail-page-header');
+        const header = $$('.detail-page-header');
         if (!header) {
             return;
         }
 
         // New design
-        let issueButton = $$.visible('.js-issuable-actions', header);
+        const issueButton = $$.visible('.js-issuable-actions', header);
         if (issueButton) {
             linkElement.classList.add('btn-grouped');
             issueButton.parentElement.insertBefore(linkElement, issueButton);
@@ -30,7 +30,7 @@
         }
 
         // Old design
-        let buttons = $$('.issue-btn-group', header);
+        const buttons = $$('.issue-btn-group', header);
         if (buttons) {
             linkElement.classList.add('btn-grouped');
             buttons.appendChild(linkElement);
@@ -44,7 +44,7 @@
 
         // https://gitlab.com/NAMESPACE/PROJECT/issues/NUMBER
         // https://gitlab.com/NAMESPACE/PROJECT/merge_requests/NUMBER
-        let match = /^(.+)\/(issues|merge_requests)\/(\d+)$/.exec(source.path);
+        const match = /^(.+)\/(issues|merge_requests)\/(\d+)$/.exec(source.path);
 
         if (!match) {
             return;
@@ -56,32 +56,32 @@
             return;
         }
 
-        let issueType = match[2];
+        const issueType = match[2];
         issueId = (issueType == 'merge_requests' ? '!' : '#') + issueId;
 
-        let issueNameElement = $$.try('.detail-page-description .title');
-        let issueName = issueNameElement.firstChild ? issueNameElement.firstChild.textContent : issueNameElement.textContent;
+        const issueNameElement = $$.try('.detail-page-description .title');
+        const issueName = issueNameElement.firstChild ? issueNameElement.firstChild.textContent : issueNameElement.textContent;
         if (!issueName) {
             return;
         }
 
-        let projectNameNode = $$.findNode('.title .project-item-select-holder', Node.TEXT_NODE);
+        const projectNameNode = $$.findNode('.title .project-item-select-holder', Node.TEXT_NODE);
 
-        let projectName = projectNameNode ?
+        const projectName = projectNameNode ?
             projectNameNode.textContent : // New design (both new and old navigation)
             ($$.try('.context-header .sidebar-context-title').textContent // Newest design
                 || $$.try('.title > span > a:nth-last-child(2)').textContent); // Old design
 
-        let serviceType = 'GitLab';
+        const serviceType = 'GitLab';
 
         let serviceUrl = (<HTMLAnchorElement>$$('a#logo')).href;
         if (!serviceUrl || !source.fullUrl.startsWith(serviceUrl)) {
             serviceUrl = source.protocol + source.host;
         }
 
-        let issueUrl = $$.getRelativeUrl(serviceUrl, source.fullUrl).match(/[^#]*/)[0]; // trim hash
+        const issueUrl = $$.getRelativeUrl(serviceUrl, source.fullUrl).match(/[^#]*/)[0]; // trim hash
 
-        let tagNames = $$.all('.labels .label, .issuable-show-labels .badge, .issuable-show-labels .gl-label').map(label => label.textContent);
+        const tagNames = $$.all('.labels .label, .issuable-show-labels .badge, .issuable-show-labels .gl-label').map(label => label.textContent);
 
         return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
     }
@@ -105,7 +105,7 @@ class GitLabSidebar implements WebToolIntegration {
             return;
         }
 
-        let div = document.createElement('div');
+        const div = document.createElement('div');
         linkElement.classList.add('btn', 'btn-default');
         div.appendChild(linkElement);
         $$('.issuable-sidebar-header .issuable-header-text').appendChild(div);
@@ -117,9 +117,9 @@ class GitLabSidebar implements WebToolIntegration {
             return;
         }
 
-        let issueName = $$.try('.issuable-header-text > strong').textContent;
-        let projectName = $$.try('.sidebar-context-title').textContent;
-        let serviceType = 'GitLab';
+        const issueName = $$.try('.issuable-header-text > strong').textContent;
+        const projectName = $$.try('.sidebar-context-title').textContent;
+        const serviceType = 'GitLab';
 
         let serviceUrl = (<HTMLAnchorElement>$$('a#logo')).href;
         if (!serviceUrl || !source.fullUrl.startsWith(serviceUrl)) {
@@ -127,12 +127,12 @@ class GitLabSidebar implements WebToolIntegration {
         }
 
         // #123, MyProject#123
-        let issueFullId = $$.try('.issuable-header-text > span').textContent;
+        const issueFullId = $$.try('.issuable-header-text > span').textContent;
         let issueUrl: string;
         let issueId: string;
         let projectId: string;
 
-        let idMatch = issueFullId && issueFullId.match(/\s*(.*)#(\d+)\s*/);
+        const idMatch = issueFullId && issueFullId.match(/\s*(.*)#(\d+)\s*/);
         if (idMatch) {
 
             projectId = idMatch[1];
@@ -140,7 +140,7 @@ class GitLabSidebar implements WebToolIntegration {
 
             // /MyGroup1/MyProject, /groups/MyGroup1/-
             issueUrl = $$.getRelativeUrl(serviceUrl, source.fullUrl.match(this.matchUrl)[1]);
-            let groupIssueMatch = issueUrl.match(/\/groups\/(.+)\/-/);
+            const groupIssueMatch = issueUrl.match(/\/groups\/(.+)\/-/);
             if (groupIssueMatch) {
                 if (projectId) {
                     issueUrl = `/${groupIssueMatch[1]}/${projectId}`;
@@ -156,7 +156,7 @@ class GitLabSidebar implements WebToolIntegration {
             }
         }
 
-        let tagNames = $$.all('.issuable-show-labels > a span, .issuable-show-labels .badge').map(label => label.textContent);
+        const tagNames = $$.all('.issuable-show-labels > a span, .issuable-show-labels .badge').map(label => label.textContent);
 
         return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
     }
