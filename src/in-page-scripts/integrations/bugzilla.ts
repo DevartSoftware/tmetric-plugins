@@ -9,7 +9,9 @@
     issueElementSelector = '#bugzilla-body';
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        const host = $$('#summary_alias_container', issueElement) || $$('#summary_container', issueElement);
+        const host = $$('#summary_alias_container', issueElement)
+            || $$('#summary_container', issueElement)
+            || $$('#field-value-status_summary', issueElement) // https://bugzilla.mozilla.org
         if (host) {
             linkElement.classList.add('devart-timer-link-bugzilla');
             host.appendChild(linkElement);
@@ -18,26 +20,22 @@
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        const issueIdNumber = $$.try<HTMLInputElement>('input[name=id]', issueElement).value;
+        const issueIdNumber = $$.try<HTMLInputElement>('input[name=id]', issueElement).value
+            || $$.searchParams(source.fullUrl)['id'];
         if (!issueIdNumber) {
             return;
         }
         const issueId = '#' + issueIdNumber;
 
-        const issueName = $$.try('#short_desc_nonedit_display', issueElement).textContent;
+        const issueName = $$.try('#short_desc_nonedit_display', issueElement).textContent
+            || $$.try('#field-value-short_desc', issueElement).textContent; // https://bugzilla.mozilla.org
         if (!issueName) {
             return;
         }
 
-        const projectNameEditableElement = $$<HTMLSelectElement>('#product');
-        const projectNameNonEditableElement = $$.try('#field_container_product').firstChild;
-        let projectName: string;
-        if (projectNameEditableElement) {
-            projectName = projectNameEditableElement.value;
-        }
-        else if (projectNameNonEditableElement) {
-            projectName = projectNameNonEditableElement.textContent;
-        }
+        const projectName = $$.try<HTMLSelectElement>('#product').value // editable project
+            || ($$.try('#field_container_product').firstChild || {} as ChildNode).textContent // non editable project
+            || ($$.try('#product-name').firstChild || {} as ChildNode).textContent; // https://bugzilla.mozilla.org
 
         const serviceType = 'Bugzilla';
 
