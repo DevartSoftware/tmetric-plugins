@@ -63,6 +63,8 @@ $(document).ready(() => {
     setIntegrationsScrollArea();
     navTabs();
 
+    $('.copyright').text(`© ${new Date().getFullYear()} Devart`);
+
     $(window).resize(function () {
         setIntegrationsScrollArea();
     });
