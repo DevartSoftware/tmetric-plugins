@@ -9,7 +9,7 @@
     issueElementSelector = '#bugzilla-body';
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        var host = $$('#summary_alias_container', issueElement) || $$('#summary_container', issueElement);
+        const host = $$('#summary_alias_container', issueElement) || $$('#summary_container', issueElement);
         if (host) {
             linkElement.classList.add('devart-timer-link-bugzilla');
             host.appendChild(linkElement);
@@ -18,20 +18,20 @@
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        var issueIdNumber = $$.try<HTMLInputElement>('input[name=id]', issueElement).value;
+        const issueIdNumber = $$.try<HTMLInputElement>('input[name=id]', issueElement).value;
         if (!issueIdNumber) {
             return;
         }
-        var issueId = '#' + issueIdNumber;
+        const issueId = '#' + issueIdNumber;
 
-        var issueName = $$.try('#short_desc_nonedit_display', issueElement).textContent;
+        const issueName = $$.try('#short_desc_nonedit_display', issueElement).textContent;
         if (!issueName) {
             return;
         }
 
-        var projectNameEditableElement = $$<HTMLSelectElement>('#product');
-        var projectNameNonEditableElement = $$.try('#field_container_product').firstChild;
-        var projectName: string;
+        const projectNameEditableElement = $$<HTMLSelectElement>('#product');
+        const projectNameNonEditableElement = $$.try('#field_container_product').firstChild;
+        let projectName: string;
         if (projectNameEditableElement) {
             projectName = projectNameEditableElement.value;
         }
@@ -39,13 +39,13 @@
             projectName = projectNameNonEditableElement.textContent;
         }
 
-        var serviceType = 'Bugzilla';
+        const serviceType = 'Bugzilla';
 
         const action = 'show_bug.cgi';
 
-        var serviceUrl = source.fullUrl.substring(0, source.fullUrl.indexOf(action));
+        const serviceUrl = source.fullUrl.substring(0, source.fullUrl.indexOf(action));
 
-        var issueUrl = `/${action}?id=${issueIdNumber}`;
+        const issueUrl = `/${action}?id=${issueIdNumber}`;
 
         return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
     }
