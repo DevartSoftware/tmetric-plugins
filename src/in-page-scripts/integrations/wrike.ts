@@ -9,7 +9,7 @@
     issueElementSelector = '.wspace-task-view, .task-view';
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        const host = $$('.wrike-panel-header-toolbar, .action-bar', issueElement);
+        const host = $$('.task-view-header__actions', issueElement);
         if (host) {
             linkElement.classList.add('devart-timer-link-wrike');
             host.insertBefore(linkElement, host.firstElementChild);
