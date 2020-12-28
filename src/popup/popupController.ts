@@ -857,7 +857,7 @@
     private formatProjectAvatar(project: Models.ProjectLite) {
         let avatarUrl = project && project.avatar || 'Content/Avatars/project.svg';
         avatarUrl = avatarUrl.replace(/^\//, '');
-        if (!avatarUrl.startsWith(this._constants.storageUrl)) {
+        if (!/^https?:/.test(avatarUrl)) {
             avatarUrl = `${this._constants.storageUrl}${avatarUrl}`;
         }
         if (!/\.svg$/.test(avatarUrl)) {
