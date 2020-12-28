@@ -855,9 +855,11 @@
     }
 
     private formatProjectAvatar(project: Models.ProjectLite) {
-        let avatar = project && project.avatar || 'Content/Avatars/project.svg';
-        avatar = avatar.replace(/^\//, '');
-        let avatarUrl = `${this._constants.storageUrl}${avatar}`;
+        let avatarUrl = project && project.avatar || 'Content/Avatars/project.svg';
+        avatarUrl = avatarUrl.replace(/^\//, '');
+        if (!avatarUrl.startsWith(this._constants.storageUrl)) {
+            avatarUrl = `${this._constants.storageUrl}${avatarUrl}`;
+        }
         if (!/\.svg$/.test(avatarUrl)) {
             avatarUrl = avatarUrl.replace(/(.+)(\.\w+)$/, '$1~s48$2');
         }
