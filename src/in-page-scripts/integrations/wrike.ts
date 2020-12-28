@@ -6,7 +6,7 @@
 
     matchUrl = '*://*.wrike.com/workspace.htm*';
 
-    issueElementSelector = '.wspace-task-view';
+    issueElementSelector = '.wspace-task-view, .task-view';
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
         const host = $$('.wrike-panel-header-toolbar, .action-bar', issueElement);
