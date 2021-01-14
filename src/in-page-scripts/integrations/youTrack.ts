@@ -44,7 +44,54 @@
 
         const serviceType = 'YouTrack';
 
-        const serviceUrl = (<HTMLBaseElement>$$.try('base')).href;
+        const serviceUrl = ($$.try('base') as HTMLBaseElement).href;
+
+        return { issueId, issueName, projectName, tagNames, serviceType, serviceUrl, issueUrl };
+    }
+}
+
+class YouTrackLite implements WebToolIntegration {
+
+    showIssueId = true;
+
+    observeMutations = true;
+
+    matchUrl = [
+        '*://*/issue/*',
+        '*://*/agiles/*'
+    ];
+
+    issueElementSelector = '[class^=ticketContent__]';
+
+    render(issueElement: HTMLElement, linkElement: HTMLElement) {
+        const host = $$('[class^=toolbar__]', issueElement);
+        if (host) {
+            host.insertBefore(linkElement, $$('[class^=visibilityPicker__]', host));
+        }
+    }
+
+    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+
+        const issueName = $$.try('summary h1', issueElement).textContent;
+
+        if (!issueName) {
+            return;
+        }
+
+        const serviceType = 'YouTrack';
+
+        const serviceUrl = ($$.try('base') as HTMLBaseElement).href;
+
+        const linkElement = $$('[class^=idLink_] a', issueElement);
+
+        const issueId = linkElement && linkElement.textContent;
+
+        const issueUrl = linkElement && $$.getRelativeUrl(serviceUrl, linkElement.getAttribute('href'));
+
+        const projectField = $$.try('img[src*=\\/api\\/rest\\/projects\\/][src*=\\/icon]', issueElement).parentElement;
+        const projectName = projectField ? $$.try('button', projectField).textContent : null;
+
+        const tagNames = $$.all('[class^=tags_] a', issueElement).map(_ => _.textContent);
 
         return { issueId, issueName, projectName, tagNames, serviceType, serviceUrl, issueUrl };
     }
@@ -147,4 +194,4 @@ class YouTrackBoardOld implements WebToolIntegration {
     }
 }
 
-IntegrationService.register(new YouTrack(), new YouTrackOld(), new YouTrackBoardOld());
+IntegrationService.register(new YouTrack(), new YouTrackLite(), new YouTrackOld(), new YouTrackBoardOld());
