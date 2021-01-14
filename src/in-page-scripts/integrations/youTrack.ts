@@ -19,7 +19,12 @@
             $$('.yt-agile-card__summary', issueElement);
 
         if (host) {
+            linkElement.classList.add('devart-timer-link-youtrack');
             host.appendChild(linkElement);
+            const previousElementSibling = linkElement.previousElementSibling as HTMLElement;
+            if (previousElementSibling && previousElementSibling.classList.contains('yt-issue-view__meta-information-updated-created')) {
+                previousElementSibling.style.marginRight = '10px';
+            }
         }
     }
 
@@ -68,6 +73,7 @@ class YouTrackLite implements WebToolIntegration {
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
         const host = $$('[class^=toolbar__]', issueElement);
         if (host) {
+            linkElement.classList.add('devart-timer-link-youtrack');
             host.insertBefore(linkElement, $$('[class^=visibilityPicker__]', host));
         }
     }
