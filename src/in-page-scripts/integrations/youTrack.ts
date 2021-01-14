@@ -6,6 +6,7 @@
 
     matchUrl = [
         '*://*/issue/*',
+        '*://*/issues',
         '*://*/agiles/*'
     ];
 
@@ -58,6 +59,7 @@ class YouTrackLite implements WebToolIntegration {
 
     matchUrl = [
         '*://*/issue/*',
+        '*://*/issues',
         '*://*/agiles/*'
     ];
 
