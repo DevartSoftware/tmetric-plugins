@@ -12,6 +12,7 @@
     private _projects: Models.ProjectLite[];
     private _clients: Models.Client[];
     private _tags: Models.Tag[];
+    private _tagsByName: { [key: string]: Models.Tag };
     private _recentTasks: Models.RecentWorkTask[];
     private _constants: Models.Constants;
     private _canCreateProjects: boolean;
@@ -19,6 +20,7 @@
     private _requiredFields: Models.RequiredFields;
     private _newIssue: WebToolIssueTimer;
     private _possibleWebTool: WebToolInfo;
+    private _selectedTagNames: string[];
 
     getData(accountId: number) {
 
@@ -77,6 +79,7 @@
             this._projects = data.projects;
             this._clients = data.clients;
             this._tags = data.tags.filter(tag => !!tag).sort((a, b) => this.compareTags(a, b));
+            this._tagsByName = this._tags.reduce((map, tag) => (map[tag.tagName] = tag) && map, {});
             this._constants = data.constants;
             this._canCreateProjects = data.canCreateProjects;
             this._canCreateTags = data.canCreateTags;
@@ -637,7 +640,7 @@
 
         const container = $('<span>');
 
-        sortedTags.forEach((tag, i) => {
+        sortedTags.forEach(tag => {
             const span = $('<span>').addClass('tag').addClass('tag-default');
 
             if (tag.isWorkType) {
@@ -874,14 +877,17 @@
         const selectedItems = this.makeTagSelectedItems();
         const allowNewItems = this._canCreateTags;
 
+        this._selectedTagNames = selectedItems;
+
         $(query + ' .input')
             .empty()
             .select2({
                 data: items,
                 tags: allowNewItems,
                 matcher: (a: any, b: any) => {
-                    const params = <{ term: string }>a;
-                    const option = <Select2SelectionObject>b;
+
+                    const params = a as { term: string };
+                    const option = b as Select2SelectionObject;
 
                     const term = $.trim(params.term || "").toLowerCase();
                     const text = $(option.element).text().toLowerCase();
@@ -1002,6 +1008,7 @@
         $('#stop').click(() => (this.onStopClick(), false));
         $('#create').click(() => (this.onCreateClick(), false));
         $(this._forms.create + ' .project .input').change(() => (this.onProjectSelectChange(), false));
+        $(this._forms.create + ' .tags .input').change(() => (this.onTagsSelectChange(), false));
         $('.cancel-btn').click(() => (this.onCancelClick(), false));
         $('#settings-btn').click(() => (this.onSettingsClick(), false));
         $('#integrate-webtool').click(() => (this.onIntegrateWebToolClick(), false));
@@ -1108,6 +1115,38 @@
         }
 
         this.initTagSelector(value);
+    }
+
+    private onTagsSelectChange() {
+
+        const select = $(this._forms.create + ' .tags .input');
+
+        const oldTagNames = this._selectedTagNames;
+        const newTagNames = (select.val() || []) as string[];
+        const addedTagNames = newTagNames.filter(_ => oldTagNames.indexOf(_) < 0);
+
+        const oldWorkTypeName = oldTagNames.find(tagName => {
+            const tag = this._tagsByName[tagName];
+            return tag && tag.isWorkType;
+        });
+
+        const newWorkTypeName = addedTagNames.find(tagName => {
+            const tag = this._tagsByName[tagName];
+            return tag && tag.isWorkType;
+        });
+
+        const filteredWorkTypeName = newWorkTypeName || oldWorkTypeName;
+
+        const filteredTagNames = newTagNames.filter(tagName => {
+            const tag = this._tagsByName[tagName];
+            return !tag || !tag.isWorkType || tag.tagName == filteredWorkTypeName;
+        });
+
+        this._selectedTagNames = filteredTagNames;
+
+        if (newTagNames.length != filteredTagNames.length) {
+            select.val(filteredTagNames).trigger('change');
+        }
     }
 
     private async onSiteLinkClick() {
