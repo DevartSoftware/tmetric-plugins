@@ -14,13 +14,13 @@
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
         if (issueElement.matches(this.issueElementSelector[0])) {
-            let linkContainer = $$.create('div', 'devart-timer-link-asana');
+            const linkContainer = $$.create('div', 'devart-timer-link-asana');
             linkContainer.appendChild(linkElement);
             $$('.SingleTaskTitleInput', issueElement).insertAdjacentElement('afterend', linkContainer);
         }
 
         if (issueElement.matches(this.issueElementSelector[1])) {
-            let container = $$('.ItemRowTwoColumnStructure-right', issueElement);
+            const container = $$('.ItemRowTwoColumnStructure-right', issueElement);
             linkElement.classList.add('devart-timer-link-minimal', 'devart-timer-link-asana-subtask');
             container.insertBefore(linkElement, container.firstElementChild);
         }
@@ -31,7 +31,7 @@
         let description: string;
 
         // Find root task
-        let rootTaskPane = $$.closest(this.issueElementSelector[0], issueElement);
+        const rootTaskPane = $$.closest(this.issueElementSelector[0], issueElement);
         if (!rootTaskPane) {
             return;
         }
@@ -49,11 +49,11 @@
             }
 
             // Get root task for sub-sub-tasks
-            let rootTask = <HTMLAnchorElement>$$('.TaskAncestry-ancestor a', rootTaskPane);
+            const rootTask = <HTMLAnchorElement>$$('.TaskAncestry-ancestor a', rootTaskPane);
             if (rootTask) {
                 // Get issue name and path
                 issueName = rootTask.textContent;
-                let match = /:\/\/[^\/]+(\/[^\?#]+)/.exec(rootTask.href);
+                const match = /:\/\/[^\/]+(\/[^\?#]+)/.exec(rootTask.href);
                 if (match) {
                     issuePath = match[1];
                 }
@@ -68,21 +68,21 @@
         // https://app.asana.com/0/search/PROJECT_ID/TASK_ID
         let issueId: string;
         let issueUrl: string;
-        let match = /^\/\w+(?:\/search)?\/\d+\/(\d+)/.exec(issuePath);
+        const match = /^\/\w+(?:\/search)?\/\d+\/(\d+)/.exec(issuePath);
         if (match) {
             issueId = '#' + match[1];
             issueUrl = '/0/0/' + match[1];
         }
 
-        let projectName =
+        const projectName =
             $$.try('.TaskProjectToken-projectName').textContent || // task project token
             $$.try('.TaskProjectPill-projectName, .TaskProjectToken-potTokenizerPill').textContent || // task project pill
             $$.try('.TaskAncestry-ancestorProject').textContent; // subtask project
 
-        let serviceType = 'Asana';
-        let serviceUrl = source.protocol + source.host;
+        const serviceType = 'Asana';
+        const serviceUrl = source.protocol + source.host;
 
-        let tagNames = $$.all('.TaskTags .Token, .TaskTags .TaskTagTokenPills-potPill').map(label => label.textContent);
+        const tagNames = $$.all('.TaskTags .Token, .TaskTags .TaskTagTokenPills-potPill').map(label => label.textContent);
 
         return { issueId, issueName, projectName, serviceType, description, serviceUrl, issueUrl, tagNames };
     }
