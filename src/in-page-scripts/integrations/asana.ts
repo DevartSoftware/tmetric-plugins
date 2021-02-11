@@ -16,7 +16,8 @@
         if (issueElement.matches(this.issueElementSelector[0])) {
             const linkContainer = $$.create('div', 'devart-timer-link-asana');
             linkContainer.appendChild(linkElement);
-            $$('.SingleTaskTitleInput', issueElement).insertAdjacentElement('afterend', linkContainer);
+            const toolbar = $$('.SingleTaskPaneToolbar', issueElement);
+            toolbar?.insertBefore(linkContainer, $$('.SingleTaskPaneToolbar-button', toolbar));
         }
 
         if (issueElement.matches(this.issueElementSelector[1])) {
@@ -36,20 +37,20 @@
             return;
         }
 
-        let issueName = $$.try<HTMLTextAreaElement>('.SingleTaskTitleInput .simpleTextarea', rootTaskPane).value;
+        let issueName = ($$.try('.SingleObjectTitleInput .simpleTextarea', rootTaskPane) as HTMLTextAreaElement).value;
         let issuePath = source.path;
 
         // Sub-tasks
         if (issueElement.matches(this.issueElementSelector[1])) {
 
             // Do not add link to empty sub-task
-            description = $$.try<HTMLTextAreaElement>('.SubtaskTaskRow textarea', issueElement).value;
+            description = ($$.try('.SubtaskTaskRow textarea', issueElement) as HTMLTextAreaElement).value;
             if (!description) {
                 return;
             }
 
             // Get root task for sub-sub-tasks
-            const rootTask = <HTMLAnchorElement>$$('.TaskAncestry-ancestor a', rootTaskPane);
+            const rootTask = $$('.TaskAncestry-ancestor a', rootTaskPane) as HTMLAnchorElement;
             if (rootTask) {
                 // Get issue name and path
                 issueName = rootTask.textContent;
