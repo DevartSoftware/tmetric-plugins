@@ -17,7 +17,9 @@
             const linkContainer = $$.create('div', 'devart-timer-link-asana');
             linkContainer.appendChild(linkElement);
             const toolbar = $$('.SingleTaskPaneToolbar', issueElement);
-            toolbar?.insertBefore(linkContainer, $$('.SingleTaskPaneToolbar-button', toolbar));
+            if (toolbar) {
+                toolbar.insertBefore(linkContainer, $$('.SingleTaskPaneToolbar-button', toolbar));
+            }
         }
 
         if (issueElement.matches(this.issueElementSelector[1])) {
