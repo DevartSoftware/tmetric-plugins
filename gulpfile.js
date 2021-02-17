@@ -172,6 +172,7 @@ gulp.task('version', (callback) => {
     var version = config.version;
     if (version) {
         [
+            'package.json',
             src + 'manifest.json',
             src + 'in-page-scripts/version.ts'
         ].forEach(file => replaceInFile(
