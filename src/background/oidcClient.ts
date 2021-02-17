@@ -154,7 +154,7 @@
                 let statusText = xhr.statusText;
                 let responseMessage: string;
                 if (xhr.responseJSON) {
-                    responseMessage = xhr.responseJSON.Message;
+                    responseMessage = xhr.responseJSON.message || xhr.responseJSON.Message;
                 }
 
                 if (statusText == 'error') // jQuery replaces empty status to 'error'
