@@ -159,7 +159,7 @@ function modifyJSON(transform) {
         }
 
         var newManifest = transform(obj);
-        file.contents = new Buffer.from(JSON.stringify(newManifest, null, 4));
+        file.contents = Buffer.from(JSON.stringify(newManifest, null, 4));
         callback(null, file);
     });
 }

@@ -27,7 +27,7 @@
         "merge-stream": "1.0.1",
         "through2": "3.0.0",
         "typescript": "3.1.6",
-        "yargs": "^16.2.0"
+        "yargs": "16.2.0"
     },
     "eslintConfig": {
         "extends": [
