@@ -105,6 +105,9 @@
                 return await this.ajaxInternal<TReq, TRes>(accessToken, url, options, dataReq);
             }
             catch (error) {
+                if(error.statusCode == 503){
+                    throw error;
+                }
                 // Try to get new acces token with presaved refresh token
                 const refreshToken = await this.getStorageValue('refresh_token');
                 if (refreshToken) {
