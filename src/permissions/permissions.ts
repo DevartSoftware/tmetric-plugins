@@ -62,7 +62,7 @@ $(document).ready(() => {
 
             const { serviceUrls, hasAdditionalOrigins } = getServiceUrls(name);
 
-            if (!checked && serviceUrls.length == 0 && hasAdditionalOrigins) {
+            if (!checked && hasAdditionalOrigins) {
                 showPopup(name, serviceUrls);
             } else {
                 updatePermissions(input);
@@ -209,7 +209,6 @@ $(document).ready(() => {
             const urlsBefore: string[] = $(popup).data('serviceUrlsInitial') || [];
 
             const urlsAdded = urlsAfter
-                .filter(url => urlsBefore.indexOf(url) < 0)
                 .reduce((map, url) => (map[url] = serviceType) && map, <ServiceTypesMap>{});
 
             const urlsRemoved = urlsBefore
