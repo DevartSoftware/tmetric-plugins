@@ -119,8 +119,7 @@
         return {};
     })();
 
-    static getServiceUrls() {
-        const serviceTypes = this.serviceTypes;
+    static getServiceUrls(serviceTypes = this.serviceTypes) {
         const serviceUrls = Object.keys(serviceTypes).sort().reduce((map, url) => {
             const serviceType = serviceTypes[url];
             let urls = map[serviceType] || [];

@@ -16,7 +16,7 @@
     if (!skipPermissionsRequest) {
 
         const message: ITabMessage = {
-            action: 'getItegratedServices'
+            action: 'getIntegratedServices'
         }
 
         const map = await new Promise<ServiceTypesMap>(resolve => {

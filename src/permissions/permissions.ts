@@ -1,4 +1,4 @@
-$(document).ready(() => {
+$(document).ready(async () => {
 
     function renderIntegrations(holder: string, items: WebToolDescription[]) {
         const content = items.map(item => $('<li>')
@@ -63,7 +63,7 @@ $(document).ready(() => {
             const { serviceUrls, hasAdditionalOrigins } = getServiceUrls(name);
 
             if (!checked && hasAdditionalOrigins) {
-                showPopup(name, serviceUrls);
+                showPopup(name, WebToolManager.getServiceUrls(integratedServices)[name]);
             } else {
                 updatePermissions(input);
             }
@@ -330,7 +330,9 @@ $(document).ready(() => {
     // init
 
     const permissionsManager = new PermissionManager();
-
+    const integratedServices = await new Promise<ServiceTypesMap>(resolve => {
+        chrome.runtime.sendMessage({ action: 'getIntegratedServices'}, resolve);
+    });
     renderIntegrations('#integrations', getWebToolDescriptions());
 
     setScrollArea();

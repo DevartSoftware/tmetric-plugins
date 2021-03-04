@@ -685,13 +685,13 @@ abstract class ExtensionBase extends BackgroundBase {
     // permissions
 
     private async onPermissionsMessage(message: ITabMessage, callback: (data: any) => void) {
-        if (message.action == 'getItegratedServices') {
-            const items = await this.getItegratedServices();
+        if (message.action == 'getIntegratedServices') {
+            const items = await this.getIntegratedServices();
             callback(items);
         }
     }
 
-    private async getItegratedServices() {
+    private async getIntegratedServices() {
         try {
 
             const integrations = (await this.connection.getIntegrations()).filter(item => !!WebToolManager.toServiceUrl(item.serviceUrl));
@@ -751,7 +751,7 @@ abstract class ExtensionBase extends BackgroundBase {
                 return !!senderResponse;
             }
 
-            if (sender.url && sender.url.startsWith(chrome.runtime.getURL('permissions'))) {
+            if (sender.url && (sender.url.startsWith(chrome.runtime.getURL('permissions')) || sender.url.startsWith(chrome.runtime.getURL('settings')))) {
                 this.onPermissionsMessage(message, senderResponse);
                 return !!senderResponse;
             }
