@@ -60,10 +60,18 @@ $(document).ready(async () => {
 
             input.prop('checked', !checked);
 
-            const { serviceUrls, hasAdditionalOrigins } = getServiceUrls(name);
+            let { serviceUrls, hasAdditionalOrigins } = getServiceUrls(name);
 
+            if(integratedServiceUrls[name] && !checked){
+                serviceUrls = integratedServiceUrls[name].reduce(( map, serviceUrl ) => {
+                    if(serviceUrls.indexOf(serviceUrl) === -1){
+                        map.push(serviceUrl);
+                    }
+                    return map;
+                }, serviceUrls)
+            }
             if (!checked && hasAdditionalOrigins) {
-                showPopup(name, WebToolManager.getServiceUrls(integratedServices)[name]);
+                showPopup(name, serviceUrls);
             } else {
                 updatePermissions(input);
             }
@@ -333,6 +341,7 @@ $(document).ready(async () => {
     const integratedServices = await new Promise<ServiceTypesMap>(resolve => {
         chrome.runtime.sendMessage({ action: 'getIntegratedServices'}, resolve);
     });
+    const integratedServiceUrls = WebToolManager.getServiceUrls(integratedServices);
     renderIntegrations('#integrations', getWebToolDescriptions());
 
     setScrollArea();
