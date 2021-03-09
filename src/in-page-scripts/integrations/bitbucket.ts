@@ -14,21 +14,18 @@
     }
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        const issueHeader = $$('#issue-header');
-        const pullRequestHeader = $$('#pull-request-header');
+        const issueToolbar = $$('#issue-header .issue-toolbar');
+        const pullRequestHeading = $$('header h1');
 
-        let actionContainer: HTMLElement;
-        if (issueHeader) {
-            actionContainer = $$('.issue-toolbar', issueHeader);
-        } else if (pullRequestHeader) {
-            actionContainer = $$('#pullrequest-actions', pullRequestHeader);
-        }
-
-        if (actionContainer) {
+        if (issueToolbar) {
             const linkContainer = $$.create('div', 'devart-timer-link-bitbucket', 'aui-buttons')
             linkElement.classList.add('aui-button');
             linkContainer.appendChild(linkElement);
-            actionContainer.insertBefore(linkContainer, actionContainer.firstElementChild);
+            issueToolbar.insertBefore(linkContainer, issueToolbar.firstElementChild);
+        } else if (pullRequestHeading) {
+            linkElement.style.display = 'inline-block';
+            linkElement.style.marginTop = '1rem';
+            pullRequestHeading.parentElement.appendChild(linkElement);
         }
     }
 
@@ -58,10 +55,10 @@
         } else if (issueType == 'pull-requests') {
             issueId = '!' + issueNumber;
 
-            // <span class="pull-request-title">
-            //      PULL_REQUEST_NAME
+            // <h1 class="...">
+            //     PULL_REQUEST_NAME
             // </span>
-            issueName = $$.try('.pull-request-title').textContent;
+            issueName = $$.try('h1').textContent;
         }
 
         if (!issueName) {
@@ -69,7 +66,7 @@
         }
 
         // <li class="aui-nav-selected" >
-        //   <a href="/account/user/almtoolsteam/projects/CR" > Code Review< /a>
+        // <a href="/account/user/almtoolsteam/projects/CR">Code Review</a>
         // </li>
         const projectName = $$.try(
             '.aui-nav-selected a',
