@@ -233,8 +233,8 @@ $(document).ready(async () => {
     function setAllLogos() {
 
         $('.enable-all').click(async () => {
-
-            const map = WebToolManager.toServiceTypesMap(getWebToolDescriptions());
+            let map = WebToolManager.toServiceTypesMap(getWebToolDescriptions());
+            map = Object.assign(map, integratedServices)
             await permissionsManager.requestPermissions(map);
 
             updatePermissionCheckboxes();
@@ -249,7 +249,6 @@ $(document).ready(async () => {
 
             const serviceTypes = WebToolManager.serviceTypes;
             Object.keys(serviceTypes).forEach(serviceUrl => map[serviceUrl] = serviceTypes[serviceUrl]);
-
             await permissionsManager.removePermissions(map);
             await permissionsManager.cleanupPermissions();
 
