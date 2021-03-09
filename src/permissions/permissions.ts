@@ -68,9 +68,8 @@ $(document).ready(async () => {
                         map.push(serviceUrl);
                     }
                     return map;
-                }, serviceUrls)
+                }, serviceUrls).sort();
             }
-            serviceUrls.sort();
             if (!checked && hasAdditionalOrigins) {
                 showPopup(name, serviceUrls);
             } else {
