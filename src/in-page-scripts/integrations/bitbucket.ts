@@ -65,11 +65,9 @@
             return;
         }
 
-        // <li class="aui-nav-selected" >
         // <a href="/account/user/almtoolsteam/projects/CR">Code Review</a>
-        // </li>
         const projectName = $$.try(
-            '.aui-nav-selected a',
+            '.aui-nav-breadcrumbs a, header a',
             null,
             el => /.+\/projects\/.+/.test(el.getAttribute('href'))
         ).textContent;
