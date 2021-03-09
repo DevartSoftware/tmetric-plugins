@@ -14,10 +14,10 @@
     }
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        var issueHeader = $$('#issue-header');
-        var pullRequestHeader = $$('#pull-request-header');
+        const issueHeader = $$('#issue-header');
+        const pullRequestHeader = $$('#pull-request-header');
 
-        var actionContainer: HTMLElement;
+        let actionContainer: HTMLElement;
         if (issueHeader) {
             actionContainer = $$('.issue-toolbar', issueHeader);
         } else if (pullRequestHeader) {
@@ -25,7 +25,7 @@
         }
 
         if (actionContainer) {
-            var linkContainer = $$.create('div', 'devart-timer-link-bitbucket', 'aui-buttons')
+            const linkContainer = $$.create('div', 'devart-timer-link-bitbucket', 'aui-buttons')
             linkElement.classList.add('aui-button');
             linkContainer.appendChild(linkElement);
             actionContainer.insertBefore(linkContainer, actionContainer.firstElementChild);
@@ -36,20 +36,20 @@
 
         // https://bitbucket.org/NAMESPACE/TRANSFORMED_PROJECT_NAME/issues/NUMBER/TRANSFORMED_ISSUE_NAME
         // https://bitbucket.org/NAMESPACE/TRANSFORMED_PROJECT_NAME/pull-requests/NUMBER/TRANSFORMED_PULL_REQUEST_NAME/VIEW
-        var match = /^(.+)\/(issues|pull-requests)\/(\d+).*$/.exec(source.path);
+        const match = /^(.+)\/(issues|pull-requests)\/(\d+).*$/.exec(source.path);
 
         if (!match) {
             return;
         }
 
         // match[3] is a 'NUMBER' from path
-        var issueNumber = match[3];
+        const issueNumber = match[3];
         if (!issueNumber) {
             return;
         }
 
-        var issueId: string, issueName: string;
-        var issueType = match[2];
+        let issueId: string, issueName: string;
+        const issueType = match[2];
         if (issueType == 'issues') {
             issueId = '#' + issueNumber;
 
@@ -71,22 +71,22 @@
         // <li class="aui-nav-selected" >
         //   <a href="/account/user/almtoolsteam/projects/CR" > Code Review< /a>
         // </li>
-        var projectName = $$.try(
+        const projectName = $$.try(
             '.aui-nav-selected a',
             null,
             el => /.+\/projects\/.+/.test(el.getAttribute('href'))
         ).textContent;
 
-        var serviceType = 'Bitbucket';
+        const serviceType = 'Bitbucket';
 
         // match[1] is a 'https://bitbucket.org/NAMESPACE/TRANSFORMED_PROJECT_NAME' from path
         // cut '/NAMESPACE/TRANSFORMED_PROJECT_NAME' from path
-        var servicePath = match[1].split('/').slice(0, -2).join('/');
+        let servicePath = match[1].split('/').slice(0, -2).join('/');
         servicePath = (servicePath) ? '/' + servicePath : '';
 
-        var serviceUrl = source.protocol + source.host + servicePath;
+        const serviceUrl = source.protocol + source.host + servicePath;
 
-        var issueUrl = match[1].split('/').slice(-2).join('/') + '/' + issueType + '/' + issueNumber;
+        const issueUrl = match[1].split('/').slice(-2).join('/') + '/' + issueType + '/' + issueNumber;
 
         return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
     }
