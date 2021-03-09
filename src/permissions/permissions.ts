@@ -70,6 +70,7 @@ $(document).ready(async () => {
                     return map;
                 }, serviceUrls)
             }
+            serviceUrls.sort();
             if (!checked && hasAdditionalOrigins) {
                 showPopup(name, serviceUrls);
             } else {
