@@ -234,7 +234,7 @@ $(document).ready(async () => {
 
         $('.enable-all').click(async () => {
             let map = WebToolManager.toServiceTypesMap(getWebToolDescriptions());
-            map = Object.assign(map, integratedServices)
+            map = Object.assign(map, integratedServices);
             await permissionsManager.requestPermissions(map);
 
             updatePermissionCheckboxes();
