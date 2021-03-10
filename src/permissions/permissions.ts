@@ -266,7 +266,7 @@ $(document).ready(async () => {
 
         await WebToolManager.cleanupServiceTypes();
 
-        let isAllCloudEnabled = true;
+        let isAllEnabled = true;
         let isAllDisabled = true;
 
         const serviceUrlsMap = WebToolManager.getServiceUrls();
@@ -284,12 +284,12 @@ $(document).ready(async () => {
             } else {
                 setPermissionCheckboxStatus(serviceType, webToolDescription.origins, false);
                 if (webToolDescription.origins.length > 0) {
-                    isAllCloudEnabled = false;
+                    isAllEnabled = false;
                 }
             }
         });
 
-        if (isAllCloudEnabled) {
+        if (isAllEnabled) {
             $('.enable-all').attr('disabled', '');
         } else {
             $('.enable-all').removeAttr('disabled');
