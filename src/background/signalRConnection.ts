@@ -183,9 +183,7 @@
                 })
                 .catch(e => {
                     console.log('connect: getProfile failed');
-                    if(e !== 'No credentials to connect'){
-                        reject(e);
-                    }
+                    reject(e);
                 });
         });
     }
