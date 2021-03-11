@@ -169,8 +169,7 @@ abstract class ExtensionBase extends BackgroundBase {
         this.connection = new SignalRConnection();
 
         this.connection
-            .init({ serviceUrl: this.constants.serviceUrl, signalRUrl: this.signalRUrl, authorityUrl: this.constants.authorityUrl })
-            .then(() => undefined);
+            .init({ serviceUrl: this.constants.serviceUrl, signalRUrl: this.signalRUrl, authorityUrl: this.constants.authorityUrl });
     }
 
     /** Handles messages from in-page scripts */
