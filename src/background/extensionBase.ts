@@ -65,6 +65,8 @@ abstract class ExtensionBase extends BackgroundBase {
 
     private loginTabId: number;
 
+    private settingsTabId: number;
+
     private loginWinId: number;
 
     private loginWindowPending: boolean;
@@ -729,6 +731,23 @@ abstract class ExtensionBase extends BackgroundBase {
         chrome.tabs.create({ url, active: true });
     }
 
+    private async openOptionsPageUrl() {
+        const url = chrome.runtime.getURL('settings/settings.html');
+        if(!this.settingsTabId){
+            chrome.tabs.create({ url, active: true,  },tab => {
+                this.settingsTabId = tab.id;
+            });
+            chrome.tabs.onRemoved.addListener((tabId)=>{
+                if(tabId == this.settingsTabId){
+                    this.settingsTabId = null;
+                }
+            })
+        }else {
+            chrome.tabs.update(this.settingsTabId, {highlighted: true});
+        }
+
+    }
+
     private contentScriptRegistrator = new ContentScriptsRegistrator();
 
     protected registerContentScripts() {
@@ -773,7 +792,7 @@ abstract class ExtensionBase extends BackgroundBase {
     }
 
     protected openOptionsPagePopupAction() {
-        chrome.runtime.openOptionsPage();
+        this.openOptionsPageUrl()
         return Promise.resolve(null);
     }
 
