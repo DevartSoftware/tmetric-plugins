@@ -733,19 +733,7 @@ abstract class ExtensionBase extends BackgroundBase {
 
     private async openOptionsPageUrl() {
         const url = chrome.runtime.getURL('settings/settings.html');
-        if(!this.settingsTabId){
-            chrome.tabs.create({ url, active: true,  },tab => {
-                this.settingsTabId = tab.id;
-            });
-            chrome.tabs.onRemoved.addListener((tabId)=>{
-                if(tabId == this.settingsTabId){
-                    this.settingsTabId = null;
-                }
-            })
-        }else {
-            chrome.tabs.update(this.settingsTabId, {highlighted: true});
-        }
-
+        this.openPage(url);
     }
 
     private contentScriptRegistrator = new ContentScriptsRegistrator();
