@@ -112,7 +112,7 @@
 
             issueId = '#' + issueNumber;
 
-            issueName = $$.try('.item_overview_content', issueElement).textContent;
+            issueName = $$.try('.item_overview_content .task_content', issueElement).textContent;
 
             let issue = $$.all('.devart-timer-link-todoist').map(_ => {
                 let timer: WebToolIssueTimer;
