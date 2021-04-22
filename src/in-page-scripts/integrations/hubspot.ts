@@ -8,7 +8,7 @@
 
     issueElementSelector = [
         '.private-panel__container',
-        '[data-selenium-test="timeline-task"]'
+        '[data-selenium-test="timeline-card"]'
     ];
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
@@ -16,7 +16,7 @@
 
         // task side panel
         if (issueElement.matches(this.issueElementSelector[0])) {
-            let taskForm = $$('[data-selenium-test="task-form"]', issueElement);
+            const taskForm = $$('[data-selenium-test="task-form"]', issueElement);
             if (taskForm) {
                 linkElement.classList.add('private-button--secondary');
                 taskForm.firstChild.before(linkElement);
@@ -25,10 +25,10 @@
 
         // tasks on the contact page
         if (issueElement.matches(this.issueElementSelector[1])) {
-            let taskBody = $$('.uiList.private-list--inline', issueElement);
+            const taskBody = $$('.uiList.private-list--inline', issueElement);
             if (taskBody) {
                 linkElement.classList.add('private-button--tertiary-light');
-                let li = $$.create('li');
+                const li = $$.create('li');
                 li.classList.add('devart-timer-link-hubspot-li');
                 li.append(linkElement);
                 taskBody.append(li);
@@ -37,32 +37,37 @@
     }
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+
         let issueName: string;
         let issueId: string;
         let issueUrl: string;
+        let accountId: string;
 
         // task side panel
         if (issueElement.matches(this.issueElementSelector[0])) {
-            let taskSubject = $$('[data-field="hs_task_subject"]', issueElement);
+            const taskSubject = $$('[data-field="hs_task_subject"]', issueElement);
             if (taskSubject) {
-                let taskSubject = $$('[data-field="hs_task_subject"]', issueElement);
                 issueName = (taskSubject as HTMLInputElement).value;
             }
-
-            issueId = $$.searchParams(source.fullUrl)['taskId'];
-            issueUrl = issueId && `${source.path}?taskId=${issueId}`;
+            const match = source.path.match(/tasks\/(\d+)\/view\/[^\/]+\/task\/(\d+)/);
+            accountId = match && match[1];
+            issueId = match && match[2];
         }
 
         // tasks on the contact page
-        if (issueElement.matches(this.issueElementSelector[1])) {
+        else if (issueElement.matches(this.issueElementSelector[1])) {
             issueName = $$.try('[data-selenium-test="timeline-editable-title"]', issueElement).textContent;
-            var pinBtn = $$('[data-selenium-test="timeline-pin-engagement-button"]', issueElement);
-            issueId = pinBtn && pinBtn.dataset.seleniumId;
-            let match = issueId && source.path.match('(\/contacts/([^\/]*)\/)');
-            issueUrl = match && `${match[0]}tasks/list/view/all/?taskId=${issueId}`;
+            const actionsBtn = $$('[data-selenium-test="timeline-header-actions"]', issueElement);
+            issueId = actionsBtn && actionsBtn.dataset.seleniumId;
+            const match = issueId && source.path.match(/contacts\/(\d+)\//);
+            accountId = match && match[1];
         }
 
-        let serviceUrl = source.protocol + source.host;
+        if (accountId && issueId) {
+            issueUrl = `tasks/${accountId}/view/all/task/${issueId}`;
+        }
+
+        const serviceUrl = source.protocol + source.host;
 
         return { issueId, issueName, issueUrl, serviceUrl, serviceType: 'HubSpot' }
     }
