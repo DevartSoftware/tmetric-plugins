@@ -18,13 +18,13 @@
         if (issueElement.matches(this.issueElementSelector[0])) {
             let host = $$('.task_item_details_bottom, .task_list_item__info_tags', issueElement);
             if (host) {
-                linkElement.classList.add('devart-timer-link-todoist');
+                linkElement.classList.add('devart-timer-link-todoist', 'icon_pill');
                 host.insertBefore(linkElement, $$('.column_project, .task_list_item__project', host));
             }
         } else if (issueElement.matches(this.issueElementSelector[1])) {
             let host = $$('.item_overview_sub', issueElement);
             if (host) {
-                linkElement.classList.add('devart-timer-link-todoist');
+                linkElement.classList.add('devart-timer-link-todoist', 'icon_pill');
                 host.insertBefore(linkElement, host.firstElementChild);
             }
         }
@@ -127,7 +127,7 @@
                 projectName = issue.projectName;
             }
 
-            tagNames = $$.all('.item_overview_label', issueElement).map(label => label.textContent);
+            tagNames = $$.all('.item_overview_sub .label_pill', issueElement).map(label => label.textContent);
         }
 
         if (!issueNumber || !issueName) {
