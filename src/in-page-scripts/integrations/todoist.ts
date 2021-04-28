@@ -18,7 +18,7 @@
         if (issueElement.matches(this.issueElementSelector[0])) {
             let host = $$('.task_item_details_bottom, .task_list_item__info_tags', issueElement);
             if (host) {
-                linkElement.classList.add('devart-timer-link-todoist', 'icon_pill');
+                linkElement.classList.add('devart-timer-link-todoist');
                 host.insertBefore(linkElement, $$('.column_project, .task_list_item__project', host));
             }
         } else if (issueElement.matches(this.issueElementSelector[1])) {
@@ -102,7 +102,7 @@
                 $$.try('.pname', issueElement).textContent || // Project tab (old design)
                 $$.try('.view_header .view_header__content .simple_content').textContent; // project tab and inbox
 
-            tagNames = $$.all('.label, .task_list_item__info_tags__label', issueElement).map(label => label.textContent);
+            tagNames = $$.all('.label, .task_list_item__info_tags__label .simple_content', issueElement).map(label => label.textContent);
         } else if (issueElement.matches(this.issueElementSelector[1])) {
 
             issueNumber = $$.getAttribute('ul[data-subitem-list-id]', 'data-subitem-list-id', issueElement);
@@ -127,7 +127,7 @@
                 projectName = issue.projectName;
             }
 
-            tagNames = $$.all('.item_overview_sub .label_pill', issueElement).map(label => label.textContent);
+            tagNames = $$.all('.item_overview_sub .label_pill .simple_content', issueElement).map(label => label.textContent);
         }
 
         if (!issueNumber || !issueName) {
