@@ -247,6 +247,7 @@
             keywords: 'excel word powerpoint office 365 microsoft 365',
             origins: [
                 'https://onedrive.live.com/*',
+                'https://*.sharepoint.com/*',
                 'https://*.officeapps.live.com/*'
             ],
             allOriginsRequired: true,
