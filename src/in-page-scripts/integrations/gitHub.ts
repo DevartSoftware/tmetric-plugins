@@ -35,7 +35,7 @@
         let issueId = match[4];
         issueId = (issueType == 'pull' ? '!' : '#') + issueId
         const serviceType = 'GitHub';
-        const tagNames = $$.all('.sidebar-labels .IssueLabel').map(label => label.textContent);
+        const tagNames = $$.all('.js-issue-labels .IssueLabel').map(label => label.textContent);
 
         return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
     }
