@@ -19,7 +19,7 @@
 
     private addRequiredScriptOptions(scripts: RegisteredContentScriptOptions) {
 
-        let js: FileOrCode[] = [
+        const js: FileOrCode[] = [
             { file: 'in-page-scripts/utils.js' },
             { file: 'in-page-scripts/integrationService.js' },
             { file: 'in-page-scripts/page.js' },
@@ -27,16 +27,16 @@
             { file: 'in-page-scripts/init.js' }
         ];
 
-        let css: FileOrCode[] = [
+        const css: FileOrCode[] = [
             { file: 'css/timer-link.css' },
             ...(scripts.css || [])
         ];
 
-        let origins = Object.keys(scripts.matches.reduce(
+        const origins = Object.keys(scripts.matches.reduce(
             (map, url) => (map[WebToolManager.toOrigin(url)] = true) && map,
-            <{ [origin: string]: boolean }>{}));
+            {} as { [origin: string]: boolean }));
 
-        return <RegisteredContentScriptOptions[]>[
+        return [
             {
                 matches: scripts.matches,
                 js: js,
@@ -52,7 +52,7 @@
                 allFrames: false,
                 runAt: scripts.runAt
             }
-        ];
+        ] as RegisteredContentScriptOptions[];
     }
 
     async register(origins?: string[]) {
@@ -111,7 +111,7 @@
         const serviceUrls = Object.keys(this.scripts).filter(url => origins ? origins.some(origin => WebToolManager.isMatch(url, origin)) : true);
 
         serviceUrls.forEach(serviceUrl => {
-            let script = this.scripts[serviceUrl];
+            const script = this.scripts[serviceUrl];
             if (!script) {
                 return;
             }

@@ -2,7 +2,7 @@
 
     const skipPermissionsRequest = await new Promise<boolean>(resolve => {
         chrome.storage.local.get(
-            <IExtensionLocalSettings>{ skipPermissionsRequest: false },
+            { skipPermissionsRequest: false } as IExtensionLocalSettings,
             ({ skipPermissionsRequest }: IExtensionLocalSettings) => resolve(skipPermissionsRequest)
         );
     });
@@ -27,12 +27,12 @@
 
             if (map) {
 
-                let permissionManager = new PermissionManager();
+                const permissionManager = new PermissionManager();
                 await permissionManager.requestPermissions(map);
 
-                await new Promise<boolean>(resolve => {
+                await new Promise<void>(resolve => {
                     chrome.storage.local.set(
-                        <IExtensionLocalSettings>{ skipPermissionsRequest: true },
+                        { skipPermissionsRequest: true } as IExtensionLocalSettings,
                         () => resolve()
                     );
                 });

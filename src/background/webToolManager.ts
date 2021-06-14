@@ -38,7 +38,8 @@
             return;
         }
 
-        let [all, protocol = 'https://', host, port = '', path = '/'] = match;
+        const [all, protocol = 'https://', host, port = ''] = match;
+        let path = match[4] || '/';
 
         if (!path.endsWith('*')) {
             path += '*';
@@ -60,17 +61,18 @@
 
     }
 
+
     static isMatch(url: string, origin: string) {
-        let urlOrigin = this.toOrigin(url);
-        let originRe = origin
+        const urlOrigin = this.toOrigin(url);
+        const originRe = origin
             .replace(/[\/\.]/g, '\\$&')
             .replace(/\*/g, '.+');
-        let pattern = `^${originRe}`;
+        const pattern = `^${originRe}`;
         return new RegExp(pattern, 'i').test(urlOrigin);
     }
 
     static toServiceTypesMap(webTools: WebTool[]) {
-        return webTools.reduce((map, webTool) => webTool.origins.map(origin => map[origin] = webTool.serviceType) && map, <ServiceTypesMap>{});
+        return webTools.reduce((map, webTool) => webTool.origins.map(origin => map[origin] = webTool.serviceType) && map, {} as ServiceTypesMap);
     }
 
     static async isAllowed(origins: string[]) {
@@ -79,7 +81,7 @@
 
     private static _getServiceTypes(callback?: (serviceTypes: ServiceTypesMap) => void) {
         chrome.storage.local.get(
-            <IExtensionLocalSettings>{ serviceTypes: {} },
+            { serviceTypes: {} } as IExtensionLocalSettings,
             ({ serviceTypes }: IExtensionLocalSettings) => {
                 this.serviceTypes = serviceTypes;
                 callback && callback(serviceTypes);
@@ -90,7 +92,7 @@
     private static _setServiceTypes(serviceTypes: ServiceTypesMap, callback?: () => void) {
         this.serviceTypes = serviceTypes;
         chrome.storage.local.set(
-            <IExtensionLocalSettings>{ serviceTypes: serviceTypes },
+            { serviceTypes: serviceTypes } as IExtensionLocalSettings,
             () => {
                 callback && callback();
             }
@@ -126,7 +128,7 @@
             urls.push(url);
             map[serviceType] = urls;
             return map;
-        }, <ServiceUrlsMap>{});
+        }, {} as ServiceUrlsMap);
         return serviceUrls;
     }
 
@@ -146,13 +148,13 @@
                 map[origin] = (map[origin] || []).concat(serviceType);
                 return map;
             },
-            <{ [origin: string]: string[] }>{}
+            {} as { [origin: string]: string[] }
         );
     }
 
     static updateServiceTypes(serviceTypesAdded: ServiceTypesMap = {}, serviceTypesRemoved: ServiceTypesMap = {}) {
 
-        let serviceTypes = this.serviceTypes;
+        const serviceTypes = this.serviceTypes;
 
         Object.keys(serviceTypesAdded).forEach(serviceUrl => serviceTypes[serviceUrl] = serviceTypesAdded[serviceUrl]);
         Object.keys(serviceTypesRemoved).forEach(serviceUrl => delete serviceTypes[serviceUrl]);
