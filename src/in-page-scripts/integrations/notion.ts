@@ -21,9 +21,9 @@
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
         let issueId, issueName, issueUrl: string;
 
-        const titleEl = $$('.notion-page-block > div[data-root=true]', issueElement);
+        const titleEl = $$('.notion-page-block > div', issueElement);
         if (titleEl) {
-            issueName = titleEl.textContent || 'Untitled';
+            issueName = titleEl.textContent || titleEl.getAttribute('placeholder');
             const idAttr = titleEl.parentElement.getAttribute('data-block-id');
             issueId = idAttr && idAttr.replace(/-/g, '');
             issueUrl = issueId;
