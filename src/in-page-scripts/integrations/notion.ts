@@ -10,7 +10,7 @@
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
-        let shareBtn = $$('.notion-topbar-share-menu', issueElement);
+        const shareBtn = $$('.notion-topbar-share-menu', issueElement);
 
         if (shareBtn) {
             linkElement.classList.add('devart-timer-link-notion');
@@ -21,15 +21,15 @@
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
         let issueId, issueName, issueUrl: string;
 
-        let titleEl = $$('.notion-page-block > div[data-root=true]', issueElement);
+        const titleEl = $$('.notion-page-block > div[data-root=true]', issueElement);
         if (titleEl) {
             issueName = titleEl.textContent || 'Untitled';
-            let idAttr = titleEl.parentElement.getAttribute('data-block-id');
+            const idAttr = titleEl.parentElement.getAttribute('data-block-id');
             issueId = idAttr && idAttr.replace(/-/g, '');
             issueUrl = issueId;
         }
 
-        let serviceUrl = source.protocol + source.host
+        const serviceUrl = source.protocol + source.host
 
         return { issueId, issueName, issueUrl, serviceUrl, serviceType: 'Notion' }
     }
