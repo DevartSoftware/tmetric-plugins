@@ -327,16 +327,18 @@
 
 .devart-timer-link-clickup {
     .task__toolbar & {
-        margin-right: 1rem;
+        margin-right: 1rem !important;
     }
 
     .task-todo-item &.devart-timer-link-start,
-    .checklist-todo-item &.devart-timer-link-start {
+    .task-todo-item:hover .lv-subtask__outer:not(:hover) .task-todo-item__name-text-inner &.devart-timer-link-start,
+    .checklist2-row &.devart-timer-link-start {
         visibility: hidden !important;
     }
 
     .task-todo-item:hover &.devart-timer-link-start,
-    .checklist-todo-item:hover &.devart-timer-link-start {
+    .task-todo-item .lv-subtask__outer:hover .task-todo-item__name-text-inner &.devart-timer-link-start,
+    .checklist2-row:hover &.devart-timer-link-start {
         visibility: visible !important;
     }
 }

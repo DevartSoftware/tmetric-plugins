@@ -9,27 +9,42 @@ class Clickup implements WebToolIntegration {
     issueElementSelector = [
         '.task',
         '.lv-subtask__outer', // subtask list item
-        '.checklist-todo-item' // check list item
+        '.checklist2-row' // check list item
     ];
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
         linkElement.classList.add('devart-timer-link-clickup');
         if (issueElement.matches(this.issueElementSelector[0])) {
-            const element = $$('.task__toolbar:nth-last-of-type(1)', issueElement);
+            let element = $$('.task__toolbar:nth-last-of-type(1) .task__toolbar-container', issueElement); // v 2.0
             if (element) {
-                element.insertBefore(linkElement, element.firstElementChild.nextElementSibling);
+                element.insertBefore(linkElement, element.lastElementChild);
+            } else {
+                element = $$('.task__toolbar:nth-last-of-type(1)', issueElement); // v 1.0
+                if (element) {
+                    element.insertBefore(linkElement, element.firstElementChild.nextElementSibling);
+                }
             }
         } else if (issueElement.matches(this.issueElementSelector[1])) {
             linkElement.classList.add('devart-timer-link-minimal');
-            const element = $$('.task-todo-item__name-text', issueElement);
+            let element = $$('.task-todo-item__name-text .task-todo-item__actions', issueElement); // v 2.0
             if (element) {
-                element.parentElement.insertBefore(linkElement, element.nextElementSibling);
+                element.parentElement.insertBefore(linkElement, element);
+            } else {
+                element = $$('.task-todo-item__name-text', issueElement); // v 1.0
+                if (element) {
+                    element.parentElement.insertBefore(linkElement, element.nextElementSibling);
+                }
             }
         } else if (issueElement.matches(this.issueElementSelector[2])) {
             linkElement.classList.add('devart-timer-link-minimal');
-            const element = $$('.checklist-item__name-block', issueElement);
+            let element = $$('.checklist2-row-item-name', issueElement); // v 2.0
             if (element) {
                 element.parentElement.insertBefore(linkElement, element.nextElementSibling);
+            } else {
+                element = $$(':scope > p', issueElement); // v 1.0
+                if (element) {
+                    element.parentElement.insertBefore(linkElement, element.nextElementSibling);
+                }
             }
         }
     }
@@ -54,7 +69,7 @@ class Clickup implements WebToolIntegration {
 
         let description: string;
         if (issueElement.matches(this.issueElementSelector[1])) {
-            const subtaskLink = <HTMLAnchorElement>$$('.task-todo-item__name-text a', issueElement);
+            const subtaskLink = $$('.task-todo-item__name-text a', issueElement) as HTMLAnchorElement;
             if (subtaskLink) {
                 const matches = subtaskLink.href.match(/\/t\/([^\/]+)$/);
                 if (matches) {
@@ -65,7 +80,7 @@ class Clickup implements WebToolIntegration {
                 }
             }
         } else if (issueElement.matches(this.issueElementSelector[2])) {
-            description = $$.try('.checklist-item__name', issueElement).textContent;
+            description = $$.try('.checklist2-row-item-name > p, :scope > p', issueElement).textContent; // v 2.0, v 1.0
         }
 
         const projectName = $$.try('.breadcrumbs__link[data-category]').textContent;
