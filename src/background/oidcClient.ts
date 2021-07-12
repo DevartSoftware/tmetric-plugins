@@ -105,7 +105,7 @@
                 return await this.ajaxInternal<TReq, TRes>(accessToken, url, options, dataReq);
             }
             catch (error) {
-                if(error.statusCode == 503){
+                if (error.statusCode != 401) {
                     throw error;
                 }
                 // Try to get new acces token with presaved refresh token
