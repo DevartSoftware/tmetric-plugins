@@ -43,8 +43,9 @@
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
         // https://gitlab.com/NAMESPACE/PROJECT/issues/NUMBER
+        // https://gitlab.com/NAMESPACE/PROJECT/issues/incident/NUMBER
         // https://gitlab.com/NAMESPACE/PROJECT/merge_requests/NUMBER
-        const match = /^(.+)\/(issues|merge_requests)\/(\d+)$/.exec(source.path);
+        const match = /^(.+)\/(issues|incident|merge_requests)\/(\d+)$/.exec(source.path);
 
         if (!match) {
             return;
