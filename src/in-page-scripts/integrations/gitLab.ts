@@ -45,7 +45,7 @@
         // https://gitlab.com/NAMESPACE/PROJECT/issues/NUMBER
         // https://gitlab.com/NAMESPACE/PROJECT/issues/incident/NUMBER
         // https://gitlab.com/NAMESPACE/PROJECT/merge_requests/NUMBER
-        const match = /^(.+)\/(issues|incident|merge_requests)\/(\d+)$/.exec(source.path);
+        const match = /^(.+)\/(issues|issues\/incident|merge_requests)\/(\d+)$/.exec(source.path);
 
         if (!match) {
             return;
@@ -80,7 +80,10 @@
             serviceUrl = source.protocol + source.host;
         }
 
-        const issueUrl = $$.getRelativeUrl(serviceUrl, source.fullUrl).match(/[^#]*/)[0]; // trim hash
+        let issueUrl = $$.getRelativeUrl(serviceUrl, source.fullUrl).match(/[^#]*/)[0]; // trim hash
+        if (issueType == 'issues/incident') {
+            issueUrl = issueUrl.replace('/incident', '');
+        }
 
         const tagNames = [
                 '.issuable-show-labels .gl-label .gl-label-text',
