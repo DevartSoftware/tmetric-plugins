@@ -107,31 +107,43 @@ class GitLabSidebar implements WebToolIntegration {
 
     matchUrl = /(.*)\/boards/;
 
-    observeMutations = true;
+    issueElementSelector = [
+        '.right-sidebar', // old sidebar
+        '.gl-drawer-sidebar' // new sidebar
+    ];
 
-    get isSidebarOpen() {
-        return !!$$.visible('.right-sidebar');
-    }
+    observeMutations = true;
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
-        if (!this.isSidebarOpen) {
+        const isOldSidebar = issueElement.matches(this.issueElementSelector[0]);
+
+        if (!$$.visible(this.issueElementSelector[isOldSidebar ? 0 : 1])) {
             return;
         }
 
         const div = document.createElement('div');
         linkElement.classList.add('btn', 'btn-default');
         div.appendChild(linkElement);
-        $$('.issuable-sidebar-header .issuable-header-text').appendChild(div);
+
+        if (isOldSidebar) {
+            $$('.issuable-sidebar-header .issuable-header-text', issueElement).appendChild(div);
+        } else {
+            div.classList.add('devart-timer-link-gitlab-container');
+            $$('header', issueElement).parentElement.appendChild(div);
+        }
     }
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        if (!this.isSidebarOpen) {
+        const isOldSidebar = issueElement.matches(this.issueElementSelector[0]);
+
+        if (!$$.visible(this.issueElementSelector[isOldSidebar ? 0 : 1])) {
             return;
         }
 
-        const issueName = $$.try('.issuable-header-text > strong').textContent;
+        // Joining selectors from old and new sidebar with comma is problematic because layout with new sidebar contain also empty old sidebar.
+        const issueName = $$.try(isOldSidebar ? '.issuable-header-text > strong' : 'header > span', issueElement).textContent;
         const projectName = $$.try('.sidebar-context-title').textContent;
         const serviceType = 'GitLab';
 
@@ -141,7 +153,7 @@ class GitLabSidebar implements WebToolIntegration {
         }
 
         // #123, MyProject#123
-        const issueFullId = $$.try('.issuable-header-text > span').textContent;
+        const issueFullId = $$.try(isOldSidebar ? '.issuable-header-text > span' : 'header ~ div', issueElement).textContent;
         let issueUrl: string;
         let issueId: string;
         let projectId: string;
@@ -170,7 +182,12 @@ class GitLabSidebar implements WebToolIntegration {
             }
         }
 
-        let tagNames = $$.all('.issuable-show-labels .gl-label[data-qa-label-name]').map(el => el.getAttribute('data-qa-label-name'));
+        let tagNames = $$.all('.gl-label-text', issueElement).map(label => {
+            const labelScoped = $$.next('.gl-label-text-scoped', label);
+            const text = label.textContent.trim() + (labelScoped ? '::' + labelScoped.textContent.trim() : '');
+            return text;
+        });
+
         if (!tagNames.length) {
             tagNames = [
                 '.issuable-show-labels .gl-label .gl-label-text',
