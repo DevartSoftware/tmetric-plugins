@@ -85,14 +85,17 @@
             issueUrl = issueUrl.replace('/incident', '');
         }
 
-        const tagNames = [
+        let tagNames = $$.all('.issuable-show-labels .gl-label[data-qa-label-name]').map(el => el.getAttribute('data-qa-label-name'));
+        if (!tagNames.length) {
+            tagNames = [
                 '.issuable-show-labels .gl-label .gl-label-text',
                 '.issuable-show-labels .gl-label',
                 '.issuable-show-labels .badge',
                 '.labels .label',
             ]
-            .reduce((tags, selector) => tags.length ? tags : $$.all(selector), [] as HTMLElement[])
-            .map(label => label.textContent);
+                .reduce((tags, selector) => tags.length ? tags : $$.all(selector), [] as HTMLElement[])
+                .map(label => label.textContent);
+        }
 
         return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
     }
@@ -167,14 +170,17 @@ class GitLabSidebar implements WebToolIntegration {
             }
         }
 
-        const tagNames = [
-            '.issuable-show-labels .gl-label .gl-label-text',
-            '.issuable-show-labels .gl-label',
-            '.issuable-show-labels .badge',
-            '.issuable-show-labels > a span',
-        ]
-            .reduce((tags, selector) => tags.length ? tags : $$.all(selector), [] as HTMLElement[])
-            .map(label => label.textContent);
+        let tagNames = $$.all('.issuable-show-labels .gl-label[data-qa-label-name]').map(el => el.getAttribute('data-qa-label-name'));
+        if (!tagNames.length) {
+            tagNames = [
+                '.issuable-show-labels .gl-label .gl-label-text',
+                '.issuable-show-labels .gl-label',
+                '.issuable-show-labels .badge',
+                '.issuable-show-labels > a span',
+            ]
+                .reduce((tags, selector) => tags.length ? tags : $$.all(selector), [] as HTMLElement[])
+                .map(label => label.textContent);
+        }
 
         return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
     }
