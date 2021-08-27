@@ -5,7 +5,7 @@
     matchUrl = '*://trello.com/c/*';
 
     issueElementSelector = [
-        '.js-plugin-buttons ~ .window-module > div',
+        '.window-sidebar > .window-module:last-of-type',
         '.checklist-item-details'
     ];
 
@@ -21,7 +21,7 @@
             }
             linkElement.classList.add('trello');
             linkElement.classList.add('button-link');
-            issueElement.insertBefore(linkElement, issueElement.firstElementChild);
+            issueElement.insertBefore(linkElement, $$('h3 ~ *', issueElement));
         } else if (issueElement.matches(this.issueElementSelector[1])) { // for checklist
             const wrapper = $$('.checklist-item-controls', issueElement);
             if (wrapper) {
