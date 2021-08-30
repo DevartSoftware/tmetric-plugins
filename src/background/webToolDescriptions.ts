@@ -531,7 +531,10 @@
             serviceType: 'HubSpot',
             serviceName: 'HubSpot',
             icon: 'hubspot.svg',
-            origins: ['https://app.hubspot.com/*'],
+            origins: [
+                'https://app.hubspot.com/*',
+                'https://app-eu1.hubspot.com/*'
+            ],
             scripts: {
                 js: ['in-page-scripts/integrations/hubspot.js']
             }

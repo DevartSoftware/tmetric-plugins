@@ -4,7 +4,7 @@
 
     observeMutations = true;
 
-    matchUrl = 'https://app.hubspot.com/*';
+    matchUrl = 'https://*.hubspot.com/*';
 
     issueElementSelector = [
         '.private-panel__container',
