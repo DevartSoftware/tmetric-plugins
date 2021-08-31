@@ -13,23 +13,23 @@
 
         linkElement.classList.add('newwhitebtn', 'dIB');
 
-        let eventInfoTable = $$('.eventInfo table');
+        const eventInfoTable = $$('.eventInfo table');
         if (eventInfoTable) {
             linkElement.classList.add('floatR');
-            let td = $$('td', eventInfoTable);
+            const td = $$('td', eventInfoTable);
             if (td) {
                 td.prepend(linkElement);
             }
             return;
         }
 
-        let table = $$('.historycontainer table.floatR');
+        const table = $$('.historycontainer table.floatR');
         if (table) {
-            let tr = $$.create('tr');
-            let td = $$.create('td');
+            const tr = $$.create('tr');
+            const td = $$.create('td');
             td.appendChild(linkElement);
             tr.appendChild(td);
-            let tbody = $$('tbody', table);
+            const tbody = $$('tbody', table);
             if (tbody) {
                 tbody.appendChild(tr);
             }
@@ -43,7 +43,7 @@
             return;
         }
 
-        let contactName = $$.try('#subvalue_CONTACTID').textContent;
+        const contactName = $$.try('#subvalue_CONTACTID').textContent;
         if (contactName) {
             issueName += ` - ${contactName}`;
         }
@@ -52,12 +52,12 @@
         let issueUrl: string;
         let issueId: string;
 
-        let urlRegexp = /^(.*)\/crm\/([^\/]+\/)?tab\/Activities\/(\d+)/;
+        const urlRegexp = /^(.*)\/crm\/([^\/]+\/)?tab\/Activities\/(\d+)/;
         let matches = source.fullUrl.match(urlRegexp); // Single activity page
         if (!matches) {
-            let activityLinks = $$.all('li.ligraybackground #Subject');
+            const activityLinks = $$.all('li.ligraybackground #Subject');
             if (activityLinks.length == 1) {
-                let anchor = <HTMLAnchorElement>activityLinks[0].parentElement;
+                const anchor = <HTMLAnchorElement>activityLinks[0].parentElement;
                 matches = (anchor.href || '').match(urlRegexp); // Activity list page
             }
         }
@@ -67,8 +67,8 @@
             issueUrl = `/crm/tab/Activities/${issueId}`;
         }
 
-        let matchUrl = source.fullUrl.match('^(.+)\/(?:crm|portal)\/.+');
-        let serviceUrl = matchUrl[1];
+        const matchUrl = source.fullUrl.match('^(.+)\/(?:crm|portal)\/.+');
+        const serviceUrl = matchUrl[1];
 
         return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'ZohoCRM' };
     }
@@ -83,7 +83,7 @@ class ZohoProject implements WebToolIntegration {
     matchUrl = '*://*/portal/*/bizwoheader.do*';
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        let panel = $$('.detail-updates');
+        const panel = $$('.detail-updates');
         if (panel) {
             linkElement.classList.add('devart-timer-link-zoho-project');
             panel.insertBefore(linkElement, panel.lastElementChild);
@@ -91,10 +91,10 @@ class ZohoProject implements WebToolIntegration {
     }
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-        let issueName = (<HTMLTextAreaElement>$$.try('textarea.taskedit, #tdetails_task textarea')).value // tasks
+        const issueName = (<HTMLTextAreaElement>$$.try('textarea.taskedit, #tdetails_task textarea')).value // tasks
             || (<HTMLTextAreaElement>$$.try('textarea.detail-tsktitle')).value; // issues
 
-        let projectName = $$.try('.detail-hierarchy a').textContent // issues
+        const projectName = $$.try('.detail-hierarchy a').textContent // issues
             || $$.try('.detail-hierarchy span > span').textContent // tasks
             || $$.try('.topband_projsel [id^="projlink_"]').textContent; // project in header
 
