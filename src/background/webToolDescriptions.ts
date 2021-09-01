@@ -484,8 +484,9 @@
         },
         {
             serviceType: 'ZohoCRM',
-            serviceName: 'Zoho CRM',
+            serviceName: 'Zoho Suite',
             icon: 'zoho.svg',
+            keywords: 'zoho crm projects desk',
             origins: [
                 'https://*.zoho.com/*',
                 'https://*.zoho.eu/*'
