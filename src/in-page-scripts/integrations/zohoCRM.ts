@@ -9,11 +9,13 @@
         "https://*/*crm/*"
     ];
 
+    issueElementSelector = '#kventitydetailspage, .task-detailview'; // 1) kanban view; 2) list view
+
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
-        linkElement.classList.add('newwhitebtn', 'dIB');
+        linkElement.classList.add('newwhitebtn', 'dIB', 'mR0');
 
-        const eventInfoTable = $$('.eventInfo table');
+        const eventInfoTable = $$('.eventInfo table', issueElement);
         if (eventInfoTable) {
             linkElement.classList.add('floatR');
             const td = $$('td', eventInfoTable);
@@ -23,7 +25,7 @@
             return;
         }
 
-        const table = $$('.historycontainer table.floatR');
+        const table = $$('.historycontainer table', issueElement);
         if (table) {
             const tr = $$.create('tr');
             const td = $$.create('td');
@@ -38,39 +40,19 @@
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        let issueName = $$.try('#subvalue_SUBJECT, #entityNameInBCView').textContent;
+        let issueName = $$.try('#subvalue_SUBJECT, #entityNameInBCView', issueElement).textContent; // 1) task or call; 2) event
         if (!issueName) {
             return;
         }
 
-        const contactName = $$.try('#subvalue_CONTACTID').textContent;
+        const contactName = $$.try('#subvalue_CONTACTID', issueElement).textContent;
         if (contactName) {
             issueName += ` - ${contactName}`;
         }
 
-        let projectName: string;
-        let issueUrl: string;
-        let issueId: string;
+        const tagNames = $$.all('.linktoTagA', issueElement).map(_ => _.textContent);
 
-        const urlRegexp = /^(.*)\/crm\/([^\/]+\/)?tab\/Activities\/(\d+)/;
-        let matches = source.fullUrl.match(urlRegexp); // Single activity page
-        if (!matches) {
-            const activityLinks = $$.all('li.ligraybackground #Subject');
-            if (activityLinks.length == 1) {
-                const anchor = <HTMLAnchorElement>activityLinks[0].parentElement;
-                matches = (anchor.href || '').match(urlRegexp); // Activity list page
-            }
-        }
-
-        if (matches) {
-            issueId = matches[3] || matches[2];
-            issueUrl = `/crm/tab/Activities/${issueId}`;
-        }
-
-        const matchUrl = source.fullUrl.match('^(.+)\/(?:crm|portal)\/.+');
-        const serviceUrl = matchUrl[1];
-
-        return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'ZohoCRM' };
+        return { serviceType: 'ZohoCRM', issueName, tagNames };
     }
 }
 
@@ -80,25 +62,27 @@ class ZohoProject implements WebToolIntegration {
 
     observeMutations = true;
 
-    matchUrl = '*://*/portal/*/bizwoheader.do*';
+    matchUrl = '*://*/portal/*';
+
+    issueElementSelector = '#zpsDetailView .detail_rhs';
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        const panel = $$('.detail-updates');
+        const panel = $$('#headerIconSection');
         if (panel) {
-            linkElement.classList.add('devart-timer-link-zoho-project');
-            panel.insertBefore(linkElement, panel.lastElementChild);
+            panel.appendChild(linkElement);
         }
     }
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-        const issueName = (<HTMLTextAreaElement>$$.try('textarea.taskedit, #tdetails_task textarea')).value // tasks
-            || (<HTMLTextAreaElement>$$.try('textarea.detail-tsktitle')).value; // issues
 
-        const projectName = $$.try('.detail-hierarchy a').textContent // issues
-            || $$.try('.detail-hierarchy span > span').textContent // tasks
-            || $$.try('.topband_projsel [id^="projlink_"]').textContent; // project in header
+        const issueName = $$.try('.detail-title-plain', issueElement).textContent;
 
-        return { issueName, projectName };
+        const projectName = $$.try('.entity-project > span', issueElement).textContent // tasks
+            || $$.try('.entity-project > a').textContent; // issues
+
+        const tagNames = $$.all('.zptagslist > span', issueElement).map(_ => _.textContent);
+
+        return { serviceType: 'ZohoCRM', issueName, projectName, tagNames };
     }
 }
 
