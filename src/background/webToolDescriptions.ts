@@ -114,15 +114,6 @@
             }
         },
         {
-            serviceType: 'Clubhouse',
-            serviceName: 'Clubhouse',
-            icon: 'clubhouse.svg',
-            origins: ['https://app.clubhouse.io/*'],
-            scripts: {
-                js: ['in-page-scripts/integrations/clubhouse.js']
-            }
-        },
-        {
             serviceType: 'Doit.im',
             serviceName: 'Doit.im',
             icon: 'doitim.svg',
@@ -329,6 +320,15 @@
             hasAdditionalOrigins: true,
             scripts: {
                 js: ['in-page-scripts/integrations/salesforce.js']
+            }
+        },
+        {
+            serviceType: 'Shortcut',
+            serviceName: 'Shortcut',
+            icon: 'shortcut.svg',
+            origins: ['https://app.shortcut.com/*'],
+            scripts: {
+                js: ['in-page-scripts/integrations/shortcut.js']
             }
         },
         {

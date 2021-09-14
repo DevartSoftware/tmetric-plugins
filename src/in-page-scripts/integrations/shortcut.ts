@@ -1,15 +1,15 @@
-﻿class Clubhouse implements WebToolIntegration {
+﻿class Shortcut implements WebToolIntegration {
 
     showIssueId = true;
 
     observeMutations = true;
 
-    matchUrl = '*://app.clubhouse.io/*/story/*';
+    matchUrl = '*://app.shortcut.com/*/story/*';
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
         const host = $$('.right-column', issueElement);
         if (host) {
-            let linkContainer = $$.create('div', 'devart-timer-link-clubhouse');
+            const linkContainer = $$.create('div');
             linkContainer.appendChild(linkElement);
             host.appendChild(linkContainer);
         }
@@ -30,10 +30,10 @@
             issueUrl,
             projectName,
             serviceUrl,
-            serviceType: 'Clubhouse',
+            serviceType: 'Shortcut',
             tagNames
         };
     }
 }
 
-IntegrationService.register(new Clubhouse());
+IntegrationService.register(new Shortcut());
