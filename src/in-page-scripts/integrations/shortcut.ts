@@ -20,7 +20,7 @@
         const issueId = $$.try<HTMLInputElement>('input[class=clipboard]', issueElement).value;
         const issueName = $$.try('h2.story-name').textContent;
         const serviceUrl = source.protocol + source.host;
-        const issueUrl = source.path;
+        const issueUrl = source.path.replace(/\/story\/.*/, '/story/' + issueId);
         const projectName = $$.try('.story-epic .value').textContent;
         const tagNames = $$.all('.story-labels .tag', issueElement).map(label => label.textContent);
 
