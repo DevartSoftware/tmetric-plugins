@@ -21,7 +21,7 @@
         const issueName = $$.try('h2.story-name').textContent;
         const serviceUrl = source.protocol + source.host;
         const issueUrl = source.path.replace(/\/story\/.*/, '/story/' + issueId);
-        const projectName = $$.try('.story-epic .value').textContent;
+        const projectName = $$.try('.story-project .value').textContent;
         const tagNames = $$.all('.story-labels .tag', issueElement).map(label => label.textContent);
 
         return {
