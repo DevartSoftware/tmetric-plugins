@@ -265,7 +265,10 @@ abstract class ExtensionBase extends BackgroundBase {
                 const requiredFields = scope.requiredFields;
                 let showPopup = settings.showPopup || Models.ShowPopupOption.Always;
 
-                if (requiredFields.taskLink && !timer.issueUrl) {
+                if (timer.serviceType === 'Shortcut') {
+                    // TODO: popup is not working on Shortcut pages (TMET-7517)
+                    showPopup = Models.ShowPopupOption.Never;
+                } else if (requiredFields.taskLink && !timer.issueUrl) {
                     showPopup = Models.ShowPopupOption.Never;
                 } else if (
                     requiredFields.description && !timer.issueName && !timer.description ||
@@ -720,7 +723,6 @@ abstract class ExtensionBase extends BackgroundBase {
             }, <ServiceTypesMap>{});
 
             return serviceTypesMap;
-
         } catch (error) {
             console.log(error)
         }
