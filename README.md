@@ -57,6 +57,7 @@ web browsers are **Chrome**, **Firefox**, **Edge**, **Opera**, and **Safari**.
 * [Zendesk](https://www.zendesk.com)
 * [ZenHub](https://www.zenhub.com)
 * [Zoho CRM](https://www.zoho.com/crm)
+* [Nifty PM](https://nifty.pm)
 
 ## Installing from web store
 * **Chrome** -  https://chrome.google.com/webstore/detail/tmetric-extension/ffijoclmniipjbhecddgkfpdafpbdnen
