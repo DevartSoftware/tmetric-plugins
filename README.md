@@ -28,6 +28,7 @@ web browsers are **Chrome**, **Firefox**, **Edge**, **Opera**, and **Safari**.
 * [Microsoft Outlook Online](https://outlook.live.com)
 * [Microsoft To Do](https://todo.microsoft.com)
 * [Monday](https://monday.com)
+* [Nifty](https://niftypm.com/)
 * [Megaplan](https://megaplan.ru)
 * [Notion](https://www.notion.so)
 * [OpenProject](https://www.openproject.org)

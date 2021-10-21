@@ -1,11 +1,10 @@
-﻿class NiftyPM implements WebToolIntegration {
+﻿class Nifty implements WebToolIntegration {
 
     matchUrl = '*://*.niftypm.com/*';
 
     issueElementSelector = '.content-panel-controls';
 
     observeMutations = true;
-
 
     /**
      * Extracts information about the issue (ticket or task) from a Web
@@ -24,13 +23,13 @@
             tagNames = tagNamesAttribute.split(',');
         }
 
-    return {
+        return {
             issueId,
             issueName,
             issueUrl,
             projectName,
             serviceUrl,
-            serviceType: 'NiftyPM',
+            serviceType: 'Nifty',
             tagNames
         };
     }
@@ -49,4 +48,4 @@
     }
 }
 
-IntegrationService.register(new NiftyPM());
+IntegrationService.register(new Nifty());

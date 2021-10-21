@@ -568,9 +568,9 @@
             }
         },
         {
-            serviceType: 'NiftyPM',
-            serviceName: 'NiftyPM',
-            icon: 'niftypm.svg',
+            serviceType: 'Nifty',
+            serviceName: 'Nifty',
+            icon: 'nifty.svg',
             origins: ['https://*.niftypm.com/*'],
             scripts: {
                 js: ['in-page-scripts/integrations/niftypm.js']
