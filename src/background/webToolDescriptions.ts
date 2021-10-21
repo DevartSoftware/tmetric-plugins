@@ -566,6 +566,15 @@
             scripts: {
                 js: ['in-page-scripts/integrations/notion.js']
             }
+        },
+        {
+            serviceType: 'NiftyPM',
+            serviceName: 'NiftyPM',
+            icon: 'niftypm.svg',
+            origins: ['https://*.niftypm.com/*'],
+            scripts: {
+                js: ['in-page-scripts/integrations/niftypm.js']
+            }
         }
     ];
 
