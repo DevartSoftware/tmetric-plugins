@@ -2,8 +2,7 @@
 //  SafariExtensionHandler.swift
 //  TMetric for Safari Extension
 //
-//  Created by test2 on 8/28/19.
-//  Copyright © 2019 Devart. All rights reserved.
+//  Copyright © 2021 Devart. All rights reserved.
 //
 
 import SafariServices
