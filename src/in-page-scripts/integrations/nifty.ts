@@ -1,32 +1,38 @@
 ﻿class Nifty implements WebToolIntegration {
 
-    matchUrl = '*://*.niftypm.com/*';
+    matchUrl = '*://*.nifty.pm/*/task/*';
 
-    issueElementSelector = '.content-panel-controls';
+    issueElementSelector = [
+        '.content-panel:not(.content-panel-subview)',
+        '.content-panel .subtask-item:not(.new)'
+    ];
+
+    showIssueId = true;
 
     observeMutations = true;
 
-    /**
-     * Extracts information about the issue (ticket or task) from a Web
-     * page by querying the DOM model.
-     */
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-        let issueId = issueElement.getAttribute('data-issue-id');
-        let issueName = issueElement.getAttribute('data-issue-name');
-        let serviceUrl = issueElement.getAttribute('data-service-url');
-        let issueUrl = issueElement.getAttribute('data-issue-url');
-        let projectName = issueElement.getAttribute('data-project-name');
 
-        let tagNames: string[];
-        let tagNamesAttribute = issueElement.getAttribute('data-tag-names');
-        if (tagNamesAttribute) {
-            tagNames = tagNamesAttribute.split(',');
+        let description = '';
+        if (issueElement.matches(this.issueElementSelector[1])) {
+            description = $$.try('.item-title', issueElement).textContent;
+            issueElement = $$.closest(this.issueElementSelector[0], issueElement);
         }
+
+        const issueId = $$.try('.nice-id', issueElement).textContent;
+        const issueName = $$.try('.content-panel-field-input', issueElement).textContent;
+        const projectName = $$.try('.header-title h1').textContent;
+
+        const serviceUrl = source.fullUrl.split('task')[0];
+        const issueUrl = `task/${issueId}`;
+
+        const tagNames = $$.all('.labels-list-item-text', issueElement).map(_ => _.textContent);
 
         return {
             issueId,
             issueName,
             issueUrl,
+            description,
             projectName,
             serviceUrl,
             serviceType: 'Nifty',
@@ -34,17 +40,23 @@
         };
     }
 
-    /**
-     * Inserts the timer button for the identified issue into a Web page.
-     */
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        issueElement.appendChild(linkElement);
-        // const trackBtn = $$('.content-panel-simple-action', issueElement);
-        //
-        // if (trackBtn) {
-        //     linkElement.classList.add('timer-link-niftypm');
-        //     trackBtn.before(linkElement);
-        // }
+        if (issueElement.matches(this.issueElementSelector[0])) {
+            const actions = $$('.content-panel-simple-actions', issueElement);
+            if (actions) {
+                linkElement.classList.add('devart-timer-link-minimal', 'content-panel-simple-action-inner');
+                const container = $$.create('div', 'content-panel-simple-action');
+                container.appendChild(linkElement);
+                actions.appendChild(container);
+            }
+        }
+        else {
+            const actions = $$('.item-utils', issueElement);
+            if (actions) {
+                linkElement.classList.add('devart-timer-link-minimal', 'item-click-action', 'util');
+                actions.insertBefore(linkElement, actions.firstElementChild);
+            }
+        }
     }
 }
 
