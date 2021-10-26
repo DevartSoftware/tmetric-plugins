@@ -571,9 +571,9 @@
             serviceType: 'Nifty',
             serviceName: 'Nifty',
             icon: 'nifty.svg',
-            origins: ['https://*.niftypm.com/*'],
+            origins: ['https://*.nifty.pm/*'],
             scripts: {
-                js: ['in-page-scripts/integrations/niftypm.js']
+                js: ['in-page-scripts/integrations/nifty.js']
             }
         }
     ];
