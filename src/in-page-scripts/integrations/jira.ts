@@ -48,8 +48,8 @@
         // Old separate issue page
         host = $$('.command-bar .toolbar-split-left', issueElement);
         if (host) {
-            let ul = $$.create('ul', 'toolbar-group');
-            let li = $$.create('li', 'toolbar-item');
+            const ul = $$.create('ul', 'toolbar-group');
+            const li = $$.create('li', 'toolbar-item');
             linkElement.classList.add('toolbar-trigger');
             li.appendChild(linkElement);
             ul.appendChild(li);
@@ -60,19 +60,19 @@
         // Old agile sidebar
         host = $$('#ghx-detail-head', issueElement);
         if (host) {
-            let container = $$.create('div');
+            const container = $$.create('div');
             container.appendChild(linkElement);
             host.appendChild(container);
             return;
         }
 
         // New view
-        let issueName = $$('h1', issueElement);
+        const issueName = $$('h1', issueElement);
         if (!issueName) {
             return;
         }
 
-        let anchor = $$(this.issueLinkSelector, issueElement);
+        const anchor = $$(this.issueLinkSelector, issueElement);
         if (anchor) {
             linkElement.classList.add('devart-timer-link-jira-next');
             if (issueElement.matches('#ghx-detail-view')) {
@@ -85,7 +85,7 @@
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        let issueName = $$.try('dd[data-field-id=summary], h1', issueElement).textContent;
+        const issueName = $$.try('dd[data-field-id=summary], h1', issueElement).textContent;
         if (!issueName) {
             return;
         }
@@ -93,8 +93,8 @@
         // In case when JIRA installed outside domain root we
         // should append path to serviceUrl.
         // Example: https://issues.apache.org/jira/
-        let servicePath = $$.getAttribute('meta[name=ajs-context-path]', 'content');
-        let serviceUrl = source.protocol + source.host + servicePath;
+        const servicePath = $$.getAttribute('meta[name=ajs-context-path]', 'content');
+        const serviceUrl = source.protocol + source.host + servicePath;
 
         let issueId = $$.searchParams(source.fullUrl)['selectedIssue'] // Board
             || (source.path.match(/\/(?:issues|browse)\/([^\/]+)/) || [])[1]; // Other pages
@@ -110,7 +110,7 @@
             }
         }
 
-        let projectName = $$.try('#breadcrumbs-container a', null, el => el.getAttribute('href').split('/').some(v => v == 'projects')).textContent // when navigation bar collapsed
+        const projectName = $$.try('#breadcrumbs-container a', null, el => el.getAttribute('href').split('/').some(v => v == 'projects')).textContent // when navigation bar collapsed
             || $$.try('#project-name-val').textContent // separate task view (/browse/... URL)
             || $$.try('.project-title > a').textContent // old service desk and agile board
             || $$.try('.sd-notify-header').textContent // service desk form https://issues.apache.org/jira/servicedesk/agent/all
@@ -129,7 +129,7 @@
     }
 
     private getProjectNameFromProjectLink(issueId: string) {
-        let projectId = (issueId || '').indexOf('-') > 0 && issueId.split('-')[0];
+        const projectId = (issueId || '').indexOf('-') > 0 && issueId.split('-')[0];
         if (projectId) {
             return $$.try(`a[href="/browse/${projectId}"]`).textContent;
         }
@@ -141,13 +141,13 @@
 
     private getProjectNameFromNavigationBar() {
         // Find avatar element
-        let avatarElement = $$('#navigation-app span[role="img"], [data-test-id="navigation-apps.project-switcher-v2"] span[role="img"]', null, el => (el.style.backgroundImage || '').indexOf('projectavatar') >= 0);
+        const avatarElement = $$('#navigation-app span[role="img"], [data-test-id="navigation-apps.project-switcher-v2"] span[role="img"]', null, el => (el.style.backgroundImage || '').indexOf('projectavatar') >= 0);
 
         // Find avatar container
-        let avatarContainer = avatarElement && $$.closest('div,span', avatarElement, el => !!el.innerText);
+        const avatarContainer = avatarElement && $$.closest('div,span', avatarElement, el => !!el.innerText);
 
         // Find text node in avatar container
-        let projectNode = avatarContainer && $$.try('div,span', avatarContainer, el => el.textContent && !el.childElementCount);
+        const projectNode = avatarContainer && $$.try('div,span', avatarContainer, el => el.textContent && !el.childElementCount);
         if (projectNode && projectNode.offsetWidth) {
             return projectNode.textContent;
         }
