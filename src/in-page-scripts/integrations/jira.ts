@@ -118,9 +118,19 @@
             || this.getProjectNameFromAvatar(issueElement) // trying to find project avatar
             || this.getProjectNameFromNavigationBar(); // trying to find project name on navigation bar
 
-        let tagNames = $$.all('a', issueElement)
-            .filter(el => /jql=labels|jql=project.+AND.+fixVersion/.test(el.getAttribute('href')))
+        // find tags and versions inside task element
+        const tags = $$.all('a', issueElement);
+
+        // find tags and versions on side panel of separate task view
+        const sidePanel = $$.try('#jira-issue-header-actions').parentElement;
+        if (sidePanel) {
+            tags.push(...$$.all('a', sidePanel));
+        }
+
+        let tagNames = tags
+            .filter(el => /jql=labels|jql=project.+AND.+fixVersion/.test(el.getAttribute('href'))) // filter tags and versions
             .map(el => el.textContent);
+
         if (!tagNames.length) {
             tagNames = ($$.try('dd[data-field-id=labels]', issueElement).textContent || '').split(','); // old interface
         }
