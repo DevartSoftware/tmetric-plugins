@@ -119,7 +119,7 @@
             || this.getProjectNameFromNavigationBar(); // trying to find project name on navigation bar
 
         let tagNames = $$.all('a', issueElement)
-            .filter(el => /jql=labels/.test(el.getAttribute('href')))
+            .filter(el => /jql=labels|jql=project.+AND.+fixVersion/.test(el.getAttribute('href')))
             .map(el => el.textContent);
         if (!tagNames.length) {
             tagNames = ($$.try('dd[data-field-id=labels]', issueElement).textContent || '').split(','); // old interface
