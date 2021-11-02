@@ -48,6 +48,7 @@
     "in-page-scripts/integrations/doitIm.ts",
     "in-page-scripts/integrations/easyRedmine.ts",
     "in-page-scripts/integrations/evernote.ts",
+    "in-page-scripts/integrations/figma.ts",
     "in-page-scripts/integrations/freshdesk.ts",
     "in-page-scripts/integrations/generic.ts",
     "in-page-scripts/integrations/gitHub.ts",

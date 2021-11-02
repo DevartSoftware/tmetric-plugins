@@ -123,6 +123,15 @@
             }
         },
         {
+            serviceType: 'Figma',
+            serviceName: 'Figma',
+            icon: 'figma.svg',
+            origins: ['https://www.figma.com/*'],
+            scripts: {
+                js: ['in-page-scripts/integrations/figma.js']
+            }
+        },
+        {
             serviceType: 'Freshdesk',
             serviceName: 'Freshdesk',
             icon: 'freshdesk.svg',

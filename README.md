@@ -15,6 +15,7 @@ web browsers are **Chrome**, **Firefox**, **Edge**, **Opera**, and **Safari**.
 * [Doit.im](https://doit.im)
 * [Easy Redmine](https://easyredmine.com)
 * [Evernote](https://evernote.com)
+* [Figma](https://figma.com)
 * [Freshdesk](https://freshdesk.com)
 * [G Suite](https://gsuite.google.com)
 * [GitHub](https://github.com)
