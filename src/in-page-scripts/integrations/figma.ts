@@ -16,23 +16,17 @@
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        const fileIdMatch = source.path.match(/file\/([^\/]+)/);
-        if (!fileIdMatch) {
+        const fileName = $$.try('[class*=filename_view--title]').textContent;
+        if (!fileName) {
             return;
         }
 
-        const fileId = fileIdMatch[1];
-        const issueUrl = `file/${fileId}`;
-        const serviceUrl = source.protocol + source.host;
-
         const folderName = $$.try('[class*=filename_view--folderName]').textContent;
-        const fileName = $$.try('[class*=filename_view--title]').textContent;
-        const projectName = folderName && folderName == 'Drafts' ? fileName : `${folderName} / ${fileName}`;
+        const projectName = (!folderName || folderName == 'Drafts') ? fileName : `${folderName} / ${fileName}`;
 
         return {
             serviceType: 'Figma',
-            serviceUrl,
-            issueUrl,
+            serviceUrl: source.protocol + source.host,
             projectName,
         } as WebToolIssue;
     }
