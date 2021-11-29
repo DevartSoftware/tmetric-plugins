@@ -62,7 +62,7 @@
         if (issueElement.matches(this.issueElementSelector[0])) {
             const colName = $$('[id$=-name].col-identifier-name', issueElement)
             if (colName) {
-                issueName = $$.try('.name-cell-text', colName).textContent;
+                issueName = $$.try('.ds-text-component', colName).textContent;
                 const match = colName.id.match(/focus-(\d+)-name/);
                 issueId = match && match[1];
                 issueUrl = this.createIssueUrl(source.path, issueId);
