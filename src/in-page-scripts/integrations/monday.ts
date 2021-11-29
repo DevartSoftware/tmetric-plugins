@@ -25,9 +25,9 @@
 
         if (issueElement.matches(this.issueElementSelector[0])) {
 
-            let nameComponent = $$('[id$=-name].col-identifier-name .name-cell-component', issueElement);
+            const nameComponent = $$('[id$=-name].col-identifier-name .name-cell-component', issueElement);
             if (nameComponent) {
-                let div = $$.create('div', 'devart-timer-link-monday-icon');
+                const div = $$.create('div', 'devart-timer-link-monday-icon');
                 linkElement.lastElementChild.textContent = '';
                 div.appendChild(linkElement);
                 nameComponent.lastChild.before(div);
@@ -36,16 +36,16 @@
 
         if (issueElement.matches(this.issueElementSelector[1])) {
 
-            let updateTab = $$.all('#pulse-content > .tab', issueElement)[0];
+            const updateTab = $$.all('#pulse-content > .tab', issueElement)[0];
             if (updateTab) {
-                let div = $$.create('div', 'devart-timer-link-monday-slide-panel');
+                const div = $$.create('div', 'devart-timer-link-monday-slide-panel');
                 div.appendChild(linkElement);
                 updateTab.firstChild.after(div);
             }
         }
 
         if (issueElement.matches(this.issueElementSelector[2])) {
-            let container = $$.try('.top-actions-container', issueElement);
+            const container = $$.try('.top-actions-container', issueElement);
             linkElement.classList.add('devart-timer-link-monday-card-dialog');
             container.firstChild.before(linkElement);
         }
@@ -60,10 +60,10 @@
 
         // board
         if (issueElement.matches(this.issueElementSelector[0])) {
-            let colName = $$('[id$=-name].col-identifier-name', issueElement)
+            const colName = $$('[id$=-name].col-identifier-name', issueElement)
             if (colName) {
                 issueName = $$.try('.name-cell-text', colName).textContent;
-                let match = colName.id.match(/focus-(\d+)-name/);
+                const match = colName.id.match(/focus-(\d+)-name/);
                 issueId = match && match[1];
                 issueUrl = this.createIssueUrl(source.path, issueId);
             }
@@ -72,12 +72,12 @@
         // side panel on board page
         if (issueElement.matches(this.issueElementSelector[1])) {
             issueName = $$.try('.title-wrapper', issueElement).textContent;
-            let isSubItem = $$('.title-wrapper .with-subitem', issueElement);
+            const isSubItem = $$('.title-wrapper .with-subitem', issueElement);
             if (isSubItem) {
                 if (Monday._lastClickedElement) {
-                    let task = $$.closest('.pulse-component-wrapper.subitem-pulse.subitem .pulse-component', Monday._lastClickedElement);
+                    const task = $$.closest('.pulse-component-wrapper.subitem-pulse.subitem .pulse-component', Monday._lastClickedElement);
                     if (task) {
-                        let match = task.id.match(/pulse-(\d+)/);
+                        const match = task.id.match(/pulse-(\d+)/);
                         issueId = match && match[1];
                         issueUrl = this.createIssueUrl(source.path, issueId);
                     }
@@ -93,10 +93,9 @@
             issueName = $$.try('.pulse-name-value', issueElement).textContent;
             projectName = $$.try('.open-pulse-in-board-link').textContent;
             if (Monday._lastClickedElement) {
-                let task = $$.closest('.deadline-task-component-content', Monday._lastClickedElement);
+                const task = $$.closest('.deadline-task-component-content', Monday._lastClickedElement);
                 if (task) {
-                    let link = $$('.pulse-name-wrapper > a', task) as HTMLAnchorElement;
-
+                    const link = $$('.pulse-name-wrapper > a', task) as HTMLAnchorElement;
                     issueId = this.getIssueIdByUrlPath(link.pathname);
                     issueUrl = link.pathname;
                 }
@@ -104,30 +103,30 @@
 
             if (!issueId) {
                 {
-                    let boardPath = ($$.try('.open-pulse-in-board-link', issueElement) as HTMLAnchorElement).pathname;
-                    let links = $$.all(`.pulse-name-wrapper a[href*="${boardPath}"]`);
-                    let link = links.find(link => link.textContent == issueName);
+                    const boardPath = ($$.try('.open-pulse-in-board-link', issueElement) as HTMLAnchorElement).pathname;
+                    const links = $$.all(`.pulse-name-wrapper a[href*="${boardPath}"]`);
+                    const link = links.find(link => link.textContent == issueName) as HTMLAnchorElement;
                     if (link) {
-                        issueId = this.getIssueIdByUrlPath((<HTMLAnchorElement>link).pathname);
-                        issueUrl = (<HTMLAnchorElement>link).pathname;
+                        issueId = this.getIssueIdByUrlPath((link).pathname);
+                        issueUrl = link.pathname;
                     }
                 }
             }
         }
 
-        let serviceUrl = source.protocol + source.host
+        const serviceUrl = source.protocol + source.host
 
         return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Monday' }
     }
 
     getIssueIdByUrlPath(url: string): string {
-        let matches = url.match(/pulses\/(\d+)/);
+        const matches = url.match(/pulses\/(\d+)/);
         return matches ? matches[1] : null;
     }
 
     createIssueUrl(sourcePath: string, id: string) {
-        let match = sourcePath.match(/boards\/\d+/);
-        let path = match && match[0];
+        const match = sourcePath.match(/boards\/\d+/);
+        const path = match && match[0];
         return id && `${path}/pulses/${id}`;
     }
 }
