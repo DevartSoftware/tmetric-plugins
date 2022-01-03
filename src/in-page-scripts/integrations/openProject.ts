@@ -2,7 +2,7 @@ class OpenProject implements WebToolIntegration {
 
     showIssueId = true;
 
-    matchUrl = /(https:\/\/.+\.openproject\.com).*\/work_packages\/\D*(\d+)/;
+    matchUrl = /(https:\/\/.+\.openproject\..*).*\/work_packages\/\D*(\d+)/;
 
     observeMutations = true;
 
