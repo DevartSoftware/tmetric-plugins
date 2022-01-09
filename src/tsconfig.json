@@ -45,6 +45,7 @@
     "in-page-scripts/integrations/bitrix24.ts",
     "in-page-scripts/integrations/bugzilla.ts",
     "in-page-scripts/integrations/clickup.ts",
+    "in-page-scripts/integrations/dixa.ts",
     "in-page-scripts/integrations/doitIm.ts",
     "in-page-scripts/integrations/easyRedmine.ts",
     "in-page-scripts/integrations/evernote.ts",
