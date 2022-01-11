@@ -114,6 +114,15 @@
             }
         },
         {
+            serviceType: 'Dixa',
+            serviceName: 'Dixa',
+            icon: 'dixa.svg',
+            origins: ['https://*.dixa.com/*'],
+            scripts: {
+                js: ['in-page-scripts/integrations/dixa.js']
+            }
+        },
+        {
             serviceType: 'Doit.im',
             serviceName: 'Doit.im',
             icon: 'doitim.svg',
