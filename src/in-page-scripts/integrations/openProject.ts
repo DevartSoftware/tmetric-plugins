@@ -2,7 +2,7 @@ class OpenProject implements WebToolIntegration {
 
     showIssueId = true;
 
-    matchUrl = /(http.*\/work_packages\/\D*(\d+)/;
+    matchUrl = /(https?:\/\/[^\/]+).*\/work_packages\/\D*(\d+)/;
 
     observeMutations = true;
 
@@ -22,7 +22,7 @@ class OpenProject implements WebToolIntegration {
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
         const match = source.fullUrl.match(this.matchUrl);
-        const serviceUrl = match[1];
+        const serviceUrl = $$.try<HTMLBaseElement>('base').href || match[1];
         const issueUrl = '/work_packages/' + match[2];
         const issueId = '#' + match[2];
         const issueName = $$.try('.work-packages--subject-type-row span.subject').textContent;
