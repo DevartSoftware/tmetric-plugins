@@ -2,7 +2,7 @@
 //  ViewController.swift
 //  TMetric for Safari
 //
-//  Copyright © 2021 Devart. All rights reserved.
+//  Copyright © 2022 Devart. All rights reserved.
 //
 
 import Cocoa

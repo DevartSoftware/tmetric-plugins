@@ -2,7 +2,7 @@
 //  SafariExtensionViewController.swift
 //  TMetric for Safari Extension
 //
-//  Copyright © 2021 Devart. All rights reserved.
+//  Copyright © 2022 Devart. All rights reserved.
 //
 
 import SafariServices
