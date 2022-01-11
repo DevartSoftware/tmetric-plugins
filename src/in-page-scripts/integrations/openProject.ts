@@ -2,16 +2,16 @@ class OpenProject implements WebToolIntegration {
 
     showIssueId = true;
 
-    matchUrl = /(https:\/\/.+\.openproject\..*).*\/work_packages\/\D*(\d+)/;
+    matchUrl = /(http.*\/work_packages\/\D*(\d+)/;
 
     observeMutations = true;
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        let detailedView = $$('.work-package--single-view');
+        const detailedView = $$('.work-package--single-view');
         if (detailedView) {
-            let infoWrapper = $$('.wp-info-wrapper');
+            const infoWrapper = $$('.wp-info-wrapper');
             if (infoWrapper) {
-                let container = $$.create('div');
+                const container = $$.create('div');
                 container.classList.add('devart-timer-link-openproject-container')
                 container.appendChild(linkElement);
                 detailedView.insertBefore(container, infoWrapper.nextElementSibling);
@@ -21,16 +21,17 @@ class OpenProject implements WebToolIntegration {
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        let match = source.fullUrl.match(this.matchUrl);
-        let serviceUrl = match[1];
-        let issueUrl = '/work_packages/' + match[2];
-        let issueId = '#' + match[2];
-        let issueName = $$.try('.work-packages--subject-type-row span.subject').textContent;
-        let projectName =
+        const match = source.fullUrl.match(this.matchUrl);
+        const serviceUrl = match[1];
+        const issueUrl = '/work_packages/' + match[2];
+        const issueId = '#' + match[2];
+        const issueName = $$.try('.work-packages--subject-type-row span.subject').textContent;
+        const projectName =
             $$.try('#projects-menu').textContent ||
             $$.try('.-project-context span a').textContent;
+        const serviceType = 'OpenProject';
 
-        return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'OpenProject' };
+        return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType };
     }
 }
 
