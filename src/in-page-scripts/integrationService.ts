@@ -27,9 +27,9 @@
             return true;
         }
 
-        const patterns = (matchUrl instanceof Array ? <any[]>matchUrl : [<any>matchUrl]);
+        const patterns = (matchUrl instanceof Array ? matchUrl : [matchUrl]) as any[];
         return patterns.some(pattern => {
-            const regexp = typeof pattern === 'string' ? convertPatternToRegExp(pattern) : <RegExp>pattern;
+            const regexp = typeof pattern === 'string' ? convertPatternToRegExp(pattern) : pattern as RegExp;
             return regexp.test(url);
         });
     }
@@ -63,18 +63,18 @@
             this.isUrlMatched(integration, source.fullUrl) &&
             (!integration.match || integration.match(source)));
 
-        const issues = <WebToolIssue[]>[];
-        const parsedIssues = <WebToolParsedIssue[]>[];
+        const issues = [] as WebToolIssue[];
+        const parsedIssues = [] as WebToolParsedIssue[];
 
         this._possibleIntegrations.some(integration => {
 
-            let elements = [<HTMLElement>null];
+            let elements = [] as HTMLElement[];
             const selector = integration.issueElementSelector;
             if (selector) {
                 if (typeof selector === 'function') {
-                    elements = (<() => HTMLElement[]>selector)().filter(_ => !!_);
+                    elements = selector().filter(_ => !!_);
                 } else {
-                    elements = $$.all(Array.isArray(selector) ? (<string[]><any>selector).join(', ') : selector);
+                    elements = $$.all(Array.isArray(selector) ? selector.join(', ') : selector);
                 }
             }
 
@@ -167,11 +167,11 @@
 
     private static _issueDurationsCache: WebToolIssueDuration[] = [];
 
-    private static _pendingIssuesDurations = <{
+    private static _pendingIssuesDurations: {
         identifiers: WebToolIssueIdentifier[];
         resolve: (data: WebToolIssueDuration[]) => void;
         reject: (reason?: any) => void;
-    }>null;
+    } = null;
 
     static setIssuesDurations(durations) {
         if (this._pendingIssuesDurations) {
@@ -205,9 +205,9 @@
             // Reject previous promise
             pendingDurations.reject();
         } else {
-            pendingDurations = <typeof pendingDurations>{
+            pendingDurations = {
                 identifiers: []
-            };
+            } as typeof pendingDurations;
         }
 
         // Find new identifiers
@@ -274,7 +274,7 @@
 
     private static parseLinkTimer(link: HTMLElement) {
         if (link) {
-            return <WebToolIssueTimer & WebToolIssueDuration>JSON.parse(link.getAttribute('data-' + this.affix));
+            return JSON.parse(link.getAttribute('data-' + this.affix)) as WebToolIssueTimer & WebToolIssueDuration;
         }
     }
 
@@ -295,7 +295,7 @@
 
         const isIssueStarted = this.isIssueStarted(newIssue);
 
-        const newIssueTimer = <WebToolIssueTimer & WebToolIssueDuration>{};
+        const newIssueTimer = {} as WebToolIssueTimer & WebToolIssueDuration;
         newIssueTimer.isStarted = !isIssueStarted;
         newIssueTimer.showIssueId = integration.showIssueId;
         newIssueTimer.duration = newIssueDuration;
@@ -407,7 +407,7 @@
             normalizeServiceUrl(oldIssue) == normalizeServiceUrl(newIssue);
     }
 
-    private static _allIntegrations = <WebToolIntegration[]>[];
+    private static _allIntegrations: WebToolIntegration[] = [];
 
     private static _possibleIntegrations: WebToolIntegration[];
 

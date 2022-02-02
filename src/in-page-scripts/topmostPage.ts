@@ -2,7 +2,7 @@
 
     const sendBackgroundMessage = (message: ITabMessage) => {
         chrome.runtime.sendMessage(message, response => {
-            let error = chrome.runtime.lastError;
+            const error = chrome.runtime.lastError;
 
             // Background page is not loaded yet
             if (error) {
@@ -13,6 +13,8 @@
 
     const popupId = 'tmetric-popup';
 
+    let constants: Models.Constants;
+
     let framesetRows: string;
     let framesetCols: string;
 
@@ -22,10 +24,10 @@
             return;
         }
 
-        let body = document.body;
-        let isFrameSet = body.tagName == 'FRAMESET';
-        let refChild = <Node>null;
-        let frame = document.createElement(isFrameSet ? 'frame' : 'iframe');
+        const body = document.body;
+        const isFrameSet = body.tagName == 'FRAMESET';
+        let refChild = null as Node;
+        const frame = document.createElement(isFrameSet ? 'frame' : 'iframe');
 
         frame.id = popupId;
         frame.src = `${constants.browserSchema}://${constants.extensionUUID}/popup/popup.html?integration`;
@@ -56,7 +58,7 @@
     }
 
     const hidePopup = () => {
-        let popupFrame = document.querySelector('#' + popupId);
+        const popupFrame = document.querySelector('#' + popupId);
         if (popupFrame) {
             popupFrame.remove();
 
@@ -71,8 +73,6 @@
             }
         }
     }
-
-    let constants: Models.Constants;
 
     chrome.runtime.onMessage.addListener((message: ITabMessage) => {
 
@@ -97,7 +97,7 @@
 
             // Only for Firefox to show error alerts
             case 'error':
-                let a = alert; // prevent strip in release;
+                const a = alert; // prevent strip in release;
                 a(constants.extensionName + '\n\n' + message.data.message);
                 break;
         }

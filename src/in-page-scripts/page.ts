@@ -9,8 +9,6 @@ if (typeof document != 'undefined') {
 
     window.initPage = function () {
 
-        let constants: Models.Constants;
-
         /**
          * Retrieves messages from background script.
          */
@@ -40,7 +38,7 @@ if (typeof document != 'undefined') {
             } else if (message.action == 'setIssuesDurations') {
                 IntegrationService.setIssuesDurations(message.data);
             } else if (message.action == 'setConstants') {
-                constants = message.data;
+                const constants = message.data as Models.Constants;
                 IntegrationService.setConstants(constants);
             }
 
@@ -59,7 +57,7 @@ if (typeof document != 'undefined') {
         sendBackgroundMessage = function (message: ITabMessage) {
 
             // finalize script when extension removed/disabled/upgraded (#66666)
-            let callbackAction = message.action + '_callback';
+            const callbackAction = message.action + '_callback';
             if (pingTimeouts[callbackAction]) {
                 clearTimeout(pingTimeouts[callbackAction]);
             }
@@ -68,7 +66,7 @@ if (typeof document != 'undefined') {
 
             try {
                 chrome.runtime.sendMessage(message, response => {
-                    let error = chrome.runtime.lastError;
+                    const error = chrome.runtime.lastError;
 
                     // Background page is not loaded yet
                     if (error) {
@@ -116,7 +114,7 @@ if (typeof document != 'undefined') {
          */
         function finalize() {
             isFinalized = true;
-            for (let ping in pingTimeouts) {
+            for (const ping in pingTimeouts) {
                 if (pingTimeouts[ping]) {
                     clearTimeout(pingTimeouts[ping]);
                     pingTimeouts[ping] = null;
@@ -139,7 +137,7 @@ if (typeof document != 'undefined') {
         function parsePage() {
 
             // do not parse page when extension is not responding (disabled/upgraded/uninstalled)
-            for (let ping in pingTimeouts) {
+            for (const ping in pingTimeouts) {
                 if (pingTimeouts[ping]) {
                     parseAfterPings = true;
                     return;
@@ -148,15 +146,15 @@ if (typeof document != 'undefined') {
 
             parseAfterPings = false;
 
-            let url = document.URL;
-            let title = document.title;
+            const url = document.URL;
+            const title = document.title;
 
-            let checkAllIntegrations = url != oldUrl;
+            const checkAllIntegrations = url != oldUrl;
 
             oldUrl = url;
             oldTitle = title;
 
-            let { issues, observeMutations } = IntegrationService.updateLinks(checkAllIntegrations);
+            const { issues, observeMutations } = IntegrationService.updateLinks(checkAllIntegrations);
 
             if (!isFinalized && observeMutations && !mutationObserver) {
                 mutationObserver = new MutationObserver(parsePage);
