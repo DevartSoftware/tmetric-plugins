@@ -231,7 +231,7 @@
 
         // Skip duplicated requests (TE-256, TE-277)
         if (newIdentifiers.length) {
-            sendBackgroundMessage({ action: 'getIssuesDurations', data: identifiers });
+            window.sendBackgroundMessagee({ action: 'getIssuesDurations', data: identifiers });
         }
 
         this._pendingIssuesDurations = pendingDurations;
@@ -341,7 +341,7 @@
             // TE-342 - prevent keeping focus on timer button
             this.blur();
             e.stopPropagation();
-            sendBackgroundMessage({ action: 'putTimer', data: newIssueTimer });
+            window.sendBackgroundMessagee({ action: 'putTimer', data: newIssueTimer });
             return false;
         };
         const spanWithIcon = document.createElement('span');

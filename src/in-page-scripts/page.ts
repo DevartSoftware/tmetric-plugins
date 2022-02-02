@@ -1,11 +1,19 @@
 ﻿interface Window {
     initPage: () => void;
     parsePage: () => void;
+    sendBackgroundMessagee: (message: ITabMessage) => void;
 }
 
-var sendBackgroundMessage: (message: ITabMessage) => void;
+if (typeof window != 'undefined' && !window.initPage) {
 
-if (typeof document != 'undefined') {
+    let oldUrl = '';
+    let oldTitle = '';
+    let changeCheckerHandle: number;
+    let mutationObserver: MutationObserver;
+    const pingTimeouts = {} as { [callbackAction: string]: number };
+    let isInitialized = false;
+    let isFinalized = false;
+    let parseAfterPings = true;
 
     window.initPage = function () {
 
@@ -25,8 +33,8 @@ if (typeof document != 'undefined') {
 
             // Only for Firefox to inject scripts in right order
             if (message.action == 'initPage') {
-                sendBackgroundMessage({ action: 'getConstants' });
-                sendBackgroundMessage({ action: 'getTimer' });
+                window.sendBackgroundMessagee({ action: 'getConstants' });
+                window.sendBackgroundMessagee({ action: 'getTimer' });
                 return;
             }
 
@@ -43,7 +51,7 @@ if (typeof document != 'undefined') {
             }
 
             if (parseAfterPings) {
-                parsePage();
+                window.parsePage();
             }
 
             initialize();
@@ -54,7 +62,7 @@ if (typeof document != 'undefined') {
         /**
          * Sends message to background script.
          */
-        sendBackgroundMessage = function (message: ITabMessage) {
+        window.sendBackgroundMessagee = function (message: ITabMessage) {
 
             // finalize script when extension removed/disabled/upgraded (#66666)
             const callbackAction = message.action + '_callback';
@@ -86,7 +94,7 @@ if (typeof document != 'undefined') {
             if (changeCheckerHandle == null) {
                 changeCheckerHandle = setInterval(() => {
                     if (document.title != oldTitle || document.URL != oldUrl) {
-                        parsePage();
+                        window.parsePage();
                     }
                     if (!document.hasFocus()) {
                         clearInterval(changeCheckerHandle);
@@ -168,19 +176,11 @@ if (typeof document != 'undefined') {
                 mutationObserver.takeRecords();
             }
         }
+
         window.parsePage = parsePage;
 
-        let oldUrl = '';
-        let oldTitle = '';
-        let changeCheckerHandle: number;
-        let mutationObserver: MutationObserver;
-        let pingTimeouts = <{ [callbackAction: string]: number }>{};
-        let isInitialized = false;
-        let isFinalized = false;
-        let parseAfterPings = true;
-
         IntegrationService.clearPage();
-        sendBackgroundMessage({ action: 'getConstants' });
-        sendBackgroundMessage({ action: 'getTimer' });
+        window.sendBackgroundMessagee({ action: 'getConstants' });
+        window.sendBackgroundMessagee({ action: 'getTimer' });
     }
 }
