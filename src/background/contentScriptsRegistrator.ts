@@ -62,10 +62,28 @@
         await this.unregister(origins);
 
         const serviceTypes = await WebToolManager.getServiceTypes();
-        const webToolDescriptions: { [serviceType: string]: WebToolDescription } = getWebToolDescriptions().reduce((map, item) => (map[item.serviceType] = item) && map, {});
+        const serviceTypeUrls = Object.keys(serviceTypes);
+        const serviceTypeUrlRegExps = serviceTypeUrls.reduce((map, url) => (map[url] = WebToolManager.toUrlRegExp(url)) && map, {} as { [serviceUrl: string]: RegExp });
 
-        let serviceUrls = Object.keys(serviceTypes).filter(url => origins ? origins.some(origin => WebToolManager.isMatch(url, origin)) : true);
+        const webToolDescriptions = getWebToolDescriptions().reduce((map, item) => (map[item.serviceType] = item) && map, {} as { [serviceType: string]: WebToolDescription });
 
+        let serviceUrls = serviceTypeUrls;
+
+        // filter by passed origins
+        if (origins) {
+            serviceUrls = serviceUrls.filter(url => origins.some(origin => WebToolManager.isMatch(url, origin)));
+        }
+
+        // filter non overlapped urls
+        serviceUrls = serviceUrls.filter(a => {
+            return serviceTypeUrls.every(b => {
+                return b == a // same url 
+                    || serviceTypes[b] != serviceTypes[a] // another service type url
+                    || !serviceTypeUrlRegExps[b].test(a) // non overlapped url
+            });
+        });
+
+        // filter permitted urls
         serviceUrls = (await Promise.all(
             serviceUrls.map(
                 serviceUrl => new Promise<string>(

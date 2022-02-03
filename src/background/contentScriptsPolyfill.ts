@@ -1,4 +1,4 @@
-﻿type FileOrCode = { file?: string, code?: string };
+﻿type FileOrCode = { file?: string; code?: string };
 
 type RegisteredContentScriptOptions = browser.contentScripts.RegisteredContentScriptOptions;
 
@@ -12,7 +12,7 @@ declare namespace chrome.contentScripts {
 
 if (typeof chrome === 'object' && !chrome.contentScripts) {
 
-    const contentScriptOptionsStore: { matches: RegExp, options: RegisteredContentScriptOptions }[] = [];
+    const contentScriptOptionsStore: { matches: RegExp; options: RegisteredContentScriptOptions }[] = [];
 
     const getContentScriptOptions = function (url: string) {
         return contentScriptOptionsStore
@@ -37,12 +37,12 @@ if (typeof chrome === 'object' && !chrome.contentScripts) {
     }
 
     const getInjectedScriptsFunction = function () {
-        let scripts = document['tmetricContentScripts'] || {};
+        const scripts = document['tmetricContentScripts'] || {};
         return scripts;
     }
 
     const setInjectedScriptFunction = function (file: string) {
-        let scripts = document['tmetricContentScripts'] || {};
+        const scripts = document['tmetricContentScripts'] || {};
         scripts[file] = true;
         document['tmetricContentScripts'] = scripts;
     }

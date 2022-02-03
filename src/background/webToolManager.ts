@@ -61,14 +61,17 @@
 
     }
 
+    static toUrlRegExp(url: string) {
+        const pattern = '^' + url
+            .replace(/[\/\.]/g, '\\$&')
+            .replace(/\*/g, '.+');
+        return new RegExp(pattern, 'i');
+    }
 
     static isMatch(url: string, origin: string) {
         const urlOrigin = this.toOrigin(url);
-        const originRe = origin
-            .replace(/[\/\.]/g, '\\$&')
-            .replace(/\*/g, '.+');
-        const pattern = `^${originRe}`;
-        return new RegExp(pattern, 'i').test(urlOrigin);
+        const originRegExp = this.toUrlRegExp(origin);
+        return originRegExp.test(urlOrigin);
     }
 
     static toServiceTypesMap(webTools: WebTool[]) {
