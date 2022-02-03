@@ -1,5 +1,5 @@
 ﻿// http://support.teamwork.com/projects/installation-and-account-134/can-i-change-the-domain-of-my-teamwork-account
-let hosts = '((teamwork|seetodos|companytodos|worktodos|companyworkflow|projectgameplan|peopleworkflow|projecttodos|projectorganiser|seetasks)\.com|teamworkpm\.net)';
+const hosts = '((teamwork|seetodos|companytodos|worktodos|companyworkflow|projectgameplan|peopleworkflow|projecttodos|projectorganiser|seetasks)\.com|teamworkpm\.net)';
 
 class Teamwork implements WebToolIntegration {
 
@@ -14,9 +14,9 @@ class Teamwork implements WebToolIntegration {
     }
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        let host = $$('.task-options', issueElement);
+        const host = $$('.task-options', issueElement);
         if (host) {
-            let container = $$.create('span');
+            const container = $$.create('span');
             linkElement.classList.add('option');
             container.classList.add('devart-timer-link-teamwork');
             container.appendChild(linkElement);
@@ -26,7 +26,7 @@ class Teamwork implements WebToolIntegration {
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        let issueName = $$.try('.task-name > span', issueElement).textContent;
+        const issueName = $$.try('.task-name > span', issueElement).textContent;
         if (!issueName) {
             return;
         }
@@ -34,9 +34,9 @@ class Teamwork implements WebToolIntegration {
         // get identifier from href or from top task in single view
         let issueId: string;
         let issueUrl: string;
-        let issueHref = $$.getAttribute('.task-name a[href*="tasks"]', 'href', issueElement);
+        const issueHref = $$.getAttribute('.task-name a[href*="tasks"]', 'href', issueElement);
 
-        let matches = issueHref.match(/^.*tasks\/(\d+)$/);
+        const matches = issueHref.match(/^.*tasks\/(\d+)$/);
         if (matches) {
             issueId = '#' + matches[1];
             issueUrl = 'tasks/' + matches[1];
@@ -44,7 +44,7 @@ class Teamwork implements WebToolIntegration {
 
         // single project tasks view
         let projectName: string;
-        let projectNameElement = $$('#projectName');
+        const projectNameElement = $$('#projectName');
         if (projectNameElement) {
             projectName = projectNameElement.firstChild.textContent;
         }
@@ -52,7 +52,7 @@ class Teamwork implements WebToolIntegration {
         // multi project tasks view
         // https://COMPANY.teamwork.com/all_tasks
         if (!projectName) {
-            let parentRowElement = $$.closest('tr', issueElement);
+            const parentRowElement = $$.closest('tr', issueElement);
             if (parentRowElement) {
                 projectName = $$.try('.prjName', parentRowElement).textContent;
             } else {
@@ -60,9 +60,9 @@ class Teamwork implements WebToolIntegration {
             }
         }
 
-        let serviceType = 'Teamwork';
+        const serviceType = 'Teamwork';
 
-        let serviceUrl = source.protocol + source.host;
+        const serviceUrl = source.protocol + source.host;
 
         return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
     }
@@ -86,14 +86,14 @@ class TeamworkDesk implements WebToolIntegration {
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
         if (this.isTicketElement(issueElement)) {
-            let host = $$('.padding-wrap', issueElement);
+            const host = $$('.padding-wrap', issueElement);
             if (host) {
-                let linkContainer = $$.create('div', 'devart-timer-link-teamwork-desk-ticket');
+                const linkContainer = $$.create('div', 'devart-timer-link-teamwork-desk-ticket');
                 linkContainer.appendChild(linkElement);
                 host.appendChild(linkContainer);
             }
         } else {
-            let host = $$('.task-options', issueElement);
+            const host = $$('.task-options', issueElement);
             if (host) {
                 linkElement.classList.add('devart-timer-link-teamwork-desk-task');
                 host.parentElement.insertBefore(linkElement, host);
@@ -103,7 +103,7 @@ class TeamworkDesk implements WebToolIntegration {
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        var issueName: string, issueId: string, issueIdNumber: string, issueUrlPrefix: string, projectName: string;
+        let issueName: string, issueId: string, issueIdNumber: string, issueUrlPrefix: string, issueUrl: string, projectName: string;
 
         if (this.isTicketElement(issueElement)) {
             issueName = $$.try('.title-label a', issueElement).textContent;
@@ -112,8 +112,8 @@ class TeamworkDesk implements WebToolIntegration {
             issueUrlPrefix = 'desk/#/tickets/';
         } else {
             issueName = $$.try('.title-label', issueElement).textContent;
-            let issueHref = $$.getAttribute('.title-label', 'href', issueElement);
-            let issueHrefMatch = /^.*tasks\/(\d+)$/.exec(issueHref);
+            const issueHref = $$.getAttribute('.title-label', 'href', issueElement);
+            const issueHrefMatch = /^.*tasks\/(\d+)$/.exec(issueHref);
             issueIdNumber = issueHrefMatch && issueHrefMatch[1];
             issueId = '#' + issueIdNumber;
             issueUrlPrefix = 'tasks/';
@@ -129,12 +129,12 @@ class TeamworkDesk implements WebToolIntegration {
         }
 
         if (issueIdNumber && (issueIdNumber = issueIdNumber.trim())) {
-            var issueUrl = issueUrlPrefix + issueIdNumber;
+            issueUrl = issueUrlPrefix + issueIdNumber;
         }
 
-        var serviceType = 'Teamwork';
+        const serviceType = 'Teamwork';
 
-        var serviceUrl = source.protocol + source.host;
+        const serviceUrl = source.protocol + source.host;
 
         return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
     }
