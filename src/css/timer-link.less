@@ -208,36 +208,45 @@
 }
 
 .devart-timer-link-teamwork {
-    margin-left: 7px;
+    border: none !important;
 
     > a {
         width: auto !important;
         transform: scale(1) !important;
         font-size: 13px !important;
-        margin-right: 10px !important;
+        margin-top: 2px !important;
+        margin-left: 5px !important;
+        margin-right: 5px !important;
     }
 
-    .taskRHS & > .devart-timer-link-start {
+    .task-row & > .devart-timer-link-start {
         display: none !important;
     }
 
-    .taskRHS:hover & > .devart-timer-link-start {
+    .task-row:hover & > .devart-timer-link-start {
         display: initial !important;
     }
 }
 
 .devart-timer-link-teamwork-desk-task {
-    .task-row &.devart-timer-link-start {
+    margin-left: 0.5rem !important;
+
+    .task-list-item &.devart-timer-link-start {
         display: none !important;
     }
 
-    .task-row:hover &.devart-timer-link-start {
+    .task-list-item:hover &.devart-timer-link-start {
         display: initial !important;
     }
 }
 
 .devart-timer-link-teamwork-desk-ticket {
-    margin-top: 1em;
+    margin-right: auto !important;
+    margin-left: 0.5rem !important;
+
+    .devart-timer-link {
+        display: inline-block !important;
+    }
 }
 
 .devart-timer-link-tfs {
