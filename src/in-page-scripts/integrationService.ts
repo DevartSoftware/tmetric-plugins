@@ -68,7 +68,7 @@
 
         this._possibleIntegrations.some(integration => {
 
-            let elements = [] as HTMLElement[];
+            let elements = [null] as HTMLElement[];
             const selector = integration.issueElementSelector;
             if (selector) {
                 if (typeof selector === 'function') {
