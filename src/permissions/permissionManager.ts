@@ -43,7 +43,10 @@
         chrome.permissions.getAll(allPermissions => {
 
             const manifest = chrome.runtime.getManifest();
-            const requiredPermissions = manifest.permissions.concat(...manifest.content_scripts.map(_ => _.matches));
+            const requiredPermissions = (manifest.permissions as string[])
+                .concat(
+                    ...manifest.content_scripts.map(_ => _.matches as string[])
+                );
             const origins = allPermissions.origins.filter(o => requiredPermissions.indexOf(o) < 0);
 
             chrome.permissions.remove({ origins }, result => callback(result));

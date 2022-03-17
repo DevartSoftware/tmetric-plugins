@@ -74,7 +74,7 @@
             const obj = {};
             obj[key] = value;
             chrome.storage.local.set(obj, function () {
-                resolve();
+                resolve(undefined);
             });
         });
     }

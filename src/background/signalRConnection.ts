@@ -8,11 +8,11 @@
 
     hubProxy = new SignalRHubProxy();
 
-    hubConnected: boolean;
-
     userProfile: Models.UserProfile;
 
     accountToPost: number;
+
+    private _hubConnected: boolean;
 
     private readonly minRetryInterval = 15000; // 15 seconds
 
@@ -30,9 +30,9 @@
 
     private _retryTimeStamp = new Date();
 
-    expectedTimerUpdate = false;
+    private _disconnectPromise: Promise<void>;
 
-    disconnecting = false;
+    expectedTimerUpdate = false;
 
     serverApiVersion: number;
 
@@ -49,7 +49,6 @@
     onUpdateProfile = SimpleEvent.create<Models.UserProfile>();
 
     constructor() {
-
         super();
     }
 
@@ -117,7 +116,7 @@
     }
 
     private get canRetryConnection() {
-        return !this.hubConnected && !this._retryInProgress;
+        return !this._hubConnected && !this._retryInProgress;
     }
 
     isConnectionRetryEnabled() {
@@ -138,7 +137,7 @@
         console.log('connect');
         return new Promise<Models.UserProfile>((callback, reject) => {
 
-            if (this.hubConnected) {
+            if (this._hubConnected) {
                 console.log('connect: hubConnected');
                 callback(this.userProfile);
                 return;
@@ -156,11 +155,9 @@
                             this.hubProxy.onDisconnect(hub);
                             this.expectedTimerUpdate = false;
                             console.log('hub.disconnected');
-                            if (!this.disconnecting) {
-                                this.disconnect().then(() => {
-                                    this.setRetryPending(true);
-                                });
-                            }
+                            this.disconnect().then(() => {
+                                this.setRetryPending(true);
+                            });
                         });
                         this.hub = hub;
                     }
@@ -174,7 +171,7 @@
 
                     hubPromise
                         .then(() => {
-                            this.hubConnected = true;
+                            this._hubConnected = true;
                             this.setRetryPending(false);
                             console.log('connect: register');
                             return this.hub.invoke('register', profile.userProfileId).then(() => callback(profile));
@@ -217,7 +214,7 @@
     }
 
     retryConnection() {
-        console.log(`retryConnection. hubConnected: ${this.hubConnected}, retryInProgress: ${this._retryInProgress}`);
+        console.log(`retryConnection. hubConnected: ${this._hubConnected}, retryInProgress: ${this._retryInProgress}`);
         this.setRetryPending(false);
         if (this.canRetryConnection) {
             this._retryInProgress = true;
@@ -235,13 +232,15 @@
     }
 
     disconnect() {
-        this.disconnecting = true;
+        if (this._disconnectPromise) {
+            return this._disconnectPromise;
+        }
 
         let disconnectPromise: Promise<void>;
-        if (!this.hubConnected) {
+        if (!this._hubConnected) {
             disconnectPromise = Promise.resolve();
         } else {
-            this.hubConnected = false;
+            this._hubConnected = false;
             this.onUpdateTimer.emit(null);
             console.log('disconnect: stop hub');
             disconnectPromise = this.hub.stop();
@@ -251,8 +250,9 @@
             this.setRetryPending(false);
         });
 
-        promise.then(() => this.disconnecting = false);
-        promise.catch(() => this.disconnecting = false);
+        this._disconnectPromise = promise;
+        promise.then(() => this._disconnectPromise = undefined);
+        promise.catch(() => this._disconnectPromise = undefined);
         return promise;
     }
 

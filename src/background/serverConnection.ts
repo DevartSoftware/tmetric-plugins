@@ -176,7 +176,7 @@
                 callback(profile);
             }
             else {
-                reject();
+                reject(invalidProfileError);
             }
         });
     }

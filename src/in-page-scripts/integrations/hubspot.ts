@@ -23,7 +23,7 @@
             }
         }
 
-        // tasks on the contact page
+        // tasks on the contact/ticket page
         if (issueElement.matches(this.issueElementSelector[1])) {
             const taskBody = $$('.uiList.private-list--inline', issueElement);
             if (taskBody) {
@@ -54,7 +54,7 @@
             issueId = match && match[2];
         }
 
-        // tasks on the contact page
+        // tasks on the contact/ticket page
         else if (issueElement.matches(this.issueElementSelector[1])) {
             issueName = $$.try('[data-selenium-test="timeline-editable-title"]', issueElement).textContent;
             const actionsBtn = $$('[data-selenium-test="timeline-header-actions"]', issueElement);

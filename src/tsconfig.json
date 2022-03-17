@@ -14,12 +14,10 @@
 
   "files": [
     "../node_modules/@aspnet/signalr/dist/esm/index.d.ts",
-    "typings/chrome/index.d.ts",
-    "typings/filesystem/index.d.ts",
-    "typings/filewriter/index.d.ts",
+    "../node_modules/@types/chrome/index.d.ts",
+    "../node_modules/@types/firefox-webext-browser/index.d.ts",
     "typings/jquery/index.d.ts",
     "typings/select2/index.d.ts",
-    "typings/firefox-webext-browser/index.d.ts",
     "interfaces/models.d.ts",
     "interfaces/integrations.d.ts",
     "interfaces/safari.d.ts",

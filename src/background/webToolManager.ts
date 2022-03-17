@@ -86,7 +86,7 @@
         chrome.storage.local.get(
             { serviceTypes: {} } as IExtensionLocalSettings,
             ({ serviceTypes }: IExtensionLocalSettings) => {
-                this.serviceTypes = serviceTypes;
+                this.serviceTypes = serviceTypes || {};
                 callback && callback(serviceTypes);
             }
         );
@@ -125,6 +125,9 @@
     })();
 
     static getServiceUrls(serviceTypes = this.serviceTypes) {
+        if (!serviceTypes) {
+            return {};
+        }
         const serviceUrls = Object.keys(serviceTypes).sort().reduce((map, url) => {
             const serviceType = serviceTypes[url];
             let urls = map[serviceType] || [];

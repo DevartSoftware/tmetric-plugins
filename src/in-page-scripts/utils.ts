@@ -1,21 +1,21 @@
 ﻿interface Utils {
-    <TElement extends HTMLElement>(selector: string, element?: NodeSelector, condition?: (el: TElement) => boolean): TElement;
-    try<TElement extends HTMLElement>(selector: string, element?: NodeSelector, condition?: (el: TElement) => boolean): TElement;
-    visible<TElement extends HTMLElement>(selector: string, element?: NodeSelector): TElement;
-    all<TElement extends HTMLElement>(selector: string, element?: NodeSelector): TElement[];
+    <TElement extends HTMLElement>(selector: string, element?: ParentNode, condition?: (el: TElement) => boolean): TElement;
+    try<TElement extends HTMLElement>(selector: string, element?: ParentNode, condition?: (el: TElement) => boolean): TElement;
+    visible<TElement extends HTMLElement>(selector: string, element?: ParentNode): TElement;
+    all<TElement extends HTMLElement>(selector: string, element?: ParentNode): TElement[];
     closest<TElement extends HTMLElement>(selector: string, element: HTMLElement, condition?: (el: TElement) => boolean): TElement;
     prev<TElement extends HTMLElement>(selector: string, element: HTMLElement): TElement;
     next<TElement extends HTMLElement>(selector: string, element: HTMLElement): TElement;
-    getAttribute(selector: string, attributeName: string, element?: NodeSelector): string;
+    getAttribute(selector: string, attributeName: string, element?: ParentNode): string;
     create<TElement extends HTMLElement>(tagName: string, ...classNames: string[]): TElement;
     getRelativeUrl(baseUrl: string, fullUrl: string): string;
-    findNode(selector: string, nodeType: number, element?: NodeSelector): Node;
-    findAllNodes(selector: string, nodeType: number, element?: NodeSelector): Node[];
+    findNode(selector: string, nodeType: number, element?: ParentNode): Node;
+    findAllNodes(selector: string, nodeType: number, element?: ParentNode): Node[];
     searchParams(paramString: string): { [name: string]: string };
 }
 
 // Do not use 'let' here to allow variable reassigning
-var $$ = <Utils>function (selector: string, element?: NodeSelector, condition?: (el: Element) => boolean) {
+var $$ = <Utils>function (selector: string, element?: ParentNode, condition?: (el: Element) => boolean) {
 
     element = element || document;
 
@@ -33,7 +33,7 @@ var $$ = <Utils>function (selector: string, element?: NodeSelector, condition?: 
     return null;
 };
 
-$$.try = function <TElement extends HTMLElement>(selector: string, element?: NodeSelector, condition?: (el: TElement) => boolean) {
+$$.try = function <TElement extends HTMLElement>(selector: string, element?: ParentNode, condition?: (el: TElement) => boolean) {
     return $$(selector, element, condition) || <TElement>{};
 };
 
@@ -44,7 +44,7 @@ $$.create = function <TElement extends HTMLElement>(tagName, ...classNames: stri
     return element;
 };
 
-$$.all = function <TElement extends HTMLElement>(selector: string, element?: NodeSelector) {
+$$.all = function <TElement extends HTMLElement>(selector: string, element?: ParentNode) {
     element = element || document;
     let nodeList = element.querySelectorAll(selector);
     let result = <TElement[]>[];
@@ -54,7 +54,7 @@ $$.all = function <TElement extends HTMLElement>(selector: string, element?: Nod
     return result;
 };
 
-$$.visible = function <TElement extends HTMLElement>(selector: string, element?: NodeSelector) {
+$$.visible = function <TElement extends HTMLElement>(selector: string, element?: ParentNode) {
     return $$<TElement>(selector, element, el => {
 
         // Check display
@@ -103,7 +103,7 @@ $$.next = function <TElement extends HTMLElement>(selector: string, element: HTM
     }
 };
 
-$$.getAttribute = function (selector: string, attributeName: string, element?: NodeSelector): string {
+$$.getAttribute = function (selector: string, attributeName: string, element?: ParentNode): string {
     let result: string;
     let child = $$(selector, element);
     if (child) {
@@ -136,7 +136,7 @@ $$.getRelativeUrl = function (baseUrl: string, url: string) {
     return url;
 };
 
-$$.findNode = (selector: string, nodeType: number, element?: NodeSelector) => {
+$$.findNode = (selector: string, nodeType: number, element?: ParentNode) => {
     let elements = $$.all(selector, element);
     for (let el of elements) {
         let childNodes = el.childNodes;
@@ -151,7 +151,7 @@ $$.findNode = (selector: string, nodeType: number, element?: NodeSelector) => {
     }
 };
 
-$$.findAllNodes = (selector: string, nodeType: number, element?: NodeSelector) => {
+$$.findAllNodes = (selector: string, nodeType: number, element?: ParentNode) => {
     let result = <Node[]>[];
     let elements = $$.all(selector, element);
     for (let el of elements) {

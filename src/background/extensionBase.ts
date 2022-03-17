@@ -1,4 +1,5 @@
 ﻿const enum ButtonState { start, stop, fixtimer, connect }
+const invalidProfileError = 'Profile not configured';
 
 abstract class ExtensionBase extends BackgroundBase {
 
@@ -305,15 +306,20 @@ abstract class ExtensionBase extends BackgroundBase {
 
     protected putData<T>(data: T, action: (data: T) => Promise<any>, retryAction?: (data: T) => Promise<any>) {
 
-        const onFail = (status: AjaxStatus, showDialog: boolean) => {
+        const onFail = (status: AjaxStatus | string, showDialog: boolean) => {
 
             this.actionOnConnect = null;
 
+            if (status == invalidProfileError && showDialog) {
+                chrome.tabs.create({ url: this.constants.serviceUrl });
+            }
             // Zero status when server is unavailable or certificate fails (#59755). Show dialog in that case too.
-            if (!status || status.statusCode == HttpStatusCode.Unauthorized || status.statusCode == 0) {
+            else if (!status
+                || typeof (status) === 'string'
+                || status.statusCode == HttpStatusCode.Unauthorized
+                || status.statusCode == 0) {
 
                 const disconnectPromise = this.connection.disconnect();
-
                 if (showDialog) {
                     disconnectPromise.then(() => {
                         this.actionOnConnect = () => onConnect(false);
@@ -385,10 +391,6 @@ abstract class ExtensionBase extends BackgroundBase {
         }
         this.buttonState = state;
         this.setButtonIcon(state == ButtonState.stop || state == ButtonState.fixtimer ? 'active' : 'inactive', text);
-    }
-
-    private getLoginUrl(): string {
-        return this.constants.serviceUrl + 'login';
     }
 
     private getDuration(timer: Models.Timer): number
