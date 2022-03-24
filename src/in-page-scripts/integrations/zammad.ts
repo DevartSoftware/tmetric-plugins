@@ -13,7 +13,7 @@ class Zammad {
         let issueId = $$.try('.ticket-number.js-objectNumber').textContent;
         let serviceUrl = match[1];
         let issueUrl = match[2];
-        let projectName = "";
+        let projectName = '';
         let tags = $$.all('.list.list--sidebar').map(label => label.children).pop();
         let tagNames = [];
         for (var i = 0; i < tags.length; i++) {
@@ -31,15 +31,15 @@ class Zammad {
     }
 
     render(issueElement, linkElement) {
-        let host = $$('.flex.horizontal.js-avatars');
+        let host = $$('.buttonDropdown.dropdown.dropdown--actions.dropup');
+
         if (host) {
             linkElement.classList.add('zammad');
             linkElement.classList.add('tm-btn');
-            linkElement.style.position = "relative";
-            linkElement.style.top = 10 + 'px';
-            linkElement.style.right = 10 + 'px';
-            host.insertAdjacentElement("afterend", linkElement);
+            linkElement.style.marginRight = 10 + 'px';
+            host.insertAdjacentElement('beforebegin', linkElement);
         }
     }
 }
+
 IntegrationService.register(new Zammad());
