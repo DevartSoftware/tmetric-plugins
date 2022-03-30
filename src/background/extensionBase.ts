@@ -652,15 +652,38 @@ abstract class ExtensionBase extends BackgroundBase {
         });
     }
 
-    private registerInstallListener() {
-        chrome.runtime.onInstalled.addListener(async details => {
-            if (details.reason == 'install') {
-                this.showLoginDialog();
-            } else if (details.reason == 'update') {
-                const isLoggedIn = await OidcClient.isLoggedIn();
-                if (!isLoggedIn) {
+    protected reconnect(showLoginDialog: boolean) {
+        this.connection.reconnect()
+            .then(async () => {
+                const key = 'skipPermissionsSetup';
+                const skipPermissionsSetup = await new Promise<boolean>(resolve =>
+                    chrome.storage.local.get([key], result => resolve(result[key]))
+                );
+
+                if (!skipPermissionsSetup) {
+                    chrome.storage.local.set({ [key]: true });
+                    const url = chrome.runtime.getURL('permissions/check.html');
+                    chrome.tabs.create({ url, active: true });
+                }
+            })
+            .catch(err => {
+                if (err === invalidProfileError) {
+                    chrome.tabs.create({ url: this.constants.serviceUrl });
+                } else if (showLoginDialog) {
                     this.showLoginDialog();
                 }
+            });
+    }
+
+    private registerInstallListener() {
+        chrome.runtime.onInstalled.addListener(async details => {
+            const neverLoggedIn = await OidcClient.neverLoggedIn();
+            if (!neverLoggedIn) {
+                chrome.storage.local.set({ 'skipPermissionsSetup': true });
+            }
+            if (details.reason == 'install' ||
+                neverLoggedIn && details.reason == 'update') {
+                this.showLoginDialog();
             }
         });
     }
@@ -671,9 +694,7 @@ abstract class ExtensionBase extends BackgroundBase {
             if (authorizationCode && authorizationCode.newValue) {
                 chrome.tabs.remove(this.loginTabId);
                 if (await OidcClient.authorize()) {
-                    this.connection.reconnect()
-                        .then(() => this.checkPermissions())
-                        .catch(() => { });
+                    this.reconnect(false);
                 }
             }
         });
@@ -728,11 +749,6 @@ abstract class ExtensionBase extends BackgroundBase {
         } catch (error) {
             console.log(error)
         }
-    }
-
-    private async checkPermissions() {
-        const url = chrome.runtime.getURL('permissions/check.html');
-        chrome.tabs.create({ url, active: true });
     }
 
     private async openOptionsPageUrl() {

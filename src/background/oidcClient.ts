@@ -6,11 +6,11 @@
         this.authorityUrl = authorityUrl;
     }
 
-    public static isLoggedIn() {
+    public static neverLoggedIn() {
         return Promise.all([
             this.getStorageValue('access_token'),
             this.getStorageValue('refresh_token')
-        ]).then(tokens => tokens.every(_ => !!_));
+        ]).then(tokens => tokens.some(_ => !_));
     }
 
     public static getLoginUrl(): string {

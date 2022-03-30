@@ -449,11 +449,13 @@
         });
     }
 
-    protected abstract showLoginDialog(): void
+    protected reconnect(_showLoginDialog: boolean) {
+        this.connection.reconnect();
+    }
 
     protected loginPopupAction() {
         return Promise.resolve(null).then(() => {
-            this.connection.reconnect().catch(() => this.showLoginDialog());
+            this.reconnect(true);
         });
     }
 
