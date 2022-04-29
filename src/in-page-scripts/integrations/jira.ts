@@ -110,7 +110,8 @@
             }
         }
 
-        const projectName = $$.try('#breadcrumbs-container a', null, el => el.getAttribute('href').split('/').some(v => v == 'projects')).textContent // when navigation bar collapsed
+        const projectName = $$.try('.ghx-project', issueElement).textContent // side panel in backlog (TMET-8077)
+            || $$.try('#breadcrumbs-container a', null, el => el.getAttribute('href').split('/').some(v => v == 'projects')).textContent // when navigation bar collapsed
             || $$.try('#project-name-val').textContent // separate task view (/browse/... URL)
             || $$.try('.project-title > a').textContent // old service desk and agile board
             || $$.try('.sd-notify-header').textContent // service desk form https://issues.apache.org/jira/servicedesk/agent/all
