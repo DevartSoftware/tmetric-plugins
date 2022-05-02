@@ -56,15 +56,14 @@ class Clickup implements WebToolIntegration {
         const serviceUrl = source.protocol + source.host;
 
         let issueId: string;
-        let issueUrl: string;
         const matches = source.fullUrl.match(/\/t\/([^\/]+)$/);
         if (matches) {
             issueId = matches[1];
-            issueUrl = '/t/' + issueId;
+        } else {
+            issueId = $$.getAttribute('.task-container[data-task-id]', 'data-task-id');
         }
 
         let issueName = $$.try('.task-name__overlay').textContent;
-
         let tags = $$.all('.cu-tags-view__container .cu-tags-view .cu-tags-select__name', issueElement);
 
         let description: string;
@@ -75,7 +74,6 @@ class Clickup implements WebToolIntegration {
                 if (matches) {
                     issueName = subtaskLink.textContent;
                     issueId = matches[1];
-                    issueUrl = '/t/' + issueId;
                     tags = $$.all('.cu-tags-view__container-list .cu-tags-view .cu-tags-select__name', issueElement);
                 }
             }
@@ -86,6 +84,7 @@ class Clickup implements WebToolIntegration {
         const projectName = $$.try('.breadcrumbs__link[data-category]').textContent;
 
         const tagNames = tags.map(_ => _.textContent);
+        const issueUrl = issueId && ('/t/' + issueId);
 
         return { serviceType, serviceUrl, issueId, issueName, issueUrl, description, projectName, tagNames };
     }
