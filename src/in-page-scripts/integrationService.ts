@@ -72,7 +72,7 @@
             const selector = integration.issueElementSelector;
             if (selector) {
                 if (typeof selector === 'function') {
-                    elements = selector().filter(_ => !!_);
+                    elements = selector.call(integration).filter(_ => !!_);
                 } else {
                     elements = $$.all(Array.isArray(selector) ? selector.join(', ') : selector);
                 }

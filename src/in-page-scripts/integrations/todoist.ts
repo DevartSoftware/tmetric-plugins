@@ -6,35 +6,60 @@
 
     matchUrl = '*://*todoist.com/app*';
 
-    // Order must be preserved
-    // because overview item searches project name
-    // in links parsed on task items
-    issueElementSelector = [
-        '.task_item, .task_list_item',
-        '.side_panel .item_detail, .detail_modal .item_detail'
-    ];
+    listItemSelector = '.task_item, .task_list_item';
+
+    dialogSelector = '.side_panel, .detail_modal, div[role=dialog]';
+
+    issueElementSelector() {
+        return [
+            ...$$
+                .all(this.listItemSelector),
+            ...$$
+                .all('.item_detail')
+                .map(e => $$.closest(this.dialogSelector, e))
+        ];
+    }
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        if (issueElement.matches(this.issueElementSelector[0])) {
+        if (issueElement.matches(this.listItemSelector)) {
             let host = $$('.task_item_details_bottom, .task_list_item__info_tags', issueElement);
             if (host) {
                 linkElement.classList.add('devart-timer-link-todoist');
                 host.insertBefore(linkElement, $$('.column_project, .task_list_item__project', host));
             }
-        } else if (issueElement.matches(this.issueElementSelector[1])) {
+        } else {
             let host = $$('.item_overview_sub', issueElement);
             if (host) {
                 linkElement.classList.add('devart-timer-link-todoist', 'icon_pill');
+                host.insertBefore(linkElement, host.firstElementChild);
+                return;
+            }
+            host = $$('*[data-testid=button-container]', issueElement);
+            if (host) {
                 host.insertBefore(linkElement, host.firstElementChild);
             }
         }
     }
 
+    getProjectName(taskDialog: HTMLElement) {
+        if (!taskDialog) {
+            return;
+        }
+        const projectIcon = $$('.item_detail_parent_name, .project_icon', taskDialog);
+        if (projectIcon) {
+            return $$.closest('a', projectIcon)?.textContent;
+        }
+    }
+
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        let issueNumber: string, issueId: string, issueName: string, projectName: string, tagNames: string[];
+        let issueNumber: string
+        let issueId: string;
+        let issueName: string;
+        let projectName: string
+        let tagNames: string[];
 
-        if (issueElement.matches(this.issueElementSelector[0])) {
+        if (issueElement.matches(this.listItemSelector)) {
 
             // Release:
             // <li class="task_item" id="item_123456789">
@@ -96,6 +121,7 @@
             }
 
             projectName =
+                this.getProjectName($$.closest(this.dialogSelector, issueElement)) ||
                 $$.try('.project_item__name', issueElement).textContent || // Today, 7 Days
                 $$.try('.project_link').textContent || // Project tab (new design)
                 $$.try('.task_list_item__project', issueElement).textContent || // Upcoming
@@ -103,31 +129,24 @@
                 $$.try('.view_header .view_header__content .simple_content').textContent; // project tab and inbox
 
             tagNames = $$.all('.label, .task_list_item__info_tags__label .simple_content', issueElement).map(label => label.textContent);
-        } else if (issueElement.matches(this.issueElementSelector[1])) {
+        } else {
+
+            console.log(0)
 
             issueNumber = $$.getAttribute('ul[data-subitem-list-id]', 'data-subitem-list-id', issueElement);
+            if (!issueNumber) {
+                issueNumber = $$.getAttribute('div[data-item-id]', 'data-item-id', issueElement);
+            }
             if (!issueNumber) {
                 return;
             }
 
             issueId = '#' + issueNumber;
-
             issueName = $$.try('.item_overview_content .task_content', issueElement).textContent;
-
-            let issue = $$.all('.devart-timer-link-todoist').map(_ => {
-                let timer: WebToolIssueTimer;
-                try {
-                    timer = JSON.parse(_.getAttribute('data-devart-timer-link'));
-                } finally {
-                    return timer;
-                }
-            }).filter(_ => !!_).find(_ => _.issueId == issueId);
-
-            if (issue) {
-                projectName = issue.projectName;
-            }
-
-            tagNames = $$.all('.item_overview_sub .label_pill .simple_content', issueElement).map(label => label.textContent);
+            projectName = this.getProjectName(issueElement);
+            tagNames = $$
+                .all('.item_overview_sub .label_pill .simple_content, a[data-item-label-name]', issueElement)
+                .map(label => label.textContent);
         }
 
         if (!issueNumber || !issueName) {
