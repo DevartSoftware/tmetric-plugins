@@ -77,9 +77,10 @@ class SafariExtensionHandler: SFSafariExtensionHandler {
     override func toolbarItemClicked(in window: SFSafariWindow) {
 //        NSLog("toolbarItemClicked")
 
+        let targetUrl = URL(string: "https://app.tmetric.com/no-offers")
         let appUrl = URL(string: "https://app.tmetric.com/")
         let idUrl = URL(string: "https://id.tmetric.com/core/login")
-        
+
         DispatchQueue.global(qos: .userInitiated).async {
 
             var tab = self.findTabWithActivePage(window: window, url: appUrl!)
@@ -90,7 +91,7 @@ class SafariExtensionHandler: SFSafariExtensionHandler {
             
             if (tab == nil) {
 //                NSLog("toolbarItemClicked tab not found")
-                window.openTab(with: appUrl!, makeActiveIfPossible: true, completionHandler: { tab in })
+                window.openTab(with: targetUrl!, makeActiveIfPossible: true, completionHandler: { tab in })
             } else {
 //                NSLog("toolbarItemClicked tab found")
                 tab?.activate(completionHandler: { })
