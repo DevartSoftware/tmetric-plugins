@@ -53,7 +53,8 @@
         ]
     },
     "web_accessible_resources": [
-        "popup/popup.html"
+      "popup/popup.html",
+      "settings/settings.html"
     ],
     "content_scripts": [
         {
