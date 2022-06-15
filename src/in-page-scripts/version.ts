@@ -1,7 +1,14 @@
 ﻿(function () {
+
+    if (typeof document == undefined) {
+        return;
+    }
+
+    const head = document.querySelector('head');
+
     const sendBackgroundMessage = (message: ITabMessage) => {
 
-        chrome.runtime.sendMessage(message, response => {
+        chrome.runtime.sendMessage(message, () => {
             const error = chrome.runtime.lastError;
 
             // Background page is not loaded yet
@@ -11,52 +18,42 @@
         });
     }
 
-    if (typeof document == undefined) {
+    const getMeta = (metaName: string) => {
+        return head?.querySelector(`meta[name="${metaName}"]`) as HTMLMetaElement;
+    }
+
+    const addMeta = (metaName: string, metaValue: string) => {
+
+        if (!head) {
+            return;
+        }
+
+        const oldMeta = getMeta(metaName);
+        if (oldMeta) {
+            head.removeChild(oldMeta);
+        }
+
+        const meta = document.createElement('meta');
+        meta.name = metaName;
+        meta.content = metaValue;
+        head.appendChild(meta);
+    }
+
+    let appMeta = getMeta('application');
+    if (appMeta?.content != 'TMetric') {
         return;
     }
 
-    let head = document.querySelector('head');
-    if (!head) {
-        return;
-    }
-
-    let appMeta = <HTMLMetaElement>head.querySelector('meta[name="application"]');
-    if (!appMeta || appMeta.content != 'TMetric') {
-        return;
-    }
-
-    let extensionInfo = { // object is updated from gulp build
+    const extensionInfo = { // object is updated from gulp build
         version: '4.4.6'
     };
 
-    let metaName = 'tmetric-extension-version';
-
-    let oldMeta = head.querySelector(`meta[name="${metaName}"]`);
-    if (oldMeta) {
-        head.removeChild(oldMeta);
-    }
-
-    let meta = document.createElement('meta');
-    meta.name = metaName;
-    meta.content = extensionInfo.version;
-    head.appendChild(meta);
+    addMeta('tmetric-extension-version', extensionInfo.version);
 
     chrome.runtime.onMessage.addListener((message: ITabMessage) => {
         switch (message.action) {
-
             case 'setConstants':
-
-                let metaName = 'tmetric-extension-id';
-                let oldMeta = head.querySelector(`meta[name="${metaName}"]`);
-                if (oldMeta) {
-                    head.removeChild(oldMeta);
-                }
-
-                let meta = document.createElement('meta');
-                meta.name = metaName;
-                meta.content = message.data.extensionUUID;
-                head.appendChild(meta);
-
+                addMeta('tmetric-extension-id', (message.data as Models.Constants).extensionUUID);
                 break;
         }
     });
