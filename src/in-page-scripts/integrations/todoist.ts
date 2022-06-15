@@ -15,7 +15,7 @@
             ...$$
                 .all(this.listItemSelector),
             ...$$
-                .all('.item_detail')
+                .all('.item_detail, .task-overview-main')
                 .map(e => $$.closest(this.dialogSelector, e))
         ];
     }
@@ -131,8 +131,6 @@
             tagNames = $$.all('.label, .task_list_item__info_tags__label .simple_content', issueElement).map(label => label.textContent);
         } else {
 
-            console.log(0)
-
             issueNumber = $$.getAttribute('ul[data-subitem-list-id]', 'data-subitem-list-id', issueElement);
             if (!issueNumber) {
                 issueNumber = $$.getAttribute('div[data-item-id]', 'data-item-id', issueElement);
@@ -142,7 +140,7 @@
             }
 
             issueId = '#' + issueNumber;
-            issueName = $$.try('.item_overview_content .task_content', issueElement).textContent;
+            issueName = $$.try('.task-overview-content .task_content', issueElement).textContent;
             projectName = this.getProjectName(issueElement);
             tagNames = $$
                 .all('.item_overview_sub .label_pill .simple_content, a[data-item-label-name]', issueElement)
