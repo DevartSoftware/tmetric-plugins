@@ -42,23 +42,39 @@ function setIntegrationsScrollArea() {
     }
 }
 
+function switchMenuItem(element: JQuery, tabBox: string, isScrollNeeded: boolean = false ) {
+    if (!$(element).parent('li').hasClass('active')) {
+        $('.tab-box.visible').hide().removeClass('visible');
+        $('.tabset li.active').removeClass('active');
+
+        $(element).parent('li').addClass('active');
+        $(tabBox).addClass('visible').fadeIn(400);
+
+        if (isScrollNeeded) {
+            setIntegrationsScrollArea();
+        }
+    }
+}
+
 // Navigation Tabs
 function navTabs() {
     $('.tabset a').on('click', function(e){
-        e.preventDefault();
-        if (!$(this).parent('li').hasClass('active')) {
-            $('.tab-box.visible').hide().removeClass('visible');
-            $('.tabset li.active').removeClass('active');
-
-            const tabBox = $(this).attr('href');
-            $(this).parent('li').addClass('active');
-            $(tabBox).addClass('visible').fadeIn(400);
-            setIntegrationsScrollArea();
-        }
+        const tabBox = $(this).attr('href');
+        switchMenuItem(this, tabBox, true);
     });
 }
 
+function initActiveTab() {
+    const tabBox = document.location.hash;
+    if (tabBox) {
+        const navItem = $(`.tabset a[href='${tabBox}']`);
+
+        switchMenuItem(navItem, tabBox);
+    }
+}
+
 $(document).ready(() => {
+    initActiveTab();
     initShowPopupSelector();
     setIntegrationsScrollArea();
     navTabs();
