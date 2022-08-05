@@ -6,7 +6,7 @@
 
     matchUrl = 'https://www.notion.so/*';
 
-    issueElementSelector = ['.notion-frame', '.notion-default-overlay-container'];
+    issueElementSelector = ['.notion-peek-renderer', '.notion-cursor-listener > div[class=""]'];
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
@@ -21,7 +21,7 @@
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
         let issueId, issueName, issueUrl: string;
 
-        const titleEl = $$('.notion-page-block > div', issueElement);
+        const titleEl = $$('.notion-page-block > div.notranslate', issueElement);
         if (titleEl) {
             issueName = titleEl.textContent || titleEl.getAttribute('placeholder');
             const idAttr = titleEl.parentElement.getAttribute('data-block-id');
