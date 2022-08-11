@@ -75,6 +75,7 @@
     "in-page-scripts/integrations/redmine.ts",
     "in-page-scripts/integrations/salesforce.ts",
     "in-page-scripts/integrations/shortcut.ts",
+    "in-page-scripts/integrations/slack.ts",
     "in-page-scripts/integrations/sprintly.ts",
     "in-page-scripts/integrations/taiga.ts",
     "in-page-scripts/integrations/teamwork.ts",

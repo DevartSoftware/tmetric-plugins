@@ -593,6 +593,15 @@
             scripts: {
                 js: ['in-page-scripts/integrations/nifty.js']
             }
+        },
+        {
+            serviceType: 'Slack',
+            serviceName: 'Slack',
+            icon: 'slack.svg',
+            origins: ['https://app.slack.com/*'],
+            scripts: {
+                js: ['in-page-scripts/integrations/slack.js']
+            }
         }
     ];
 
