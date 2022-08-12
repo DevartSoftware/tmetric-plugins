@@ -7,8 +7,8 @@
     matchUrl = '*://app.asana.com/*/*';
 
     issueElementSelector = [
-        '.SingleTaskPane, .SingleTaskPaneSpreadsheet',  // task
-        '.SubtaskTaskRow'                               // sub-task
+        '.TaskPane',      // task
+        '.SubtaskTaskRow' // sub-task
     ]
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
@@ -16,9 +16,9 @@
         if (issueElement.matches(this.issueElementSelector[0])) {
             const linkContainer = $$.create('div', 'devart-timer-link-asana');
             linkContainer.appendChild(linkElement);
-            const toolbar = $$('.SingleTaskPaneToolbar', issueElement);
+            const toolbar = $$('.TaskPaneToolbar', issueElement);
             if (toolbar) {
-                toolbar.insertBefore(linkContainer, $$('.SingleTaskPaneToolbar-button', toolbar));
+                toolbar.insertBefore(linkContainer, $$('.TaskPaneToolbar-button', toolbar));
             }
         }
 
@@ -39,7 +39,7 @@
             return;
         }
 
-        let issueName = ($$.try('.SingleObjectTitleInput .simpleTextarea', rootTaskPane) as HTMLTextAreaElement).value;
+        let issueName = ($$.try('.ObjectTitleInput  .simpleTextarea', rootTaskPane) as HTMLTextAreaElement).value;
         let issuePath = source.path;
 
         // Sub-tasks
