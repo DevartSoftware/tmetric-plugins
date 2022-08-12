@@ -20,14 +20,12 @@ class Slack implements WebToolIntegration {
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        console.log('getIssue');
-
-        let issueName = $$.try('.c-message_kit__blocks .p-rich_text_section', issueElement.parentElement)?.textContent?.trim();
+        const issueName = $$.findNode('.c-message_kit__blocks .p-rich_text_section', Node.TEXT_NODE, issueElement.parentElement)?.textContent?.trim();
         if (!issueName) {
             return;
         }
 
-        let projectName = $$.try('.p-view_header__channel_title').textContent;
+        const projectName = $$.try('.p-view_header__channel_title').textContent;
 
         const serviceUrl = source.protocol + source.host
 
