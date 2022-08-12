@@ -31,6 +31,11 @@
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
+        let getChildQueryParam = (url: string) => {
+            let searchParams = new URLSearchParams(url);
+            return searchParams.get('child');
+        }
+
         let description: string;
 
         // Find root task
@@ -40,6 +45,7 @@
         }
 
         let issueName = ($$.try('.ObjectTitleInput  .simpleTextarea', rootTaskPane) as HTMLTextAreaElement).value;
+        let id = getChildQueryParam(source.fullUrl);
         let issuePath = source.path;
 
         // Sub-tasks
@@ -56,6 +62,7 @@
             if (rootTask) {
                 // Get issue name and path
                 issueName = rootTask.textContent;
+                id = getChildQueryParam(rootTask.href);
                 const match = /:\/\/[^\/]+(\/[^\?#]+)/.exec(rootTask.href);
                 if (match) {
                     issuePath = match[1];
@@ -69,12 +76,21 @@
         // https://app.asana.com/0/PROJECT_ID/TASK_ID
         // Project search url:
         // https://app.asana.com/0/search/PROJECT_ID/TASK_ID
+        // task search
+        // https://app.asana.com/0/search?sort=last_modified&predefined=TasksCreatedByMe&child=108409755682607
+        if (!id) {
+            const match = /^\/\w+(?:\/search)?\/\d+\/(\d+)/.exec(issuePath);
+            if (match) {
+                id = match[1];
+            }
+        }
+
         let issueId: string;
         let issueUrl: string;
-        const match = /^\/\w+(?:\/search)?\/\d+\/(\d+)/.exec(issuePath);
-        if (match) {
-            issueId = '#' + match[1];
-            issueUrl = '/0/0/' + match[1];
+
+        if (id) {
+            issueId = '#' + id;
+            issueUrl = '/0/0/' + id;
         }
 
         const projectName =
