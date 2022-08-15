@@ -78,8 +78,10 @@
         // https://app.asana.com/0/search/PROJECT_ID/TASK_ID
         // task search
         // https://app.asana.com/0/search?sort=last_modified&predefined=TasksCreatedByMe&child=108409755682607
+        // widget from home page
+        // https://app.asana.com/0/home/70718296417223/1202781903310811
         if (!id) {
-            const match = /^\/\w+(?:\/search)?\/\d+\/(\d+)/.exec(issuePath);
+            const match = /^\/\w+(?:\/search|\/home)?\/\d+\/(\d+)/.exec(issuePath);
             if (match) {
                 id = match[1];
             }
