@@ -324,6 +324,7 @@ function modifyManifestFirefox() {
             };
 
             //delete manifest['options_ui']['open_in_tab'];
+            delete manifest['externally_connectable'];
 
             return manifest;
         }))

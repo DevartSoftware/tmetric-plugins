@@ -68,6 +68,9 @@
             "run_at": "document_end"
         }
     ],
+    "externally_connectable": {
+          "matches": ["*://*.tmetric.com/*"]
+    },
     "options_ui": {
         "page": "settings/settings.html",
         "open_in_tab": true
