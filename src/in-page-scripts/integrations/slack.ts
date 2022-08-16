@@ -19,8 +19,33 @@ class Slack implements WebToolIntegration {
     }
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+        let issueName;
+        const getTextElement = (node: Node) => {
+            let text = '';
+            if (node.childNodes?.length) {
+                text = Array.from(node.childNodes)
+                    .filter(node => !(node instanceof Element && (<Element>node).classList.contains('c-message__edited_label')))
+                    .reduce((sumText, childNode) => {
+                        let elText = getTextElement(childNode);
+                        if (elText[0] == ' ' && sumText[sumText.length - 1] == ' ') {
+                            elText = text.substring(1);
+                        }
+                        return sumText + elText;
+                    }, '');
+            } else {
+                text = `${node.textContent.trim()} `;
+            }
 
-        const issueName = $$.findNode('.c-message_kit__blocks .p-rich_text_section', Node.TEXT_NODE, issueElement.parentElement)?.textContent?.trim();
+            return text;
+        };
+
+        const messageBlock = $$('.c-message_kit__blocks .p-rich_text_block', issueElement.parentElement);
+        if (messageBlock?.childNodes) {
+            issueName = Array.from(messageBlock.childNodes)
+                .reduce((sumText, node) => sumText + getTextElement(node), '')
+                .trim();
+        }
+
         if (!issueName) {
             return;
         }
