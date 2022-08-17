@@ -763,6 +763,15 @@ abstract class ExtensionBase extends BackgroundBase {
     }
 
     protected registerMessageListener() {
+
+        chrome.runtime.onMessageExternal.addListener((message: ITabMessage, _sender, sendResponse) => {
+            switch (message.action) {
+                case 'ping':
+                    sendResponse('pong');
+                    break;
+            }
+        });
+
         chrome.runtime.onMessage.addListener((
             message: ITabMessage | IPopupRequest | IExtensionSettingsMessage,
             sender: chrome.runtime.MessageSender,
