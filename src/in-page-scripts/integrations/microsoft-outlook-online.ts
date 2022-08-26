@@ -4,7 +4,8 @@
 
     matchUrl = [
         'https://outlook.live.com',
-        'https://outlook.office.com'
+        'https://outlook.office.com',
+        'https://outlook.office365.com'
     ];
 
     observeMutations = true;
