@@ -40,6 +40,7 @@ web browsers are **Chrome**, **Firefox**, **Edge**, **Opera**, and **Safari**.
 * [Producteev](https://www.producteev.com)
 * [Redmine](https://www.redmine.org)
 * [Salesforce](https://www.salesforce.com)
+* [Slack](https://slack.com)
 * [Shortcut](https://shortcut.com)
 * [Sprintly](https://sprint.ly)
 * [Taiga](https://taiga.io)
