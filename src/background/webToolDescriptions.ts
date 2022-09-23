@@ -1,4 +1,4 @@
-﻿const getWebToolDescriptions = function () {
+const getWebToolDescriptions = function () {
 
     let items: WebToolDescription[] = [
         {
@@ -268,7 +268,7 @@
         {
             serviceType: 'MicrosoftOutlookOnline',
             serviceName: 'Microsoft Outlook',
-            keywords: 'email',
+            keywords: 'email office 365 microsoft 365',
             icon: 'outlook.svg',
             origins: [
                 'https://outlook.live.com/*',
