@@ -70,8 +70,9 @@ class TfsIntegration implements WebToolIntegration {
         let serviceType = 'TFS';
 
         let itemView = $$.visible('.work-item-view, .work-item-form-subheader', issueElement);
-        let projectInput = itemView && $$('input[aria-label="Area Path"], input[id=__bolt--Area-input]', itemView) // new layout
-            || $$('.work-item-form-areaIteration input', issueElement) // old layout
+        let projectInput = itemView && $$('input[aria-label="projectName"]', itemView) // custom layout
+                || $$('input[aria-label="Area Path"], input[id=__bolt--Area-input]', itemView) // new layout
+                || $$('.work-item-form-areaIteration input', issueElement) // old layout
         let projectName = projectInput && (<HTMLInputElement>projectInput).value;
 
         return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
