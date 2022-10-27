@@ -1,4 +1,14 @@
-﻿abstract class BackgroundBase {
+﻿interface TestValues {
+    serviceUrl?: string;
+    storageUrl?: string;
+    authorityUrl?: string;
+    signalRUrl?: string;
+    extraHours?: number;
+}
+
+abstract class BackgroundBase {
+
+    protected readonly _testValues: TestValues;
 
     protected getConstants() {
         return <Models.Constants>{
@@ -36,7 +46,9 @@
 
     protected userProfile: Models.UserProfile;
 
-    constructor() {
+    constructor(testValues: TestValues) {
+
+        this._testValues = testValues;
 
         this.init();
 
@@ -214,13 +226,6 @@
         action(data).catch(status => this.showError(this.getErrorText(status)));
     }
 
-    protected normalizeUrlLastSlash(url: string) {
-        if (url[url.length - 1] != '/') {
-            url += '/';
-        }
-        return url;
-    }
-
     protected getErrorText(status: AjaxStatus) {
         const result = status && (status.responseMessage || status.statusText || status.statusCode);
         if (result) {
@@ -357,72 +362,72 @@
             accountId = this.userProfile.activeAccountId;
         }
 
-        return Promise.all([
+        const [title, webTool, scope, defaultWorkType] = await Promise.all([
             this.getActiveTabTitle(),
             this.getActiveTabPossibleWebTool(),
             this.getAccountScope(accountId),
             this.getDefaultWorkType(accountId),
-        ]).then(([title, webTool, scope, defaultWorkType]) => {
+        ]);
 
-            const userRole = this.userProfile.accountMembership
-                .find(_ => _.account.accountId == accountId)
-                .role;
+        const userRole = this.userProfile.accountMembership
+            .find(_ => _.account.accountId == accountId)
+            .role;
 
-            const canMembersManagePublicProjects = scope.account.canMembersManagePublicProjects;
-            const canCreateTags = scope.account.canMembersCreateTags;
-            const isAdmin = (userRole == Models.ServiceRole.Admin || userRole == Models.ServiceRole.Owner);
+        const canMembersManagePublicProjects = scope.account.canMembersManagePublicProjects;
+        const canCreateTags = scope.account.canMembersCreateTags;
+        const isAdmin = (userRole == Models.ServiceRole.Admin || userRole == Models.ServiceRole.Owner);
 
-            const newIssue: WebToolIssueTimer = this.newPopupIssue || { // _newPopupIssue is null if called from toolbar popup
-                isStarted: true,
-                description: title,
-                tagNames: defaultWorkType ? [defaultWorkType.tagName] : []
-            };
+        const newIssue: WebToolIssueTimer = this.newPopupIssue || { // _newPopupIssue is null if called from toolbar popup
+            isStarted: true,
+            description: title,
+            tagNames: defaultWorkType ? [defaultWorkType.tagName] : []
+        };
 
-            const filteredProjects = this.getTrackedProjects(scope)
-                .sort((a, b) => a.projectName.localeCompare(b.projectName, [], { sensitivity: 'base' }));
+        const filteredProjects = this.getTrackedProjects(scope)
+            .sort((a, b) => a.projectName.localeCompare(b.projectName, [], { sensitivity: 'base' }));
 
-            const projectMap = this.getProjectMap(accountId);
+        const projectMap = this.getProjectMap(accountId);
 
-            // Determine default project
-            let defaultProjectId: number = null;
-            if (projectMap) {
+        // Determine default project
+        let defaultProjectId: number = null;
+        if (projectMap) {
 
-                const projectName = newIssue.projectName || '';
+            const projectName = newIssue.projectName || '';
 
-                defaultProjectId = projectMap[projectName];
+            defaultProjectId = projectMap[projectName];
 
-                // Remove mapped project from localstorage if project was deleted/closed
-                if (defaultProjectId && filteredProjects.every(_ => _.projectId != defaultProjectId)) {
-                    this.setProjectMap(accountId, projectName, null);
-                    defaultProjectId = null;
-                }
+            // Remove mapped project from localstorage if project was deleted/closed
+            if (defaultProjectId && filteredProjects.every(_ => _.projectId != defaultProjectId)) {
+                this.setProjectMap(accountId, projectName, null);
+                defaultProjectId = null;
             }
+        }
 
-            const descriptionMap = this.getDescriptionMap();
+        const descriptionMap = await this.getDescriptionMap();
 
-            if (newIssue.issueId && !newIssue.description && descriptionMap) {
-                newIssue.description = descriptionMap[newIssue.issueName];
-            }
+        if (newIssue.issueId && !newIssue.description && descriptionMap) {
+            newIssue.description = descriptionMap[newIssue.issueName];
+        }
 
-            this.newPopupIssue = null;
-            this.newPopupAccountId = null;
+        this.newPopupIssue = null;
+        this.newPopupAccountId = null;
 
-            return <IPopupInitData>{
-                timer: this.timer,
-                newIssue,
-                profile: this.userProfile,
-                accountId,
-                projects: filteredProjects,
-                clients: scope.clients,
-                tags: scope.tags,
-                canCreateProjects: isAdmin || canMembersManagePublicProjects,
-                canCreateTags,
-                constants: this.constants,
-                defaultProjectId,
-                requiredFields: scope.requiredFields,
-                possibleWebTool: webTool
-            };
-        });
+        return <IPopupInitData>{
+            timer: this.timer,
+            newIssue,
+            profile: this.userProfile,
+            accountId,
+            projects: filteredProjects,
+            clients: scope.clients,
+            tags: scope.tags,
+            canCreateProjects: isAdmin || canMembersManagePublicProjects,
+            canCreateTags,
+            constants: this.constants,
+            defaultProjectId,
+            requiredFields: scope.requiredFields,
+            possibleWebTool: webTool
+        };
+
     }
 
     protected initializePopupAction(params: IPopupParams): Promise<IPopupInitData> {
@@ -497,9 +502,9 @@
 
     private accountToProjectMapKey = 'accountToProjectMap';
 
-    private setProjectMap(accountId: number, projectName: string, projectId: number) {
+    private async setProjectMap(accountId: number, projectName: string, projectId: number) {
 
-        let map = this.getProjectMap(accountId);
+        let map = await this.getProjectMap(accountId);
         if (projectId) {
             map = map || {};
             map[projectName] = projectId;
@@ -508,14 +513,14 @@
             delete map[projectName];
         }
 
-        localStorage.setItem(this.accountToProjectMapKey, JSON.stringify(this.accountToProjectMap));
+        await storage.setItem(this.accountToProjectMapKey, JSON.stringify(this.accountToProjectMap));
     }
 
-    private getProjectMap(accountId: number) {
+    private async getProjectMap(accountId: number) {
 
         if (!this.accountToProjectMap) {
-            const obj = localStorage.getItem(this.accountToProjectMapKey);
-            this.accountToProjectMap = obj ? JSON.parse(obj) : {};
+            const json = await storage.getItem(this.accountToProjectMapKey);
+            this.accountToProjectMap = json ? JSON.parse(json) : {};
         }
 
         return this.accountToProjectMap[accountId];
@@ -534,8 +539,8 @@
 
     private taskNameToDescriptionMapKey = 'taskNameToDescriptionMap';
 
-    private setDescriptionMap(taskName: string, description: string) {
-        let map = this.getDescriptionMap();
+    private async setDescriptionMap(taskName: string, description: string) {
+        let map = await this.getDescriptionMap();
         if (description && description != taskName) {
             map = map || {};
             map[taskName] = description;
@@ -544,20 +549,20 @@
             delete map[taskName];
         }
 
-        localStorage.setItem(this.taskNameToDescriptionMapKey, JSON.stringify(this.taskNameToDescriptionMap))
+        await storage.setItem(this.taskNameToDescriptionMapKey, JSON.stringify(this.taskNameToDescriptionMap));
     }
 
-    private getDescriptionMap() {
+    private async getDescriptionMap() {
         if (!this.taskNameToDescriptionMap) {
-            const obj = localStorage.getItem(this.taskNameToDescriptionMapKey);
-            this.taskNameToDescriptionMap = obj ? JSON.parse(obj) : {};
+            const json = await storage.getItem(this.taskNameToDescriptionMapKey);
+            this.taskNameToDescriptionMap = json ? JSON.parse(json) : {};
         }
 
         return this.taskNameToDescriptionMap;
     }
 
-    protected saveDescriptionMapPopupAction({ taskName, description }: ITaskDescriptionMapping) {
-        this.setDescriptionMap(taskName, description);
+    protected async saveDescriptionMapPopupAction({ taskName, description }: ITaskDescriptionMapping) {
+        await this.setDescriptionMap(taskName, description);
         return Promise.resolve(null);
     }
 

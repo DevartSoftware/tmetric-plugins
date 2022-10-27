@@ -21,6 +21,7 @@
     "interfaces/models.d.ts",
     "interfaces/integrations.d.ts",
     "interfaces/safari.d.ts",
+    "background/storage.ts",
     "background/oidcClient.ts",
     "background/webToolDescriptions.ts",
     "background/webToolManager.ts",

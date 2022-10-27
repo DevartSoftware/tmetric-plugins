@@ -36,8 +36,8 @@
   ],
   "background": {
     "scripts": [
-      "lib/jquery.min.js",
       "lib/signalr.min.js",
+      "background/storage.js",
       "background/oidcClient.js",
       "background/webToolDescriptions.js",
       "background/webToolManager.js",

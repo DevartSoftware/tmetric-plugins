@@ -1,15 +1,39 @@
 ﻿const enum ButtonState { start, stop, fixtimer, connect }
 const invalidProfileError = 'Profile not configured';
 
+async function getTestValues() {
+
+    const getUrl = async key => {
+        let url = await storage.getItem(key);
+        if (!url) {
+            return;
+        }
+        if (url[url.length - 1] != '/') {
+            url += '/';
+        }
+        return url;
+    }
+
+    const extraHours = await storage.getItem('tmetric.extraHours');
+
+    return {
+        serviceUrl: await getUrl('tmetric.url'),
+        storageUrl: await getUrl('tmetric.storageUrl'),
+        authorityUrl: await getUrl('tmetric.authorityUrl'),
+        signalRUrl: await getUrl('tmetric.signalRUrl'),
+        extraHours: extraHours ? parseFloat(extraHours) : 0
+    } as TestValues;
+}
+
 abstract class ExtensionBase extends BackgroundBase {
 
     protected getConstants() {
         const constants = super.getConstants();
         return <Models.Constants>{
             maxTimerHours: constants.maxTimerHours,
-            serviceUrl: this.getUrl('tmetric.url', constants.serviceUrl),
-            storageUrl: this.getUrl('tmetric.storageUrl', constants.storageUrl),
-            authorityUrl: this.getUrl('tmetric.authorityUrl', constants.authorityUrl),
+            serviceUrl: this._testValues.serviceUrl || constants.serviceUrl,
+            storageUrl: this._testValues.storageUrl || constants.storageUrl,
+            authorityUrl: this._testValues.authorityUrl || constants.authorityUrl,
             extensionName: this.getExtensionName(),
             browserSchema: this.getBrowserSchema(),
             extensionUUID: this.getExtensionUUID()
@@ -23,10 +47,6 @@ abstract class ExtensionBase extends BackgroundBase {
     protected abstract getBrowserSchema(): string
 
     protected abstract getExtensionUUID(): string
-
-    protected getUrl(key, defaultValue) {
-        return this.normalizeUrlLastSlash(this.getTestValue(key) || defaultValue);
-    }
 
     private createLoginDialog() {
 
@@ -78,9 +98,9 @@ abstract class ExtensionBase extends BackgroundBase {
 
     protected timeEntries: Models.TimeEntry[];
 
-    constructor() {
+    constructor(testValues: TestValues) {
 
-        super();
+        super(testValues);
 
         this.listenPopupAction<void, boolean>('isConnectionRetryEnabled', this.isConnectionRetryEnabledPopupAction);
         this.listenPopupAction<void, void>('retry', this.retryConnectionPopupAction);
@@ -156,15 +176,8 @@ abstract class ExtensionBase extends BackgroundBase {
 
         super.init();
 
-        this.signalRUrl = this.getUrl('tmetric.signalRUrl', 'https://services.tmetric.com/signalr/');
-
-        this.extraHours = this.getTestValue('tmetric.extraHours');
-        if (this.extraHours) {
-            this.extraHours = parseFloat(<any>this.extraHours);
-        }
-        else {
-            this.extraHours = 0;
-        }
+        this.signalRUrl = this._testValues.signalRUrl || 'https://services.tmetric.com/signalr/';
+        this.extraHours = this._testValues.extraHours || 0;
     }
 
     protected initConnection() {
@@ -551,10 +564,6 @@ abstract class ExtensionBase extends BackgroundBase {
                 });
             }
         }));
-    }
-
-    protected getTestValue(name: string): any {
-        return localStorage.getItem(name);
     }
 
     protected getActiveTabTitle() {

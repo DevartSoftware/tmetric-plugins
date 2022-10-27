@@ -1,7 +1,7 @@
 class ChromeExtension extends ExtensionBase {
 
-    constructor() {
-        super();
+    constructor(testValues: TestValues) {
+        super(testValues);
 
         // Convert patterns to regexps
         const patternToRegExp = (matchPattern: string) => new RegExp('^' + matchPattern
@@ -55,4 +55,4 @@ class ChromeExtension extends ExtensionBase {
     }
 }
 
-new ChromeExtension();
+getTestValues().then(x => new ChromeExtension(x));

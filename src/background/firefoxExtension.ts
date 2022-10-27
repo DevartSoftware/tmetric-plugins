@@ -1,7 +1,7 @@
 class FirefoxExtension extends ExtensionBase {
 
-    constructor() {
-        super();
+    constructor(testValues: TestValues) {
+        super(testValues);
 
         this.sendToTabs({ action: 'initPage' });
     }
@@ -33,4 +33,4 @@ class FirefoxExtension extends ExtensionBase {
     }
 }
 
-new FirefoxExtension();
+getTestValues().then(x => new ChromeExtension(x));

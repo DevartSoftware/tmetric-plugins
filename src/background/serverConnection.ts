@@ -141,10 +141,27 @@
             ));
     }
 
+    objToParams(obj: any) {
+        const params = new URLSearchParams();
+        for (let name in obj) {
+            let value = obj[name];
+            if (Array.isArray(value)) {
+                for (let item of value) {
+                    params.append(name, item);
+                }
+            } else if (value != null) {
+                params.set(name, value)
+            }
+        }
+        return params.toString();
+    }
+
     getIntegration(identifier: Models.IntegratedProjectIdentifier, accountId?: number, keepAccount?: boolean) {
-        return this.checkProfile().then(profile =>
-            this.get<Models.IntegratedProjectStatus>(
-                this.getIntegrationProjectUrl(accountId || profile.activeAccountId) + '?' + $.param($.extend({ keepAccount }, identifier), true)));
+        return this.checkProfile().then(profile => {
+            const url = this.getIntegrationProjectUrl(accountId || profile.activeAccountId);
+            const params = this.objToParams(Object.assign({ keepAccount }, identifier));
+            return this.get<Models.IntegratedProjectStatus>(url + '?' + params);
+        });
     }
 
     postIntegration(identifier: Models.IntegratedProjectIdentifier) {

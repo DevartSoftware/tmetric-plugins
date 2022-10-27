@@ -17,48 +17,32 @@
         return `${this.authorityUrl}extension/login.html`;
     }
 
-    public static getTokensByAuthorizationCode(authorizationCode) {
+    private static async getTokensByAuthorizationInternal(body: string) {
+        const res = await fetch(`${this.authorityUrl}core/connect/token`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': "application/x-www-form-urlencoded"
+            },
+            body
+        })
+        if (res.status !== 200) {
+            throw res.status;
+        }
 
-        return new Promise<{ refresh_token, access_token }>((resolve, reject) => {
-
-            const xhr = new XMLHttpRequest();
-            xhr.open("POST", `${this.authorityUrl}core/connect/token`);
-            xhr.onload = () => {
-                if (xhr.status === 200) {
-                    resolve(JSON.parse(xhr.responseText));
-                }
-                else {
-                    reject(xhr.status);
-                }
-            }
-            xhr.onerror = () => {
-                reject(xhr.status);
-            }
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.send(`client_id=browser_extension&grant_type=authorization_code&code=${authorizationCode}&redirect_uri=${this.authorityUrl}extension/callback.html`);
-        });
+        const json = (await res.json()) as { refresh_token: string, access_token: string };
+        return json;
     }
 
-    public static getTokensByRefresh(refreshToken) {
+    public static getTokensByAuthorizationCode(authorizationCode) {
+        return this.getTokensByAuthorizationInternal(
+            `client_id=browser_extension&grant_type=authorization_code&code=${authorizationCode}&redirect_uri=${this.authorityUrl}extension/callback.html`
+        );
+    }
 
-        return new Promise<{ refresh_token, access_token }>((resolve, reject) => {
-
-            const xhr = new XMLHttpRequest();
-            xhr.open("POST", `${this.authorityUrl}core/connect/token`);
-            xhr.onload = () => {
-                if (xhr.status === 200) {
-                    resolve(JSON.parse(xhr.responseText));
-                }
-                else {
-                    reject(xhr.status);
-                }
-            }
-            xhr.onerror = () => {
-                reject(xhr.status);
-            }
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.send(`client_id=browser_extension&grant_type=refresh_token&refresh_token=${refreshToken}&redirect_uri=${this.authorityUrl}extension/callback.html`);
-        });
+    public static async getTokensByRefresh(refreshToken) {
+        return this.getTokensByAuthorizationInternal(
+            `client_id=browser_extension&grant_type=refresh_token&refresh_token=${refreshToken}&redirect_uri=${this.authorityUrl}extension/callback.html`
+        );
     }
 
     public static getStorageValue(key: string): Promise<string> {
@@ -126,60 +110,71 @@
 
     private static ajaxInternal<TReq, TRes>(token: string, url: string, method: string, dataReq?: TReq): Promise<TRes> {
 
-        const settings = <JQueryAjaxSettings>{};
-        settings.url = url;
+        const settings = {
+            headers: {
+                Authorization: 'Bearer ' + token
+            }
+        } as RequestInit;
+
+        const contentTypeHeader = 'Content-Type';
+        const contentTypeJson = 'application/json';
 
         if (dataReq !== undefined) {
-            settings.data = JSON.stringify(dataReq);
-            settings.contentType = "application/json";
+            settings.body = JSON.stringify(dataReq);
+            settings.headers[contentTypeHeader] = contentTypeJson;
         }
 
-        const isGet = method == 'GET';
-        const isPost = method == 'POST';
-
-        settings.headers = {};
-        settings.headers['Authorization'] = 'Bearer ' + token;
-
-        if (isGet || isPost) {
-            settings.type = method;
+        if (method == 'GET' || method == 'POST') {
+            settings.method = method;
         }
         else {
-            settings.type = 'POST';
+            settings.method = 'POST';
             settings.headers['X-HTTP-Method-Override'] = method;
         }
 
-        return new Promise<TRes>((callback, reject) => {
+        return new Promise<TRes>(async (callback, reject) => {
 
-            const xhr = $.ajax(settings);
-
-            function fail() {
-                const statusCode = xhr.status;
-                let statusText = xhr.statusText;
-                let responseMessage: string;
-                if (xhr.responseJSON) {
-                    responseMessage = xhr.responseJSON.message || xhr.responseJSON.Message;
-                }
-
-                if (statusText == 'error') // jQuery replaces empty status to 'error'
-                {
-                    statusText = '';
-                }
-                if (statusCode && !statusText) { // HTTP/2 does not define a way to carry the reason phrase
-                    statusText = ServerConnection.statusDescriptions[statusCode];
-                }
-                reject(<AjaxStatus>{ statusCode, statusText, responseMessage });
+            const getErrorStatus = (e: any, defaultMessage: string) => {
+                let message = (typeof e === 'string') ? e : (e as Object)?.toString?.();
+                return { statusCode: 0, responseMessage: message || defaultMessage } as AjaxStatus;
             }
 
-            xhr.done(dataRes => {
-                if (xhr.status >= 200 && xhr.status < 400) {
-                    callback(dataRes);
+            let res: Response;
+            try {
+                res = await fetch(url, settings);
+            }
+            catch (e) {
+                reject(getErrorStatus(e, 'Network error'))
+                return;
+            }
+            
+            let json = <any>undefined;
+            const contentType = res?.headers?.get(contentTypeHeader);
+            if (contentType?.includes(contentTypeJson)) {
+                try {
+                    json = await res.json();
                 }
-                else {
-                    reject(fail);
+                catch (e) {
+                    reject(getErrorStatus(e, 'Invalid format'))
+                    return;
                 }
-            });
+            }
 
-            xhr.fail(fail);
+            if (res.status >= 200 && res.status < 400) {
+                callback(json);
+            } else {
+                const statusCode = res.status;
+                let responseMessage: string;
+                if (json) {
+                    responseMessage = json.message || json.Message;
+                }
+
+                let statusText: string;
+                if (statusCode) { // HTTP/2 does not define a way to carry the reason phrase
+                    statusText = ServerConnection.statusDescriptions[statusCode];
+                }
+                reject({ statusCode, statusText, responseMessage } as AjaxStatus);
+            }
         });
     }
 }
