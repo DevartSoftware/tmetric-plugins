@@ -1,5 +1,5 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
 
   "name": "TMetric – Time Tracker & Productivity App",
   "short_name": "TMetric",
@@ -14,7 +14,7 @@
     "128": "images/icon128.png"
   },
 
-  "browser_action": {
+  "action": {
     "default_icon": {
       "19": "images/inactive19.png",
       "38": "images/inactive38.png"
@@ -27,35 +27,22 @@
     "tabs",
     "webNavigation",
     "notifications",
-    "storage",
+    "storage"
+  ],
+  "host_permissions": [
+    "*://*/",
     "*://*.tmetric.com/*"
-  ],
-  "optional_permissions": [
-    "http://*/*",
-    "https://*/*"
-  ],
+  ],  
   "background": {
-    "scripts": [
-      "lib/signalr.min.js",
-      "background/storage.js",
-      "background/oidcClient.js",
-      "background/webToolDescriptions.js",
-      "background/webToolManager.js",
-      "background/contentScriptsPolyfill.js",
-      "background/contentScriptsRegistrator.js",
-      "background/simpleEvent.js",
-      "background/serverConnection.js",
-      "background/signalRHubProxy.js",
-      "background/signalRConnection.js",
-      "background/backgroundBase.js",
-      "background/extensionBase.js",
-      "background/chromeExtension.js"
-    ]
+    "service_worker": "background-bundle.js"
   },
-  "web_accessible_resources": [
-    "popup/popup.html",
-    "settings/settings.html"
-  ],
+  "web_accessible_resources" : [{
+    "resources": [
+      "popup/popup.html",
+      "settings/settings.html"
+    ],
+    "matches": [ "<all_urls>"]
+  }],  
   "content_scripts": [
     {
       "matches": [ "*://*.tmetric.com/*" ],

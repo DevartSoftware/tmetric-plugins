@@ -223,7 +223,7 @@ gulp.task('lib', () => {
         .src('node_modules/jquery/dist/jquery.min.js')
         .pipe(gulp.dest(lib));
     var signalr = gulp
-        .src('node_modules/@aspnet/signalr/dist/browser/signalr.min.js')
+        .src('node_modules/@microsoft/signalr/dist/webworker/signalr.min.js')
         .pipe(rename('signalr.min.js'))
         .pipe(gulp.dest(lib));
     var select2 = gulp

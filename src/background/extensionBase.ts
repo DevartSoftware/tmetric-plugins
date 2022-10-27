@@ -536,13 +536,13 @@ abstract class ExtensionBase extends BackgroundBase {
     }
 
     private setButtonIcon(icon: string, tooltip: string) {
-        chrome.browserAction.setIcon({
+        chrome.action.setIcon({
             path: {
                 '19': 'images/' + icon + '19.png',
                 '38': 'images/' + icon + '38.png'
             }
         });
-        chrome.browserAction.setTitle({ title: tooltip });
+        chrome.action.setTitle({ title: tooltip });
     }
 
     protected sendToTabs(message: ITabMessage, tabId?: number) {

@@ -8,7 +8,7 @@
         "url": "https://github.com/DevartSoftware/tt-plugins.git"
     },
     "dependencies": {
-        "@aspnet/signalr": "1.1.4",
+        "@microsoft/signalr": "^6.0.10",
         "jquery": "3.5.0",
         "select2": "4.0.2"
     },
