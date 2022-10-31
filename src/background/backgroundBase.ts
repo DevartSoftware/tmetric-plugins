@@ -430,16 +430,14 @@ abstract class BackgroundBase {
 
     }
 
-    protected initializePopupAction(params: IPopupParams): Promise<IPopupInitData> {
-        return new Promise((resolve, reject) => {
-            // Forget about old action when user open popup again
-            this.actionOnConnect = null;
-            if (this.timer) {
-                resolve(this.getPopupData(params));
-            } else {
-                reject('Not connected');
-            }
-        });
+    protected async initializePopupAction(params: IPopupParams) {
+
+        // Forget about old action when user open popup again
+        this.actionOnConnect = null;
+        if (this.timer) {
+            return await this.getPopupData(params);
+        }
+        throw 'Not connected';
     }
 
     protected openTrackerPagePopupAction() {
