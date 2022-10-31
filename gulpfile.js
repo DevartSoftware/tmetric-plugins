@@ -63,6 +63,7 @@ console.log(JSON.stringify(config, null, 2));
 
 var files = {
     common: [
+        'src/background/storage.js',    
         'src/background/webToolDescriptions.js',
         'src/background/webToolManager.js',
         'src/background/oidcClient.js',
