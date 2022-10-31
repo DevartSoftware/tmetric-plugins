@@ -33,4 +33,4 @@ class FirefoxExtension extends ExtensionBase {
     }
 }
 
-getTestValues().then(x => new ChromeExtension(x));
+getTestValues().then(x => new FirefoxExtension(x));
