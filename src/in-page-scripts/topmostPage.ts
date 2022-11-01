@@ -45,7 +45,7 @@
             // Show iframe at front of content
             Object.assign(frame.style, {
                 position: 'fixed',
-                zIndex: 999999,
+                zIndex: 999999999,
                 top: 0,
                 left: 0,
                 width: '100%',
