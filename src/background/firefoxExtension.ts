@@ -1,26 +1,15 @@
 class FirefoxExtension extends ExtensionBase {
 
-    constructor(testValues: TestValues) {
-        super(testValues);
+    constructor() {
+        super('moz-extension', window.location.host);
 
         this.sendToTabs({ action: 'initPage' });
     }
 
-    /** @override */
-    getBrowserSchema(): string {
-        return 'moz-extension';
-    }
-
-    /** @override */
-    getExtensionUUID() {
-        return window.location.host;
-    }
-
     /**
-     * @override
      * @param message
      */
-    protected showError(message: string) {
+    protected override showError(message: string) {
         // https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Chrome_incompatibilities#Additional_incompatibilities
         this.getActiveTabId().then(id => {
             if (id) {
@@ -33,4 +22,4 @@ class FirefoxExtension extends ExtensionBase {
     }
 }
 
-getTestValues().then(x => new ChromeExtension(x));
+new FirefoxExtension()

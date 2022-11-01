@@ -28,7 +28,8 @@
     "tabs",
     "webNavigation",
     "notifications",
-    "storage"
+    "storage",
+    "scripting"
   ],
   "host_permissions": [
     "*://*.tmetric.com/*"

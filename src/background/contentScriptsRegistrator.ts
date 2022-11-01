@@ -105,7 +105,7 @@
 
             const scripts = webToolDescription.scripts;
 
-            const matches = [ serviceUrl ];
+            const matches = [serviceUrl];
 
             const options: RegisteredContentScriptOptions = {
                 allFrames: scripts.allFrames,
@@ -157,17 +157,21 @@
 
         console.log('checkContentScripts', { matches, allFrames })
 
+        const sendFunc = function () {
+            chrome.runtime.sendMessage({ action: 'checkContentScripts' });
+        }
+
         if (typeof browser === 'object' && browser.contentScripts) {
-           // browser.contentScripts inject scripts only to new pages
+            // browser.contentScripts inject scripts only to new pages
         } else if (typeof chrome === 'object' && chrome.contentScripts) {
             chrome.tabs.query({ url: matches, status: 'complete' }, tabs => {
                 tabs.forEach(tab => {
 
                     console.log('checkContentScripts', tab.id, tab.url)
 
-                    chrome.tabs.executeScript(tab.id, {
-                        code: `chrome.runtime.sendMessage({action:'checkContentScripts'})`,
-                        allFrames
+                    chrome.scripting.executeScript({
+                        target: { tabId: tab.id, allFrames },
+                        func: sendFunc
                     });
                 });
             });

@@ -2,6 +2,7 @@ try {
     importScripts(
         "lib/signalr.min.js",
         "background/storage.js",
+        "background/ajaxClient.js",
         "background/oidcClient.js",
         "background/webToolDescriptions.js",
         "background/webToolManager.js",

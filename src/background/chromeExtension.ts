@@ -1,7 +1,7 @@
 class ChromeExtension extends ExtensionBase {
 
-    constructor(testValues: TestValues) {
-        super(testValues);
+    constructor() {
+        super('chrome-extension', chrome.runtime.id);
 
         // Convert patterns to regexps
         const patternToRegExp = (matchPattern: string) => new RegExp('^' + matchPattern
@@ -25,34 +25,25 @@ class ChromeExtension extends ExtensionBase {
                     // Do not load same scripts twice
                     let jsFiles = (group.js || []).filter(path => !loadedFiles[path]);
                     let cssFiles = (group.css || []).filter(path => !loadedFiles[path]);
-                    let runAt = group.run_at;
+                    const isMatched = (regexps) => regexps.some(r => r.test(tab.url));
 
-                    const isMatched = (regexps: RegExp[]) => regexps.some(r => r.test(tab.url));
-
-                    // Inject JS and CSS
                     if (isMatched(group.regexp_matches) && !isMatched(group.regexp_exclude_matches)) {
-                        jsFiles.forEach(file => {
-                            chrome.tabs.executeScript(tab.id, { file, runAt });
-                            loadedFiles[file] = true;
+
+                        chrome.scripting.executeScript({
+                            target: { tabId: tab.id },
+                            files: jsFiles
                         });
-                        cssFiles.forEach(file => {
-                            chrome.tabs.insertCSS(tab.id, { file });
-                            loadedFiles[file] = true;
+                        jsFiles.forEach(file => loadedFiles[file] = true);
+
+                        chrome.scripting.insertCSS({
+                            target: { tabId: tab.id },
+                            files: cssFiles
                         });
+                        cssFiles.forEach(file => loadedFiles[file] = true);
                     }
                 });
             }));
     }
-
-    /** @override */
-    getBrowserSchema(): string {
-        return 'chrome-extension';
-    }
-
-    /** @override */
-    getExtensionUUID() {
-        return chrome.runtime.id;
-    }
 }
 
-getTestValues().then(x => new ChromeExtension(x));
+new ChromeExtension();

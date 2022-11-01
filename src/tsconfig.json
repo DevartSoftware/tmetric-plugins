@@ -7,6 +7,7 @@
     "inlineSources": true,
     "noEmitOnError": true,
     "removeComments": true,
+    "noImplicitOverride": true,
     "typeRoots": [
       "./typings/@fake"
     ]
@@ -22,6 +23,7 @@
     "interfaces/integrations.d.ts",
     "interfaces/safari.d.ts",
     "background/storage.ts",
+    "background/ajaxClient.ts",
     "background/oidcClient.ts",
     "background/webToolDescriptions.ts",
     "background/webToolManager.ts",

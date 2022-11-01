@@ -30,7 +30,7 @@ if (typeof chrome === 'object' && !chrome.contentScripts) {
         return new RegExp(matchPatterns.map(getRawRegex).join('|'), 'i');
     }
 
-    const isOriginPermitted = async function(url) {
+    const isOriginPermitted = async function (url) {
         return new Promise((resolve, reject) => {
             chrome.permissions.contains({ origins: [new URL(url).origin + '/*'] }, resolve);
         });
@@ -47,52 +47,36 @@ if (typeof chrome === 'object' && !chrome.contentScripts) {
         document['tmetricContentScripts'] = scripts;
     }
 
-    const getInjectedScripts = function (tabId: number, frameId: number) {
-        return new Promise<string[]>(resolve => {
-            chrome.tabs.executeScript(
-                tabId,
-                {
-                    frameId,
-                    code: `(${getInjectedScriptsFunction.toString()})()`,
-                    runAt: 'document_end'
-                },
-                result => resolve(result[0])
-            );
+    const getInjectedScripts = async function (tabId: number, frameId: number) {
+        const result = await chrome.scripting.executeScript({
+            target: { tabId, frameIds: [frameId] },
+            func: getInjectedScriptsFunction
+        });
+        return result[0].result as { [name: string]: boolean };
+    }
+
+    const setInjectedScript = async function (tabId, frameId, file) {
+        await chrome.scripting.executeScript({
+            target: { tabId, frameIds: [frameId] },
+            func: setInjectedScriptFunction,
+            args: [file]
         });
     }
 
-    const setInjectedScript = function (tabId, frameId, file) {
-        return new Promise<void>(resolve => {
-            chrome.tabs.executeScript(
-                tabId,
-                {
-                    frameId,
-                    code: `(${setInjectedScriptFunction.toString()})('${file}')`,
-                    runAt: 'document_end'
-                },
-                () => resolve()
-            );
+    const injectCss = async function (tabId, frameId, file) {
+        await chrome.scripting.insertCSS({
+            target: { tabId, frameIds: [frameId] },
+            files: [file],
         });
+        await setInjectedScript(tabId, frameId, file);
     }
 
-    const injectCss = function (tabId, frameId, file) {
-        return new Promise<void>(resolve => {
-            chrome.tabs.insertCSS(
-                tabId,
-                { frameId, file },
-                () => setInjectedScript(tabId, frameId, file).then(resolve)
-            );
+    const injectJs = async function (tabId, frameId, file) {
+        await chrome.scripting.executeScript({
+            target: { tabId, frameIds: [frameId] },
+            files: [file],
         });
-    }
-
-    const injectJs = function (tabId, frameId, file) {
-        return new Promise<void>(resolve => {
-            chrome.tabs.executeScript(
-                tabId,
-                { frameId, file },
-                () => setInjectedScript(tabId, frameId, file).then(resolve)
-            );
-        });
+        await setInjectedScript(tabId, frameId, file);
     }
 
     const injectContentScripts = async function (tabId: number, frameId: number, options: browser.contentScripts.RegisteredContentScriptOptions[], injectedScripts: {}) {

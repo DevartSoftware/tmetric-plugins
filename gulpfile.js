@@ -66,6 +66,7 @@ var files = {
         'src/background/storage.js',
         'src/background/webToolDescriptions.js',
         'src/background/webToolManager.js',
+        'src/background/ajaxClient.js',
         'src/background/oidcClient.js',
         'src/background/contentScriptsPolyfill.js',
         'src/background/contentScriptsRegistrator.js',

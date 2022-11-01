@@ -7,8 +7,7 @@
 
     hidePopupAction = this.wrapBackgroundAction<Models.Timer, void>('hideAllPopups');
 
-    /** @override */
-    close() {
+    override close() {
         this.hidePopupAction();
     }
 

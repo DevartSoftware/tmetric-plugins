@@ -1,23 +1,6 @@
-﻿interface TestValues {
-    serviceUrl?: string;
-    storageUrl?: string;
-    authorityUrl?: string;
-    signalRUrl?: string;
-    extraHours?: number;
-}
+﻿abstract class BackgroundBase<TConnection extends ServerConnection = ServerConnection> {
 
-abstract class BackgroundBase {
-
-    protected readonly _testValues: TestValues;
-
-    protected getConstants() {
-        return <Models.Constants>{
-            maxTimerHours: 12,
-            serviceUrl: 'https://app.tmetric.com/',
-            storageUrl: 'https://services.tmetric.com/storage/',
-            authorityUrl: 'https://id.tmetric.com/'
-        };
-    }
+    protected readonly _constants: Promise<Models.Constants>;
 
     protected showError(message: string) {
         // This needed to prevent alert cleaning via build.
@@ -32,9 +15,7 @@ abstract class BackgroundBase {
      */
     protected abstract showNotification(message: string, title?: string)
 
-    protected connection: ServerConnection;
-
-    protected constants: Models.Constants;
+    protected readonly _connection: TConnection;
 
     protected actionOnConnect: () => void;
 
@@ -46,13 +27,10 @@ abstract class BackgroundBase {
 
     protected userProfile: Models.UserProfile;
 
-    constructor(testValues: TestValues) {
+    constructor(constants: Promise<Models.Constants>, connection: (constants: Promise<Models.Constants>) => TConnection) {
 
-        this._testValues = testValues;
-
-        this.init();
-
-        this.initConnection();
+        this._constants = constants;
+        this._connection = connection(constants);
 
         this.listenPopupAction<IPopupParams, IPopupInitData>('initialize', this.initializePopupAction);
         this.listenPopupAction<void, void>('openTracker', this.openTrackerPagePopupAction);
@@ -69,17 +47,6 @@ abstract class BackgroundBase {
         this.registerMessageListener();
     }
 
-    protected init() {
-        this.constants = this.getConstants();
-    }
-
-    protected initConnection() {
-
-        this.connection = new ServerConnection();
-
-        this.connection.init({ serviceUrl: this.constants.serviceUrl, authorityUrl: this.constants.authorityUrl });
-    }
-
     protected async getProject(projectId: number, accountId?: number) {
         accountId = accountId || this.userProfile.activeAccountId;
 
@@ -89,21 +56,22 @@ abstract class BackgroundBase {
         }
     }
 
-    protected openTrackerPage() {
-        let url = this.constants.serviceUrl;
+    protected async openTrackerPage() {
+        let url = (await this._constants).serviceUrl;
         if (this.userProfile && this.userProfile.activeAccountId) {
             url += '#/tracker/' + this.userProfile.activeAccountId + '/';
         }
         this.openPage(url);
     }
 
+    /** @virtual */
     protected isLongTimer() {
         return false;
     }
 
-    protected fixTimer() {
+    protected async fixTimer() {
         this.showNotification('You should fix the timer.');
-        this.openTrackerPage();
+        await this.openTrackerPage();
     }
 
     protected putTimerWithIntegration(timer: WebToolIssueTimer, status: Models.IntegratedProjectStatus, requiredFields: Models.RequiredFields) {
@@ -137,13 +105,13 @@ abstract class BackgroundBase {
             }
         }
 
-        let promise = this.connection.setAccountToPost(status.accountId);
+        let promise = this._connection.setAccountToPost(status.accountId);
 
         if (!timer.serviceUrl != !status.integrationType || // integration existing or
             !timer.projectName != !status.projectStatus) {  // project existing differ
 
             // Integration or project does not exist
-            promise = promise.then(() => this.connection.postIntegration(<Models.IntegratedProjectIdentifier>{
+            promise = promise.then(() => this._connection.postIntegration(<Models.IntegratedProjectIdentifier>{
                 serviceUrl: timer.serviceUrl,
                 serviceType: timer.serviceType,
                 projectName: timer.projectName,
@@ -153,7 +121,7 @@ abstract class BackgroundBase {
 
         promise = promise
             .then(() => {
-                return this.connection.putIssueTimer(timer);
+                return this._connection.putIssueTimer(timer);
             })
             .then(() => {
                 if (notification) {
@@ -164,14 +132,14 @@ abstract class BackgroundBase {
                 this.showError(this.getErrorText(status));
             })
             .then(() => {
-                this.connection.setAccountToPost(null);
+                this._connection.setAccountToPost(null);
             });
 
         return promise;
     }
 
     protected getIntegrationStatus(timer: WebToolIssueTimer, accountId?: number) {
-        return this.connection.getIntegration(<Models.IntegratedProjectIdentifier>{
+        return this._connection.getIntegration(<Models.IntegratedProjectIdentifier>{
             serviceUrl: timer.serviceUrl,
             serviceType: timer.serviceType,
             projectName: timer.projectName,
@@ -179,7 +147,16 @@ abstract class BackgroundBase {
         }, accountId, !!accountId);
     }
 
-    protected async putExternalTimer(timer: WebToolIssueTimer, accountId?: number) {
+    /** @virtual */
+    protected async shouldShowPopup(
+        _timer: WebToolIssueTimer,
+        _scope: Models.AccountScope,
+        _status: Models.IntegratedProjectStatus) {
+
+        return true;
+    }
+
+    protected async putExternalTimer(timer: WebToolIssueTimer, accountId: number = null, tabId: number = null) {
 
         // Stop timer without any checks (TE-339)
         if (!timer.isStarted) {
@@ -194,7 +171,7 @@ abstract class BackgroundBase {
                 status = await this.getIntegrationStatus(timer, accountId);
                 scope = await this.getAccountScope(status.accountId);
             } catch (err) {
-                this.connection.checkProfileChange(); // TE-179
+                this._connection.checkProfileChange(); // TE-179
                 return Promise.reject(err);
             }
 
@@ -207,21 +184,25 @@ abstract class BackgroundBase {
                 // Set default work type before popup show (TE-299)
                 await this.validateTimerTags(timer, status.accountId);
 
-                this.validateTimerProject(timer, status);
+                if (await this.shouldShowPopup(timer, scope, status)) {
 
-                // This timer will be send when popup ask for initial data
-                this.newPopupIssue = timer;
+                    this.validateTimerProject(timer, status);
 
-                // This account id will be used to prepare initial data for popup
-                this.newPopupAccountId = status.accountId;
+                    // This timer will be send when popup ask for initial data
+                    this.newPopupIssue = timer;
 
-                return this.showPopup();
+                    // This account id will be used to prepare initial data for popup
+                    this.newPopupAccountId = status.accountId;
+
+                    return this.showPopup(tabId);
+                }
             }
 
             return this.putTimerWithIntegration(timer, status, scope.requiredFields);
         });
     }
 
+    /** @virtual */
     protected putData<T>(data: T, action: (data: T) => Promise<any>) {
         action(data).catch(status => this.showError(this.getErrorText(status)));
     }
@@ -295,7 +276,7 @@ abstract class BackgroundBase {
     }
 
     protected async getRecentTasks(accountId?: number) {
-        return await this.connection.getRecentWorkTasks(accountId || this.userProfile.activeAccountId);
+        return await this._connection.getRecentWorkTasks(accountId || this.userProfile.activeAccountId);
     }
 
     // account scope cache
@@ -309,7 +290,7 @@ abstract class BackgroundBase {
     protected getAccountScope(accountId: number) {
         let scope = this._accountScopeCache[accountId];
         if (!scope) {
-            scope = this._accountScopeCache[accountId] = this.connection.getAccountScope(accountId)
+            scope = this._accountScopeCache[accountId] = this._connection.getAccountScope(accountId)
 
                 // Legacy server
                 .then(scope => {
@@ -344,9 +325,101 @@ abstract class BackgroundBase {
 
     // popup actions
 
-    protected abstract showPopup(): void
+    protected abstract showPopup(tabId?: number): void
 
-    protected abstract hidePopup(): void
+    protected abstract hidePopup(tabId?: number): void
+
+    protected async initializePopupAction(params: IPopupParams) {
+
+        // Forget about old action when user open popup again
+        this.actionOnConnect = null;
+        if (this.timer) {
+            return await this.getPopupData(params);
+        }
+        throw 'Not connected';
+    }
+
+    protected openTrackerPagePopupAction() {
+        return this.openTrackerPage()
+    }
+
+    protected openPagePopupAction(url) {
+        return Promise.resolve(null).then(() => {
+            this.openPage(url);
+        });
+    }
+
+    /** @virtual */
+    protected reconnect(_showLoginDialog: boolean) {
+        this._connection.reconnect();
+    }
+
+    protected loginPopupAction() {
+        return Promise.resolve(null).then(() => {
+            this.reconnect(true);
+        });
+    }
+
+    protected fixTimerPopupAction() {
+        return this.openTrackerPage();
+    }
+
+    protected putTimerPopupAction(data: IPopupTimerData) {
+        return Promise.resolve(null).then(() => {
+            this.putExternalTimer(data.timer, data.accountId);
+        });
+    }
+
+    protected hideAllPopupsPopupAction() {
+        return Promise.resolve(null).then(() => {
+            this.hidePopup();
+        });
+    }
+
+    protected abstract getActiveTabTitle(): Promise<string>;
+
+    protected abstract getActiveTabPossibleWebTool(): Promise<WebToolInfo>;
+
+    /** @virtual */
+    protected openPage(url: string) {
+        open(url);
+    }
+
+    protected abstract registerMessageListener(): void
+
+    protected saveProjectMapPopupAction({ accountId, projectName, projectId }: IAccountProjectMapping) {
+        this.setProjectMap(accountId, projectName, projectId);
+        return Promise.resolve(null);
+    }
+
+    protected async saveDescriptionMapPopupAction({ taskName, description }: ITaskDescriptionMapping) {
+        await this.setDescriptionMap(taskName, description);
+        return Promise.resolve(null);
+    }
+
+    protected getTrackedProjects(scope: Models.AccountScope) {
+        const trackedProjectsMap: { [id: number]: boolean } = {};
+        scope.trackedProjects.forEach(tp => trackedProjectsMap[tp] = true);
+        return scope.projects.filter(p => trackedProjectsMap[p.projectId]);
+    }
+
+    /** @virtual */
+    protected openOptionsPagePopupAction() {
+        return Promise.resolve(null);
+    }
+
+    protected async getRecentTasksAction(accountId: number) {
+
+        const [recentTasks, scope] = await Promise.all([
+            this.getRecentTasks(accountId),
+            this.getAccountScope(accountId)
+        ]);
+
+        const trackedProjectsMap: { [id: number]: boolean } = {};
+        scope.trackedProjects.forEach(tp => trackedProjectsMap[tp] = true);
+
+        return recentTasks ? recentTasks.filter(t => !t.details.projectId || trackedProjectsMap[t.details.projectId]).slice(0, 25) : null;
+    }
 
     private async getPopupData(params: IPopupParams) {
 
@@ -422,73 +495,12 @@ abstract class BackgroundBase {
             tags: scope.tags,
             canCreateProjects: isAdmin || canMembersManagePublicProjects,
             canCreateTags,
-            constants: this.constants,
+            constants: await this._constants,
             defaultProjectId,
             requiredFields: scope.requiredFields,
             possibleWebTool: webTool
         };
-
     }
-
-    protected async initializePopupAction(params: IPopupParams) {
-
-        // Forget about old action when user open popup again
-        this.actionOnConnect = null;
-        if (this.timer) {
-            return await this.getPopupData(params);
-        }
-        throw 'Not connected';
-    }
-
-    protected openTrackerPagePopupAction() {
-        return Promise.resolve(null).then(() => {
-            this.openTrackerPage();
-        });
-    }
-
-    protected openPagePopupAction(url) {
-        return Promise.resolve(null).then(() => {
-            this.openPage(url);
-        });
-    }
-
-    protected reconnect(_showLoginDialog: boolean) {
-        this.connection.reconnect();
-    }
-
-    protected loginPopupAction() {
-        return Promise.resolve(null).then(() => {
-            this.reconnect(true);
-        });
-    }
-
-    protected fixTimerPopupAction() {
-        return Promise.resolve(null).then(() => {
-            this.openTrackerPage();
-        });
-    }
-
-    protected putTimerPopupAction(data: IPopupTimerData) {
-        return Promise.resolve(null).then(() => {
-            this.putExternalTimer(data.timer, data.accountId);
-        });
-    }
-
-    protected hideAllPopupsPopupAction() {
-        return Promise.resolve(null).then(() => {
-            this.hidePopup();
-        });
-    }
-
-    protected abstract getActiveTabTitle(): Promise<string>;
-
-    protected abstract getActiveTabPossibleWebTool(): Promise<WebToolInfo>;
-
-    protected openPage(url: string) {
-        open(url);
-    }
-
-    protected abstract registerMessageListener(): void
 
     // account to project map
 
@@ -524,11 +536,6 @@ abstract class BackgroundBase {
         return this.accountToProjectMap[accountId];
     }
 
-    protected saveProjectMapPopupAction({ accountId, projectName, projectId }: IAccountProjectMapping) {
-        this.setProjectMap(accountId, projectName, projectId);
-        return Promise.resolve(null);
-    }
-
     // task name to description map
 
     private taskNameToDescriptionMap: {
@@ -557,33 +564,5 @@ abstract class BackgroundBase {
         }
 
         return this.taskNameToDescriptionMap;
-    }
-
-    protected async saveDescriptionMapPopupAction({ taskName, description }: ITaskDescriptionMapping) {
-        await this.setDescriptionMap(taskName, description);
-        return Promise.resolve(null);
-    }
-
-    protected getTrackedProjects(scope: Models.AccountScope) {
-        const trackedProjectsMap: { [id: number]: boolean } = {};
-        scope.trackedProjects.forEach(tp => trackedProjectsMap[tp] = true);
-        return scope.projects.filter(p => trackedProjectsMap[p.projectId]);
-    }
-
-    protected openOptionsPagePopupAction() {
-        return Promise.resolve(null);
-    }
-
-    protected async getRecentTasksAction(accountId: number) {
-
-        const [recentTasks, scope] = await Promise.all([
-            this.getRecentTasks(accountId),
-            this.getAccountScope(accountId)
-        ]);
-
-        const trackedProjectsMap: { [id: number]: boolean } = {};
-        scope.trackedProjects.forEach(tp => trackedProjectsMap[tp] = true);
-
-        return recentTasks ? recentTasks.filter(t => !t.details.projectId || trackedProjectsMap[t.details.projectId]).slice(0, 25) : null;
     }
 }
