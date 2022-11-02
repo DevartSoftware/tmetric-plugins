@@ -17,6 +17,8 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
 
     private _timeEntries: Models.TimeEntry[];
 
+    private _actionOnConnect: () => void;
+
     private static async getUrl(key: string) {
         let url = await storage.getItem(key);
         if (!url) {
@@ -81,9 +83,9 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
 
             // timer should be received from server on connect
             if (timer) {
-                const action = this.actionOnConnect;
+                const action = this._actionOnConnect;
                 if (action) {
-                    this.actionOnConnect = null;
+                    this._actionOnConnect = null;
                     action();
                 }
             }
@@ -187,7 +189,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
 
         const onFail = (status: AjaxStatus | string, showDialog: boolean) => {
 
-            this.actionOnConnect = null;
+            this._actionOnConnect = null;
 
             if (status == invalidProfileError && showDialog) {
                 this._constants.then(constants => chrome.tabs.create({ url: constants.serviceUrl }));
@@ -201,7 +203,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
                 const disconnectPromise = this._connection.disconnect();
                 if (showDialog) {
                     disconnectPromise.then(() => {
-                        this.actionOnConnect = () => onConnect(false);
+                        this._actionOnConnect = () => onConnect(false);
                         this.showLoginDialog();
                     });
                 }
@@ -227,7 +229,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
             if (this.isLongTimer()) {
 
                 // ensure connection before page open to prevent login duplication (#67759)
-                this.actionOnConnect = () => this.fixTimer();
+                this._actionOnConnect = () => this.fixTimer();
                 this._connection.getData().catch(status => onFail(status, showDialog));
                 return;
             }
@@ -237,7 +239,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
 
         if (this.timer == null) {
             // connect before action to get actual state
-            this.actionOnConnect = () => onConnect(true);
+            this._actionOnConnect = () => onConnect(true);
             this._connection.reconnect().catch(status => onFail(status, true));
         }
         else {
@@ -429,6 +431,19 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
 
     protected override hidePopup(tabId?: number): void {
         this.sendToTabs({ action: 'hidePopup' }, tabId);
+    }
+
+    protected override async initializePopupAction(params: IPopupParams) {
+
+        // Forget about old action when user open popup again
+        this._actionOnConnect = null;
+        if (!this.timer && this._connection.canRetryConnection) {
+            await this._connection.retryConnection(true);
+        }
+        if (this.timer) {
+            return await this.getPopupData(params);
+        }
+        throw 'Not connected';
     }
 
     /** Handles messages from in-page scripts */

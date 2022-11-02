@@ -109,7 +109,7 @@
         this.reconnect().catch(() => { });
     }
 
-    private get canRetryConnection() {
+    get canRetryConnection() {
         return !this._hubConnected && !this._retryInProgress;
     }
 
@@ -205,12 +205,12 @@
         }
     }
 
-    retryConnection() {
+    retryConnection(wait?: boolean) {
         console.log(`retryConnection. hubConnected: ${this._hubConnected}, retryInProgress: ${this._retryInProgress}`);
         this.setRetryPending(false);
         if (this.canRetryConnection) {
             this._retryInProgress = true;
-            this.reconnect()
+            const promise = this.reconnect()
                 .catch((err: AjaxStatus) => {
                     // Stop retrying when server returns error code
                     if (!(err.statusCode > 0)) {
@@ -218,7 +218,12 @@
                         this.setRetryPending(true);
                     }
                 })
-                .then(() => this._retryInProgress = false);
+                .then(() => {
+                    this._retryInProgress = false;
+                });
+            if (wait) {
+                return promise;
+            }
         }
         return Promise.resolve();
     }

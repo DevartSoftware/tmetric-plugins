@@ -317,8 +317,8 @@ function modifyManifestFirefox() {
 
             // Replace chromeExtension.js to firefoxExtension.js
             var scripts = manifest['background']['scripts'];
-            var index = scripts.indexOf('background/chromeExtension.js');
-            scripts[index]= 'background/firefoxExtension.js';
+            //TODO: var index = scripts.indexOf('background/chromeExtension.js');
+            //scripts[index]= 'background/firefoxExtension.js';
 
             // Set addon ID (TE-283)
             manifest['applications'] = {

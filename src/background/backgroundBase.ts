@@ -17,8 +17,6 @@
 
     protected readonly _connection: TConnection;
 
-    protected actionOnConnect: () => void;
-
     protected timer: Models.TimerEx;
 
     protected newPopupIssue: WebToolIssueTimer;
@@ -332,7 +330,6 @@
     protected async initializePopupAction(params: IPopupParams) {
 
         // Forget about old action when user open popup again
-        this.actionOnConnect = null;
         if (this.timer) {
             return await this.getPopupData(params);
         }
@@ -421,7 +418,7 @@
         return recentTasks ? recentTasks.filter(t => !t.details.projectId || trackedProjectsMap[t.details.projectId]).slice(0, 25) : null;
     }
 
-    private async getPopupData(params: IPopupParams) {
+    protected async getPopupData(params: IPopupParams) {
 
         let accountId = params.accountId;
 

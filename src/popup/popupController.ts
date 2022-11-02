@@ -5,7 +5,6 @@
         this.getData(null);
     }
 
-    private _activeTimer: Models.Timer;
     private _timeFormat: string;
     private _profile: Models.UserProfile;
     private _accountId: number;
@@ -77,7 +76,6 @@
 
     setData(data: IPopupInitData) {
         if (data.timer) {
-            this._activeTimer = data.timer;
             this._newIssue = this._newIssue || data.newIssue;
             this._accountId = data.accountId;
             this._profile = data.profile;
