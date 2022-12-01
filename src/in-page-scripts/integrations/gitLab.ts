@@ -16,6 +16,7 @@ class GitLab implements WebToolIntegration {
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
         linkElement.classList.add('btn');
+        linkElement.style.margin = 'auto'
         const header = $$('.detail-page-header');
         if (!header) {
             return;
