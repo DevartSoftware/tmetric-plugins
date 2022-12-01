@@ -1,4 +1,4 @@
-﻿class Todoist implements WebToolIntegration {
+class Todoist implements WebToolIntegration {
 
     showIssueId = false;
 

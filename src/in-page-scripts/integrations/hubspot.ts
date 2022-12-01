@@ -1,4 +1,4 @@
-﻿class Hubspot implements WebToolIntegration {
+class Hubspot implements WebToolIntegration {
 
     showIssueId = false;
 

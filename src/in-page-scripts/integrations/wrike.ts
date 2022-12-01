@@ -1,4 +1,4 @@
-﻿class Wrike implements WebToolIntegration {
+class Wrike implements WebToolIntegration {
 
     showIssueId = false;
 

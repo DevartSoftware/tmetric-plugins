@@ -1,4 +1,4 @@
-﻿class PopupController {
+class PopupController {
 
     constructor(public isPagePopup = false) {
         this.initControls();

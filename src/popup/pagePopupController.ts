@@ -1,4 +1,4 @@
-﻿class PagePopupController extends PopupController {
+class PagePopupController extends PopupController {
 
     constructor() {
         super(true);

@@ -1,4 +1,4 @@
-﻿class DoitIm implements WebToolIntegration {
+class DoitIm implements WebToolIntegration {
 
     showIssueId = false;
 

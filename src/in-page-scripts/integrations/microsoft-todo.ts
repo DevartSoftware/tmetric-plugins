@@ -1,4 +1,4 @@
-﻿class MicrosoftToDo implements WebToolIntegration {
+class MicrosoftToDo implements WebToolIntegration {
     matchUrl = [
         'https://to-do.live.com/tasks/*',
         'https://to-do.office.com/tasks/*'

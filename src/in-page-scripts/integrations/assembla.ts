@@ -1,4 +1,4 @@
-﻿class Assembla implements WebToolIntegration {
+class Assembla implements WebToolIntegration {
 
     showIssueId = true;
 

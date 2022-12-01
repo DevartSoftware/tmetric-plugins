@@ -1,4 +1,4 @@
-﻿class Monday implements WebToolIntegration {
+class Monday implements WebToolIntegration {
 
     showIssueId = false;
 

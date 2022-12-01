@@ -1,4 +1,4 @@
-﻿class Insightly implements WebToolIntegration {
+class Insightly implements WebToolIntegration {
 
     showIssueId = false;
 

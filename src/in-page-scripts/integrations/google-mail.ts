@@ -1,4 +1,4 @@
-﻿class GoogleMail implements WebToolIntegration {
+class GoogleMail implements WebToolIntegration {
 
     showIssueId = false;
 

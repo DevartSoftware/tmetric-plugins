@@ -1,4 +1,4 @@
-﻿class MicrosofOutlookOnline implements WebToolIntegration {
+class MicrosofOutlookOnline implements WebToolIntegration {
 
     showIssueId = false;
 

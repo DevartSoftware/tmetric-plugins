@@ -1,4 +1,4 @@
-﻿class Asana implements WebToolIntegration {
+class Asana implements WebToolIntegration {
 
     showIssueId = false;
 

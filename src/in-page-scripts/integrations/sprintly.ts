@@ -1,4 +1,4 @@
-﻿class Sprintly implements WebToolIntegration {
+class Sprintly implements WebToolIntegration {
 
     showIssueId = true;
 

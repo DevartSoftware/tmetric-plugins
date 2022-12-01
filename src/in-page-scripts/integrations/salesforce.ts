@@ -1,4 +1,4 @@
-﻿class Salesforce implements WebToolIntegration {
+class Salesforce implements WebToolIntegration {
 
     showIssueId = false;
 

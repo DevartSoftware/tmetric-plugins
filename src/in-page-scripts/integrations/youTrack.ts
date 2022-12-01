@@ -1,4 +1,4 @@
-﻿class YouTrack implements WebToolIntegration {
+class YouTrack implements WebToolIntegration {
 
     showIssueId = true;
 

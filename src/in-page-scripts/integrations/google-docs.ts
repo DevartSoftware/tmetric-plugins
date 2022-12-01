@@ -1,4 +1,4 @@
-﻿class GoogleDocs implements WebToolIntegration {
+class GoogleDocs implements WebToolIntegration {
 
     showIssueId = false;
 

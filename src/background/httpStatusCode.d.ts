@@ -1,4 +1,4 @@
-﻿declare const enum HttpStatusCode {
+declare const enum HttpStatusCode {
 
     Continue = 100,
 

@@ -1,4 +1,4 @@
-﻿class SignalRConnection extends ServerConnection {
+class SignalRConnection extends ServerConnection {
 
     serviceUrl: string;
 

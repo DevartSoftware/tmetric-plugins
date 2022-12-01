@@ -1,4 +1,4 @@
-﻿if (typeof document != undefined) {
+if (typeof document != undefined) {
 
     document.body.style.visibility = 'visible'; // Prevent flickering (TE-128)
 

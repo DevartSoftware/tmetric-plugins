@@ -1,4 +1,4 @@
-﻿interface TestValues {
+interface TestValues {
     serviceUrl?: string;
     storageUrl?: string;
     authorityUrl?: string;

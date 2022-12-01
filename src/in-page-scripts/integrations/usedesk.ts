@@ -1,4 +1,4 @@
-﻿class Usedesk implements WebToolIntegration {
+class Usedesk implements WebToolIntegration {
 
     showIssueId = true;
 

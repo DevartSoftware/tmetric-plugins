@@ -1,4 +1,4 @@
-﻿class Notion implements WebToolIntegration {
+class Notion implements WebToolIntegration {
 
     showIssueId = false;
 

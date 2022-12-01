@@ -1,4 +1,4 @@
-﻿class ZenHub implements WebToolIntegration {
+class ZenHub implements WebToolIntegration {
 
     showIssueId = false;
 

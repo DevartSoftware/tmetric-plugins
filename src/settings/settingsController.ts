@@ -1,4 +1,4 @@
-﻿function initShowPopupSelector() {
+function initShowPopupSelector() {
     chrome.storage.sync.get(
         <IExtensionSettings>{showPopup: Models.ShowPopupOption.Always},
         (settings: IExtensionSettings) => {

@@ -1,4 +1,4 @@
-﻿class ZohoActivity implements WebToolIntegration {
+class ZohoActivity implements WebToolIntegration {
 
     showIssueId = false;
 

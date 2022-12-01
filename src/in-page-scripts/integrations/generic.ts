@@ -1,4 +1,4 @@
-﻿class Generic implements WebToolIntegration {
+class Generic implements WebToolIntegration {
 
     showIssueId = true;
 

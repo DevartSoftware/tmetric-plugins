@@ -1,4 +1,4 @@
-﻿// wrapper over local storage (will be replaced by chrome.storage.local in manifest v3)
+// wrapper over local storage (will be replaced by chrome.storage.local in manifest v3)
 const storage = {
 
     getItem: (key: string) => {

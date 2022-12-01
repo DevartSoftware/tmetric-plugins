@@ -1,4 +1,4 @@
-﻿if (typeof document !== 'undefined') {
+if (typeof document !== 'undefined') {
 
     const sendBackgroundMessage = (message: ITabMessage) => {
         chrome.runtime.sendMessage(message, response => {

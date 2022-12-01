@@ -1,4 +1,4 @@
-﻿class Producteev implements WebToolIntegration {
+class Producteev implements WebToolIntegration {
 
     showIssueId = false;
 

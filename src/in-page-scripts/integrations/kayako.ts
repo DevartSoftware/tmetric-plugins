@@ -1,4 +1,4 @@
-﻿class Kayako implements WebToolIntegration {
+class Kayako implements WebToolIntegration {
 
     showIssueId = true;
 

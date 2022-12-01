@@ -1,4 +1,4 @@
-﻿class Userecho implements WebToolIntegration {
+class Userecho implements WebToolIntegration {
 
     showIssueId = false;
 

@@ -1,4 +1,4 @@
-﻿class OldFreshdesk implements WebToolIntegration {
+class OldFreshdesk implements WebToolIntegration {
 
     showIssueId = true;
 

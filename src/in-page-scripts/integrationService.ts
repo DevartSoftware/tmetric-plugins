@@ -1,4 +1,4 @@
-﻿class IntegrationService {
+class IntegrationService {
 
     static session = Date.now();
 

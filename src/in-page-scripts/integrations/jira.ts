@@ -1,4 +1,4 @@
-﻿class Jira implements WebToolIntegration {
+class Jira implements WebToolIntegration {
 
     showIssueId = true;
 

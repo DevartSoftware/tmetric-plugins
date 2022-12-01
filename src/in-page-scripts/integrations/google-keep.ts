@@ -1,4 +1,4 @@
-﻿class GoogleKeep implements WebToolIntegration {
+class GoogleKeep implements WebToolIntegration {
 
     showIssueId = false;
 

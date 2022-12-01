@@ -1,4 +1,4 @@
-﻿class Shortcut implements WebToolIntegration {
+class Shortcut implements WebToolIntegration {
 
     showIssueId = true;
 

@@ -1,4 +1,4 @@
-﻿class PodioTask implements WebToolIntegration {
+class PodioTask implements WebToolIntegration {
 
     showIssueId = false;
 

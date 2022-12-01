@@ -1,4 +1,4 @@
-﻿class Bitrix24 implements WebToolIntegration {
+class Bitrix24 implements WebToolIntegration {
 
     showIssueId = false;
 

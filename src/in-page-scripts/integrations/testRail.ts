@@ -1,4 +1,4 @@
-﻿class TestRail implements WebToolIntegration {
+class TestRail implements WebToolIntegration {
 
     showIssueId = true;
 

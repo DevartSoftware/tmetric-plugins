@@ -1,4 +1,4 @@
-﻿class Axosoft implements WebToolIntegration {
+class Axosoft implements WebToolIntegration {
 
     showIssueId = true;
 

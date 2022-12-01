@@ -1,4 +1,4 @@
-﻿class EasyRedmine implements WebToolIntegration {
+class EasyRedmine implements WebToolIntegration {
 
     showIssueId = true;
 

@@ -1,4 +1,4 @@
-﻿class Bitbucket implements WebToolIntegration {
+class Bitbucket implements WebToolIntegration {
 
     showIssueId = true;
 

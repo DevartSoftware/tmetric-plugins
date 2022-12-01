@@ -1,4 +1,4 @@
-﻿class Bugzilla implements WebToolIntegration {
+class Bugzilla implements WebToolIntegration {
 
     showIssueId = true;
 

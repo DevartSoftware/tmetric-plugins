@@ -1,4 +1,4 @@
-﻿class GitHub implements WebToolIntegration {
+class GitHub implements WebToolIntegration {
 
     showIssueId = true;
 

@@ -1,4 +1,4 @@
-﻿class Evernote implements WebToolIntegration {
+class Evernote implements WebToolIntegration {
     matchUrl = '*://www.evernote.com/client/*';
     issueElementSelector = '#qa-NOTE_HEADER';
     showIssueId = false;

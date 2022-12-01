@@ -1,4 +1,4 @@
-﻿class GoogleCalendar implements WebToolIntegration {
+class GoogleCalendar implements WebToolIntegration {
 
     showIssueId = false;
 

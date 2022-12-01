@@ -1,4 +1,4 @@
-﻿class Trac implements WebToolIntegration {
+class Trac implements WebToolIntegration {
 
     showIssueId = true;
 

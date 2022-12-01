@@ -1,4 +1,4 @@
-﻿class GitLab implements WebToolIntegration {
+class GitLab implements WebToolIntegration {
 
     showIssueId = true;
 

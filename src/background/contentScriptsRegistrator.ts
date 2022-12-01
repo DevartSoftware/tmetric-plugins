@@ -1,4 +1,4 @@
-﻿class ContentScriptsRegistrator {
+class ContentScriptsRegistrator {
 
     private static instance: ContentScriptsRegistrator;
 

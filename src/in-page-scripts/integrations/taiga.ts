@@ -1,4 +1,4 @@
-﻿class TaigaIntegration implements WebToolIntegration {
+class TaigaIntegration implements WebToolIntegration {
 
     observeMutations = true;
 

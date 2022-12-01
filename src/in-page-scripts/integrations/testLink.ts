@@ -1,4 +1,4 @@
-﻿class TestLink implements WebToolIntegration {
+class TestLink implements WebToolIntegration {
 
     showIssueId = true;
 

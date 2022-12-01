@@ -1,4 +1,4 @@
-﻿class UserVoiceTicket implements WebToolIntegration {
+class UserVoiceTicket implements WebToolIntegration {
 
     showIssueId = false;
 

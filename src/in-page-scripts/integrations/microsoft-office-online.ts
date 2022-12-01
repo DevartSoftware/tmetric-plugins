@@ -1,4 +1,4 @@
-﻿class MicrosoftOfficeOnline implements WebToolIntegration {
+class MicrosoftOfficeOnline implements WebToolIntegration {
 
     showIssueId = false;
 

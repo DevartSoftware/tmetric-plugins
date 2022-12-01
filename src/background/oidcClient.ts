@@ -1,4 +1,4 @@
-﻿abstract class OidcClient {
+abstract class OidcClient {
 
     private static authorityUrl;
 

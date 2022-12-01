@@ -1,4 +1,4 @@
-﻿class ServerConnection {
+class ServerConnection {
 
     serviceUrl: string;
 

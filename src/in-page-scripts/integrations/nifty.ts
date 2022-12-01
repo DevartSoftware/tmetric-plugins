@@ -1,4 +1,4 @@
-﻿class Nifty implements WebToolIntegration {
+class Nifty implements WebToolIntegration {
 
     matchUrl = '*://*.nifty.pm/*';
 
