@@ -98,6 +98,7 @@ var files = {
         'src/background/backgroundBase.js',
         'src/background/extensionBase.js',
         'src/background/simpleEvent.js',
+        'src/background-bundle.js',
         'src/manifest.json'
     ],
     chrome: [
@@ -142,26 +143,17 @@ function stripDebugCommon(folder) {
         .pipe(gulp.dest(folder));
 }
 
-function modifyJSON(transform) {
+function modifyFile(transform) {
+    return through.obj(function (file, encoding, callback) {
 
-    return through.obj(function (jsonFile, encoding, callback) {
-
-        var file = jsonFile.clone();
+        file = file.clone();
         if (!file.isBuffer()) {
-            return reject(new Error('Invalid JSON: ' + e.message));
+            return reject(new Error('Invalid file: ' + e.message));
         }
 
-        var fileContent = file.contents.toString(encoding);
-        var obj;
-        try {
-            obj = JSON.parse(fileContent);
-        }
-        catch (e) {
-            return reject(new Error('Invalid JSON: ' + e.message));
-        }
-
-        var newManifest = transform(obj);
-        file.contents = Buffer.from(JSON.stringify(newManifest, null, 4));
+        let fileContent = file.contents.toString(encoding);
+        fileContent = transform(fileContent);
+        file.contents = Buffer.from(fileContent);
         callback(null, file);
     });
 }
@@ -311,14 +303,19 @@ function stripDebugFirefox() {
     return stripDebugCommon(firefoxUnpackedDir);
 }
 
+function modifyBackgroundBundleFirefox() {
+    return gulp.src(firefoxUnpackedDir + '/background-bundle.js')
+        .pipe(modifyFile(code => {
+            // Replace chromeExtension.js to firefoxExtension.js
+            return code.replace('chromeExtension.js', 'firefoxExtension.js');
+        }))
+        .pipe(gulp.dest(firefoxUnpackedDir));
+}
+
 function modifyManifestFirefox() {
     return gulp.src(firefoxUnpackedDir + '/manifest.json')
-        .pipe(modifyJSON(manifest => {
-
-            // Replace chromeExtension.js to firefoxExtension.js
-            var scripts = manifest['background']['scripts'];
-            //TODO: var index = scripts.indexOf('background/chromeExtension.js');
-            //scripts[index]= 'background/firefoxExtension.js';
+        .pipe(modifyFile(json => {
+            let manifest = JSON.parse(json);
 
             // Set addon ID (TE-283)
             manifest['applications'] = {
@@ -328,12 +325,16 @@ function modifyManifestFirefox() {
             //delete manifest['options_ui']['open_in_tab'];
             delete manifest['externally_connectable'];
 
-            return manifest;
+            const s = JSON.stringify(manifest, null, 4);
+            console.error(s);
+            return s;
         }))
         .pipe(gulp.dest(firefoxUnpackedDir));
 }
 
-gulp.task('prepackage:firefox', gulp.series(copyFilesFireFox, stripDebugFirefox, modifyManifestFirefox));
+gulp.task(
+    'prepackage:firefox',
+    gulp.series(copyFilesFireFox, stripDebugFirefox, modifyManifestFirefox, modifyBackgroundBundleFirefox));
 
 function packageFirefox() {
     var manifest = jsonfile.readFileSync(firefoxUnpackedDir + 'manifest.json');
