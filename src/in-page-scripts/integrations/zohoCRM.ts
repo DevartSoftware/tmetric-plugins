@@ -1,8 +1,6 @@
 class ZohoActivity implements WebToolIntegration {
 
-    showIssueId = false;
-
-    observeMutations = true;
+    showIssueId = true;
 
     matchUrl = [
         "https://*/*portal/*/*.do*",
@@ -58,9 +56,7 @@ class ZohoActivity implements WebToolIntegration {
 
 class ZohoProject implements WebToolIntegration {
 
-    showIssueId = false;
-
-    observeMutations = true;
+    showIssueId = true;
 
     matchUrl = '*://*/portal/*';
 
@@ -90,8 +86,6 @@ class ZohoDesk implements WebToolIntegration {
 
     showIssueId = true;
 
-    observeMutations = true;
-
     issueElementSelector = '.ticket-DVPanel';
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
@@ -109,12 +103,12 @@ class ZohoDesk implements WebToolIntegration {
         const match = source.fullUrl.replace(/\?.+\#/, '#').match(/^(.+)\/(ShowHomePage\.do\#Cases\/dv\/\d+)$/i);
         const serviceUrl = match ? match[1] : null;
         const issueUrl = match ? match[2] : null;
+        const projectName = $$.try('#crmpluscommonuiselecteddepartment', parent?.document).textContent;
 
         const tagNames = $$.all('.tagBody a', issueElement).map(_ => _.textContent);
 
-        return { serviceType: 'ZohoCRM', serviceUrl, issueUrl, issueId, issueName, tagNames };
+        return { serviceType: 'ZohoCRM', serviceUrl, issueUrl, issueId, issueName, tagNames, projectName };
     }
-
 }
 
 IntegrationService.register(new ZohoActivity(), new ZohoProject(), new ZohoDesk());
