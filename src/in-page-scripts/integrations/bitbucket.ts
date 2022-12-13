@@ -2,8 +2,6 @@ class Bitbucket implements WebToolIntegration {
 
     showIssueId = true;
 
-    observeMutations = true;
-
     matchUrl = [
         '*://*/issues/*',
         '*://*/pull-requests/*'

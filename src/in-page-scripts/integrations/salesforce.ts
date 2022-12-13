@@ -2,8 +2,6 @@ class Salesforce implements WebToolIntegration {
 
     showIssueId = false;
 
-    observeMutations = true;
-
     // https://eu16.lightning.force.com/lightning/r/PAGE/IDENTIFIER/view
     matchUrl = '*://*.lightning.force.com';
 

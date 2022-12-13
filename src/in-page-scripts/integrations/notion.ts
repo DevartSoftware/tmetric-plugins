@@ -2,8 +2,6 @@ class Notion implements WebToolIntegration {
 
     showIssueId = false;
 
-    observeMutations = true;
-
     matchUrl = 'https://www.notion.so/*';
 
     issueElementSelector = ['.notion-peek-renderer', '.notion-cursor-listener > div[class=""]'];

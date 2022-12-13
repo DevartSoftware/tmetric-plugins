@@ -2,8 +2,6 @@ class ZenHub implements WebToolIntegration {
 
     showIssueId = false;
 
-    observeMutations = true;
-
     matchUrl = 'https://app.zenhub.com/workspaces/*/issues/*';
 
     issueElementSelector = ['.zhc-issue-modal', '.zh-workspace__container'];

@@ -4,8 +4,6 @@ class Bitrix24 implements WebToolIntegration {
 
     matchUrl = 'https://*/*/tasks*'; // url of iframe
 
-    observeMutations = true;
-
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
         let host = $$('[data-bx-id="task-view-b-buttonset"]');

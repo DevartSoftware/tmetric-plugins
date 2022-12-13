@@ -2,8 +2,6 @@ class Generic implements WebToolIntegration {
 
     showIssueId = true;
 
-    observeMutations = true;
-
     issueElementSelector = '.tmetric-button';
 
     match(source: Source): boolean {

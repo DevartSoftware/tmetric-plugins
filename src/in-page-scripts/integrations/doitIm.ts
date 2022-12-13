@@ -2,8 +2,6 @@ class DoitIm implements WebToolIntegration {
 
     showIssueId = false;
 
-    observeMutations = true;
-
     // https://i.doit.im/home/#/task/99999999-aaaa-bbbb-cccc-dddddddddddd
     // https://i.doit.im/home/#/project/99999999-aaaa-bbbb-cccc-dddddddddddd
     // https://i.doit.im/home/#/goal/99999999-aaaa-bbbb-cccc-dddddddddddd

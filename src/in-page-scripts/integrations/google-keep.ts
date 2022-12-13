@@ -9,8 +9,6 @@ class GoogleKeep implements WebToolIntegration {
         '.XKSfm-L9AdLc .IZ65Hb-yePe5c'  // selector for toolbar
     ];
 
-    observeMutations = true;
-
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
         linkElement.classList.add('devart-timer-link-minimal');
 

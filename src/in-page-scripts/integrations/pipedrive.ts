@@ -4,8 +4,6 @@ class Pipedrive implements WebToolIntegration {
 
     matchUrl = /.*:\/\/.*.pipedrive.com(\/deal\/(\d+))/;
 
-    observeMutations = true;
-
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
         let host = $$.visible('.dealDetails .actionsContent .stateActions');
         if (host) {

@@ -6,8 +6,6 @@ class Kayako implements WebToolIntegration {
 
     issueElementSelector = '.ko-case-content';
 
-    observeMutations = true;
-
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
         const container = issueElement.querySelector('[class^="ko-tabs__tabs_"] [class^="ko-tabs__right_"]');
         if (!container) {

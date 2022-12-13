@@ -2,8 +2,6 @@ class YouTrack implements WebToolIntegration {
 
     showIssueId = true;
 
-    observeMutations = true;
-
     matchUrl = [
         '*://*/issue/*',
         '*://*/issues',
@@ -60,8 +58,6 @@ class YouTrackLite implements WebToolIntegration {
 
     showIssueId = true;
 
-    observeMutations = true;
-
     matchUrl = [
         '*://*/issue/*',
         '*://*/issues',
@@ -109,8 +105,6 @@ class YouTrackOld implements WebToolIntegration {
 
     showIssueId = true;
 
-    observeMutations = true;
-
     matchUrl = '*://*/issue/*';
 
     issueElementSelector = '.content_fsi .toolbar_fsi';
@@ -153,8 +147,6 @@ class YouTrackOld implements WebToolIntegration {
 class YouTrackBoardOld implements WebToolIntegration {
 
     showIssueId = true;
-
-    observeMutations = true;
 
     matchUrl = '*://*/rest/agile/*/sprint/*';
 

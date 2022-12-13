@@ -2,8 +2,6 @@ class Axosoft implements WebToolIntegration {
 
     showIssueId = true;
 
-    observeMutations = true;
-
     // Workspace task url:
     // https://ACCOUNT_NAME.axosoft.com/*
     matchUrl = '*://*.axosoft.com/*';

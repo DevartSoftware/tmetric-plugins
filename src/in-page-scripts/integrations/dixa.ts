@@ -11,14 +11,6 @@ class Dixa implements WebToolIntegration {
     ];
 
     /**
-     * observeMutations = true means that the extension observes the page for
-     * dynamic data loading. This means that, if the tool loads some parts of
-     * the page with AJAX or generates dynamically, the TMetric extension waits
-     * until all loading is done and then adds the button to the page.
-     */
-    observeMutations = true;
-
-    /**
      * Extracts information about the issue (ticket or task) from a Web
      * page by querying the DOM model.
      */

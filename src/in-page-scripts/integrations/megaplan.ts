@@ -2,8 +2,6 @@ class Megaplan implements WebToolIntegration {
 
     showIssueId = false;
 
-    observeMutations = true;
-
     matchUrl = /(.*megaplan.*)\/(task|project|event|crm|deals)(?:.*\/Task)?\/(\d+)/
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {

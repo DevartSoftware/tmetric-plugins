@@ -9,8 +9,6 @@ class Trello implements WebToolIntegration {
         '.checklist-item-details'
     ];
 
-    observeMutations = true;
-
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
         if (issueElement.matches(this.issueElementSelector[0])) {

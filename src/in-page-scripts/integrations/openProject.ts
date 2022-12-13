@@ -4,8 +4,6 @@ class OpenProject implements WebToolIntegration {
 
     matchUrl = /(https?:\/\/[^\/]+).*\/work_packages\/\D*(\d+)/;
 
-    observeMutations = true;
-
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
         const detailedView = $$('.work-package--single-view');
         if (detailedView) {

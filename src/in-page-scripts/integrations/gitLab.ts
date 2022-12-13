@@ -2,8 +2,6 @@ class GitLab implements WebToolIntegration {
 
     showIssueId = true;
 
-    observeMutations = true;
-
     matchUrl = [
         '*://*/issues/*',
         '*://*/merge_requests/*'
@@ -112,8 +110,6 @@ class GitLabSidebar implements WebToolIntegration {
         '.right-sidebar', // old sidebar
         '.gl-drawer-sidebar' // new sidebar
     ];
-
-    observeMutations = true;
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 

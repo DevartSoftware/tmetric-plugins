@@ -2,8 +2,6 @@ class Usedesk implements WebToolIntegration {
 
     showIssueId = true;
 
-    observeMutations = true;
-
     matchUrl = '*://*.usedesk.*/tickets/*';
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {

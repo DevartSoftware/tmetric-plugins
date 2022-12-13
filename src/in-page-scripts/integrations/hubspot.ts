@@ -2,8 +2,6 @@ class Hubspot implements WebToolIntegration {
 
     showIssueId = false;
 
-    observeMutations = true;
-
     matchUrl = 'https://*.hubspot.com/*';
 
     issueElementSelector = [

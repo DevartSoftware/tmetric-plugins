@@ -2,8 +2,6 @@ class Monday implements WebToolIntegration {
 
     showIssueId = false;
 
-    observeMutations = true;
-
     matchUrl = 'https://*.monday.com/*';
 
     issueElementSelector = [

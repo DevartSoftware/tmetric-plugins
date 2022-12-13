@@ -4,8 +4,6 @@ class GoogleMail implements WebToolIntegration {
 
     matchUrl = '*://mail.google.com/mail/*';
 
-    observeMutations = true;
-
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
         let taskHeader = $$('.ha');

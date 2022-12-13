@@ -1,9 +1,5 @@
 class TaigaIntegration implements WebToolIntegration {
 
-    observeMutations = true;
-
-    showIssueId = true;
-
     matchUrl = /(.+)(\/project\/[^\/]+\/[^\/]+\/(\d+))/;
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {

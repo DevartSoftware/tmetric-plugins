@@ -2,8 +2,6 @@ class Slack implements WebToolIntegration {
 
     showIssueId = false;
 
-    observeMutations = true;
-
     matchUrl = '*://app.slack.com/*';
 
     issueElementSelector = '.c-message_actions__container';

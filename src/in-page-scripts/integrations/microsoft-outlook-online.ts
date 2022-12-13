@@ -8,8 +8,6 @@ class MicrosofOutlookOnline implements WebToolIntegration {
         'https://outlook.office365.com'
     ];
 
-    observeMutations = true;
-
     issueElementSelector = '#app';
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {

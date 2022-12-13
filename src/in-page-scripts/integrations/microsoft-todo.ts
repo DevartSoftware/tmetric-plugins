@@ -9,8 +9,6 @@ class MicrosoftToDo implements WebToolIntegration {
 
     showIssueId = false;
 
-    observeMutations = true;
-
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
         if (issueElement.className == 'taskItem-body') {

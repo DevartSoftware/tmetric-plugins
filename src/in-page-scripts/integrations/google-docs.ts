@@ -4,8 +4,6 @@ class GoogleDocs implements WebToolIntegration {
 
     matchUrl = '*://docs.google.com/*';
 
-    observeMutations = true;
-
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
         let host = $$('#docs-menubar');

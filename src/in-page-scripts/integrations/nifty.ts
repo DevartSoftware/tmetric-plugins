@@ -9,8 +9,6 @@ class Nifty implements WebToolIntegration {
 
     showIssueId = true;
 
-    observeMutations = true;
-
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
         let description = '';

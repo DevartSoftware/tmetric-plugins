@@ -2,6 +2,8 @@ class Userecho implements WebToolIntegration {
 
     showIssueId = false;
 
+    observeMutations = false;
+
     matchUrl = 'https://*.userecho.com/*';
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {

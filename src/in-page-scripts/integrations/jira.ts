@@ -2,8 +2,6 @@ class Jira implements WebToolIntegration {
 
     showIssueId = true;
 
-    observeMutations = true;
-
     issueLinkSelector = 'a[href^="/browse/"][target=_blank]';
 
     match(source: Source): boolean {
