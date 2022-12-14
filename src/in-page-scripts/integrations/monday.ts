@@ -64,21 +64,19 @@ class Monday implements WebToolIntegration {
         } else if (issueElement.matches(this.issueElementSelector[1])) { // my week page (legacy)
             const hostElement = $$('.link-to-pulse');
             if (hostElement) {
-                Object.assign(linkElement.style, { marginLeft: '10px' } as CSSStyleDeclaration);
+                linkElement.style.marginLeft = '10px';
                 hostElement.appendChild(linkElement);
             }
         } else if (issueElement.matches(this.issueElementSelector[2])) { // my work page
             const hostElement = $$('.link-to-pulse');
             if (hostElement) {
-                Object.assign(linkElement.style, {
-                    marginLeft: '10px'
-                } as CSSStyleDeclaration);
+                linkElement.style.marginLeft = '10px';
                 hostElement.appendChild(linkElement);
             }
         }
 
         if (!linkElement.parentElement) { // fallback - add as first element
-            Object.assign(linkElement.style, { paddingLeft: '10px' } as CSSStyleDeclaration);
+            linkElement.style.paddingLeft = '10px';
             issueElement.insertBefore(linkElement, issueElement.firstChild);
         }
     }
