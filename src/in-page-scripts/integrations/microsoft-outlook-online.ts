@@ -1,4 +1,4 @@
-﻿class MicrosofOutlookOnline implements WebToolIntegration {
+class MicrosofOutlookOnline implements WebToolIntegration {
 
     showIssueId = false;
 
@@ -7,8 +7,6 @@
         'https://outlook.office.com',
         'https://outlook.office365.com'
     ];
-
-    observeMutations = true;
 
     issueElementSelector = '#app';
 

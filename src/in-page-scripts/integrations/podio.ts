@@ -1,10 +1,8 @@
-﻿class PodioTask implements WebToolIntegration {
+class PodioTask implements WebToolIntegration {
 
     showIssueId = false;
 
     matchUrl = '*://podio.com/tasks/*';
-
-    observeMutations = true;
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
@@ -44,8 +42,6 @@ class PodioTaskList implements WebToolIntegration {
     showIssueId = false;
 
     matchUrl = '*://podio.com*/tasks';
-
-    observeMutations = true;
 
     issueElementSelector = '.task-wrapper';
 
@@ -89,8 +85,6 @@ class PodioAppItem implements WebToolIntegration {
     showIssueId = false;
 
     matchUrl = '*://podio.com/*/apps/*';
-
-    observeMutations = true;
 
     issueElementSelector = '.item-topbar'
 

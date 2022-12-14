@@ -1,11 +1,9 @@
-﻿class MicrosoftOfficeOnline implements WebToolIntegration {
+class MicrosoftOfficeOnline implements WebToolIntegration {
 
     showIssueId = false;
 
     // Supports Word Online, Excel Online, PowerPoint Online, OneNote Online
     matchUrl = 'https://*.officeapps.live.com';
-
-    observeMutations = true;
 
     issueElementSelector = '#AppHeaderPanel';
 

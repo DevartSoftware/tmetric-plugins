@@ -1,4 +1,4 @@
-﻿class WebToolManager {
+class WebToolManager {
 
     private static urlRe = /^([^:]+:\/\/)?([^:/?#]+)(:\d+)?(\/[^?#]*)?(\?[^?#]*)?(\#[^?#]*)?$/i;
 

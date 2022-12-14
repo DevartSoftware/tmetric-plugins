@@ -1,6 +1,8 @@
-﻿class EasyRedmine implements WebToolIntegration {
+class EasyRedmine implements WebToolIntegration {
 
     showIssueId = true;
+
+    observeMutations = false;
 
     matchUrl = /(.*)\/(issues|easy_crm_cases|test_cases)\/(\d+)/;
 

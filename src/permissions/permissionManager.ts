@@ -1,4 +1,4 @@
-﻿class PermissionManager {
+class PermissionManager {
 
     private request(origins: string[]) {
         return typeof browser != 'undefined' ?

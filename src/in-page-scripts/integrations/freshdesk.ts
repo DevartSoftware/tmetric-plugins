@@ -1,8 +1,6 @@
-﻿class OldFreshdesk implements WebToolIntegration {
+class OldFreshdesk implements WebToolIntegration {
 
     showIssueId = true;
-
-    observeMutations = true;
 
     matchUrl = '*://*/helpdesk/tickets/*';
 
@@ -45,8 +43,6 @@
 class NewFreshdesk implements WebToolIntegration {
 
     showIssueId = true;
-
-    observeMutations = true;
 
     matchUrl = '*://*/a/tickets/*';
 

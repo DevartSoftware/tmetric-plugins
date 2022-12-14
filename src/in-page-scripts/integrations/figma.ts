@@ -1,8 +1,6 @@
-﻿class Figma implements WebToolIntegration {
+class Figma implements WebToolIntegration {
 
     matchUrl = 'https://www.figma.com/file/*';
-
-    observeMutations = true;
 
     showIssueId = false;
 

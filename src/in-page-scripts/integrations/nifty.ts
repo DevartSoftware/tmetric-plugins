@@ -1,4 +1,4 @@
-﻿class Nifty implements WebToolIntegration {
+class Nifty implements WebToolIntegration {
 
     matchUrl = '*://*.nifty.pm/*';
 
@@ -8,8 +8,6 @@
     ];
 
     showIssueId = true;
-
-    observeMutations = true;
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 

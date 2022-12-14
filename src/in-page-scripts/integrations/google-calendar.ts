@@ -1,10 +1,8 @@
-﻿class GoogleCalendar implements WebToolIntegration {
+class GoogleCalendar implements WebToolIntegration {
 
     showIssueId = false;
 
     matchUrl = 'https://calendar.google.com/calendar/*';
-
-    observeMutations = true;
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
@@ -53,8 +51,6 @@ class NewGoogleCalendar implements WebToolIntegration {
     showIssueId = false;
 
     matchUrl = 'https://calendar.google.com/calendar/*';
-
-    observeMutations = true;
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 

@@ -4,8 +4,6 @@ class ActiveCollab implements WebToolIntegration {
 
     showIssueId = true;
 
-    observeMutations = true;
-
     issueElementSelector = [
         '.object_view' // task
     ]

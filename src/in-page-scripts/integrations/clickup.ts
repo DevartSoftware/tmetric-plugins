@@ -2,8 +2,6 @@ class Clickup implements WebToolIntegration {
 
     showIssueId = false;
 
-    observeMutations = true;
-
     matchUrl = '*://app.clickup.com';
 
     issueElementSelector = [

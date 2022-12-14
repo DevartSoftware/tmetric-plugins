@@ -1,10 +1,8 @@
-﻿class GoogleDocs implements WebToolIntegration {
+class GoogleDocs implements WebToolIntegration {
 
     showIssueId = false;
 
     matchUrl = '*://docs.google.com/*';
-
-    observeMutations = true;
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 

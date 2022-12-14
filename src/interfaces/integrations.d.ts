@@ -5,7 +5,7 @@ interface WebToolIntegration {
     observeMutations?: boolean;
     render(issueElement: HTMLElement, linkElement: HTMLElement);
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue;
-    showIssueId: boolean;
+    showIssueId?: boolean;
 }
 
 interface Source {

@@ -1,4 +1,4 @@
-﻿// https://developer.apple.com/documentation/safariextensions
+// https://developer.apple.com/documentation/safariextensions
 
 interface SafariApplication extends SafariEventTarget {
     activeBrowserWindow: SafariBrowserWindow;

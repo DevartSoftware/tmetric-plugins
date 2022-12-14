@@ -1,6 +1,8 @@
-﻿class Redmine implements WebToolIntegration {
+class Redmine implements WebToolIntegration {
 
     showIssueId = true;
+
+    observeMutations = false;
 
     matchUrl = '*://*/issues/*';
 

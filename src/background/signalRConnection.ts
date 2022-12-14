@@ -1,4 +1,4 @@
-﻿class SignalRConnection extends ServerConnection<OidcClient> {
+class SignalRConnection extends ServerConnection<OidcClient> {
 
     hub: signalR.HubConnection;
 

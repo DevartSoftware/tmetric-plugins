@@ -1,4 +1,4 @@
-﻿class GoogleKeep implements WebToolIntegration {
+class GoogleKeep implements WebToolIntegration {
 
     showIssueId = false;
 
@@ -8,8 +8,6 @@
         '.XKSfm-L9AdLc .CmABtb.RNfche', // selector for row with checkbox (in the checklist)
         '.XKSfm-L9AdLc .IZ65Hb-yePe5c'  // selector for toolbar
     ];
-
-    observeMutations = true;
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
         linkElement.classList.add('devart-timer-link-minimal');

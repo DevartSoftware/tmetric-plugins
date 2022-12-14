@@ -1,8 +1,6 @@
-﻿class Bugzilla implements WebToolIntegration {
+class Bugzilla implements WebToolIntegration {
 
     showIssueId = true;
-
-    observeMutations = true;
 
     matchUrl = '*://*/show_bug.cgi*';
 

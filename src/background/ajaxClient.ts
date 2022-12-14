@@ -1,4 +1,4 @@
-﻿class AjaxClient {
+class AjaxClient {
 
     /** @virtual */
     public ajax<TReq, TRes>(url: string, method: string, dataReq?: TReq): Promise<TRes> {

@@ -1,4 +1,4 @@
-﻿interface Window {
+interface Window {
     initPage: () => void;
     parsePage: () => void;
     sendBackgroundMessagee: (message: ITabMessage) => void;

@@ -1,4 +1,4 @@
-﻿class IntegrationService {
+class IntegrationService {
 
     static session = Date.now();
 
@@ -139,7 +139,7 @@
             }
         });
 
-        return { issues, observeMutations: this._possibleIntegrations.some(i => i.observeMutations) };
+        return { issues, observeMutations: this._possibleIntegrations.some(i => i.observeMutations ?? true) };
     }
 
     static updateIssues(integration: WebToolIntegration, issues: WebToolParsedIssue[]) {

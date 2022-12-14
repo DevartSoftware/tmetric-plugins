@@ -1,4 +1,4 @@
-﻿class OidcClient extends AjaxClient {
+class OidcClient extends AjaxClient {
 
     private readonly _authorityUrl: Promise<string>;
 

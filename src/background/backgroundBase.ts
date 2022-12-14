@@ -1,4 +1,4 @@
-﻿abstract class BackgroundBase<TConnection extends ServerConnection = ServerConnection> {
+abstract class BackgroundBase<TConnection extends ServerConnection = ServerConnection> {
 
     protected readonly _constants: Promise<Models.Constants>;
 

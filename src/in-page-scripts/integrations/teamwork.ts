@@ -1,11 +1,9 @@
-﻿// http://support.teamwork.com/projects/installation-and-account-134/can-i-change-the-domain-of-my-teamwork-account
+// http://support.teamwork.com/projects/installation-and-account-134/can-i-change-the-domain-of-my-teamwork-account
 const hosts = '((teamwork|seetodos|companytodos|worktodos|companyworkflow|projectgameplan|peopleworkflow|projecttodos|projectorganiser|seetasks)\.com|teamworkpm\.net)';
 
 class Teamwork implements WebToolIntegration {
 
     showIssueId = true;
-
-    observeMutations = true;
 
     matchUrl = new RegExp('.*:\/\/.*\.' + hosts + '\/.*');
 
@@ -87,8 +85,6 @@ class Teamwork implements WebToolIntegration {
 class TeamworkDesk implements WebToolIntegration {
 
     showIssueId = true;
-
-    observeMutations = true;
 
     matchUrl = new RegExp('.*:\/\/.*\.' + hosts + '\/desk\/.*');
 

@@ -1,4 +1,4 @@
-﻿class SignalRHubProxy {
+class SignalRHubProxy {
 
     private _handlers: { [methodName: string]: ((...args: any[]) => void)[] } = {};
 

@@ -1,4 +1,4 @@
-﻿interface Utils {
+interface Utils {
     <TElement extends HTMLElement>(selector: string, element?: ParentNode, condition?: (el: TElement) => boolean): TElement;
     try<TElement extends HTMLElement>(selector: string, element?: ParentNode, condition?: (el: TElement) => boolean): TElement;
     visible<TElement extends HTMLElement>(selector: string, element?: ParentNode): TElement;

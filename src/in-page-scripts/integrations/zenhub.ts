@@ -1,8 +1,6 @@
-﻿class ZenHub implements WebToolIntegration {
+class ZenHub implements WebToolIntegration {
 
     showIssueId = false;
-
-    observeMutations = true;
 
     matchUrl = 'https://app.zenhub.com/workspaces/*/issues/*';
 

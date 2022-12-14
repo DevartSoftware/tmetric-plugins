@@ -1,8 +1,6 @@
-﻿class TestRail implements WebToolIntegration {
+class TestRail implements WebToolIntegration {
 
     showIssueId = true;
-
-    observeMutations = true;
 
     matchUrl = '*://*/index.php?/runs/view/*';
 

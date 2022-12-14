@@ -1,8 +1,6 @@
-﻿class Jira implements WebToolIntegration {
+class Jira implements WebToolIntegration {
 
     showIssueId = true;
-
-    observeMutations = true;
 
     issueLinkSelector = 'a[href^="/browse/"][target=_blank]';
 
@@ -115,7 +113,7 @@
             || $$.try('#project-name-val').textContent // separate task view (/browse/... URL)
             || $$.try('.project-title > a').textContent // old service desk and agile board
             || $$.try('.sd-notify-header').textContent // service desk form https://issues.apache.org/jira/servicedesk/agent/all
-            || this.getProjectNameFromProjectLink(issueId) // trying to find project link
+            || this.getProjectNameFromProjectLink(issueElement, issueId) // trying to find project link
             || this.getProjectNameFromAvatar(issueElement) // trying to find project avatar
             || this.getProjectNameFromNavigationBar(); // trying to find project name on navigation bar
 
@@ -139,11 +137,43 @@
         return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Jira', tagNames };
     }
 
-    private getProjectNameFromProjectLink(issueId: string) {
-        const projectId = (issueId || '').indexOf('-') > 0 && issueId.split('-')[0];
-        if (projectId) {
-            return $$.try(`a[href="/browse/${projectId}"]`).textContent;
+    private getCommonAncestorLevel(issueElement: HTMLElement, otherElement: HTMLElement) {
+        for (let level = 0; issueElement; level++) {
+            if (issueElement.contains(otherElement)) {
+                return level;
+            }
+            issueElement = issueElement.parentElement;
         }
+        return Number.MAX_SAFE_INTEGER;
+    }
+
+    private getProjectNameFromProjectLink(issueElement: HTMLElement, issueId: string) {
+
+        const projectId = (issueId || '').indexOf('-') > 0 && issueId.split('-')[0];
+        if (!projectId) {
+            return;
+        }
+
+        // search for nearest project link (TMET-8562)
+        let link: HTMLElement;
+        let minAncestorLevel = Infinity;
+        $$.all(`a[href="/browse/${projectId}"]`).forEach(x => {
+            const level = this.getCommonAncestorLevel(issueElement, x);
+            if (level < minAncestorLevel) {
+                minAncestorLevel = level;
+                link = x;
+            }
+        });
+
+        // name can be truncated 
+        const projectName = link?.textContent;
+        if (projectName?.endsWith('...')) { 
+            const img = $$('img', link) as HTMLImageElement;
+            if (img.alt?.startsWith(projectName.slice(0, -3))) {
+                return img.alt; // get name from project icon alt
+            }
+        }
+        return projectName;
     }
 
     private getProjectNameFromAvatar(issueElement: HTMLElement) {

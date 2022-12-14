@@ -1,4 +1,4 @@
-﻿const enum ButtonState { start, stop, fixtimer, connect }
+const enum ButtonState { start, stop, fixtimer, connect }
 const invalidProfileError = 'Profile not configured';
 
 abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {

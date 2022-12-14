@@ -1,8 +1,6 @@
-﻿class GitLab implements WebToolIntegration {
+class GitLab implements WebToolIntegration {
 
     showIssueId = true;
-
-    observeMutations = true;
 
     matchUrl = [
         '*://*/issues/*',
@@ -16,6 +14,7 @@
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
         linkElement.classList.add('btn');
+        linkElement.style.margin = 'auto'
         const header = $$('.detail-page-header');
         if (!header) {
             return;
@@ -111,8 +110,6 @@ class GitLabSidebar implements WebToolIntegration {
         '.right-sidebar', // old sidebar
         '.gl-drawer-sidebar' // new sidebar
     ];
-
-    observeMutations = true;
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 

@@ -1,10 +1,8 @@
-﻿class GoogleMail implements WebToolIntegration {
+class GoogleMail implements WebToolIntegration {
 
     showIssueId = false;
 
     matchUrl = '*://mail.google.com/mail/*';
-
-    observeMutations = true;
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 

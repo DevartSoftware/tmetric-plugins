@@ -1,6 +1,8 @@
-﻿class Userecho implements WebToolIntegration {
+class Userecho implements WebToolIntegration {
 
     showIssueId = false;
+
+    observeMutations = false;
 
     matchUrl = 'https://*.userecho.com/*';
 

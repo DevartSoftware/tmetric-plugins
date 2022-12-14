@@ -1,10 +1,8 @@
-﻿class Bitrix24 implements WebToolIntegration {
+class Bitrix24 implements WebToolIntegration {
 
     showIssueId = false;
 
     matchUrl = 'https://*/*/tasks*'; // url of iframe
-
-    observeMutations = true;
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 

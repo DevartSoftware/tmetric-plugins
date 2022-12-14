@@ -1,4 +1,4 @@
-﻿interface ISimpleEvent<T> {
+interface ISimpleEvent<T> {
     (handler: (arg: T) => void);
     emit(arg: T);
 }

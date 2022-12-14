@@ -1,1 +1,1 @@
-﻿interface Buffer { }
+interface Buffer { }

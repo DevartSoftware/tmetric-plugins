@@ -1,8 +1,6 @@
-﻿class Zendesk implements WebToolIntegration {
+class Zendesk implements WebToolIntegration {
 
     showIssueId = true;
-
-    observeMutations = true;
 
     matchUrl = '*://*.zendesk.com/agent/tickets/*';
 

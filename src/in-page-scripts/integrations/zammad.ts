@@ -1,7 +1,7 @@
 class Zammad {
 
     showIssueId = true;
-    observeMutations = true;
+
     matchUrl = /(.+:\/\/.+)(\/#ticket\/zoom\/(\d+))/;
 
     getIssue(issueElement, source) {

@@ -1,8 +1,6 @@
-﻿class Wrike implements WebToolIntegration {
+class Wrike implements WebToolIntegration {
 
     showIssueId = false;
-
-    observeMutations = true;
 
     matchUrl = '*://*.wrike.com/workspace.htm*';
 

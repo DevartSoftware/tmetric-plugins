@@ -1,8 +1,6 @@
-﻿class PivotalTracker implements WebToolIntegration {
+class PivotalTracker implements WebToolIntegration {
 
     showIssueId = true;
-
-    observeMutations = true;
 
     matchUrl = '*://www.pivotaltracker.com/*';
 

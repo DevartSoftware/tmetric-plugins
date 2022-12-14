@@ -1,8 +1,6 @@
-﻿class Shortcut implements WebToolIntegration {
+class Shortcut implements WebToolIntegration {
 
     showIssueId = true;
-
-    observeMutations = true;
 
     matchUrl = '*://app.shortcut.com/*/story/*';
 

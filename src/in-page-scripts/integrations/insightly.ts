@@ -1,8 +1,6 @@
-﻿class Insightly implements WebToolIntegration {
+class Insightly implements WebToolIntegration {
 
     showIssueId = false;
-
-    observeMutations = true;
 
     matchUrl = [/https:\/\/crm\..*\.insightly\.com\/.*\?blade=\/details\/task\/.*/i, /https:\/\/crm\..*\.insightly\.com\/details\/task\/.*/i];
 

@@ -1,4 +1,4 @@
-﻿class ServerConnection<TClient extends AjaxClient = AjaxClient> {
+class ServerConnection<TClient extends AjaxClient = AjaxClient> {
 
     private readonly _serviceUrl: Promise<string>;
 

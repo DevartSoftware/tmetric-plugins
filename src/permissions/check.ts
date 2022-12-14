@@ -1,4 +1,4 @@
-﻿$(document).ready(async () => {
+$(document).ready(async () => {
 
     const skipPermissionsRequest = await new Promise<boolean>(resolve => {
         chrome.storage.local.get(

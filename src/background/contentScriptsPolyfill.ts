@@ -1,4 +1,4 @@
-﻿type FileOrCode = { file?: string; code?: string };
+type FileOrCode = { file?: string; code?: string };
 
 type RegisteredContentScriptOptions = browser.contentScripts.RegisteredContentScriptOptions;
 

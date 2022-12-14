@@ -1,8 +1,6 @@
-﻿class GitHub implements WebToolIntegration {
+class GitHub implements WebToolIntegration {
 
     showIssueId = true;
-
-    observeMutations = true;
 
     matchUrl = /(https:\/\/github\.com)(\/.+\/(issues|pull)\/(\d+))/
 

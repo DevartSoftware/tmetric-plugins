@@ -1,4 +1,4 @@
-﻿if (typeof document !== 'undefined') {
+if (typeof document !== 'undefined') {
 
     const sendBackgroundMessage = (message: ITabMessage) => {
         chrome.runtime.sendMessage(message, response => {
@@ -27,8 +27,7 @@
         const body = document.body;
         const isFrameSet = body.tagName == 'FRAMESET';
         let refChild = null as Node;
-        const frame = document.createElement(isFrameSet ? 'frame' : 'iframe');
-
+        const frame = document.createElement(isFrameSet ? 'frame' : 'iframe') as HTMLFrameElement | HTMLIFrameElement;
         frame.id = popupId;
         frame.src = `${constants.browserSchema}://${constants.extensionUUID}/popup/popup.html?integration`;
 

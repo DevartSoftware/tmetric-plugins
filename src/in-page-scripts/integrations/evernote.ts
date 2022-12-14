@@ -1,8 +1,11 @@
-﻿class Evernote implements WebToolIntegration {
+class Evernote implements WebToolIntegration {
+
     matchUrl = '*://www.evernote.com/client/*';
+
     issueElementSelector = '#qa-NOTE_HEADER';
+
     showIssueId = false;
-    observeMutations = true;
+
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
         let div = $$.create('div');
         div.classList.add('devart-timer-link-evernote');

@@ -1,4 +1,4 @@
-﻿// wrapper over chrome.storage.local
+// wrapper over chrome.storage.local
 const storage = {
 
     getItem: async (key: string) => {

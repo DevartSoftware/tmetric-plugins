@@ -1,8 +1,6 @@
-﻿class Assembla implements WebToolIntegration {
+class Assembla implements WebToolIntegration {
 
     showIssueId = true;
-
-    observeMutations = true;
 
     // Urls:
     // https://[www|PORTFOLIO].assembla.com/spaces/*
