@@ -115,9 +115,15 @@ class ZohoDesk implements WebToolIntegration {
             const match = source.fullUrl.replace(/\?.+\#/, '#').match(/^(.+)\/(ShowHomePage\.do\#Cases\/dv\/\d+)$/i);
             const serviceUrl = match ? match[1] : null;
             const issueUrl = match ? match[2] : null;
-            const projectName =
-                $$.try('#crmpluscommonuiselecteddepartment', parent?.document).textContent ||
-                $$.try('#dep_head').textContent;
+            let projectName = $$.try('#dep_head').textContent;
+            if (!projectName) {
+                try {
+                    projectName = $$.try('#crmpluscommonuiselecteddepartment', parent?.document).textContent;
+                }
+                catch (e) {
+                    // ignore cross-origin frame blocking (TMET-8600)
+                }
+            }
 
             const tagNames = $$.all('.tagBody a', issueElement).map(_ => _.textContent);
 
