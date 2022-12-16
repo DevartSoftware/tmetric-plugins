@@ -10,7 +10,7 @@
     "dependencies": {
         "@aspnet/signalr": "1.1.4",
         "jquery": "3.5.0",
-        "select2": "4.0.2"
+        "select2": "^4.0.13"
     },
     "devDependencies": {
         "@types/chrome": "0.0.180",
