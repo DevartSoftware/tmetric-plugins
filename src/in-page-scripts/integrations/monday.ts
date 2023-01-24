@@ -47,8 +47,13 @@ class Monday implements WebToolIntegration {
 
         if (issueUrl) {
             issueUrl = $$.getRelativeUrl(serviceUrl, issueUrl);
-            const matches = issueUrl.match(/pulses\/(\d+)/);
-            issueId = matches ? matches[1] : null;
+            const matches = issueUrl.match(/(\/pulses\/(\d+))/);
+            if (matches) {
+                issueUrl = matches[0];
+                issueId = matches[1];
+            } else {
+                issueUrl = undefined;
+            }
         }
 
         return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Monday' };
