@@ -463,3 +463,21 @@
         display: none;
     }
 }
+
+// icon for monday
+.devart-timer-link-monday {
+    opacity: 0;
+
+    .devart-timer-link-icon ~ span {
+        display: none;
+    }
+
+    .devart-timer-link-icon {
+        vertical-align: sub !important;
+    }
+}
+
+.name-cell-component:hover .devart-timer-link-monday {
+    opacity: 1;
+    transition: .5s;
+}
