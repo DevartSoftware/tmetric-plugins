@@ -83,7 +83,7 @@ class Jira implements WebToolIntegration {
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        const issueName = $$.try('dd[data-field-id=summary], h1', issueElement).textContent;
+        const issueName = $$.try<HTMLInputElement>('#summary').value || $$.try('dd[data-field-id=summary], h1', issueElement).textContent;
         if (!issueName) {
             return;
         }
