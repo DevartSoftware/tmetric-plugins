@@ -7,21 +7,7 @@ class Teamwork implements WebToolIntegration {
 
     matchUrl = new RegExp('.*:\/\/.*\.' + hosts + '\/.*');
 
-    issueDocument() {
-        const iframe = <HTMLIFrameElement>$$('.tw-legacyViewWrapper');
-        if (iframe) {
-            return iframe.contentDocument;
-        }
-        return null;
-    }
-
     issueElementSelector() {
-        const iframe = <HTMLIFrameElement>$$('.tw-legacyViewWrapper');
-
-        if (iframe) {
-            return $$.all('.row-content-holder', iframe.contentDocument);
-        }
-
         return $$.all('.row-content-holder');
     }
 

@@ -51,26 +51,6 @@ class IntegrationService {
             return !linkTimer.isStarted || this.isIssueStarted(linkTimer);
         });
     }
-    static observeDocument(checkAllIntegrations: boolean) {
-        let doc = document;
-        const source = this.getSourceInfo(document.URL);
-
-        if (!this._possibleIntegrations || checkAllIntegrations) {
-            this._possibleIntegrations = this._allIntegrations;
-        }
-
-        this._possibleIntegrations = this._possibleIntegrations.filter(integration =>
-            this.isUrlMatched(integration, source.fullUrl) &&
-            (!integration.match || integration.match(source)));
-
-        this._possibleIntegrations.some(integration => {
-            const issueDoc = integration.issueDocument();
-            if (issueDoc) {
-                doc = issueDoc;
-            }
-        });
-        return doc;
-    }
 
     static updateLinks(checkAllIntegrations: boolean) {
         const source = this.getSourceInfo(document.URL);

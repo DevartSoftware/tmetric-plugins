@@ -380,7 +380,8 @@ const getWebToolDescriptions = function () {
             ],
             hasAdditionalOrigins: true,
             scripts: {
-                js: ['in-page-scripts/integrations/teamwork.js']
+                js: ['in-page-scripts/integrations/teamwork.js'],
+                allFrames: true
             }
         },
         {
