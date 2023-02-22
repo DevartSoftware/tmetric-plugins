@@ -6,6 +6,7 @@ interface WebToolIntegration {
     render(issueElement: HTMLElement, linkElement: HTMLElement);
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue;
     showIssueId?: boolean;
+    issueDocument?: () => Document;
 }
 
 interface Source {
