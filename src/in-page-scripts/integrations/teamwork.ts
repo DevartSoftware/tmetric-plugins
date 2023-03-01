@@ -7,21 +7,25 @@ class Teamwork implements WebToolIntegration {
 
     matchUrl = new RegExp('.*:\/\/.*\.' + hosts + '\/.*');
 
-    issueElementSelector() {
-        return $$.all('.row-content-holder');
-    }
+    issueElementSelector = [
+        '.row-content-holder',
+        '.task-detail-header'
+    ]; 
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
         const container = $$.create('span');
         linkElement.classList.add('option');
-        container.classList.add('devart-timer-link-teamwork', 'w-task-row__option');
+        container.classList.add('devart-timer-link-teamwork');
+        if (issueElement.className === 'row-content-holder') {
+            container.classList.add('w-task-row__option');
+        }
         container.appendChild(linkElement);
         issueElement.appendChild(container);
     }
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        const issueName = $$.try('.w-task-row__name > span', issueElement).textContent;
+        const issueName = $$.try('.w-task-row__name > span', issueElement).textContent || $$.try<HTMLInputElement>('.task-name > textarea').value;
         if (!issueName) {
             return;
         }
@@ -35,6 +39,13 @@ class Teamwork implements WebToolIntegration {
         if (matches) {
             issueId = '#' + matches[1];
             issueUrl = 'tasks/' + matches[1];
+        }
+
+        if (!issueId) {
+            issueId = $$.try('.action_link').innerText;
+        }
+        if (!issueUrl) {
+            issueUrl = 'tasks/' + issueId.substring(1);
         }
 
         let projectName: string;
@@ -72,8 +83,10 @@ class Teamwork implements WebToolIntegration {
             }
         }
 
-        const tagNames = $$.all('.w-tags__tag-name', issueElement).map(_ => _.textContent);
-
+        let tagNames = $$.all('.w-tags__tag-name', issueElement).map(_ => _.textContent);
+        if (tagNames.length == 0) {
+            tagNames = $$.all('.task-detail-content .w-item-picker__item > button').map(_ => _.textContent);
+        }
         const serviceType = 'Teamwork';
 
         const serviceUrl = source.protocol + source.host;
@@ -156,79 +169,6 @@ class TeamworkDesk implements WebToolIntegration {
         return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
     }
 }
-class TeamworkTable implements WebToolIntegration {
-
-    showIssueId = true;
-
-    matchUrl = new RegExp('.*:\/\/.*\.' + hosts + '\/.*');
-
-    issueElementSelector() {
-        return $$.all('.task-detail-header');
-    }
-
-    render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        const container = $$.create('span');
-        linkElement.classList.add('option');
-        container.classList.add('devart-timer-link-teamwork');
-        container.appendChild(linkElement);
-        issueElement.appendChild(container);
-    }
-
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-
-        const issueName = $$.try<HTMLInputElement>('.task-name > textarea').value;
-        if (!issueName) {
-            return;
-        }
-
-        const issueId = $$.try('.action_link').innerText;
-        const issueUrl = 'tasks/' + issueId.substring(1);
-
-        let projectName: string;
-
-        // single project tasks view
-        const projectNameElement = $$('.w-header-titles__project-name');
-        if (projectNameElement) {
-            projectName = projectNameElement.firstChild.textContent;
-        }
-
-        // multi project tasks view
-        // https://COMPANY.teamwork.com/#/home/work
-        if (!projectName) {
-            const parentRowElement = $$.closest('.s-today__tasks-row', issueElement);
-            if (parentRowElement) {
-                const groupHeader = $$.prev('.u-group-title', parentRowElement);
-                if (groupHeader) {
-                    const projectAnchor = $$('a[href*=projects]', groupHeader);
-                    if (projectAnchor) {
-                        projectName = Array.from(projectAnchor.childNodes)
-                            .filter(_ => _.nodeType == document.TEXT_NODE)
-                            .map(_ => _.textContent.trim())
-                            .join('');
-                    }
-                }
-            }
-        }
-
-        // project gantt chart
-        // https://COMPANY.teamwork.com/#/projects/PROJECT_ID/gantt
-        if (!projectName) {
-            const header = $$('.w-gantt__top-left-header h3');
-            if (header) {
-                projectName = header.textContent;
-            }
-        }
-
-        const tagNames = $$.all('.w-item-picker__list').map(_ => _.textContent);
-
-        const serviceType = 'Teamwork';
-
-        const serviceUrl = source.protocol + source.host;
-
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
-    }
-}
 
 IntegrationService.register(new Teamwork());
 IntegrationService.register(new TeamworkDesk());
-IntegrationService.register(new TeamworkTable());
