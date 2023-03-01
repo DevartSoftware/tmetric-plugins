@@ -16,7 +16,7 @@ class Teamwork implements WebToolIntegration {
         const container = $$.create('span');
         linkElement.classList.add('option');
         container.classList.add('devart-timer-link-teamwork');
-        if (issueElement.className === 'row-content-holder') {
+        if (issueElement.matches(this.issueElementSelector[0])) {
             container.classList.add('w-task-row__option');
         }
         container.appendChild(linkElement);
