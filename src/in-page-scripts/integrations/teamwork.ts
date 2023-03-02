@@ -7,35 +7,25 @@ class Teamwork implements WebToolIntegration {
 
     matchUrl = new RegExp('.*:\/\/.*\.' + hosts + '\/.*');
 
-    issueDocument() {
-        const iframe = <HTMLIFrameElement>$$('.tw-legacyViewWrapper');
-        if (iframe) {
-            return iframe.contentDocument;
-        }
-        return null;
-    }
-
-    issueElementSelector() {
-        const iframe = <HTMLIFrameElement>$$('.tw-legacyViewWrapper');
-
-        if (iframe) {
-            return $$.all('.row-content-holder', iframe.contentDocument);
-        }
-
-        return $$.all('.row-content-holder');
-    }
+    issueElementSelector = [
+        '.row-content-holder',
+        '.task-detail-header'
+    ]; 
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
         const container = $$.create('span');
         linkElement.classList.add('option');
-        container.classList.add('devart-timer-link-teamwork', 'w-task-row__option');
+        container.classList.add('devart-timer-link-teamwork');
+        if (issueElement.matches(this.issueElementSelector[0])) {
+            container.classList.add('w-task-row__option');
+        }
         container.appendChild(linkElement);
         issueElement.appendChild(container);
     }
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        const issueName = $$.try('.w-task-row__name > span', issueElement).textContent;
+        const issueName = $$.try('.w-task-row__name > span', issueElement).textContent || $$.try<HTMLInputElement>('.task-name > textarea').value;
         if (!issueName) {
             return;
         }
@@ -49,6 +39,13 @@ class Teamwork implements WebToolIntegration {
         if (matches) {
             issueId = '#' + matches[1];
             issueUrl = 'tasks/' + matches[1];
+        }
+
+        if (!issueId) {
+            issueId = $$.try('.action_link').innerText;
+        }
+        if (!issueUrl) {
+            issueUrl = 'tasks/' + issueId.substring(1);
         }
 
         let projectName: string;
@@ -86,8 +83,10 @@ class Teamwork implements WebToolIntegration {
             }
         }
 
-        const tagNames = $$.all('.w-tags__tag-name', issueElement).map(_ => _.textContent);
-
+        let tagNames = $$.all('.w-tags__tag-name', issueElement).map(_ => _.textContent);
+        if (tagNames.length == 0) {
+            tagNames = $$.all('.task-detail-content .w-item-picker__item > button').map(_ => _.textContent);
+        }
         const serviceType = 'Teamwork';
 
         const serviceUrl = source.protocol + source.host;

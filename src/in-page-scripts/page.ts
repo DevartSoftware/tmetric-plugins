@@ -10,7 +10,6 @@ if (typeof window != 'undefined' && !window.initPage) {
     let oldTitle = '';
     let changeCheckerHandle: number;
     let mutationObserver: MutationObserver;
-    let observedDocument: Document;
     const pingTimeouts = {} as { [callbackAction: string]: number };
     let isInitialized = false;
     let isFinalized = false;
@@ -165,11 +164,9 @@ if (typeof window != 'undefined' && !window.initPage) {
 
             const { issues, observeMutations } = IntegrationService.updateLinks(checkAllIntegrations);
 
-            const mutationDocument = IntegrationService.observeDocument(checkAllIntegrations);
-            if (!isFinalized && observeMutations && (!mutationObserver || observedDocument != mutationDocument)) {
-                observedDocument = mutationDocument;
+            if (!isFinalized && observeMutations && !mutationObserver) {
                 mutationObserver = new MutationObserver(parsePage);
-                mutationObserver.observe(observedDocument, { childList: true, subtree: true });
+                mutationObserver.observe(document, { childList: true, subtree: true });
             }
         }
 
