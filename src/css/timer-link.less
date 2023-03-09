@@ -294,6 +294,22 @@
     float: right;
 }
 
+.devart-timer-tick-tick {
+    float: right;
+    z-index: 10;
+
+    .devart-timer-link-icon ~ span {
+        display: none;
+    }
+
+    #task-detail-inner & {
+        .devart-timer-link-icon ~ span {
+            display: inline-block;
+        }
+
+    }
+}
+
 .devart-timer-link-trello.devart-timer-link-minimal {
     margin-top: 3px;
     margin-left: 3px;

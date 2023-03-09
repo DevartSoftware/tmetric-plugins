@@ -604,6 +604,15 @@ const getWebToolDescriptions = function () {
             scripts: {
                 js: ['in-page-scripts/integrations/slack.js']
             }
+        },
+        {
+            serviceType: 'TickTick',
+            serviceName: 'TickTick',
+            icon: 'ticktick.svg',
+            origins: ['https://ticktick.com/*'],
+            scripts: {
+                js: ['in-page-scripts/integrations/ticktick.js']
+            }
         }
     ];
 
