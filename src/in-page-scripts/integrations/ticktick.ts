@@ -11,7 +11,6 @@
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
         const container = $$.create('span');
-        linkElement.classList.add('option');
         container.classList.add('devart-timer-tick-tick');
         container.appendChild(linkElement);
         if (issueElement.matches(this.issueElementSelector[0])) {
@@ -26,8 +25,9 @@
     }
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-        const issueName = $$.try('.title > span', issueElement).textContent ||
-            $$.try('.CodeMirror-code span', issueElement).textContent;
+        const issueName =
+            $$.try('.CodeMirror-code span', issueElement).textContent ||
+                $$.try('.title > span', issueElement).textContent;
         if (!issueName) {
             return;
         }
@@ -44,31 +44,10 @@
         if (!issueId) {
             const url = source.fullUrl;
             const parsedUrl = new URL(url);
-            let match = /tasks\/(\w+)/.exec(url);
+            let match = /tasks\/(\w+)/.exec(url) || /kanban\/(\w+)/.exec(url);
             if (match) {
                 issueId = '#' + match[1];
                 issueUrl = '/' + parsedUrl.hash;
-            }
-        }
-
-        let projectName: string;
-
-        const projectInput = $$<HTMLInputElement>('.project-setting input', issueElement);
-        if (projectInput) {
-            projectName = projectInput.value;
-        }
-
-        if (!projectName) {
-            const projectSpan = $$('.project-name', issueElement);
-            if (projectSpan) {
-                projectName = projectSpan.textContent;
-            }
-        }
-
-        if (!projectName) {
-            const projectNameElement = $$('#project-name-bar h5');
-            if (projectNameElement) {
-                projectName = projectNameElement.textContent;
             }
         }
 
@@ -78,7 +57,7 @@
 
         const serviceUrl = source.protocol + source.host;
 
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
+        return { issueId, issueName, serviceType, serviceUrl, issueUrl, tagNames };
     }
 }
 IntegrationService.register(new Ticktick());
