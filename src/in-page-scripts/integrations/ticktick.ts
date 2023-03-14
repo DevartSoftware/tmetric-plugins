@@ -44,9 +44,9 @@
         if (!issueId) {
             const url = source.fullUrl;
             const parsedUrl = new URL(url);
-            let match = /tasks\/(\w+)/.exec(url) || /kanban\/(\w+)/.exec(url);
+            let match = /(tasks|kanban|quadrant(\d+))\/(\w+)/.exec(url);
             if (match) {
-                issueId = '#' + match[1];
+                issueId = '#' + match[match.length-1];
                 issueUrl = '/' + parsedUrl.hash;
             }
         }
