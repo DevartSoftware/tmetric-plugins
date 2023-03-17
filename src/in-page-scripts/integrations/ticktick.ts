@@ -1,6 +1,6 @@
 ﻿class Ticktick implements WebToolIntegration {
 
-    showIssueId = true;
+    showIssueId = false;
 
     matchUrl = 'https://ticktick.com/*';
 
