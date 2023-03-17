@@ -47,6 +47,7 @@ web browsers are **Chrome**, **Firefox**, **Edge**, **Opera**, and **Safari**.
 * [Teamwork](https://www.teamwork.com)
 * [TestLink](https://testlink.org/)
 * [TestRail](https://www.gurock.com/testrail/)
+* [TickTick](https://ticktick.com)
 * [Todoist](https://todoist.com)
 * [Trac](https://trac.edgewall.org)
 * [Trello](https://trello.com)
