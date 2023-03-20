@@ -16,6 +16,12 @@
         if (issueElement.matches(this.issueElementSelector[0])) {
 
             var blockToAdd = $$('.title', issueElement);
+
+            var element = $$('.task-inner', issueElement);
+            element.classList.add('devart-timer-tick-tick-overflow');
+            element.querySelectorAll('div').forEach((x) => {
+                x.classList.add('devart-timer-tick-tick-overflow');
+            })
             blockToAdd.appendChild(container);
         }
         else if (issueElement.matches(this.issueElementSelector[1])) {
