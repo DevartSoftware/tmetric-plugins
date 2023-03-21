@@ -49,7 +49,7 @@ class Monday implements WebToolIntegration {
             if (!issueUrl) { // if issue url didn't find, than parse id and create url manually
                 const rowId = $$.try('.pulse-component', issueElement).id;
                 const idMatch = rowId?.match(/row-pulse-+(\d+)-\w+/);
-                const boardMatch = source.path?.match('\/boards\/\d+');
+                const boardMatch = source.path?.match(/\/boards\/\d+/);
                 if (idMatch && boardMatch) {
                     issueUrl = `${boardMatch[0]}/pulses/${idMatch[1]}`;
                 }
