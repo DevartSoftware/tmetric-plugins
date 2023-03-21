@@ -16,6 +16,12 @@
         if (issueElement.matches(this.issueElementSelector[0])) {
 
             var blockToAdd = $$('.title', issueElement);
+
+            var element = $$('.task-inner', issueElement);
+            element.classList.add('devart-timer-tick-tick-overflow');
+            element.querySelectorAll('div').forEach((x) => {
+                x.classList.add('devart-timer-tick-tick-overflow');
+            })
             blockToAdd.appendChild(container);
         }
         else if (issueElement.matches(this.issueElementSelector[1])) {
@@ -25,13 +31,16 @@
     }
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-        const issueName =
-            $$.try('.CodeMirror-code span', issueElement).textContent ||
-                $$.try('.title > span', issueElement).textContent;
+        let issueNameElement =
+            $$.try('.CodeMirror-code span', issueElement).textContent
+                ? $$.try('.CodeMirror-code span', issueElement)
+                : $$.try('.title > span', issueElement);
+        let issueName = issueNameElement.textContent
         if (!issueName) {
             return;
         }
-
+        const isGrayed = [...issueNameElement.classList].some(x => /text-gr[ae]y-[1-5]0/.test(x));
+        issueName = isGrayed ? "" : issueName
         // get identifier from href or from top task in single view
         let issueId: string;
         let issueUrl: string;
