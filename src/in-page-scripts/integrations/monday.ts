@@ -47,9 +47,12 @@ class Monday implements WebToolIntegration {
             // find issue ulr on 'My Work' page
             issueUrl = $$.try<HTMLAnchorElement>('.pulse-component .board-cell-component a', issueElement).href;
             if (!issueUrl) { // if issue url didn't find, than parse id and create url manually
-                let rowId = $$.try('.pulse-component', issueElement).id;
-                let matches = rowId?.match(/row-pulse-+(\d+)-\w+/);
-                issueUrl = matches ? `${source.path}/pulses/${matches[1]}` : null;
+                const rowId = $$.try('.pulse-component', issueElement).id;
+                const idMatch = rowId?.match(/row-pulse-+(\d+)-\w+/);
+                const boardMatch = source.path?.match('\/boards\/\d+');
+                if (idMatch && boardMatch) {
+                    issueUrl = `${boardMatch[0]}/pulses/${idMatch[1]}`;
+                }
             }
             projectName = $$.try('.board-header-main .board-name').textContent // on boards page
                 || $$.try('.pulse-component .board-cell-component a', issueElement).textContent; // on My Work page
@@ -59,7 +62,7 @@ class Monday implements WebToolIntegration {
 
         if (issueUrl) {
             issueUrl = $$.getRelativeUrl(serviceUrl, issueUrl);
-            const matches = issueUrl.match(/(\/pulses\/(\d+))/);
+            const matches = issueUrl.match(/\/boards\/\d+\/pulses\/(\d+)/);
             if (matches) {
                 issueUrl = matches[0];
                 issueId = matches[1];
