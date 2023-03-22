@@ -58,13 +58,17 @@ class Monday implements WebToolIntegration {
                 || $$.try('.pulse-component .board-cell-component a', issueElement).textContent; // on My Work page
         }
 
+        if (!issueName) {
+            return;
+        }
+
         const serviceUrl = source.protocol + source.host;
 
         if (issueUrl) {
             issueUrl = $$.getRelativeUrl(serviceUrl, issueUrl);
-            const matches = issueUrl.match(/\/boards\/\d+\/pulses\/(\d+)/);
+            const matches = issueUrl.match(/\/boards\/(\d+).*\/pulses\/(\d+)/);
             if (matches) {
-                issueUrl = matches[0];
+                issueUrl = `/boards/${matches[1]}/pulses/${matches[2]}`;
                 issueId = matches[1];
             } else {
                 issueUrl = undefined;
