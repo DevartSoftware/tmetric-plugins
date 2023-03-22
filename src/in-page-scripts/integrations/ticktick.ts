@@ -40,7 +40,8 @@ class Ticktick implements WebToolIntegration {
         }
         const issueName = issueNameElement.textContent
         const isGrayed = [...issueNameElement.classList].some(x => /text-gr[ae]y-[1-5]0/.test(x));
-        if (!issueName || isGrayed) {
+        const isEmpty = issueNameElement.textContent.replace(/\u200B/g, '').trim().length == 0;////additional check for deatil page when title not specified or equal "&zerowidthspace"
+        if (!issueName || isGrayed || isEmpty) {
             return;
         }
 
