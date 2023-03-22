@@ -64,13 +64,11 @@
             }
         }
 
-        let tagNames = $$.all('.tag-list a', issueElement).map(_ => _.textContent);
-
         const serviceType = 'TickTick';
 
         const serviceUrl = source.protocol + source.host;
 
-        return { issueId, issueName, serviceType, serviceUrl, issueUrl, tagNames };
+        return { issueId, issueName, serviceType, serviceUrl, issueUrl };
     }
 }
 IntegrationService.register(new Ticktick());
