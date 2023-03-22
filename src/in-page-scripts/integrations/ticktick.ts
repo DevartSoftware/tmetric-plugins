@@ -31,20 +31,19 @@
     }
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+
         let issueNameElement =
-            $$.try('.CodeMirror-code span', issueElement).textContent
-                ? $$.try('.CodeMirror-code span', issueElement)
-                : $$.try('.title > span', issueElement).textContent
-                    ? $$.try('.title > span', issueElement)
-                    : null;
+            $$('.CodeMirror-code span', issueElement) ?? // details
+            $$('.title > span', issueElement); // list item
         if (!issueNameElement) {
             return;
         }
+        const issueName = issueNameElement.textContent
         const isGrayed = [...issueNameElement.classList].some(x => /text-gr[ae]y-[1-5]0/.test(x));
-        const issueName = isGrayed ? "" : issueNameElement.textContent
-        if (!issueName) {
+        if (!issueName || isGrayed) {
             return;
         }
+
         // get identifier from href or from top task in single view
         let issueId: string;
         let issueUrl: string;
