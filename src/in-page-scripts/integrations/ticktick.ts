@@ -1,4 +1,4 @@
-﻿class Ticktick implements WebToolIntegration {
+class Ticktick implements WebToolIntegration {
 
     showIssueId = false;
 
