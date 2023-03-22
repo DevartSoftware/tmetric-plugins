@@ -19,7 +19,19 @@ class Monday implements WebToolIntegration {
             if (!element.matches) {
                 return;
             }
-            this._latestPulseElement = $$.closest('.pulse-component', element);
+            const pulseElement = $$.closest('.pulse-component', element);
+            if (pulseElement) {
+                this._latestPulseElement = pulseElement; // remember pulse
+            } else if (this._latestPulseElement && element.parentElement) { // ignore unlinked elements
+                let selector = [
+                    ...this.issueElementSelector, // ignore clicks within the task itself
+                    '.dialog-node', // ignore pop-up dialogs (e.g. person selector)
+                    '.system-notice-container' // ignore notices (e.g. popping undo)
+                ].join(',');
+                if (!$$.closest(selector, element)) {
+                    this._latestPulseElement = undefined; // forget pulse
+                }
+            }
         });
     }
 
