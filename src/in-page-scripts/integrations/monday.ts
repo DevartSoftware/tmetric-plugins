@@ -69,7 +69,7 @@ class Monday implements WebToolIntegration {
             const matches = issueUrl.match(/\/boards\/(\d+).*\/pulses\/(\d+)/);
             if (matches) {
                 issueUrl = `/boards/${matches[1]}/pulses/${matches[2]}`;
-                issueId = matches[1];
+                issueId = matches[2];
             } else {
                 issueUrl = undefined;
             }
