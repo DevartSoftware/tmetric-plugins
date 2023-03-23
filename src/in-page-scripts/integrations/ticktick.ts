@@ -13,6 +13,7 @@ class Ticktick implements WebToolIntegration {
             linkElement.classList.add('devart-timer-inherit-label-align');
             blockToAdd.appendChild(linkElement);
         } else { // fallback
+            linkElement.style.marginLeft = '20px';
             issueElement.insertBefore(linkElement, issueElement.firstChild);
         }
     }
