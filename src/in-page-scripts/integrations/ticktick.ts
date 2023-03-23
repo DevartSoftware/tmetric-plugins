@@ -51,6 +51,12 @@ class Ticktick implements WebToolIntegration {
             issueId = match && match[1];
         }
 
+        // Tags
+        if (!issueId) {
+            match = source.fullUrl.match(/#.*\/tasks\/(\w{24,})/);
+            issueId = match && match[1];
+        }
+
         if (issueId && issueId.length === 24) {
             if (!projectId) {
                 // try to find hidden project link on page
@@ -62,10 +68,12 @@ class Ticktick implements WebToolIntegration {
             issueUrl = `/webapp/#p/${projectId}/tasks/${issueId}`;
         }
 
+        const tagNames = $$.all('.tag-list .tag-name').map(_ => _.textContent);
+
         const serviceType = 'TickTick';
         const serviceUrl = source.protocol + source.host;
 
-        return { issueId, issueName, serviceType, serviceUrl, issueUrl };
+        return { issueId, issueName, serviceType, serviceUrl, issueUrl, tagNames };
     }
 }
 IntegrationService.register(new Ticktick());
