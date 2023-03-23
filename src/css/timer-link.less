@@ -48,6 +48,12 @@
     }
 }
 
+.devart-timer-inherit-label-align {
+    > .devart-timer-link-icon ~ span {
+        vertical-align: inherit;
+    }
+}
+
 .devart-timer-link-asana {
     margin: 1em 0;
 }
@@ -292,25 +298,6 @@
     margin-left: 0.5em;
     margin-right: 0.5em;
     float: right;
-}
-
-.devart-timer-tick-tick-overflow{
-    overflow: initial !important;
-}
-.devart-timer-tick-tick {
-    float: right;
-    z-index: 10;
-
-    .devart-timer-link-icon ~ span {
-        display: none;
-    }
-
-    #task-detail-inner & {
-        .devart-timer-link-icon ~ span {
-            display: inline-block;
-            vertical-align: inherit;
-        }
-    }
 }
 
 .devart-timer-link-trello.devart-timer-link-minimal {

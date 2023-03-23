@@ -2,70 +2,67 @@ class Ticktick implements WebToolIntegration {
 
     showIssueId = false;
 
-    matchUrl = 'https://ticktick.com/*';
+    matchUrl = 'https://ticktick.com/webapp/*';
 
-    issueElementSelector = [
-        '.task',
-        '#task-detail-inner'
-    ];
+    issueElementSelector = '#task-detail-view';
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        const container = $$.create('span');
-        container.classList.add('devart-timer-tick-tick');
-        container.appendChild(linkElement);
-        if (issueElement.matches(this.issueElementSelector[0])) {
 
-            var blockToAdd = $$('.title', issueElement);
-
-            var element = $$('.task-inner', issueElement);
-            element.classList.add('devart-timer-tick-tick-overflow');
-            element.querySelectorAll('div').forEach((x) => {
-                x.classList.add('devart-timer-tick-tick-overflow');
-            })
-            blockToAdd.appendChild(container);
-        }
-        else if (issueElement.matches(this.issueElementSelector[1])) {
-            var blockToAdd = $$('.timecard-wrap', issueElement);
-            blockToAdd.appendChild(container);
+        const blockToAdd = $$('.timecard-wrap', issueElement);
+        if (blockToAdd) { // add to task toolbar
+            linkElement.classList.add('devart-timer-inherit-label-align');
+            blockToAdd.appendChild(linkElement);
+        } else { // fallback
+            issueElement.insertBefore(linkElement, issueElement.firstChild);
         }
     }
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        let issueNameElement =
-            $$('.CodeMirror-code span', issueElement) ?? // details
-            $$('.title > span', issueElement); // list item
-        if (!issueNameElement) {
-            return;
-        }
-        const issueName = issueNameElement.textContent
-        const isGrayed = [...issueNameElement.classList].some(x => /text-gr[ae]y-[1-5]0/.test(x));
-        const isEmpty = issueNameElement.textContent.replace(/\u200B/g, '').trim().length == 0;////additional check for deatil page when title not specified or equal "&zerowidthspace"
-        if (!issueName || isGrayed || isEmpty) {
+        let issueName = $$.try('.CodeMirror-code span', issueElement).textContent || // taks or note
+            $$.try('header', issueElement).textContent; // habit
+
+        // remove &zerowidthspace; symbols (TMET-8864)
+        issueName = issueName.replace(/\u200B/g, '').trim();
+        if (!issueName) {
             return;
         }
 
-        // get identifier from href or from top task in single view
         let issueId: string;
+        let projectId: string;
         let issueUrl: string;
-        const issueHref = $$.getAttribute('a', 'taskid', issueElement);
-        if (issueHref) {
-            issueId = '#' + issueHref;
-            const groupId = $$.getAttribute('.l-folder', 'groupid');
-            issueUrl = '/webapp/#g/' + groupId + '/tasks/' + issueHref;
+
+        // List/Kanban/Inbox
+        let match = source.fullUrl.match(/#p\/(\w+)\/(?:tasks|kanban)\/(\w{24,})/);
+        if (match) {
+            projectId = match[1]; // id or 'inbox'
+            issueId = match[2];
         }
+
+        // Today/Next 7 Days
         if (!issueId) {
-            const url = source.fullUrl;
-            const parsedUrl = new URL(url);
-            let match = /(tasks|kanban|quadrant(\d+))\/(\w+)/.exec(url);
-            if (match) {
-                issueId = '#' + match[match.length-1];
-                issueUrl = '/' + parsedUrl.hash;
+            match = source.fullUrl.match(/#q\/.*\/(\w{24,})/);
+            issueId = match && match[1];
+        }
+
+        // Eisenhower Matrix
+        if (!issueId) {
+            match = source.fullUrl.match(/#m.*\/quadrant[1-4]\/(\w{24,})/);
+            issueId = match && match[1];
+        }
+
+        if (issueId && issueId.length === 24) {
+            if (!projectId) {
+                // try to find hidden project link on page
+                projectId = $$.getAttribute(`a[taskId="${issueId}"]`, 'projectId');
             }
+            if (!projectId || projectId.startsWith('inbox')) { // inbox has internal id like inbox12345
+                projectId = 'inbox';
+            }
+            issueUrl = `/webapp/#p/${projectId}/tasks/${issueId}`;
         }
 
         const serviceType = 'TickTick';
-
         const serviceUrl = source.protocol + source.host;
 
         return { issueId, issueName, serviceType, serviceUrl, issueUrl };
