@@ -69,7 +69,7 @@ class Ticktick implements WebToolIntegration {
             issueUrl = `/webapp/#p/${projectId}/tasks/${issueId}`;
         }
 
-        const tagNames = $$.all('.tag-list .tag-name').map(_ => _.textContent);
+        const tagNames = $$.all('.tag-list .tag-name', issueElement).map(_ => _.textContent);
 
         const serviceType = 'TickTick';
         const serviceUrl = source.protocol + source.host;
