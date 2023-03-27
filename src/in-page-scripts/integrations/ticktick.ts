@@ -20,7 +20,7 @@ class Ticktick implements WebToolIntegration {
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        let issueName = $$.try('.CodeMirror-code span', issueElement).textContent || // taks or note
+        let issueName = $$.try('.CodeMirror-code span', issueElement).textContent || // tasks or note
             $$.try('header', issueElement).textContent; // habit
 
         // remove &zerowidthspace; symbols (TMET-8864)
