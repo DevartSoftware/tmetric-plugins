@@ -19,7 +19,19 @@ class Monday implements WebToolIntegration {
             if (!element.matches) {
                 return;
             }
-            this._latestPulseElement = $$.closest('.pulse-component', element);
+            const pulseElement = $$.closest('.pulse-component', element);
+            if (pulseElement) {
+                this._latestPulseElement = pulseElement; // remember pulse
+            } else if (this._latestPulseElement && element.parentElement) { // ignore unlinked elements
+                let selector = [
+                    ...this.issueElementSelector, // ignore clicks within the task itself
+                    '.dialog-node', // ignore pop-up dialogs (e.g. person selector)
+                    '.system-notice-container' // ignore notices (e.g. popping undo)
+                ].join(',');
+                if (!$$.closest(selector, element)) {
+                    this._latestPulseElement = undefined; // forget pulse
+                }
+            }
         });
     }
 
@@ -47,22 +59,29 @@ class Monday implements WebToolIntegration {
             // find issue ulr on 'My Work' page
             issueUrl = $$.try<HTMLAnchorElement>('.pulse-component .board-cell-component a', issueElement).href;
             if (!issueUrl) { // if issue url didn't find, than parse id and create url manually
-                let rowId = $$.try('.pulse-component', issueElement).id;
-                let matches = rowId?.match(/row-pulse-+(\d+)-\w+/);
-                issueUrl = matches ? `${source.path}/pulses/${matches[1]}` : null;
+                const rowId = $$.try('.pulse-component', issueElement).id;
+                const idMatch = rowId?.match(/row-pulse-+(\d+)-\w+/);
+                const boardMatch = source.path?.match(/\/boards\/\d+/);
+                if (idMatch && boardMatch) {
+                    issueUrl = `${boardMatch[0]}/pulses/${idMatch[1]}`;
+                }
             }
             projectName = $$.try('.board-header-main .board-name').textContent // on boards page
                 || $$.try('.pulse-component .board-cell-component a', issueElement).textContent; // on My Work page
+        }
+
+        if (!issueName) {
+            return;
         }
 
         const serviceUrl = source.protocol + source.host;
 
         if (issueUrl) {
             issueUrl = $$.getRelativeUrl(serviceUrl, issueUrl);
-            const matches = issueUrl.match(/(\/pulses\/(\d+))/);
+            const matches = issueUrl.match(/\/boards\/(\d+).*\/pulses\/(\d+)/);
             if (matches) {
-                issueUrl = matches[0];
-                issueId = matches[1];
+                issueUrl = `/boards/${matches[1]}/pulses/${matches[2]}`;
+                issueId = matches[2];
             } else {
                 issueUrl = undefined;
             }

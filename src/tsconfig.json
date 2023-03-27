@@ -86,6 +86,7 @@
     "in-page-scripts/integrations/testLink.ts",
     "in-page-scripts/integrations/testRail.ts",
     "in-page-scripts/integrations/tfs.ts",
+    "in-page-scripts/integrations/ticktick.ts",
     "in-page-scripts/integrations/todoist.ts",
     "in-page-scripts/integrations/trac.ts",
     "in-page-scripts/integrations/trello.ts",
