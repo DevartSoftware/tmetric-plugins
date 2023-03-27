@@ -2,7 +2,7 @@ declare module Models {
 
     export const enum Limits {
         maxClientName = 255,
-        maxIntegrationUrl = 1024,
+        maxIntegrationUrl = 512,
         maxTaskRelativeUrl = 256,
         maxIssueId = 128,
         maxIntegrationAccessKey = 255,
