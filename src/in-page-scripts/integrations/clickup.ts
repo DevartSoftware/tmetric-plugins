@@ -87,7 +87,13 @@ class Clickup implements WebToolIntegration {
             description = $$.try('.checklist2-row-item-name > p, :scope > p', issueElement).textContent; // v 2.0, v 1.0
         }
 
-        const projectName = $$.try('.breadcrumbs__link[data-category]').textContent;
+        let projectName = $$.try('.breadcrumbs__link[data-category]').textContent;
+
+        if (!projectName) {
+            let elements = $$.all('.cu-task-view-breadcrumbs__text')
+            let breadcrimsItems = elements.map(x => x.textContent);
+            projectName = breadcrimsItems[breadcrimsItems.length - 2];
+        }
 
         const tagNames = tags.map(_ => _.textContent);
         const issueUrl = issueId && ('/t/' + issueId);
