@@ -41,6 +41,10 @@ class Clickup implements WebToolIntegration {
             if (element) {
                 element.appendChild(linkElement);
             }
+            element = $$('.cu-task-row__actions', issueElement); // v 3.0
+            if (element) {
+                element.insertBefore(linkElement, element.firstElementChild);
+            }
         }
     }
 

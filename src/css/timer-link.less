@@ -352,13 +352,15 @@
 
     .task-todo-item &.devart-timer-link-start,
     .task-todo-item:hover .lv-subtask__outer:not(:hover) .task-todo-item__name-text-inner &.devart-timer-link-start,
-    .checklist2-row &.devart-timer-link-start {
+    .checklist2-row &.devart-timer-link-start,
+    .cu-task-row__container .cu-task-row__actions &.devart-timer-link-start {
         visibility: hidden !important;
     }
 
     .task-todo-item:hover &.devart-timer-link-start,
     .task-todo-item .lv-subtask__outer:hover .task-todo-item__name-text-inner &.devart-timer-link-start,
-    .checklist2-row:hover &.devart-timer-link-start {
+    .checklist2-row:hover &.devart-timer-link-start,
+    .cu-task-row__container:hover .cu-task-row__actions &.devart-timer-link-start {
         visibility: visible !important;
     }
 }
