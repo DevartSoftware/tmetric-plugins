@@ -588,6 +588,16 @@ const getWebToolDescriptions = function () {
             }
         },
         {
+            serviceType: 'CodaAi',
+            serviceName: 'CodaAi',
+            icon: 'codaai.svg',
+            origins: ['https://coda.io/*'],
+            scripts: {
+                js: ['in-page-scripts/integrations/codaai.js'],
+                allFrames: true
+            }
+        },
+        {
             serviceType: 'Nifty',
             serviceName: 'Nifty',
             icon: 'nifty.svg',
