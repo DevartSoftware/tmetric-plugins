@@ -619,7 +619,10 @@ const getWebToolDescriptions = function () {
             serviceType: 'TickTick',
             serviceName: 'TickTick',
             icon: 'ticktick.svg',
-            origins: ['https://ticktick.com/*'],
+            origins: [
+                'https://ticktick.com/*',
+                'https://www.ticktick.com/*'
+            ],
             scripts: {
                 js: ['in-page-scripts/integrations/ticktick.js']
             }

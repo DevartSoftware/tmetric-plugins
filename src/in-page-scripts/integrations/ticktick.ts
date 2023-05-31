@@ -2,7 +2,7 @@ class Ticktick implements WebToolIntegration {
 
     showIssueId = false;
 
-    matchUrl = 'https://ticktick.com/webapp/*';
+    matchUrl = '*://*ticktick.com/webapp*';
 
     issueElementSelector = '#task-detail-view';
 
