@@ -4,12 +4,15 @@ class CodaAi implements WebToolIntegration {
 
     matchUrl = 'https://coda.io/*';
 
-    issueElementSelector = ['.c9jZ0h9a','.hWu1bALp'];
+    issueElementSelector = ['.L05kjtLQ','.ezCf9khc'];
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
+        const element = $$('.hWu1bALp', issueElement) || $$('.UigI0tfj', issueElement);
 
-        issueElement.classList.add('devart-timer-link-codaai');
-        issueElement.insertBefore(linkElement, issueElement.firstElementChild);
+        if (element) {
+            linkElement.classList.add('devart-timer-link-codaai');
+            element.before(linkElement);
+        }
     }
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
