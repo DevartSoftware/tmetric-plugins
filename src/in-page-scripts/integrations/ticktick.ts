@@ -72,7 +72,11 @@ class Ticktick implements WebToolIntegration {
         const tagNames = $$.all('.tag-list .tag-name', issueElement).map(_ => _.textContent);
 
         const serviceType = 'TickTick';
-        const serviceUrl = source.protocol + source.host;
+        let host = source.host;
+        if (host.startsWith('www.')) {
+            host = host.substring(4);
+        }
+        const serviceUrl = source.protocol + host;
 
         return { issueId, issueName, serviceType, serviceUrl, issueUrl, tagNames };
     }
