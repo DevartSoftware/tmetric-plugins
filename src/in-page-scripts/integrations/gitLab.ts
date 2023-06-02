@@ -21,7 +21,7 @@ class GitLab implements WebToolIntegration {
         }
 
         // New design
-        const issueButton = $$.visible('.js-issuable-actions', header);
+        const issueButton = $$.visible('.js-issuable-actions, .js-issuable-edit', header);
         if (issueButton) {
             linkElement.classList.add('btn-grouped');
             issueButton.parentElement.insertBefore(linkElement, issueButton);
@@ -74,7 +74,7 @@ class GitLab implements WebToolIntegration {
 
         const serviceType = 'GitLab';
 
-        let serviceUrl = ($$('a#logo') as HTMLAnchorElement).href;
+        let serviceUrl = $$<HTMLAnchorElement>('a#logo, a.tanuki-logo-container')?.href;
         if (!serviceUrl || !source.fullUrl.startsWith(serviceUrl)) {
             serviceUrl = source.protocol + source.host;
         }
