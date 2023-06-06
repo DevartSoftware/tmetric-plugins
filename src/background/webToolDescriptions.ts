@@ -588,8 +588,8 @@ const getWebToolDescriptions = function () {
             }
         },
         {
-            serviceType: 'CodaAi',
-            serviceName: 'CodaAi',
+            serviceType: 'CodaAI',
+            serviceName: 'Coda AI',
             icon: 'codaai.svg',
             origins: ['https://coda.io/*'],
             scripts: {

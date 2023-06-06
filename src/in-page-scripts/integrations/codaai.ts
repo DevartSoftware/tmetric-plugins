@@ -27,7 +27,7 @@ class CodaAi implements WebToolIntegration {
         issueId = source.path;
         const serviceUrl = source.protocol + source.host
 
-        return { issueId, issueName, issueUrl, serviceUrl, serviceType: 'Codaai' }
+        return { issueId, issueName, issueUrl, serviceUrl, serviceType: 'CodaAI' }
     }
 }
 
