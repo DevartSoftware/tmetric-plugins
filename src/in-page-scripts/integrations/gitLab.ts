@@ -45,7 +45,6 @@ class GitLab implements WebToolIntegration {
         // https://gitlab.com/NAMESPACE/PROJECT/issues/incident/NUMBER
         // https://gitlab.com/NAMESPACE/PROJECT/merge_requests/NUMBER
         const match = /^(.+)\/(issues|issues\/incident|merge_requests)\/(\d+)$/.exec(source.path);
-
         if (!match) {
             return;
         }
@@ -65,13 +64,6 @@ class GitLab implements WebToolIntegration {
             return;
         }
 
-        const projectNameNode = $$.findNode('.title .project-item-select-holder', Node.TEXT_NODE);
-
-        const projectName = projectNameNode ?
-            projectNameNode.textContent : // New design (both new and old navigation)
-            ($$.try('.context-header .sidebar-context-title').textContent // Newest design
-                || $$.try('.title > span > a:nth-last-child(2)').textContent); // Old design
-
         const serviceType = 'GitLab';
 
         let serviceUrl = $$<HTMLAnchorElement>('a#logo, a.tanuki-logo-container')?.href;
@@ -82,6 +74,16 @@ class GitLab implements WebToolIntegration {
         let issueUrl = $$.getRelativeUrl(serviceUrl, source.fullUrl).match(/[^#]*/)[0]; // trim hash
         if (issueType == 'issues/incident') {
             issueUrl = issueUrl.replace('/incident', '');
+        }
+
+        const projectNameNode = $$.findNode('.title .project-item-select-holder', Node.TEXT_NODE);
+        let projectName = projectNameNode ?
+            projectNameNode.textContent : // New design (both new and old navigation)
+            ($$.try('.context-header .sidebar-context-title').textContent // Newest design
+                || $$.try('.title > span > a:nth-last-child(2)').textContent); // Old design
+        if (!projectName && issueUrl?.indexOf('/-/') >= 0) {
+            const projectUrl = serviceUrl.replace(/\/$/, '') + issueUrl.substring(0, issueUrl.indexOf('/-/'));
+            projectName = $$<HTMLAnchorElement>('.breadcrumbs-list a', null, a => a.href == projectUrl)?.innerText;
         }
 
         let tagNames = $$.all('.issuable-show-labels .gl-label[data-qa-label-name]').map(el => el.getAttribute('data-qa-label-name'));
