@@ -79,7 +79,7 @@ class Asana implements WebToolIntegration {
         // widget from home page
         // https://app.asana.com/0/home/70718296417223/1202781903310811
         if (!id) {
-            const match = /^\/\w+(?:\/search|\/home)?\/\d+\/(\d+)/.exec(issuePath);
+            const match = /^\/\w+(?:\/search|\/home|\/inbox)?\/\d+\/(\d+)/.exec(issuePath);
             if (match) {
                 id = match[1];
             }
