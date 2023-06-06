@@ -12,6 +12,7 @@ web browsers are **Chrome**, **Firefox**, **Edge**, **Opera**, and **Safari**.
 * [Bitrix24](https://www.bitrix24.com)
 * [Bugzilla](https://www.bugzilla.org)
 * [ClickUp](https://clickup.com)
+* [Coda AI](https://coda.io/)
 * [Dixa](https://www.dixa.com/)
 * [Doit.im](https://doit.im)
 * [Easy Redmine](https://easyredmine.com)
