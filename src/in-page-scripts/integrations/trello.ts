@@ -53,16 +53,13 @@ class Trello implements WebToolIntegration {
             return;
         }
 
-        //  <a class="board-header-btn board-header-btn-name js-rename-board" href="#">
-        //    <span class="board-header-btn-text">Test Board</span>
-        //  </a>
-        const projectName = $$.try('.board-header-btn > .board-header-btn-text').textContent;
+        const projectName = $$.try('.board-header h1[data-testid=board-name-display]').textContent;
 
         const serviceUrl = source.protocol + source.host;
 
         const issueUrl = '/c/' + match[1];
 
-        const tagNames = $$.all('.js-card-back-labels-container div[data-test-id=card-label]').map(label => label.textContent);
+        const tagNames = $$.all('.js-card-back-labels-container div[data-testid=card-label]').map(label => label.textContent);
 
         let description: string;
         if (issueElement.matches(this.issueElementSelector[1])) {
