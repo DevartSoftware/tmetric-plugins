@@ -7,9 +7,11 @@ class GitLab implements WebToolIntegration {
         '*://*/merge_requests/*'
     ];
 
-    match(source: Source): boolean {
-        return !!$$('.detail-page-description .title');
+    match(source: Source) {
+        return !!$$(this.titleSelector);
     }
+
+    titleSelector = '.detail-page-description .title, .merge-request .detail-page-header .title';
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
@@ -20,8 +22,16 @@ class GitLab implements WebToolIntegration {
             return;
         }
 
+        // Merge request
+        const actionsGroup = $$.visible('.js-issuable-actions');
+        if (actionsGroup) {
+            linkElement.style.marginRight = '8px';
+            actionsGroup.insertBefore(linkElement, actionsGroup.firstChild);
+            return;
+        }
+
         // New design
-        const issueButton = $$.visible('.js-issuable-actions, .js-issuable-edit', header);
+        const issueButton = $$.visible('.js-issuable-edit', header);
         if (issueButton) {
             linkElement.classList.add('btn-grouped');
             issueButton.parentElement.insertBefore(linkElement, issueButton);
@@ -58,7 +68,7 @@ class GitLab implements WebToolIntegration {
         const issueType = match[2];
         issueId = (issueType == 'merge_requests' ? '!' : '#') + issueId;
 
-        const issueNameElement = $$.try('.detail-page-description .title');
+        const issueNameElement = $$.try(this.titleSelector);
         const issueName = issueNameElement.firstChild ? issueNameElement.firstChild.textContent : issueNameElement.textContent;
         if (!issueName) {
             return;
