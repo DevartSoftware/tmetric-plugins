@@ -59,7 +59,7 @@ class Trello implements WebToolIntegration {
 
         const issueUrl = '/c/' + match[1];
 
-        const tagNames = $$.all('.js-card-back-labels-container div[data-testid=card-label]').map(label => label.textContent);
+        const tagNames = $$.all('.js-card-back-labels-container div[data-testid=card-label], button[data-testid=card-label]').map(label => label.textContent);
 
         let description: string;
         if (issueElement.matches(this.issueElementSelector[1])) {
