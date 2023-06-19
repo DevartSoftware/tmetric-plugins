@@ -4,10 +4,16 @@ class CodaAi implements WebToolIntegration {
 
     matchUrl = 'https://coda.io/*';
 
-    issueElementSelector = ['.L05kjtLQ','.ezCf9khc'];
+    issueElementSelector = ['.L05kjtLQ', 'header'];
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        const element = $$('.hWu1bALp', issueElement) || $$('.UigI0tfj', issueElement);
+        let element;
+        if (issueElement.matches(this.issueElementSelector[0])) {
+            element = $$('.hWu1bALp', issueElement);
+        }
+        else if (issueElement.matches(this.issueElementSelector[1])) {
+            element = issueElement.children[1].children[1].children[1];// $$('.hWu1bALp', issueElement) || $$('.QqQVOk8D', issueElement);
+        }
 
         if (element) {
             linkElement.classList.add('devart-timer-link-codaai');
@@ -16,18 +22,15 @@ class CodaAi implements WebToolIntegration {
     }
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-        let issueId, issueName, issueUrl: string;
-
-        const titleEl = $$('.fJ4CrlmG .LavvCQwF.H7Rn7XsB') || $$('.OvVV5z_O.MKgKd5Kj') || $$('.Fr99LwNL.MKgKd5Kj');
-        if (titleEl) {
-            issueName = titleEl.textContent;
-        }
-
+        let issueId, issueName, issueUrl, projectName: string;
+        let data = document.title.split(/ \| |\u00B7/);
+        issueName = data[1];
+        projectName = data[0];
         issueUrl = source.path;
         issueId = source.path;
         const serviceUrl = source.protocol + source.host
 
-        return { issueId, issueName, issueUrl, serviceUrl, serviceType: 'CodaAI' }
+        return { issueId, issueName, projectName, issueUrl, serviceUrl, serviceType: 'CodaAI' }
     }
 }
 
