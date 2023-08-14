@@ -42,7 +42,7 @@ class Asana implements WebToolIntegration {
             return;
         }
 
-        let issueName = ($$.try('.ObjectTitleInput  .simpleTextarea', rootTaskPane) as HTMLTextAreaElement).value;
+        let issueName = ($$.try('.TitleInput .simpleTextarea', rootTaskPane) as HTMLTextAreaElement).value;
         let id = getChildQueryParam(source.fullUrl);
         let issuePath = source.path;
 
