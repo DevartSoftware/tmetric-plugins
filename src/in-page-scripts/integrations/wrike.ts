@@ -8,7 +8,7 @@ class Wrike implements WebToolIntegration {
         'wrike-task-list-task',    // new design dashboard
         '.work-item-view__header', // new design task modal
         '.wspace-task-view',       // old design
-        '.task - view'             // old design
+        '.task-view'             // old design
     ]
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
