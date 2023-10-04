@@ -44,7 +44,8 @@ class Wrike implements WebToolIntegration {
         let projectName = issueTags.length == 1 ? issueTags[0].textContent : null;
 
         if (!projectName) {
-            projectName = $$.try('wrike-task-parent-folders, wrike-folder-tag-label', issueElement).textContent; // new design 
+            const projectTags = $$.all('wrike-task-parent-folders, wrike-folder-tag-label', issueElement); // new design 
+            projectName = projectTags.length == 1 ? projectTags[0].textContent : null;
         }
         const params = $$.searchParams(document.location.hash);
 
