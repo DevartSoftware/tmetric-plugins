@@ -5,27 +5,19 @@ class Wrike implements WebToolIntegration {
     matchUrl = '*://*.wrike.com/workspace.htm*';
 
     issueElementSelector = [
-        'wrike-task-list-task',    // new design dashboard
         '.work-item-view__header', // new design task modal
         '.wspace-task-view',       // old design
         '.task-view'             // old design
     ]
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-
         if (issueElement.matches(this.issueElementSelector[0])) {
-            const host = $$('wrike-task-title', issueElement).parentElement.lastElementChild.firstElementChild;
-            if (host) {
-                linkElement.classList.add('devart-timer-link-wrike');
-                host.insertBefore(linkElement, host.lastElementChild.nextSibling);
-            }
-        } else if (issueElement.matches(this.issueElementSelector[1])) {
             const host = $$('.work-item-header__action-panel', issueElement);
             if (host) {
                 linkElement.classList.add('devart-timer-link-wrike');
                 host.insertBefore(linkElement, host.firstElementChild);
             }
-        } else if (issueElement.matches(this.issueElementSelector[2]) || issueElement.matches(this.issueElementSelector[3])) {
+        } else if (issueElement.matches(this.issueElementSelector[1]) || issueElement.matches(this.issueElementSelector[2])) {
             const host = $$('.task-view-header__actions', issueElement);
             if (host) {
                 linkElement.classList.add('devart-timer-link-wrike');
@@ -36,7 +28,10 @@ class Wrike implements WebToolIntegration {
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
         const issueNameElement = $$.try('wrike-task-title, work-item-title', issueElement); // new design 
-        const issueName = $$.try<HTMLTextAreaElement>('textarea.title-field, textarea.title__field', issueElement).value || issueNameElement.textContent;
+        let issueName = $$.try<HTMLTextAreaElement>('textarea.title-field, textarea.title__field', issueElement).value || issueNameElement.textContent;
+        if (!issueElement.querySelector('button[aria-label="Task"]')) {
+            issueName = "";
+        }
         if (!issueName) {
             return;
         }
