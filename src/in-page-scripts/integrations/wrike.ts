@@ -47,9 +47,9 @@ class Wrike implements WebToolIntegration {
         let issueId = params['t']                 // folder, My Work,
             || params['ot'];                      // modal
 
-        const inboxMatch = document.location.hash && document.location.hash.match(/#\/inbox\/task\/(\d+)/);
+        const inboxMatch = document.location.hash && document.location.hash.match(/#\/inbox\/(work_item|task)\/(\d+)/);
         if (inboxMatch) {
-            issueId = inboxMatch[1];
+            issueId = inboxMatch[2];
         }
 
         // get issue id from task in dashboard widgets
@@ -77,7 +77,7 @@ class Wrike implements WebToolIntegration {
         }
         if (!issueId) {
             const params = new URLSearchParams(document.location.hash.split('?')[1]); // new design 
-            issueId = params.get('overlayEntityId') || params.get('sidePanelItemId');
+            issueId = params.get('overlayEntityId') || params.get('sidePanelItemId') || params.get('id');
         }
 
         let issueUrl: string;
