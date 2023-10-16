@@ -29,7 +29,19 @@ class Wrike implements WebToolIntegration {
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
         const issueNameElement = $$.try('wrike-task-title, work-item-title', issueElement); // new design 
         let issueName = $$.try<HTMLTextAreaElement>('textarea.title-field, textarea.title__field', issueElement).value || issueNameElement.textContent;
-        if (!issueElement.querySelector('button[aria-label="Task"]')) {
+
+        const itemTypeLabel = $$.all('.property-field__label', issueElement.parentElement).find(x => x.textContent?.includes('Item type')); // ищем элемент с нужным классом
+        let itemTypeValue = "";
+
+        if (itemTypeLabel) { // если найденный элемент содержит текст 'Item type'
+            const valueElement = $$.try('.property-field__component p', itemTypeLabel.parentElement); // ищем ближайший родительский элемент с классом field-wrapper и внутри него ищем <p>
+            if (valueElement) {
+                itemTypeValue = valueElement.textContent || ""; // получаем текст элемента
+            }
+        }
+
+
+        if (itemTypeValue != "Task") {
             issueName = "";
         }
         if (!issueName) {
