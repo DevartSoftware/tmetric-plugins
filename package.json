@@ -9,7 +9,7 @@
     },
     "dependencies": {
         "@aspnet/signalr": "1.1.4",
-        "jquery": "3.5.0",
+        "jquery": "^3.7.1",
         "select2": "^4.0.13"
     },
     "devDependencies": {
