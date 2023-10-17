@@ -29,8 +29,8 @@ class Wrike implements WebToolIntegration {
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
         const issueNameElement = $$.try('wrike-task-title, work-item-title', issueElement); // new design 
         let issueName = $$.try<HTMLTextAreaElement>('textarea.title-field, textarea.title__field', issueElement).value || issueNameElement.textContent;
-        let attr = $$.try('work-item-type', issueElement)?.querySelector('svg[aria-label]')?.getAttribute('aria-label');;
-        if (!attr || !/task/.test(attr)) {
+        let attr = $$.try('work-item-type', issueElement)?.querySelector('svg[aria-label]')?.getAttribute('aria-label');
+        if (!attr || !/task/i.test(attr)) {
             issueName = "";
         }
         if (!issueName) {
