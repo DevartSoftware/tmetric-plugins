@@ -32,19 +32,19 @@
     }
 
     .devart-timer-link-start > &:before {
-        background-image: data-uri('src/images/start.png') !important;
+        background-image: data-uri('src/images/not-build/start.png') !important;
     }
 
     .devart-timer-link-stop > &:before {
-        background-image: data-uri('src/images/stop.png') !important;
+        background-image: data-uri('src/images/not-build/stop.png') !important;
     }
 
     .devart-timer-link-minimal.devart-timer-link-start > &:before {
-        background-image: data-uri('src/images/simple_start.png') !important;
+        background-image: data-uri('src/images/not-build/simple_start.png') !important;
     }
 
     .devart-timer-link-minimal.devart-timer-link-stop > &:before {
-        background-image: data-uri('src/images/simple_stop.png') !important;
+        background-image: data-uri('src/images/not-build/simple_stop.png') !important;
     }
 }
 
@@ -181,25 +181,6 @@
 .devart-timer-link-podio {
     width: auto !important;
     margin-top: 1px !important;
-}
-
-.devart-timer-link-producteev {
-    margin: 0 1em;
-}
-
-.devart-timer-link-producteev-minimal {
-    position: absolute;
-    top: 5px;
-    right: 20px;
-    opacity: 0;
-
-    .subtasks-list li:hover &:hover {
-        opacity: 1;
-    }
-
-    .subtasks-list li:hover &:not(:hover) {
-        opacity: .5;
-    }
 }
 
 .devart-timer-link-sprintly {
