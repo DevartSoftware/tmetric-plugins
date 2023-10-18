@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <TypeScriptToolsVersion>4.4</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>4.9</TypeScriptToolsVersion>
     <TypeScriptCompileOnSaveEnabled>False</TypeScriptCompileOnSaveEnabled>
   </PropertyGroup>
 

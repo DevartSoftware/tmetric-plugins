@@ -32,9 +32,8 @@ class ContentScriptsRegistrator {
             ...(scripts.css || [])
         ];
 
-        const origins = Object.keys(scripts.matches.reduce(
-            (map, url) => (map[WebToolManager.toOrigin(url)] = true) && map,
-            {} as { [origin: string]: boolean }));
+        let origins = scripts.matches.map(url => WebToolManager.toOrigin(url)!).filter(origin => origin);
+        origins = [...new Set(origins)];
 
         return [
             {
@@ -87,7 +86,7 @@ class ContentScriptsRegistrator {
         serviceUrls = (await Promise.all(
             serviceUrls.map(
                 serviceUrl => new Promise<string>(
-                    resolve => chrome.permissions.contains({ origins: [serviceUrl] }, result => resolve(result ? serviceUrl : null))
+                    resolve => chrome.permissions.contains({ origins: [serviceUrl] }, result => resolve(result ? serviceUrl : ''))
                 )
             )
         )).filter(item => !!item);
@@ -118,7 +117,7 @@ class ContentScriptsRegistrator {
 
             this.scripts[serviceUrl] = [... await Promise.all(scriptsOptions.map(this.registerInternal))];
 
-            this.checkContentScripts(matches, scripts.allFrames);
+            this.checkContentScripts(matches, !!scripts.allFrames);
         });
     }
 
@@ -147,7 +146,7 @@ class ContentScriptsRegistrator {
         } else if (typeof chrome === 'object' && chrome.contentScripts) {
             method = chrome.contentScripts.register;
         } else {
-            method = (options) => Promise.resolve({ unregister: () => undefined });
+            method = () => Promise.resolve({ unregister: () => undefined as any });
         }
 
         return method(options);
@@ -165,7 +164,7 @@ class ContentScriptsRegistrator {
 
                     console.log('checkContentScripts', tab.id, tab.url)
 
-                    chrome.tabs.executeScript(tab.id, {
+                    tab.id != null && chrome.tabs.executeScript(tab.id, {
                         code: `chrome.runtime.sendMessage({action:'checkContentScripts'})`,
                         allFrames
                     });

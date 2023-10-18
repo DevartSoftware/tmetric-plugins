@@ -1,15 +1,15 @@
 interface Utils {
-    <TElement extends HTMLElement>(selector: string, element?: ParentNode, condition?: (el: TElement) => boolean): TElement;
+    <TElement extends HTMLElement>(selector: string, element?: ParentNode, condition?: (el: TElement) => boolean): TElement | null;
     try<TElement extends HTMLElement>(selector: string, element?: ParentNode, condition?: (el: TElement) => boolean): Properties<TElement>;
-    visible<TElement extends HTMLElement>(selector: string, element?: ParentNode): TElement;
+    visible<TElement extends HTMLElement>(selector: string, element?: ParentNode): TElement | null;
     all<TElement extends HTMLElement>(selector: string, element?: ParentNode): TElement[];
-    closest<TElement extends HTMLElement>(selector: string, element: HTMLElement, condition?: (el: TElement) => boolean): TElement;
-    prev<TElement extends HTMLElement>(selector: string, element: HTMLElement): TElement;
-    next<TElement extends HTMLElement>(selector: string, element: HTMLElement): TElement;
+    closest<TElement extends HTMLElement>(selector: string, element: HTMLElement, condition?: (el: TElement) => boolean): TElement | null;
+    prev<TElement extends HTMLElement>(selector: string, element: HTMLElement): TElement | null;
+    next<TElement extends HTMLElement>(selector: string, element: HTMLElement): TElement | null;
     getAttribute(selector: string, attributeName: string, element?: ParentNode): string;
     create<TElement extends HTMLElement>(tagName: string, ...classNames: string[]): TElement;
     getRelativeUrl(baseUrl: string, fullUrl: string): string;
-    findNode(selector: string, nodeType: number, element?: ParentNode): Node;
+    findNode(selector: string, nodeType: number, element?: ParentNode): Node | null;
     findAllNodes(selector: string, nodeType: number, element?: ParentNode): Node[];
     searchParams(paramString: string): { [name: string]: string };
 }
@@ -60,7 +60,7 @@ $$.all = function <TElement extends HTMLElement>(selector: string, element?: Par
 };
 
 $$.visible = function <TElement extends HTMLElement>(selector: string, element?: ParentNode) {
-    return $$(selector, element, el => {
+    return $$<TElement>(selector, element, el => {
 
         // Check display
         if (!el.offsetWidth && !el.offsetHeight && !el.getClientRects().length) {
@@ -78,7 +78,7 @@ $$.visible = function <TElement extends HTMLElement>(selector: string, element?:
             el = el.parentElement as TElement;
         }
         return false;
-    }) as TElement;
+    });
 };
 
 $$.closest = function <TElement extends HTMLElement>(selector: string, element: HTMLElement, condition: (el: TElement) => boolean) {
@@ -86,8 +86,9 @@ $$.closest = function <TElement extends HTMLElement>(selector: string, element: 
         if (element.matches(selector) && (!condition || condition(element as TElement))) {
             return element as TElement;
         }
-        element = element.parentElement;
+        element = element.parentElement!;
     }
+    return null;
 };
 
 $$.prev = function <TElement extends HTMLElement>(selector: string, element: HTMLElement) {
@@ -97,6 +98,7 @@ $$.prev = function <TElement extends HTMLElement>(selector: string, element: HTM
         }
         element = element.previousElementSibling as HTMLElement;
     }
+    return null;
 };
 
 $$.next = function <TElement extends HTMLElement>(selector: string, element: HTMLElement) {
@@ -106,10 +108,11 @@ $$.next = function <TElement extends HTMLElement>(selector: string, element: HTM
         }
         element = element.nextElementSibling as HTMLElement;
     }
+    return null;
 };
 
 $$.getAttribute = function (selector: string, attributeName: string, element?: ParentNode): string {
-    let result: string;
+    let result: string | null = null;
     const child = $$(selector, element);
     if (child) {
         result = child.getAttribute(attributeName);
@@ -154,6 +157,7 @@ $$.findNode = (selector: string, nodeType: number, element?: ParentNode) => {
             }
         }
     }
+    return null;
 };
 
 $$.findAllNodes = (selector: string, nodeType: number, element?: ParentNode) => {

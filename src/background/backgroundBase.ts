@@ -61,10 +61,10 @@ abstract class BackgroundBase {
         this.listenPopupAction<void, void>('fixTimer', this.fixTimerPopupAction);
         this.listenPopupAction<IPopupTimerData, void>('putTimer', this.putTimerPopupAction);
         this.listenPopupAction<void, void>('hideAllPopups', this.hideAllPopupsPopupAction);
-        this.listenPopupAction<IAccountProjectMapping, void>('saveProjectMap', this.saveProjectMapPopupAction);
-        this.listenPopupAction<ITaskDescriptionMapping, void>('saveDescriptionMap', this.saveDescriptionMapPopupAction);
-        this.listenPopupAction<void, void>('openOptionsPage', this.openOptionsPagePopupAction);
-        this.listenPopupAction<number, Models.RecentWorkTask[]>('getRecentTasks', this.getRecentTasksAction);
+        this.listenPopupAction<IAccountProjectMapping, null>('saveProjectMap', this.saveProjectMapPopupAction);
+        this.listenPopupAction<ITaskDescriptionMapping, null>('saveDescriptionMap', this.saveDescriptionMapPopupAction);
+        this.listenPopupAction<void, null>('openOptionsPage', this.openOptionsPagePopupAction);
+        this.listenPopupAction<number, Models.RecentWorkTask[] | null>('getRecentTasks', this.getRecentTasksAction);
 
         this.registerMessageListener();
     }
@@ -108,7 +108,7 @@ abstract class BackgroundBase {
 
     protected putTimerWithIntegration(timer: WebToolIssueTimer, status: Models.IntegratedProjectStatus, requiredFields: Models.RequiredFields) {
 
-        let notification: string;
+        let notification: string | undefined;
 
         if (timer.projectName) {
             const contactAdmin = 'Please contact the account administrator to fix the problem.';
