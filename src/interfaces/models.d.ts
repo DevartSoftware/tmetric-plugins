@@ -173,7 +173,7 @@ declare module Models {
     }
 
     interface TimerEx extends Timer {
-        projectName: string;
+        projectName?: string;
     }
 
     interface TimeEntry {

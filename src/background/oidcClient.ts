@@ -45,7 +45,7 @@ abstract class OidcClient {
         );
     }
 
-    public static getStorageValue(key: string): Promise<string> {
+    public static getStorageValue(key: string): Promise<string | null> {
         return new Promise<string>((resolve) => {
             chrome.storage.local.get([key], function (result) {
                 resolve(result[key]);
@@ -53,7 +53,7 @@ abstract class OidcClient {
         });
     }
 
-    public static setStorageValue(key: string, value: string) {
+    public static setStorageValue(key: string, value: string | null) {
         return new Promise((resolve) => {
             const obj = {};
             obj[key] = value;
@@ -110,18 +110,18 @@ abstract class OidcClient {
 
     private static ajaxInternal<TReq, TRes>(token: string, url: string, method: string, dataReq?: TReq): Promise<TRes> {
 
-        const settings = {
-            headers: {
-                Authorization: 'Bearer ' + token
-            }
-        } as RequestInit;
+        const headers = {
+            Authorization: 'Bearer ' + token
+        } as HeadersInit;
+
+        const settings = { headers } as RequestInit;
 
         const contentTypeHeader = 'Content-Type';
         const contentTypeJson = 'application/json';
 
         if (dataReq !== undefined) {
             settings.body = JSON.stringify(dataReq);
-            settings.headers[contentTypeHeader] = contentTypeJson;
+            headers[contentTypeHeader] = contentTypeJson;
         }
 
         if (method == 'GET' || method == 'POST') {
@@ -129,7 +129,7 @@ abstract class OidcClient {
         }
         else {
             settings.method = 'POST';
-            settings.headers['X-HTTP-Method-Override'] = method;
+            headers['X-HTTP-Method-Override'] = method;
         }
 
         return new Promise<TRes>(async (callback, reject) => {
@@ -147,7 +147,7 @@ abstract class OidcClient {
                 reject(getErrorStatus(e, 'Network error'))
                 return;
             }
-            
+
             let json = <any>undefined;
             const contentType = res?.headers?.get(contentTypeHeader);
             if (contentType?.includes(contentTypeJson)) {
@@ -164,12 +164,12 @@ abstract class OidcClient {
                 callback(json);
             } else {
                 const statusCode = res.status;
-                let responseMessage: string;
+                let responseMessage: string | undefined;
                 if (json) {
                     responseMessage = json.message || json.Message;
                 }
 
-                let statusText: string;
+                let statusText: string | undefined;
                 if (statusCode) { // HTTP/2 does not define a way to carry the reason phrase
                     statusText = ServerConnection.statusDescriptions[statusCode];
                 }

@@ -13,7 +13,7 @@
         "select2": "^4.0.13"
     },
     "devDependencies": {
-        "@types/chrome": "0.0.180",
+        "@types/chrome": "^0.0.248",
         "@types/firefox-webext-browser": "94.0.1",
         "del": "3.0.0",
         "gulp": "^4.0.2",
