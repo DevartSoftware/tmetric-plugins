@@ -14,9 +14,10 @@ class Asana implements WebToolIntegration {
         if (issueElement.matches(this.issueElementSelector[0])) {
             const linkContainer = $$.create('div', 'devart-timer-link-asana');
             linkContainer.appendChild(linkElement);
-            const toolbar = $$('.TaskPaneToolbar', issueElement);
+            const toolbar = $$('.TaskPaneToolbar', issueElement) as HTMLElement;
             if (toolbar) {
-                toolbar.insertBefore(linkContainer, $$('.TaskPaneToolbar-button', toolbar));
+                const elementToAdd = $$('.TaskPaneToolbar-button', toolbar) as HTMLElement;
+                elementToAdd.parentElement.insertBefore(linkContainer, elementToAdd);
             }
         }
 
