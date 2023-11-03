@@ -542,6 +542,11 @@ abstract class BackgroundBase {
     private taskNameToDescriptionMapKey = 'taskNameToDescriptionMap';
 
     private async setDescriptionMap(taskName: string, description: string) {
+        if (!taskName) {
+            // There should be no empty values here when the API and client is working properly,
+            // just in case it's better to ignore it here so that the user doesn't get strange behavior
+            return; 
+        }
         let map = await this.getDescriptionMap();
         if (description && description != taskName) {
             map = map || {};
