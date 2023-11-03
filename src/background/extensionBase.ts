@@ -114,7 +114,7 @@ abstract class ExtensionBase extends BackgroundBase {
                 this.clearIssuesDurationsCache();
             }
 
-            this.timer = undefined;
+            this.timer = timer;
 
             if (timer && timer.details) {
                 const project = await this.getProject(timer.details.projectId);
