@@ -24,8 +24,8 @@ class Zendesk implements WebToolIntegration {
         }
 
         // Ticket url:
-        // https://*.zendesk.com/agent/tickets/TICKET_ID
-        let match = /^\/agent\/tickets\/(\d+)$/.exec(source.path);
+        // https://*.zendesk.com/agent/tickets/TICKET_ID or https://*.zendesk.com/agent/tickets/TICKET_ID/events
+        let match = /^\/agent\/tickets\/(\d+)(?:\/events)?/.exec(source.path);
         if (match) {
             var issueId = '#' + match[1];
             var issueUrl = source.path;
