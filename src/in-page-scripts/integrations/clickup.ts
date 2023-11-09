@@ -100,7 +100,7 @@ class Clickup implements WebToolIntegration {
         }
 
         if (!projectName) {
-            projectName = $$.try('.cu-views-bar-title__label-text').textContent;
+            projectName = $$.try('.location-title').textContent;
         }
 
         const tagNames = tags.map(_ => _.textContent);
