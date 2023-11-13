@@ -2,7 +2,10 @@ class Todoist implements WebToolIntegration {
 
     showIssueId = false;
 
-    matchUrl = '*://*todoist.com/app*';
+    matchUrl = [
+        '*://*todoist.com/app*',
+        '*://*.todoist.com/app*'
+    ]; 
 
     listItemSelector = '.task_item, .task_list_item';
 
