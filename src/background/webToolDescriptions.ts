@@ -260,6 +260,15 @@ const getWebToolDescriptions = function () {
             }
         },
         {
+            serviceType: 'Kissflow',
+            serviceName: 'Kissflow',
+            icon: 'kissflow.svg',
+            origins: ['https://*.kissflow.com/*'],
+            scripts: {
+                js: ['in-page-scripts/integrations/kissflow.js']
+            }
+        },
+        {
             serviceType: 'Megaplan',
             serviceName: 'Megaplan',
             icon: 'megaplan.svg',
