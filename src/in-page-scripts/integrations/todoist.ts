@@ -43,13 +43,8 @@ class Todoist implements WebToolIntegration {
     }
 
     getProjectName(taskDialog: HTMLElement) {
-        if (!taskDialog) {
-            return;
-        }
-        const projectIcon = $$('.item_detail_parent_name, .project_icon', taskDialog);
-        if (projectIcon) {
-            return $$.closest('a', projectIcon)?.textContent;
-        }
+        const proj = $$.try('div[data-testid="task-detail-default-header"] a', taskDialog).textContent;
+        return proj;
     }
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
