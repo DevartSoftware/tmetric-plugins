@@ -346,6 +346,19 @@ const getWebToolDescriptions = function () {
             }
         },
         {
+            serviceType: 'ninjaOneRmm',
+            serviceName: 'ninjaOne RMM',
+            icon: 'ninjaOneRmm.svg',
+            origins: [
+                'https://*.ninjarmm.com/*',
+                'https://*.rmmservice.eu/*'
+            ],
+            hasAdditionalOrigins: true,
+            scripts: {
+                js: ['in-page-scripts/integrations/ninjaOneRmm.js']
+            }
+        },
+        {
             serviceType: 'Notion',
             serviceName: 'Notion',
             icon: 'notion.svg',

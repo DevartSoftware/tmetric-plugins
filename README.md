@@ -34,6 +34,7 @@ web browsers are **Chrome**, **Firefox**, **Edge**, **Opera**, and **Safari**.
 * [Microsoft To Do](https://todo.microsoft.com)
 * [Monday](https://monday.com)
 * [Nifty](https://niftypm.com/)
+* [ninjaOne RMM](https://www.ninjaone.com/rmm)
 * [Notion](https://www.notion.so)
 * [OpenProject](https://www.openproject.org)
 * [Pipedrive](https://www.pipedrive.com)
