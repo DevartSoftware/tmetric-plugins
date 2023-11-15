@@ -43,12 +43,17 @@ class Todoist implements WebToolIntegration {
     }
 
     getProjectName(taskDialog: HTMLElement) {
-        const proj = $$.try('div[data-testid="task-detail-default-header"] a', taskDialog).textContent;
-        return proj;
+        if (!taskDialog) {
+            return;
+        }
+        const projectIcon = $$('.item_detail_parent_name, .project_icon', taskDialog);
+        if (projectIcon) {
+            return $$.closest('a', projectIcon)?.textContent;
+        }
     }
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-
+       
         let issueNumber: string
         let issueId: string;
         let issueName: string;
@@ -124,6 +129,10 @@ class Todoist implements WebToolIntegration {
                 $$.try('.pname', issueElement).textContent || // Project tab (old design)
                 $$.try('.view_header .view_header__content .simple_content').textContent; // project tab and inbox
 
+            if (projectName) {
+                projectName = projectName.split("/")[0];
+            }
+
             tagNames = $$.all('.label, .task_list_item__info_tags__label .simple_content', issueElement).map(label => label.textContent);
         } else {
 
@@ -137,7 +146,7 @@ class Todoist implements WebToolIntegration {
 
             issueId = '#' + issueNumber;
             issueName = $$.try('.task-overview-content .task_content', issueElement).textContent;
-            projectName = this.getProjectName(issueElement);
+            projectName = $$.try('div[data-testid="task-detail-default-header"] a', issueElement).textContent;
             tagNames = $$
                 .all('.item_overview_sub .label_pill .simple_content, a[data-item-label-name]', issueElement)
                 .map(label => label.textContent);
