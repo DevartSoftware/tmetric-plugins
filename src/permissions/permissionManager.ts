@@ -45,9 +45,9 @@ class PermissionManager {
             const manifest = chrome.runtime.getManifest();
             const requiredPermissions = (manifest.permissions as string[])
                 .concat(
-                    ...manifest.content_scripts.map(_ => _.matches as string[])
+                    ...(manifest.content_scripts || []).map(_ => _.matches as string[])
                 );
-            const origins = allPermissions.origins.filter(o => requiredPermissions.indexOf(o) < 0);
+            const origins = (allPermissions.origins || []).filter(o => requiredPermissions.indexOf(o) < 0);
 
             chrome.permissions.remove({ origins }, result => callback(result));
         });

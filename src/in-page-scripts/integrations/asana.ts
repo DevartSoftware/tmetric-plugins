@@ -16,26 +16,26 @@ class Asana implements WebToolIntegration {
             linkContainer.appendChild(linkElement);
             const toolbar = $$('.TaskPaneToolbar', issueElement) as HTMLElement;
             if (toolbar) {
-                const elementToAdd = $$('.TaskPaneToolbar-button', toolbar) as HTMLElement;
-                elementToAdd.parentElement.insertBefore(linkContainer, elementToAdd);
+                const elementToAdd = $$('.TaskPaneToolbar-button', toolbar);
+                elementToAdd?.parentElement?.insertBefore(linkContainer, elementToAdd);
             }
         }
 
         if (issueElement.matches(this.issueElementSelector[1])) {
             const container = $$('.ItemRowTwoColumnStructure-right', issueElement);
             linkElement.classList.add('devart-timer-link-minimal', 'devart-timer-link-asana-subtask');
-            container.insertBefore(linkElement, container.firstElementChild);
+            container?.insertBefore(linkElement, container.firstElementChild);
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
         let getChildQueryParam = (url: string) => {
             let searchParams = new URLSearchParams(url);
             return searchParams.get('child');
         }
 
-        let description: string;
+        let description: string | undefined;
 
         // Find root task
         const rootTaskPane = $$.closest(this.issueElementSelector[0], issueElement);
@@ -60,7 +60,7 @@ class Asana implements WebToolIntegration {
             const rootTask = $$('.TaskAncestry-ancestor a', rootTaskPane) as HTMLAnchorElement;
             if (rootTask) {
                 // Get issue name and path
-                issueName = rootTask.textContent;
+                issueName = rootTask.textContent || '';
                 id = getChildQueryParam(rootTask.href);
                 const match = /:\/\/[^\/]+(\/[^\?#]+)/.exec(rootTask.href);
                 if (match) {
@@ -86,8 +86,8 @@ class Asana implements WebToolIntegration {
             }
         }
 
-        let issueId: string;
-        let issueUrl: string;
+        let issueId: string | undefined;
+        let issueUrl: string | undefined;
 
         if (id) {
             issueId = '#' + id;
@@ -104,7 +104,9 @@ class Asana implements WebToolIntegration {
 
         const tagNames = $$.all('.TaskTags .Token, .TaskTags .TaskTagTokenPills-potPill').map(label => label.textContent);
 
-        return { issueId, issueName, projectName, serviceType, description, serviceUrl, issueUrl, tagNames };
+        return {
+            issueId, issueName, projectName, serviceType, description, serviceUrl, issueUrl, tagNames
+        } as WebToolIssue;
     }
 }
 

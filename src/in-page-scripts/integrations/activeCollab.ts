@@ -18,7 +18,7 @@ class ActiveCollab implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
         let issueName = (<any>$$.try('#project_task .task_name')).textContent;
         if (!issueName) {
@@ -33,12 +33,12 @@ class ActiveCollab implements WebToolIntegration {
         let projectName = (<any>$$.try('#project_task a[data-qa-id="task-project-label-name"]')).textContent;
         let serviceUrl = source.protocol + source.host;
         let serviceType = 'ActiveCollab';
-        let issueUrl: string;
+        let issueUrl: string | undefined;
         if (issueId && projectName) {
             issueUrl = $$.getRelativeUrl(serviceUrl, source.fullUrl);
         }
 
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl } as WebToolIssue;
     }
 }
 

@@ -2,7 +2,7 @@ class SignalRHubProxy {
 
     private _handlers: { [methodName: string]: ((...args: any[]) => void)[] } = {};
 
-    private _connection: signalR.HubConnection;
+    private _connection: signalR.HubConnection | undefined;
 
     on(methodName: string, newMethod: (...args: any[]) => void) {
         let handlers = this._handlers[methodName];
@@ -53,12 +53,12 @@ class SignalRHubProxy {
             }
         };
         this._subscriptions[methodName] = subscription;
-        this._connection.on(methodName, subscription);
+        this._connection!.on(methodName, subscription);
     }
 
     private unsubscribe(methodName: string) {
         const subscription = this._subscriptions[methodName];
         delete this._subscriptions[methodName];
-        this._connection.off(methodName, subscription);
+        this._connection!.off(methodName, subscription);
     }
 }

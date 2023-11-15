@@ -38,7 +38,7 @@ abstract class BackgroundBase {
 
     protected actionOnConnect: (() => void) | undefined;
 
-    protected timer: Models.TimerEx | undefined;
+    protected timer: Models.TimerEx | null;
 
     protected newPopupIssue: WebToolIssueTimer | undefined;
 
@@ -355,8 +355,8 @@ abstract class BackgroundBase {
         let accountId = params.accountId;
 
         // get popup default data from account where project exist
-        if (!accountId && this.newPopupAccountId) {
-            accountId = this.newPopupAccountId;
+        if (!accountId) {
+            accountId = this.newPopupAccountId || this.userProfile.activeAccountId;
         }
 
         // get default data from active account

@@ -42,7 +42,7 @@ class Messenger implements Partial<chrome.runtime.ExtensionMessageEvent> {
 
     notifyListeners(message: ITabMessage) {
         this._listeners.forEach(listener => {
-            setTimeout(() => listener(message, null, null));
+            setTimeout(() => listener(message, null as any, null as any));
         });
     }
 }
@@ -103,6 +103,9 @@ function openPopupTimer(timer: WebToolIssueTimer) {
     let options = `toolbar=no,scrollbars=no,resizable=no,width=${width},height=${height},left=${left},top=${top}`;
 
     let popup = open(url, popupId, options);
+    if (!popup) {
+        return;
+    }
 
     // check if popup just opened
     if (popup.document.readyState != 'complete') {
@@ -118,7 +121,10 @@ function openPopupTimer(timer: WebToolIssueTimer) {
 
 // Bundle inclusion
 
-declare type ManifestScriptsOptions = chrome.runtime.Manifest['content_scripts'][number];
+declare type ManifestScriptsOptions = {
+    matches?: string[];
+    all_frames?: boolean;
+}
 
 function patternToRegExp(pattern: string, ) {
     return new RegExp(pattern.replace(/\./g, '\.').replace(/\*/g, '.*'), 'i');
@@ -126,10 +132,14 @@ function patternToRegExp(pattern: string, ) {
 
 function isLocationMatchPattern(pattern: string) {
 
-    let patternMatch = pattern.match(/(.+):\/\/([^\/]+)(\/.+)/);
-    let patternScheme = patternMatch[1];
-    let patternHost = patternMatch[2];
-    let patternPath = patternMatch[3];
+    const patternMatch = pattern.match(/(.+):\/\/([^\/]+)(\/.+)/);
+    if (!patternMatch) {
+        return false;
+    }
+
+    const patternScheme = patternMatch[1];
+    const patternHost = patternMatch[2];
+    const patternPath = patternMatch[3];
 
     return (new RegExp((patternScheme == '*' ? 'http|htpps' : patternScheme) + ':', 'i')).test(location.protocol) &&
         patternToRegExp(patternHost).test(location.host) &&
@@ -154,5 +164,8 @@ const matchedWebToolDescriptions = getWebToolDescriptions().filter(item => {
 console.log(matchedWebToolDescriptions, location.href);
 
 function shouldIncludeIntegrationScripts(file: string) {
-    return matchedWebToolDescriptions.some(item => item.scripts.js.indexOf(file) > -1);
+    return matchedWebToolDescriptions.some(item => {
+        const js = item.scripts.js;
+        return js && js.indexOf(file) >= 0;
+    });
 }

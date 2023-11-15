@@ -177,7 +177,7 @@ $(document).ready(async () => {
 
             const urlsData = getServiceUrls(name);
             const hasAdditionalOrigins = urlsData.hasAdditionalOrigins;
-            let serviceUrls = urlsData.serviceUrls;
+            let serviceUrls = urlsData.serviceUrls || [];
 
             if(integratedServiceUrls[name] && !checked){
                 serviceUrls = integratedServiceUrls[name].reduce(( map, serviceUrl ) => {
@@ -340,7 +340,8 @@ $(document).ready(async () => {
     function initClosePage() {
         $('.close-page').click(() => {
             chrome.tabs.getCurrent(tab => {
-                chrome.tabs.remove(tab.id);
+                const tabId = tab?.id;
+                tabId != null && chrome.tabs.remove(tabId);
             });
         });
     }

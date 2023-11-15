@@ -9,7 +9,8 @@ $(document).ready(async () => {
 
     let onClick = () => {
         chrome.tabs.getCurrent(tab => {
-            chrome.tabs.remove(tab.id);
+            const tabId = tab?.id;
+            tabId != null && chrome.tabs.remove(tabId);
         });
     };
 
