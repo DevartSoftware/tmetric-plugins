@@ -4,7 +4,7 @@ class Generic implements WebToolIntegration {
 
     issueElementSelector = '.tmetric-button';
 
-    match(source: Source): boolean {
+    match() {
         return !!$$('.tmetric-button');
     }
 
