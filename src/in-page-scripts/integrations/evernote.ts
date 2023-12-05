@@ -16,17 +16,17 @@ class Evernote implements WebToolIntegration {
     }
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-        const isIFrame = (input: HTMLElement | null): input is HTMLIFrameElement =>
-            input !== null && input.tagName === 'IFRAME';
 
         // try to get issue name from editor
-        let frame = $$.try('#qa-COMMON_EDITOR_IFRAME');
-        if (isIFrame(frame) && frame.contentDocument) {
-            var issueName = ($$.try('en-noteheader textarea', frame.contentDocument) as HTMLTextAreaElement).value;
+        const frame = $$<HTMLIFrameElement>('#qa-COMMON_EDITOR_IFRAME');
+        const frameDocument = frame?.contentDocument;
+
+        if (frame?.tagName === 'IFRAME' && frameDocument) {
+            var issueName = ($$.try('en-noteheader textarea', frameDocument) as HTMLTextAreaElement).value;
 
             // if read-only note
             if (!issueName) {
-                issueName = $$.try('[data-testid=view-only-title]', frame.contentDocument).textContent;
+                issueName = $$.try('[data-testid=view-only-title]', frameDocument).textContent;
             }
         }
 

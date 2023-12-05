@@ -19,15 +19,19 @@ class Userecho implements WebToolIntegration {
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        let issue = $$.try('.topic-header a');
-        let issueName = issue.textContent;
+        let issue = $$('.topic-header a');
+        let issueName = issue?.textContent;
+        if (!issueName) {
+            return;
+        }
+
         let issueHref = issue.getAttribute('href');
 
         // /communities/1/topics/1-good-an-idea
         // /knowledge-bases/2/articles/3-how-it-works
         // /helpdesks/3/tickets/4-change-status
         let match = /^(\/[^\/]+\/\d+\/[^\/]+\/(\d+)-)/.exec(issueHref);
-        if (!issueName || !match) {
+        if (!match) {
             return;
         }
 

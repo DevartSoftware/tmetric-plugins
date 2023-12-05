@@ -36,13 +36,13 @@ abstract class BackgroundBase {
 
     protected constants: Models.Constants;
 
-    protected actionOnConnect: () => void;
+    protected actionOnConnect: (() => void) | undefined;
 
-    protected timer: Models.TimerEx;
+    protected timer: Models.TimerEx | undefined;
 
-    protected newPopupIssue: WebToolIssueTimer;
+    protected newPopupIssue: WebToolIssueTimer | undefined;
 
-    protected newPopupAccountId: number;
+    protected newPopupAccountId: number | undefined;
 
     protected userProfile: Models.UserProfile;
 
@@ -61,10 +61,10 @@ abstract class BackgroundBase {
         this.listenPopupAction<void, void>('fixTimer', this.fixTimerPopupAction);
         this.listenPopupAction<IPopupTimerData, void>('putTimer', this.putTimerPopupAction);
         this.listenPopupAction<void, void>('hideAllPopups', this.hideAllPopupsPopupAction);
-        this.listenPopupAction<IAccountProjectMapping, void>('saveProjectMap', this.saveProjectMapPopupAction);
-        this.listenPopupAction<ITaskDescriptionMapping, void>('saveDescriptionMap', this.saveDescriptionMapPopupAction);
-        this.listenPopupAction<void, void>('openOptionsPage', this.openOptionsPagePopupAction);
-        this.listenPopupAction<number, Models.RecentWorkTask[]>('getRecentTasks', this.getRecentTasksAction);
+        this.listenPopupAction<IAccountProjectMapping, null>('saveProjectMap', this.saveProjectMapPopupAction);
+        this.listenPopupAction<ITaskDescriptionMapping, null>('saveDescriptionMap', this.saveDescriptionMapPopupAction);
+        this.listenPopupAction<void, null>('openOptionsPage', this.openOptionsPagePopupAction);
+        this.listenPopupAction<number, Models.RecentWorkTask[] | null>('getRecentTasks', this.getRecentTasksAction);
 
         this.registerMessageListener();
     }
@@ -108,7 +108,7 @@ abstract class BackgroundBase {
 
     protected putTimerWithIntegration(timer: WebToolIssueTimer, status: Models.IntegratedProjectStatus, requiredFields: Models.RequiredFields) {
 
-        let notification: string;
+        let notification: string | undefined;
 
         if (timer.projectName) {
             const contactAdmin = 'Please contact the account administrator to fix the problem.';
@@ -170,7 +170,7 @@ abstract class BackgroundBase {
         return promise;
     }
 
-    protected getIntegrationStatus(timer: WebToolIssueTimer, accountId?: number) {
+    protected getIntegrationStatus(timer: WebToolIssueTimer, accountId?: number | undefined) {
         return this.connection.getIntegration(<Models.IntegratedProjectIdentifier>{
             serviceUrl: timer.serviceUrl,
             serviceType: timer.serviceType,
@@ -257,7 +257,7 @@ abstract class BackgroundBase {
 
                 if (tag.isWorkType) {
                     if (hasWorkType) {
-                        return null; // accept only first work type
+                        return ''; // accept only first work type
                     }
                     hasWorkType = true;
                 }
@@ -290,7 +290,9 @@ abstract class BackgroundBase {
 
         const scope = await this.getAccountScope(accountId);
         const member = this.userProfile.accountMembership.find(_ => _.account.accountId == accountId);
-
+        if (!member) {
+            return;
+        }
         return scope.tags.find(tag => tag.tagId == member.defaultWorkTypeId);
     }
 
@@ -371,7 +373,7 @@ abstract class BackgroundBase {
 
         const userRole = this.userProfile.accountMembership
             .find(_ => _.account.accountId == accountId)
-            .role;
+            ?.role || Models.ServiceRole.Member;
 
         const canMembersManagePublicProjects = scope.account.canMembersManagePublicProjects;
         const canCreateTags = scope.account.canMembersCreateTags;
@@ -381,7 +383,7 @@ abstract class BackgroundBase {
             isStarted: true,
             description: title,
             tagNames: defaultWorkType ? [defaultWorkType.tagName] : []
-        };
+        } as WebToolIssueTimer;
 
         const filteredProjects = this.getTrackedProjects(scope)
             .sort((a, b) => a.projectName.localeCompare(b.projectName, [], { sensitivity: 'base' }));
@@ -389,7 +391,7 @@ abstract class BackgroundBase {
         const projectMap = this.getProjectMap(accountId);
 
         // Determine default project
-        let defaultProjectId: number = null;
+        let defaultProjectId: number | null = null;
         if (projectMap) {
 
             const projectName = newIssue.projectName || '';
@@ -406,11 +408,11 @@ abstract class BackgroundBase {
         const descriptionMap = await this.getDescriptionMap();
 
         if (newIssue.issueId && !newIssue.description && descriptionMap) {
-            newIssue.description = descriptionMap[newIssue.issueName];
+            newIssue.description = newIssue.issueName && descriptionMap[newIssue.issueName];
         }
 
-        this.newPopupIssue = null;
-        this.newPopupAccountId = null;
+        this.newPopupIssue = undefined;
+        this.newPopupAccountId = undefined;
 
         return <IPopupInitData>{
             timer: this.timer,
@@ -433,7 +435,7 @@ abstract class BackgroundBase {
     protected initializePopupAction(params: IPopupParams): Promise<IPopupInitData> {
         return new Promise((resolve, reject) => {
             // Forget about old action when user open popup again
-            this.actionOnConnect = null;
+            this.actionOnConnect = undefined;
             if (this.timer) {
                 resolve(this.getPopupData(params));
             } else {
@@ -482,9 +484,9 @@ abstract class BackgroundBase {
         });
     }
 
-    protected abstract getActiveTabTitle(): Promise<string>;
+    protected abstract getActiveTabTitle(): Promise<string | null>;
 
-    protected abstract getActiveTabPossibleWebTool(): Promise<WebToolInfo>;
+    protected abstract getActiveTabPossibleWebTool(): Promise<WebToolInfo | undefined>;
 
     protected openPage(url: string) {
         open(url);
@@ -502,7 +504,7 @@ abstract class BackgroundBase {
 
     private accountToProjectMapKey = 'accountToProjectMap';
 
-    private async setProjectMap(accountId: number, projectName: string, projectId: number) {
+    private async setProjectMap(accountId: number, projectName: string, projectId: number | null) {
 
         let map = await this.getProjectMap(accountId);
         if (projectId) {
@@ -540,6 +542,11 @@ abstract class BackgroundBase {
     private taskNameToDescriptionMapKey = 'taskNameToDescriptionMap';
 
     private async setDescriptionMap(taskName: string, description: string) {
+        if (!taskName) {
+            // There should be no empty values here when the API and client is working properly,
+            // just in case it's better to ignore it here so that the user doesn't get strange behavior
+            return; 
+        }
         let map = await this.getDescriptionMap();
         if (description && description != taskName) {
             map = map || {};

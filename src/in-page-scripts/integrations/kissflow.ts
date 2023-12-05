@@ -28,7 +28,7 @@ class Kissflow implements WebToolIntegration {
         let projectName = ''
         let issueUrl = ''
         let issueName = ''
-        if ( matchMainItem ) {
+        if (matchMainItem) {
 
             issueId = matchMainItem[2]
             issueUrl = matchMainItem[0]
@@ -37,7 +37,7 @@ class Kissflow implements WebToolIntegration {
             // Getting the textContent if the element exists
             issueName = $$.try('[class*="formTitleText"] span').textContent;
 
-        }else if( matchSubItem ){
+        } else if (matchSubItem) {
 
             issueId = `${matchSubItem[2]}/subitem/${matchSubItem[3]}`
             issueUrl = matchSubItem[0]
@@ -46,46 +46,33 @@ class Kissflow implements WebToolIntegration {
             // Getting the textContent if the element exists
             issueName = $$.try('[class*="formTitleText"] span').textContent;
 
-        }else{
+        } else {
             return;
         }
 
         const serviceUrl = source.protocol + source.host;
-    
+
         // Return an object with the task properties
-        return { 
+        return {
             issueId,
             issueName,
             projectName,
             serviceType: 'Kissflow',
             serviceUrl,
-            issueUrl,
+            issueUrl
         };
     }
-    
+
     /**
      * Inserts the timer button for the identified issue into a Web page.
      */
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
-        if( issueElement.className.includes( "rightSideLayout" ) ){
-
-            var referenceElement = $$.try('#AssignedTo', issueElement);
-            linkElement.classList.add('button--3c33a8f8');
-            linkElement.classList.add('primary--428c90ce');
-            referenceElement.parentNode.insertBefore(linkElement, referenceElement);
-
-        }else if( issueElement.className.includes( "formRightSide" ) ){
-
-            var referenceElement = $$.try('[class*="systemField"]', issueElement);
-            linkElement.classList.add('button--3c33a8f8');
-            linkElement.classList.add('primary--428c90ce');
-            referenceElement.parentNode.insertBefore(linkElement, referenceElement.nextSibling);
-
-        }else{
-
-            return;            
-        }     
+        linkElement.classList.add('button--3c33a8f8', 'primary--428c90ce');
+        const referenceElement = issueElement.className.includes('rightSideLayout') ?
+            $$('#AssignedTo', issueElement) :
+            $$('[class*="systemField"]', issueElement)?.nextSibling;
+        referenceElement?.parentNode.insertBefore(linkElement, referenceElement);
     }
 }
 

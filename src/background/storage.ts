@@ -2,7 +2,7 @@
 const storage = {
 
     getItem: (key: string) => {
-        return new Promise<string>((resolve, reject) => {
+        return new Promise<string | null>((resolve, reject) => {
             try {
                 const value = localStorage.getItem(key);
                 resolve(value);

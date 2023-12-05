@@ -54,7 +54,7 @@ abstract class ExtensionBase extends BackgroundBase {
             { url: OidcClient.getLoginUrl() } as chrome.tabs.CreateProperties,
             tab => {
                 this.loginWinId = tab.windowId;
-                this.loginTabId = tab.id;
+                this.loginTabId = tab.id!;
                 this.loginWindowPending = false;
             }
         );
@@ -73,7 +73,7 @@ abstract class ExtensionBase extends BackgroundBase {
         const type = 'basic';
         const iconUrl = 'images/icon80.png';
         chrome.notifications.create(
-            null,
+            '',
             { title, message, type, iconUrl },
             id => this.lastNotificationId = id);
     }
@@ -84,11 +84,11 @@ abstract class ExtensionBase extends BackgroundBase {
 
     private buttonState = ButtonState.start;
 
-    private loginTabId: number;
+    private loginTabId: number | undefined;
 
     private settingsTabId: number;
 
-    private loginWinId: number;
+    private loginWinId: number | undefined;
 
     private loginWindowPending: boolean;
 
@@ -128,7 +128,7 @@ abstract class ExtensionBase extends BackgroundBase {
             if (timer) {
                 const action = this.actionOnConnect;
                 if (action) {
-                    this.actionOnConnect = null;
+                    this.actionOnConnect = undefined;
                     action();
                 }
             }
@@ -204,7 +204,7 @@ abstract class ExtensionBase extends BackgroundBase {
                 break;
 
             case 'putTimer':
-                this.putExternalTimer(message.data, null, tabId);
+                this.putExternalTimer(message.data, undefined, tabId);
                 break;
 
             case 'getIssuesDurations':
@@ -245,7 +245,7 @@ abstract class ExtensionBase extends BackgroundBase {
         return this.buttonState == ButtonState.fixtimer;
     }
 
-    protected async putExternalTimer(timer: WebToolIssueTimer, accountId: number = null, tabId: number = null) {
+    protected async putExternalTimer(timer: WebToolIssueTimer, accountId?: number, tabId?: number) {
 
         // Stop timer without any checks (TE-339)
         if (!timer.isStarted) {
@@ -321,7 +321,7 @@ abstract class ExtensionBase extends BackgroundBase {
 
         const onFail = (status: AjaxStatus | string, showDialog: boolean) => {
 
-            this.actionOnConnect = null;
+            this.actionOnConnect = undefined;
 
             if (status == invalidProfileError && showDialog) {
                 chrome.tabs.create({ url: this.constants.serviceUrl });
@@ -508,12 +508,14 @@ abstract class ExtensionBase extends BackgroundBase {
 
             chrome.tabs.query({ windowId: this.loginWinId }, tabs => {
                 const tab = tabs.find(tab => tab.id == this.loginTabId);
-                if (tab && tab.url.startsWith(this.constants.authorityUrl)) {
+                if (tab?.id != null &&
+                    tab?.url?.startsWith(this.constants.authorityUrl) &&
+                    this.loginWinId != null) {
                     chrome.tabs.update(tab.id, { active: true });
                     chrome.windows.update(this.loginWinId, { focused: true });
                 } else {
-                    this.loginWinId = null;
-                    this.loginTabId = null;
+                    this.loginWinId = undefined;
+                    this.loginTabId = undefined;
                     this.showLoginDialog();
                 }
             });
@@ -553,7 +555,7 @@ abstract class ExtensionBase extends BackgroundBase {
         }
 
         chrome.tabs.query({}, tabs => tabs && tabs.forEach(tab => {
-            if (tab.url && tab.url.startsWith('http')) {
+            if (tab.id != null && tab.url && tab.url.startsWith('http')) {
                 chrome.tabs.sendMessage(tab.id, message, () => {
 
                     // Ignore errors in broadcast messages
@@ -567,7 +569,7 @@ abstract class ExtensionBase extends BackgroundBase {
     }
 
     protected getActiveTabTitle() {
-        return new Promise<string>((resolve) => {
+        return new Promise<string | null>((resolve) => {
             chrome.tabs.query({ currentWindow: true, active: true },
                 function (tabs) {
                     const activeTab = tabs && tabs[0];
@@ -578,7 +580,7 @@ abstract class ExtensionBase extends BackgroundBase {
     }
 
     protected getActiveTabId() {
-        return new Promise<number>((resolve) => {
+        return new Promise<number | null>((resolve) => {
             chrome.tabs.query({ currentWindow: true, active: true },
                 function (tabs) {
                     const activeTab = tabs && tabs[0];
@@ -589,7 +591,7 @@ abstract class ExtensionBase extends BackgroundBase {
     }
 
     protected getActiveTabUrl() {
-        return new Promise<string>((resolve) => {
+        return new Promise<string | null>((resolve) => {
             chrome.tabs.query({ currentWindow: true, active: true },
                 function (tabs) {
                     const activeTab = tabs && tabs[0];
@@ -637,7 +639,12 @@ abstract class ExtensionBase extends BackgroundBase {
                 const pageTabs = tabs && tabs.filter(tab => tab.url == url);
                 if (pageTabs && pageTabs.length) {
 
-                    let anyWindowTab: chrome.tabs.Tab, anyWindowActiveTab: chrome.tabs.Tab, currentWindowTab: chrome.tabs.Tab, currentWindowActiveTab: chrome.tabs.Tab;
+                    let
+                        anyWindowTab,
+                        currentWindowTab,
+                        anyWindowActiveTab,
+                        currentWindowActiveTab
+                            : chrome.tabs.Tab | undefined;
                     for (let index = 0, size = pageTabs.length; index < size; index += 1) {
                         anyWindowTab = pageTabs[index];
                         if (anyWindowTab.active) {
@@ -701,7 +708,9 @@ abstract class ExtensionBase extends BackgroundBase {
         chrome.storage.onChanged.addListener(async (changes) => {
             const authorizationCode = changes['authorization_code'];
             if (authorizationCode && authorizationCode.newValue) {
-                chrome.tabs.remove(this.loginTabId);
+                if (this.loginTabId != null) {
+                    chrome.tabs.remove(this.loginTabId);
+                }
                 if (await OidcClient.authorize()) {
                     this.reconnect(false);
                 }
@@ -712,8 +721,8 @@ abstract class ExtensionBase extends BackgroundBase {
     private registerTabsRemoveListener() {
         chrome.tabs.onRemoved.addListener((tabId) => {
             if (tabId == this.loginTabId) {
-                this.loginTabId = null;
-                this.loginWinId = null;
+                this.loginTabId = undefined;
+                this.loginWinId = undefined;
             }
         });
     }
@@ -811,7 +820,9 @@ abstract class ExtensionBase extends BackgroundBase {
 
             // Tab page requests
             const tabId = sender.tab.id;
-            this.onTabMessage(message, tabId);
+            if (tabId != null) {
+                this.onTabMessage(message, tabId);
+            }
 
             senderResponse(null);
         });

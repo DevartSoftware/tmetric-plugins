@@ -532,7 +532,10 @@ const getWebToolDescriptions = function () {
             serviceType: 'Todoist',
             serviceName: 'Todoist',
             icon: 'todoist.svg',
-            origins: ['https://todoist.com/*'],
+            origins: [
+                'https://todoist.com/*',
+                'https://*.todoist.com/*'
+            ],
             scripts: {
                 js: ['in-page-scripts/integrations/todoist.js']
             }
