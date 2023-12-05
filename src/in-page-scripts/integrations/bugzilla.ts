@@ -16,7 +16,7 @@ class Bugzilla implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
         const issueIdNumber = $$.try<HTMLInputElement>('input[name=id]', issueElement).value
             || $$.searchParams(source.fullUrl)['id'];
@@ -36,14 +36,13 @@ class Bugzilla implements WebToolIntegration {
             || ($$.try('#product-name').firstChild || {} as ChildNode).textContent; // https://bugzilla.mozilla.org
 
         const serviceType = 'Bugzilla';
-
         const action = 'show_bug.cgi';
-
         const serviceUrl = source.fullUrl.substring(0, source.fullUrl.indexOf(action));
-
         const issueUrl = `/${action}?id=${issueIdNumber}`;
 
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+        return {
+            issueId, issueName, projectName, serviceType, serviceUrl, issueUrl
+        } as WebToolIssue;
     }
 }
 

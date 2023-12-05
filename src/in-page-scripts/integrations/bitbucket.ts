@@ -11,7 +11,7 @@ class Bitbucket implements WebToolIntegration {
         return $$.getAttribute('meta[name=application-name]', 'content') == 'Bitbucket';
     }
 
-    render(issueElement: HTMLElement, linkElement: HTMLElement) {
+    render(_issueElement: HTMLElement, linkElement: HTMLElement) {
         const issueToolbar = $$('#issue-header .issue-toolbar');
         const pullRequestHeading = $$('header h1');
 
@@ -23,11 +23,11 @@ class Bitbucket implements WebToolIntegration {
         } else if (pullRequestHeading) {
             linkElement.style.display = 'inline-block';
             linkElement.style.marginTop = '1rem';
-            pullRequestHeading.parentElement.appendChild(linkElement);
+            pullRequestHeading.parentElement!.appendChild(linkElement);
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(_issueElement: HTMLElement, source: Source) {
 
         // https://bitbucket.org/NAMESPACE/TRANSFORMED_PROJECT_NAME/issues/NUMBER/TRANSFORMED_ISSUE_NAME
         // https://bitbucket.org/NAMESPACE/TRANSFORMED_PROJECT_NAME/pull-requests/NUMBER/TRANSFORMED_PULL_REQUEST_NAME/VIEW
@@ -43,7 +43,9 @@ class Bitbucket implements WebToolIntegration {
             return;
         }
 
-        let issueId: string, issueName: string;
+        let issueId: string | undefined;
+        let issueName: string | undefined | null;
+
         const issueType = match[2];
         if (issueType == 'issues') {
             issueId = '#' + issueNumber;
@@ -67,7 +69,7 @@ class Bitbucket implements WebToolIntegration {
         const projectName = $$.try(
             '.aui-nav-breadcrumbs a, header a',
             null,
-            el => /.+\/projects\/.+/.test(el.getAttribute('href'))
+            el => /.+\/projects\/.+/.test(el.getAttribute('href')!)
         ).textContent;
 
         const serviceType = 'Bitbucket';
@@ -81,7 +83,9 @@ class Bitbucket implements WebToolIntegration {
 
         const issueUrl = match[1].split('/').slice(-2).join('/') + '/' + issueType + '/' + issueNumber;
 
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+        return {
+            issueId, issueName, projectName, serviceType, serviceUrl, issueUrl
+        } as WebToolIssue;
     }
 }
 

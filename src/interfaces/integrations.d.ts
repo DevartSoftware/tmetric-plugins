@@ -3,7 +3,7 @@ interface WebToolIntegration {
     match?: (source: Source) => boolean | undefined;
     observeMutations?: boolean;
     showIssueId?: boolean;
-    issueElementSelector?: string | string[] | (() => HTMLElement[]);
+    issueElementSelector?: string | string[] | (() => (HTMLElement | null)[]);
     render(issueElement: HTMLElement | null, linkElement: HTMLElement);
     getIssue(issueElement: HTMLElement | null, source: Source): WebToolIssue | undefined;
 }

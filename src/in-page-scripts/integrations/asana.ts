@@ -30,8 +30,8 @@ class Asana implements WebToolIntegration {
 
     getIssue(issueElement: HTMLElement, source: Source) {
 
-        let getChildQueryParam = (url: string) => {
-            let searchParams = new URLSearchParams(url);
+        const getChildQueryParam = (url: string) => {
+            const searchParams = new URLSearchParams(url);
             return searchParams.get('child');
         }
 
