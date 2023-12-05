@@ -35,7 +35,7 @@ class NinjaOneRmm implements WebToolIntegration {
     }`;
 
     const projectName = $$.try(
-      ".css-34fts7 div:first-child .css-1hitez9 span",
+      ".css-34fts7 div:first-child .css-xpxtxf span",
       issueElement
     ).textContent;
 
@@ -43,7 +43,7 @@ class NinjaOneRmm implements WebToolIntegration {
 
     let tagNames = [];
     $$.all(".css-4juktp", issueElement).forEach((element) => {
-      if ($$.try(".css-1dq3mwi span", element).textContent == "Tags") {
+      if ($$.try(".css-4juktp span", element).textContent == "Tags") {
         tagNames = tagNames.concat(
           $$.all(".css-161u6g7 .text-ellipsis", element).map(
             (label) => label.textContent
