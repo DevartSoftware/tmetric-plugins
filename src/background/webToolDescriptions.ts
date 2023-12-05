@@ -347,7 +347,7 @@ const getWebToolDescriptions = function () {
         },
         {
             serviceType: 'ninjaOneRmm',
-            serviceName: 'ninjaOne RMM',
+            serviceName: 'NinjaOne RMM',
             icon: 'ninjaOneRmm.svg',
             origins: [
                 'https://*.ninjarmm.com/*',
