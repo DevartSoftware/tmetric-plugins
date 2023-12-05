@@ -7,7 +7,7 @@ class GitLab implements WebToolIntegration {
         '*://*/merge_requests/*'
     ];
 
-    match(source: Source) {
+    match() {
         return !!$$(this.titleSelector);
     }
 
