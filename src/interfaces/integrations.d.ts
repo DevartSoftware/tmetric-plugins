@@ -70,10 +70,11 @@ interface WebToolIssue extends WebToolIssueIdentifier {
     description?: string | null;
     serviceType?: string | null;
     projectName?: string | null;
-    tagNames?: string[] | null;
+    tagNames?: (string | null | undefined)[] | null;
 }
 
 interface WebToolIssueTimer extends WebToolIssue {
+    tagNames?: string[] | null;
     projectId?: number;
     isStarted: boolean;
     showIssueId?: boolean;

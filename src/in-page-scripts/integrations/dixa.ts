@@ -14,7 +14,7 @@ class Dixa implements WebToolIntegration {
      * Extracts information about the issue (ticket or task) from a Web
      * page by querying the DOM model.
      */
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(_issueElement: HTMLElement, source: Source){
         // eg. https://[subdomain].dixa.com/conversation/1
         const getTitle = () => {
             const title = $$.try('.conversation-view__main [class^=conversationHeader__] [class^=headline__] p').textContent;
@@ -38,13 +38,15 @@ class Dixa implements WebToolIntegration {
         const serviceUrl = source.protocol + source.host;
         const issueUrl = source.path;
 
-        return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType };
+        return {
+            issueId, issueName, issueUrl, projectName, serviceUrl, serviceType
+        } as WebToolIssue;
     }
 
     /**
      * Inserts the timer button for the identified issue into a Web page.
      */
-    render(issueElement: HTMLElement, linkElement: HTMLElement) {
+    render(_issueElement: HTMLElement, linkElement: HTMLElement) {
         const host = $$.visible('.conversation-view__main [class^=conversationHeader__] [class^=topActions__] [class^=root__]');
         if (host) {
             linkElement.classList.add('devart-timer-link-dixa');

@@ -17,14 +17,14 @@ class EasyRedmine implements WebToolIntegration {
     ];
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        var title = $$('#content h2', issueElement);
+        const title = $$('#content h2', issueElement);
         if (title) {
             linkElement.classList.add('devart-timer-link-easy-redmine');
-            title.parentElement.insertBefore(linkElement, title.nextElementSibling);
+            title.parentElement!.insertBefore(linkElement, title.nextElementSibling);
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
         // Cloud instance:
         // https://ACCOUNT_ID.easyredmine.com/issues/ISSUE_ID
@@ -34,15 +34,15 @@ class EasyRedmine implements WebToolIntegration {
         // http://COMPANY_HOST/redmine/issues/ISSUE_ID
         // serviceUrl = https://COMPANY_HOST/redmine
 
-        var match = this.matchUrl.exec(source.fullUrl);
+        const match = this.matchUrl.exec(source.fullUrl);
         if (!match) {
             return;
         }
-        var serviceUrl = match[1];
-        var issueUrl = match[2] + '/' + match[3];
-        var issueId = '#' + match[3];
+        const serviceUrl = match[1];
+        const issueUrl = match[2] + '/' + match[3];
+        const issueId = '#' + match[3];
 
-        var issueName = $$.try('#content h2', issueElement).textContent;
+        const issueName = $$.try('#content h2', issueElement).textContent;
         if (!issueName) {
             return;
         }
@@ -59,11 +59,13 @@ class EasyRedmine implements WebToolIntegration {
         //   <span class="separator"> » </span>
         //   Subtask 1
         // </h1>
-        var projectName = $$.try('h1 .self', issueElement).textContent;
+        const projectName = $$.try('h1 .self', issueElement).textContent;
 
-        var serviceType = 'Redmine';
+        const serviceType = 'Redmine';
 
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+        return {
+            issueId, issueName, projectName, serviceType, serviceUrl, issueUrl
+        } as WebToolIssue;
     }
 }
 

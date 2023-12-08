@@ -7,22 +7,23 @@ class Evernote implements WebToolIntegration {
     showIssueId = false;
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        let div = $$.create('div');
+        const div = $$.create('div');
         div.classList.add('devart-timer-link-evernote');
         div.appendChild(linkElement);
-        let separator = $$.create('div', '_3QvRa8NWQ7oFT2wasqKjdo');
+        const separator = $$.create('div', '_3QvRa8NWQ7oFT2wasqKjdo');
         div.appendChild(separator);
-        issueElement.lastChild.before(div);
+        issueElement.lastChild!.before(div);
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
         // try to get issue name from editor
         const frame = $$<HTMLIFrameElement>('#qa-COMMON_EDITOR_IFRAME');
         const frameDocument = frame?.contentDocument;
 
+        let issueName: string | null | undefined;
         if (frame?.tagName === 'IFRAME' && frameDocument) {
-            var issueName = ($$.try('en-noteheader textarea', frameDocument) as HTMLTextAreaElement).value;
+            issueName = $$<HTMLTextAreaElement>('en-noteheader textarea', frameDocument)?.value;
 
             // if read-only note
             if (!issueName) {
@@ -30,12 +31,15 @@ class Evernote implements WebToolIntegration {
             }
         }
 
-        let projectName = $$.try('#qa-NOTE_PARENT_NOTEBOOK_BTN', issueElement).textContent;
-        let issueId = $$.searchParams(location.hash)['n'];
-        let issueUrl = issueId && `${source.path}#?n=${issueId}`;
-        let serviceUrl = source.protocol + source.host;
+        const projectName = $$.try('#qa-NOTE_PARENT_NOTEBOOK_BTN', issueElement).textContent;
+        const issueId = $$.searchParams(location.hash)['n'];
+        const issueUrl = issueId && `${source.path}#?n=${issueId}`;
+        const serviceUrl = source.protocol + source.host;
+        const serviceType = 'Evernote';
 
-        return { issueName, issueId, issueUrl, projectName, serviceUrl, serviceType: 'Evernote' };
+        return {
+            issueName, issueId, issueUrl, projectName, serviceUrl, serviceType
+        } as WebToolIssue;
     }
 }
 

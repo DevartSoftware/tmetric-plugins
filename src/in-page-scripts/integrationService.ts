@@ -108,10 +108,11 @@ class IntegrationService {
                     }
 
                     if (issue.tagNames) {
-                        issue.tagNames = [...new Set(issue.tagNames
-                            .map(tagName => this.trimText(tagName, Models.Limits.maxTag) || '')
-                            .filter(tagName => !!tagName))
-                        ];
+                        issue.tagNames = [...new Set(
+                            issue.tagNames
+                                .map(tagName => this.trimText(tagName, Models.Limits.maxTag))
+                                .filter(tagName => tagName!)
+                        )];
                     }
 
                     issues.push(issue);
