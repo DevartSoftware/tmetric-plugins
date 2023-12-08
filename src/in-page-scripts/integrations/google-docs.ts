@@ -4,34 +4,37 @@ class GoogleDocs implements WebToolIntegration {
 
     matchUrl = '*://docs.google.com/*';
 
-    render(issueElement: HTMLElement, linkElement: HTMLElement) {
+    render(_issueElement: HTMLElement, linkElement: HTMLElement) {
 
-        let host = $$('#docs-menubar');
+        const host = $$('#docs-menubar');
         if (host) {
             host.appendChild(linkElement);
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(_issueElement: HTMLElement, source: Source) {
 
-        let issueName = (<any>$$.try('#docs-titlebar .docs-title-input')).value;
+        const issueName = (<any>$$.try('#docs-titlebar .docs-title-input')).value;
         if (!issueName) {
             return;
         }
 
-        let issueUrl: string;
-        let issueId: string;
+        let issueUrl: string | undefined;
+        let issueId: string | undefined;
 
-        let matches = source.path.match(/\/.+\/d\/([a-zA-Z0-9_\-]+)\/edit/);
+        const matches = source.path.match(/\/.+\/d\/([a-zA-Z0-9_\-]+)\/edit/);
 
         if (matches) {
             issueUrl = matches[0];
             issueId = matches[1];
         }
 
-        var serviceUrl = source.protocol + source.host;
+        const serviceUrl = source.protocol + source.host;
+        const serviceType = 'GoogleDocs'
 
-        return { issueId, issueName, issueUrl, serviceUrl, serviceType: 'GoogleDocs' };
+        return {
+            issueId, issueName, issueUrl, serviceUrl, serviceType
+        } as WebToolIssue;
     }
 }
 

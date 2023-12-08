@@ -304,6 +304,6 @@ class SignalRConnection extends ServerConnection {
                 this.on(message.target, () => {/* no handler, just remove warning  */ })
             }
         }
-        oldInvoke.apply(this, arguments);
+        oldInvoke.apply(this, arguments as any);
     };
 }

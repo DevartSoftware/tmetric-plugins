@@ -179,9 +179,9 @@ $(document).ready(async () => {
             const hasAdditionalOrigins = urlsData.hasAdditionalOrigins;
             let serviceUrls = urlsData.serviceUrls || [];
 
-            if(integratedServiceUrls[name] && !checked){
-                serviceUrls = integratedServiceUrls[name].reduce(( map, serviceUrl ) => {
-                    if(serviceUrls.indexOf(serviceUrl) === -1){
+            if (integratedServiceUrls[name] && !checked) {
+                serviceUrls = integratedServiceUrls[name].reduce((map, serviceUrl) => {
+                    if (serviceUrls.indexOf(serviceUrl) === -1) {
                         map.push(serviceUrl);
                     }
                     return map;
@@ -199,7 +199,7 @@ $(document).ready(async () => {
             updatePermissionCheckboxes();
         }
 
-        $('.logo-wrapper').on('click', '.switch', function (event) {
+        $('.logo-wrapper').on('click', '.switch', function (this: HTMLElement, event) {
 
             event.stopPropagation();
 
@@ -208,7 +208,7 @@ $(document).ready(async () => {
             togglePermissionCheckbox(input);
         });
 
-        $('.logo-wrapper').on('click', '.logo-area', function (event) {
+        $('.logo-wrapper').on('click', '.logo-area', function (this: HTMLElement, event) {
 
             event.stopPropagation();
 
@@ -220,7 +220,7 @@ $(document).ready(async () => {
             }
         });
 
-        $('.logo-wrapper').on('click', '.show-popup', function (event) {
+        $('.logo-wrapper').on('click', '.show-popup', function (this: HTMLElement, event) {
 
             event.stopPropagation();
 
@@ -234,7 +234,7 @@ $(document).ready(async () => {
             }
         });
 
-        $('.add-url', popup).click(function () {
+        $('.add-url', popup).click(function (this: HTMLElement) {
 
             const input = $('input', $(this).parent('.add-url-input-holder'));
             const value = input.val();
@@ -254,13 +254,13 @@ $(document).ready(async () => {
             $('.url-list', popup).append(renderUrlListItem(serviceUrl));
         });
 
-        $('.url-list', popup).on('click', '.edit-url', function () {
+        $('.url-list', popup).on('click', '.edit-url', function (this: HTMLElement) {
             $(this).siblings('input').prop('readonly', false).focus();
             $(this).siblings('.save-url').show();
             $(this).hide();
         });
 
-        $('.url-list', popup).on('click', '.save-url', function () {
+        $('.url-list', popup).on('click', '.save-url', function (this: HTMLElement) {
 
             const input = $(this).siblings('input');
             const value = input.val();
@@ -277,7 +277,7 @@ $(document).ready(async () => {
             $(this).hide();
         });
 
-        $('.url-list', popup).on('click', '.remove-url', function () {
+        $('.url-list', popup).on('click', '.remove-url', function (this: HTMLElement) {
             $(this).parent('li').remove();
         });
 
@@ -322,7 +322,7 @@ $(document).ready(async () => {
             return !search || keyword.indexOf(search) >= 0;
         }
 
-        function checkKeywords() {
+        function checkKeywords(this: HTMLElement) {
             const keywords: string[] = $(this).data('keywords');
             if (keywords.some(containSearch)) {
                 $(this).show(500);
@@ -331,7 +331,7 @@ $(document).ready(async () => {
             }
         }
 
-        $('.search-input').on('input', function () {
+        $('.search-input').on('input', function (this: HTMLElement) {
             search = ('' + $(this).val()).toLowerCase();
             $('.logos-section ul li').each(checkKeywords);
         }).focus();

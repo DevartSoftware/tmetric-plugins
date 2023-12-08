@@ -30,7 +30,7 @@ abstract class BackgroundBase {
      * @param message
      * @param title
      */
-    protected abstract showNotification(message: string, title?: string)
+    protected abstract showNotification(message: string, title?: string): void;
 
     protected connection: ServerConnection;
 

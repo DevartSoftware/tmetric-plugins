@@ -58,9 +58,9 @@ function switchMenuItem(element: JQuery, tabBox: string, isScrollNeeded: boolean
 
 // Navigation Tabs
 function navTabs() {
-    $('.tabset a').on('click', function(e){
+    $('.tabset a').on('click', function (this: HTMLElement) {
         const tabBox = $(this).attr('href');
-        switchMenuItem(this, tabBox, true);
+        switchMenuItem($(this), tabBox, true);
     });
 }
 

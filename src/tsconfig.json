@@ -7,7 +7,16 @@
     "inlineSources": true,
     "noEmitOnError": true,
     "removeComments": true,
-    "strictNullChecks": false, //TODO: <---
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "strictBindCallApply": true,
+
+    //TODO:
+    "strictNullChecks": false,
+    //"noImplicitAny": true,
+    //"strictFunctionTypes": true,
+    //"strictPropertyInitialization": true,
+
     "typeRoots": [
       "./typings/@fake"
     ]

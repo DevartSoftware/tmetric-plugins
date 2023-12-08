@@ -12,15 +12,16 @@ class Generic implements WebToolIntegration {
         issueElement.appendChild(linkElement);
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-        let issueId = issueElement.getAttribute('data-issue-id');
-        let issueName = issueElement.getAttribute('data-issue-name');
-        let serviceUrl = issueElement.getAttribute('data-service-url');
-        let issueUrl = issueElement.getAttribute('data-issue-url');
-        let projectName = issueElement.getAttribute('data-project-name');
+    getIssue(issueElement: HTMLElement, source: Source) {
+        const issueId = issueElement.getAttribute('data-issue-id');
+        const issueName = issueElement.getAttribute('data-issue-name');
+        const serviceUrl = issueElement.getAttribute('data-service-url');
+        const issueUrl = issueElement.getAttribute('data-issue-url');
+        const projectName = issueElement.getAttribute('data-project-name');
+        const serviceType = 'Generic';
 
-        let tagNames: string[];
-        let tagNamesAttribute = issueElement.getAttribute('data-tag-names');
+        let tagNames: string[] | undefined;
+        const tagNamesAttribute = issueElement.getAttribute('data-tag-names');
         if (tagNamesAttribute) {
             tagNames = tagNamesAttribute.split(',');
         }
@@ -31,9 +32,9 @@ class Generic implements WebToolIntegration {
             issueUrl,
             projectName,
             serviceUrl,
-            serviceType: 'Generic',
+            serviceType,
             tagNames
-        };
+        } as WebToolIssue;
     }
 }
 
