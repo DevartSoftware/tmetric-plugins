@@ -184,6 +184,12 @@ abstract class BackgroundBase {
         // Stop timer without any checks (TE-339)
         if (!timer.isStarted) {
             timer = <WebToolIssueTimer>{ isStarted: false }
+        } else {
+            const trim = (s: string) => s ? s.trim() : s;
+            timer.issueName = trim(timer.issueName);
+            timer.description = trim(timer.description);
+            timer.projectName = trim(timer.projectName);
+            timer.tagNames = timer.tagNames?.map(t => trim(t));
         }
 
         this.putData(timer, async timer => {
