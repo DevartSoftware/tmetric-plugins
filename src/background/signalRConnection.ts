@@ -1,16 +1,10 @@
 class SignalRConnection extends ServerConnection {
 
-    serviceUrl: string;
-
     signalRUrl: string;
 
     hub: signalR.HubConnection;
 
     hubProxy = new SignalRHubProxy();
-
-    userProfile: Models.UserProfile;
-
-    accountToPost: number;
 
     private _hubConnected: boolean;
 
@@ -32,10 +26,6 @@ class SignalRConnection extends ServerConnection {
 
     private _disconnectPromise: Promise<void> | undefined;
 
-    expectedTimerUpdate = false;
-
-    serverApiVersion: number;
-
     onUpdateActiveAccount = SimpleEvent.create<number>();
 
     onInvalidateAccountScopeCache = SimpleEvent.create<number>();
@@ -52,7 +42,7 @@ class SignalRConnection extends ServerConnection {
         super();
     }
 
-    init(options: any): Promise<void> {
+    override init(options: { serviceUrl: string, authorityUrl: string, signalRUrl: string }): Promise<void> {
 
         this.serviceUrl = options.serviceUrl;
         this.signalRUrl = options.signalRUrl;
@@ -124,7 +114,7 @@ class SignalRConnection extends ServerConnection {
         return Promise.resolve(!!(this._retryTimeoutHandle || this._retryInProgress));
     }
 
-    reconnect() {
+    override reconnect() {
         console.log('reconnect');
         return this.disconnect()
             .then(() => this.connect())
@@ -132,7 +122,7 @@ class SignalRConnection extends ServerConnection {
             .then(() => undefined);
     }
 
-    connect() {
+    override connect() {
 
         console.log('connect');
         return new Promise<Models.UserProfile>((callback, reject) => {
@@ -231,7 +221,7 @@ class SignalRConnection extends ServerConnection {
         return Promise.resolve();
     }
 
-    disconnect() {
+    override disconnect() {
         if (this._disconnectPromise) {
             return this._disconnectPromise;
         }
@@ -256,13 +246,13 @@ class SignalRConnection extends ServerConnection {
         return promise;
     }
 
-    async getProfile() {
+    override async getProfile() {
         const profile = await super.getProfile();
         this.onUpdateProfile.emit(profile);
         return profile;
     }
 
-    getData() {
+    override getData() {
 
         return this.checkProfile().then(profile => {
 

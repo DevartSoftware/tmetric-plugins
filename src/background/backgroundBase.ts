@@ -10,6 +10,7 @@ abstract class BackgroundBase {
 
     protected readonly _testValues: TestValues;
 
+    /** @virtual */
     protected getConstants() {
         return <Models.Constants>{
             maxTimerHours: 12,
@@ -19,6 +20,7 @@ abstract class BackgroundBase {
         };
     }
 
+    /** @virtual */
     protected showError(message: string) {
         // This needed to prevent alert cleaning via build.
         const a = alert;
@@ -32,6 +34,7 @@ abstract class BackgroundBase {
      */
     protected abstract showNotification(message: string, title?: string)
 
+    /** @virtual */
     protected connection: ServerConnection;
 
     protected constants: Models.Constants;
@@ -69,15 +72,16 @@ abstract class BackgroundBase {
         this.registerMessageListener();
     }
 
+    /** @virtual */
     protected init() {
         this.constants = this.getConstants();
     }
 
+    /** @virtual */
     protected initConnection() {
-
         this.connection = new ServerConnection();
-
-        this.connection.init({ serviceUrl: this.constants.serviceUrl, authorityUrl: this.constants.authorityUrl });
+        this.connection
+            .init({ serviceUrl: this.constants.serviceUrl, authorityUrl: this.constants.authorityUrl });
     }
 
     protected async getProject(projectId: number, accountId?: number) {
@@ -97,6 +101,7 @@ abstract class BackgroundBase {
         this.openPage(url);
     }
 
+    /** @virtual */
     protected isLongTimer() {
         return false;
     }
@@ -179,11 +184,38 @@ abstract class BackgroundBase {
         }, accountId, !!accountId);
     }
 
-    protected async putExternalTimer(timer: WebToolIssueTimer, accountId?: number) {
+    /** @virtual */
+    protected async StartExternalTimer(
+        timer: WebToolIssueTimer,
+        status: Models.IntegratedProjectStatus,
+        scope: Models.AccountScope,
+        tabId?: number) {
+
+        // Set default work type before popup show (TE-299)
+        await this.validateTimerTags(timer, status.accountId);
+
+        this.validateTimerProject(timer, status);
+
+        // This timer will be send when popup ask for initial data
+        this.newPopupIssue = timer;
+
+        // This account id will be used to prepare initial data for popup
+        this.newPopupAccountId = status.accountId;
+
+        return this.showPopup();
+    }
+
+    protected async putExternalTimer(timer: WebToolIssueTimer, accountId?: number, tabId?: number) {
 
         // Stop timer without any checks (TE-339)
         if (!timer.isStarted) {
             timer = <WebToolIssueTimer>{ isStarted: false }
+        } else {
+            const trim = (s: string) => s ? s.trim() : s;
+            timer.issueName = trim(timer.issueName);
+            timer.description = trim(timer.description);
+            timer.projectName = trim(timer.projectName);
+            timer.tagNames = timer.tagNames?.map(t => trim(t));
         }
 
         this.putData(timer, async timer => {
@@ -203,25 +235,14 @@ abstract class BackgroundBase {
             }
 
             if (timer.isStarted) {
-
-                // Set default work type before popup show (TE-299)
-                await this.validateTimerTags(timer, status.accountId);
-
-                this.validateTimerProject(timer, status);
-
-                // This timer will be send when popup ask for initial data
-                this.newPopupIssue = timer;
-
-                // This account id will be used to prepare initial data for popup
-                this.newPopupAccountId = status.accountId;
-
-                return this.showPopup();
+                await this.StartExternalTimer(timer, status, scope, tabId);
             }
 
             return this.putTimerWithIntegration(timer, status, scope.requiredFields);
         });
     }
 
+    /** @virtual */
     protected putData<T>(data: T, action: (data: T) => Promise<any>) {
         action(data).catch(status => this.showError(this.getErrorText(status)));
     }
@@ -456,6 +477,7 @@ abstract class BackgroundBase {
         });
     }
 
+    /** @virtual */
     protected reconnect(_showLoginDialog: boolean) {
         this.connection.reconnect();
     }
@@ -488,6 +510,7 @@ abstract class BackgroundBase {
 
     protected abstract getActiveTabPossibleWebTool(): Promise<WebToolInfo | undefined>;
 
+    /** @virtual */
     protected openPage(url: string) {
         open(url);
     }
@@ -579,6 +602,7 @@ abstract class BackgroundBase {
         return scope.projects.filter(p => trackedProjectsMap[p.projectId]);
     }
 
+    /** @virtual */
     protected openOptionsPagePopupAction() {
         return Promise.resolve(null);
     }

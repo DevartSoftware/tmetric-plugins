@@ -27,7 +27,7 @@ async function getTestValues() {
 
 abstract class ExtensionBase extends BackgroundBase {
 
-    protected getConstants() {
+    protected override getConstants() {
         const constants = super.getConstants();
         return <Models.Constants>{
             maxTimerHours: constants.maxTimerHours,
@@ -80,13 +80,11 @@ abstract class ExtensionBase extends BackgroundBase {
 
     protected lastNotificationId: string;
 
-    protected connection: SignalRConnection;
+    protected override connection: SignalRConnection;
 
     private buttonState = ButtonState.start;
 
     private loginTabId: number | undefined;
-
-    private settingsTabId: number;
 
     private loginWinId: number | undefined;
 
@@ -172,7 +170,7 @@ abstract class ExtensionBase extends BackgroundBase {
         setUpdateTimeout();
     }
 
-    protected init() {
+    protected override init() {
 
         super.init();
 
@@ -180,10 +178,8 @@ abstract class ExtensionBase extends BackgroundBase {
         this.extraHours = this._testValues.extraHours || 0;
     }
 
-    protected initConnection() {
-
+    protected override initConnection() {
         this.connection = new SignalRConnection();
-
         this.connection
             .init({ serviceUrl: this.constants.serviceUrl, signalRUrl: this.signalRUrl, authorityUrl: this.constants.authorityUrl });
     }
@@ -241,83 +237,60 @@ abstract class ExtensionBase extends BackgroundBase {
         });
     }
 
-    protected isLongTimer() {
+    protected override isLongTimer() {
         return this.buttonState == ButtonState.fixtimer;
     }
 
-    protected async putExternalTimer(timer: WebToolIssueTimer, accountId?: number, tabId?: number) {
+    protected override async StartExternalTimer(
+        timer: WebToolIssueTimer,
+        status: Models.IntegratedProjectStatus,
+        scope: Models.AccountScope,
+        tabId?: number) {
 
-        // Stop timer without any checks (TE-339)
-        if (!timer.isStarted) {
-            timer = <WebToolIssueTimer>{ isStarted: false }
+        const settings = await this.getSettings();
+
+        // Set default work type before popup show (TE-299)
+        await this.validateTimerTags(timer, status.accountId);
+
+        const matchedProjectCount = this.getTrackedProjects(scope).filter(p => p.projectName == timer.projectName).length;
+        const requiredFields = scope.requiredFields;
+        let showPopup = settings.showPopup || Models.ShowPopupOption.Always;
+
+        if (timer.serviceType === 'Shortcut') {
+            // TODO: popup is not working on Shortcut pages (TMET-7517)
+            showPopup = Models.ShowPopupOption.Never;
+        } else if (requiredFields.taskLink && !timer.issueUrl) {
+            showPopup = Models.ShowPopupOption.Never;
+        } else if (
+            requiredFields.description && !timer.issueName && !timer.description ||
+            requiredFields.project && !matchedProjectCount ||
+            requiredFields.tags && (!timer.tagNames || !timer.tagNames.length)
+        ) {
+            showPopup = Models.ShowPopupOption.Always;
         }
 
-        this.putData(timer, async timer => {
+        if (showPopup != Models.ShowPopupOption.Never) {
 
-            let status: Models.IntegratedProjectStatus;
-            let scope: Models.AccountScope;
-            try {
-                status = await this.getIntegrationStatus(timer, accountId);
-                scope = await this.getAccountScope(status.accountId);
-            } catch (err) {
-                this.connection.checkProfileChange(); // TE-179
-                return Promise.reject(err);
+            if (showPopup == Models.ShowPopupOption.Always ||
+                !timer.projectName ||
+                status.projectStatus == null ||
+                matchedProjectCount > 1
+            ) {
+
+                this.validateTimerProject(timer, status);
+
+                // This timer will be send when popup ask for initial data
+                this.newPopupIssue = timer;
+
+                // This account id will be used to prepare initial data for popup
+                this.newPopupAccountId = status.accountId;
+
+                return this.showPopup(tabId);
             }
-
-            if (accountId) {
-                return this.putTimerWithIntegration(timer, status, scope.requiredFields);
-            }
-
-            if (timer.isStarted) {
-
-                const settings = await this.getSettings();
-
-                // Set default work type before popup show (TE-299)
-                await this.validateTimerTags(timer, status.accountId);
-
-                const matchedProjectCount = this.getTrackedProjects(scope).filter(p => p.projectName == timer.projectName).length;
-                const requiredFields = scope.requiredFields;
-                let showPopup = settings.showPopup || Models.ShowPopupOption.Always;
-
-                if (timer.serviceType === 'Shortcut') {
-                    // TODO: popup is not working on Shortcut pages (TMET-7517)
-                    showPopup = Models.ShowPopupOption.Never;
-                } else if (requiredFields.taskLink && !timer.issueUrl) {
-                    showPopup = Models.ShowPopupOption.Never;
-                } else if (
-                    requiredFields.description && !timer.issueName && !timer.description ||
-                    requiredFields.project && !matchedProjectCount ||
-                    requiredFields.tags && (!timer.tagNames || !timer.tagNames.length)
-                ) {
-                    showPopup = Models.ShowPopupOption.Always;
-                }
-
-                if (showPopup != Models.ShowPopupOption.Never) {
-
-                    if (showPopup == Models.ShowPopupOption.Always ||
-                        !timer.projectName ||
-                        status.projectStatus == null ||
-                        matchedProjectCount > 1
-                    ) {
-
-                        this.validateTimerProject(timer, status);
-
-                        // This timer will be send when popup ask for initial data
-                        this.newPopupIssue = timer;
-
-                        // This account id will be used to prepare initial data for popup
-                        this.newPopupAccountId = status.accountId;
-
-                        return this.showPopup(tabId);
-                    }
-                }
-            }
-
-            return this.putTimerWithIntegration(timer, status, scope.requiredFields);
-        });
+        }
     }
 
-    protected putData<T>(data: T, action: (data: T) => Promise<any>, retryAction?: (data: T) => Promise<any>) {
+    protected override putData<T>(data: T, action: (data: T) => Promise<any>, retryAction?: (data: T) => Promise<any>) {
 
         const onFail = (status: AjaxStatus | string, showDialog: boolean) => {
 
@@ -626,7 +599,7 @@ abstract class ExtensionBase extends BackgroundBase {
         }
     }
 
-    protected openPage(url: string) {
+    protected override openPage(url: string) {
 
         chrome.tabs.query({ active: true, windowId: chrome.windows.WINDOW_ID_CURRENT }, tabs => {
 
@@ -668,7 +641,7 @@ abstract class ExtensionBase extends BackgroundBase {
         });
     }
 
-    protected reconnect(showLoginDialog: boolean) {
+    protected override reconnect(showLoginDialog: boolean) {
         this.connection.reconnect()
             .then(async () => {
                 const key = 'skipPermissionsSetup';
@@ -828,7 +801,7 @@ abstract class ExtensionBase extends BackgroundBase {
         });
     }
 
-    protected openOptionsPagePopupAction() {
+    protected override openOptionsPagePopupAction() {
         this.openOptionsPageUrl()
         return Promise.resolve(null);
     }

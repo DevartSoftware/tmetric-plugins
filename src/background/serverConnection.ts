@@ -39,7 +39,9 @@ class ServerConnection {
         }));
     }
 
-    init(options: any): Promise<void> {
+
+    /** @virtual */
+    init(options: { serviceUrl: string, authorityUrl: string}): Promise<void> {
 
         this.serviceUrl = options.serviceUrl;
         OidcClient.init(options.authorityUrl);
@@ -60,6 +62,7 @@ class ServerConnection {
         });
     }
 
+    /** @virtual */
     reconnect() {
         console.log('reconnect');
         return this.disconnect()
@@ -67,6 +70,7 @@ class ServerConnection {
             .then(() => undefined);
     }
 
+    /** @virtual */
     connect() {
 
         console.log('connect');
@@ -83,6 +87,7 @@ class ServerConnection {
         });
     }
 
+    /** @virtual */
     disconnect() {
         return Promise.resolve();
     }
@@ -198,6 +203,7 @@ class ServerConnection {
         });
     }
 
+    /** @virtual */
     getProfile() {
         const profile = this.get<Models.UserProfile>('api/userprofile').then(profile => {
             this.userProfile = profile;
@@ -237,6 +243,7 @@ class ServerConnection {
         return this.get<Models.RecentWorkTask[]>(url);
     }
 
+    /** @virtual */
     getData(): Promise<any> {
         return this.checkProfile();
     }
