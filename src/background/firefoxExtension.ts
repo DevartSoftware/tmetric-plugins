@@ -6,21 +6,18 @@ class FirefoxExtension extends ExtensionBase {
         this.sendToTabs({ action: 'initPage' });
     }
 
-    /** @override */
-    getBrowserSchema(): string {
+    override getBrowserSchema(): string {
         return 'moz-extension';
     }
 
-    /** @override */
-    getExtensionUUID() {
+    override getExtensionUUID() {
         return window.location.host;
     }
 
     /**
-     * @override
      * @param message
      */
-    protected showError(message: string) {
+    protected override showError(message: string) {
         // https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Chrome_incompatibilities#Additional_incompatibilities
         this.getActiveTabId().then(id => {
             if (id) {

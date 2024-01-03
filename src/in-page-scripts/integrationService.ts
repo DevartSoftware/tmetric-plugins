@@ -94,6 +94,7 @@ class IntegrationService {
                     // trim all string values
                     issue.issueId = this.trimText(issue.issueId, Models.Limits.maxIssueId);
                     issue.issueName = this.trimText(issue.issueName, Models.Limits.maxTask);
+                    issue.description = this.trimText(issue.description, Models.Limits.maxTask);
                     issue.issueUrl = this.trimText(issue.issueUrl, Models.Limits.maxTaskRelativeUrl);
                     issue.serviceUrl = this.trimText(issue.serviceUrl, Models.Limits.maxIntegrationUrl);
                     issue.serviceType = this.trimText(issue.serviceType, Models.Limits.maxIntegrationType);
