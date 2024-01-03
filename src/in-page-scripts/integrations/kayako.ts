@@ -20,25 +20,28 @@ class Kayako implements WebToolIntegration {
         container.appendChild(linkElement);
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
         return {
             issueId: this.getIssueId(issueElement),
             issueName: this.getIssueName(issueElement),
             serviceType: 'Kayako',
             serviceUrl: source.protocol + source.host,
             issueUrl: source.path,
-        };
+        } as WebToolIssue;
     }
 
-    getIssueId(issueElement: HTMLElement): string {
+    getIssueId(issueElement: HTMLElement) {
         return issueElement
             .querySelector(' [class^="ko-tabs__tabs_"] div[class^="ko-case-content__id"]')
-            .textContent
-            .replace(/^[\W#]+/, '');
+            ?.textContent
+            ?.replace(/^[\W#]+/, '');
     }
 
-    getIssueName(issueElement: HTMLElement): string {
-        return issueElement.querySelector('[class^="ko-tabs_case__subject_"]').textContent.trim();
+    getIssueName(issueElement: HTMLElement) {
+        return issueElement
+            .querySelector('[class^="ko-tabs_case__subject_"]')
+            ?.textContent
+            ?.trim();
     }
 }
 
