@@ -32,19 +32,19 @@
     }
 
     .devart-timer-link-start > &:before {
-        background-image: data-uri('src/images/start.png') !important;
+        background-image: data-uri('src/images/not-build/start.png') !important;
     }
 
     .devart-timer-link-stop > &:before {
-        background-image: data-uri('src/images/stop.png') !important;
+        background-image: data-uri('src/images/not-build/stop.png') !important;
     }
 
     .devart-timer-link-minimal.devart-timer-link-start > &:before {
-        background-image: data-uri('src/images/simple_start.png') !important;
+        background-image: data-uri('src/images/not-build/simple_start.png') !important;
     }
 
     .devart-timer-link-minimal.devart-timer-link-stop > &:before {
-        background-image: data-uri('src/images/simple_stop.png') !important;
+        background-image: data-uri('src/images/not-build/simple_stop.png') !important;
     }
 }
 
@@ -183,25 +183,6 @@
     margin-top: 1px !important;
 }
 
-.devart-timer-link-producteev {
-    margin: 0 1em;
-}
-
-.devart-timer-link-producteev-minimal {
-    position: absolute;
-    top: 5px;
-    right: 20px;
-    opacity: 0;
-
-    .subtasks-list li:hover &:hover {
-        opacity: 1;
-    }
-
-    .subtasks-list li:hover &:not(:hover) {
-        opacity: .5;
-    }
-}
-
 .devart-timer-link-sprintly {
     > a {
         display: block;
@@ -323,10 +304,23 @@
     margin-right: 12px !important;
     font-size: 14px !important;
     line-height: 24px !important;
+
+    .task-list-card & {
+        margin: 0 0 0 5px !important;
+
+        .devart-timer-link-icon ~ span {
+            display: none;
+        }
+    }
 }
 
 .devart-timer-link-youtrack {
     color: inherit;
+    margin-right: 30px !important;
+}
+
+.devart-timer-link-youtrack-lite {
+    color: rgb(115, 117, 119);
     margin-right: 30px !important;
 }
 
@@ -344,15 +338,23 @@
         margin-right: 1rem !important;
     }
 
+    .cu-task-row & {
+        .devart-timer-link-icon ~ span {
+            display: none;
+        }
+    }
+
     .task-todo-item &.devart-timer-link-start,
     .task-todo-item:hover .lv-subtask__outer:not(:hover) .task-todo-item__name-text-inner &.devart-timer-link-start,
-    .checklist2-row &.devart-timer-link-start {
+    .checklist2-row &.devart-timer-link-start,
+    .cu-task-row__container .cu-task-row__actions &.devart-timer-link-start {
         visibility: hidden !important;
     }
 
     .task-todo-item:hover &.devart-timer-link-start,
     .task-todo-item .lv-subtask__outer:hover .task-todo-item__name-text-inner &.devart-timer-link-start,
-    .checklist2-row:hover &.devart-timer-link-start {
+    .checklist2-row:hover &.devart-timer-link-start,
+    .cu-task-row__container:hover .cu-task-row__actions &.devart-timer-link-start {
         visibility: visible !important;
     }
 }
@@ -419,6 +421,28 @@
 }
 
 .devart-timer-link-notion {
+    cursor: pointer !important;
+    padding-left: 8px;
+    padding-right: 8px;
+    font-size: 14px;
+    line-height: 1.2;
+    align-items: center !important;
+    display: inline-flex;
+    border-radius: 3px;
+    vertical-align: middle;
+    height: 20px;
+    margin-top: -4px;
+
+    &:hover {
+        background: rgba(55, 53, 47, 0.08);
+    }
+
+    .devart-timer-link-icon {
+        margin-top: 2px !important;
+    }
+}
+
+.devart-timer-link-codaai {
     cursor: pointer !important;
     padding-left: 8px;
     padding-right: 8px;

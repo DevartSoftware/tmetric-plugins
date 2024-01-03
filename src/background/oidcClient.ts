@@ -44,7 +44,7 @@ class OidcClient extends AjaxClient {
             `client_id=browser_extension&grant_type=refresh_token&refresh_token=${refreshToken}&redirect_uri=${authorityUrl}extension/callback.html`);
     }
 
-    private getStorageValue(key: string): Promise<string> {
+    private getStorageValue(key: string): Promise<string | null> {
         return new Promise<string>((resolve) => {
             chrome.storage.local.get([key], function (result) {
                 resolve(result[key]);
@@ -52,7 +52,7 @@ class OidcClient extends AjaxClient {
         });
     }
 
-    private setStorageValue(key: string, value: string) {
+    private setStorageValue(key: string, value: string | null) {
         return new Promise((resolve) => {
             const obj = {};
             obj[key] = value;

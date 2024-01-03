@@ -19,7 +19,7 @@ class Notion implements WebToolIntegration {
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
         let issueId, issueName, issueUrl: string;
 
-        const titleEl = $$('.notion-page-block > div.notranslate', issueElement);
+        const titleEl = $$('.notion-page-block > h1.notranslate', issueElement);
         if (titleEl) {
             issueName = titleEl.textContent || titleEl.getAttribute('placeholder');
             const idAttr = titleEl.parentElement.getAttribute('data-block-id');

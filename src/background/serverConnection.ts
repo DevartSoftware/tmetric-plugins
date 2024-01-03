@@ -2,7 +2,7 @@ class ServerConnection<TClient extends AjaxClient = AjaxClient> {
 
     private readonly _serviceUrl: Promise<string>;
 
-    private _accountToPost: number;
+    private _accountToPost: number | null = null;
 
     protected userProfile: Models.UserProfile;
 
@@ -73,8 +73,8 @@ class ServerConnection<TClient extends AjaxClient = AjaxClient> {
 
         // Reset service url to post issue without external link (TE-540)
         if (!timer.issueUrl) {
-            timer.serviceType = null
-            timer.serviceUrl = null;
+            timer.serviceType = undefined
+            timer.serviceUrl = undefined;
         }
 
         return this.connect().then(profile => {
@@ -111,7 +111,7 @@ class ServerConnection<TClient extends AjaxClient = AjaxClient> {
                 identifier));
     }
 
-    setAccountToPost(accountId: number) {
+    setAccountToPost(accountId: number | null) {
         return new Promise<void>(callback => {
             this._accountToPost = accountId;
             callback();

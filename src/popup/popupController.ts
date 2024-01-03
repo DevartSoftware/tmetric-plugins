@@ -70,6 +70,7 @@ class PopupController {
         });
     }
 
+    /** @virtual */
     close() {
         window.close();
     }

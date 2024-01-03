@@ -92,8 +92,8 @@ if (typeof chrome === 'object' && !chrome.contentScripts) {
             }
 
             return Promise.all([
-                ...(options.css || []).map(({ file }: FileOrCode) => !injectedScripts[file] && injectCss(tabId, frameId, file)),
-                ...(options.js || []).map(({ file }: FileOrCode) => !injectedScripts[file] && injectJs(tabId, frameId, file))
+                ...(options.css || []).map(({ file }: FileOrCode) => !injectedScripts[file!] && injectCss(tabId, frameId, file)),
+                ...(options.js || []).map(({ file }: FileOrCode) => !injectedScripts[file!] && injectJs(tabId, frameId, file))
             ]);
         }));
     }
@@ -135,13 +135,13 @@ if (typeof chrome === 'object' && !chrome.contentScripts) {
         chrome.runtime.onMessage.addListener((message: ITabMessage, sender, senderResponse) => {
 
             //console.log(message, sender)
-
-            if (!sender.tab) {
+            const senderTabId = sender.tab?.id;
+            if (senderTabId == null) {
                 return;
             }
 
             if (message.action == 'checkContentScripts') {
-                checkFrame(sender.tab.id, sender.frameId, sender.url);
+                checkFrame(senderTabId, sender.frameId!, sender.url!);
                 senderResponse(null);
             }
         });

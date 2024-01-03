@@ -14,9 +14,10 @@ class Asana implements WebToolIntegration {
         if (issueElement.matches(this.issueElementSelector[0])) {
             const linkContainer = $$.create('div', 'devart-timer-link-asana');
             linkContainer.appendChild(linkElement);
-            const toolbar = $$('.TaskPaneToolbar', issueElement);
+            const toolbar = $$('.TaskPaneToolbar', issueElement) as HTMLElement;
             if (toolbar) {
-                toolbar.insertBefore(linkContainer, $$('.TaskPaneToolbar-button', toolbar));
+                const elementToAdd = $$('.TaskPaneToolbar-button', toolbar) as HTMLElement;
+                elementToAdd.parentElement.insertBefore(linkContainer, elementToAdd);
             }
         }
 
@@ -42,7 +43,7 @@ class Asana implements WebToolIntegration {
             return;
         }
 
-        let issueName = ($$.try('.ObjectTitleInput  .simpleTextarea', rootTaskPane) as HTMLTextAreaElement).value;
+        let issueName = ($$.try('.TitleInput .simpleTextarea', rootTaskPane) as HTMLTextAreaElement).value;
         let id = getChildQueryParam(source.fullUrl);
         let issuePath = source.path;
 
@@ -79,7 +80,7 @@ class Asana implements WebToolIntegration {
         // widget from home page
         // https://app.asana.com/0/home/70718296417223/1202781903310811
         if (!id) {
-            const match = /^\/\w+(?:\/search|\/home)?\/\d+\/(\d+)/.exec(issuePath);
+            const match = /^\/\w+(?:\/search|\/home|\/inbox)?\/\d+\/(\d+)/.exec(issuePath);
             if (match) {
                 id = match[1];
             }
@@ -94,6 +95,7 @@ class Asana implements WebToolIntegration {
         }
 
         const projectName =
+            $$.try('.TaskProjectTokenPill-name').textContent || // task project name for latest Asana
             $$.try('.TaskProjectToken-projectName').textContent || // task project token
             $$.try('.TaskProjectPill-projectName, .TaskProjectToken-potTokenizerPill').textContent || // task project pill
             $$.try('.TaskAncestry-ancestorProject').textContent; // subtask project

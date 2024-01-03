@@ -7,9 +7,9 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
 
     private _buttonState = ButtonState.start;
 
-    private _loginTabId: number;
+    private _loginTabId: number | undefined;
 
-    private _loginWinId: number;
+    private _loginWinId: number | undefined;
 
     private _loginWindowPending: boolean;
 
@@ -17,7 +17,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
 
     private _timeEntries: Models.TimeEntry[];
 
-    private _actionOnConnect: () => void;
+    private _actionOnConnect: () => void | undefined;
 
     private static async getUrl(key: string) {
         let url = await storage.getItem(key);
@@ -85,7 +85,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
             if (timer) {
                 const action = this._actionOnConnect;
                 if (action) {
-                    this._actionOnConnect = null;
+                    this._actionOnConnect = undefined;
                     action();
                 }
             }
@@ -142,7 +142,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
         const type = 'basic';
         const iconUrl = 'images/icon80.png';
         chrome.notifications.create(
-            null,
+            '',
             { title, message, type, iconUrl },
             id => this._lastNotificationId = id);
     }
@@ -189,7 +189,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
 
         const onFail = (status: AjaxStatus | string, showDialog: boolean) => {
 
-            this._actionOnConnect = null;
+            this._actionOnConnect = undefined;
 
             if (status == invalidProfileError && showDialog) {
                 this._constants.then(constants => chrome.tabs.create({ url: constants.serviceUrl }));
@@ -255,7 +255,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
         }
 
         chrome.tabs.query({}, tabs => tabs && tabs.forEach(tab => {
-            if (tab.url && tab.url.startsWith('http')) {
+            if (tab.id != null && tab.url && tab.url.startsWith('http')) {
                 chrome.tabs.sendMessage(tab.id, message, () => {
 
                     // Ignore errors in broadcast messages
@@ -275,7 +275,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
     }
 
     protected getActiveTabId() {
-        return new Promise<number>((resolve) => {
+        return new Promise<number | null>((resolve) => {
             chrome.tabs.query({ currentWindow: true, active: true },
                 function (tabs) {
                     const activeTab = tabs && tabs[0];
@@ -323,7 +323,11 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
                 const pageTabs = tabs && tabs.filter(tab => tab.url == url);
                 if (pageTabs && pageTabs.length) {
 
-                    let anyWindowTab: chrome.tabs.Tab, anyWindowActiveTab: chrome.tabs.Tab, currentWindowTab: chrome.tabs.Tab, currentWindowActiveTab: chrome.tabs.Tab;
+                    let
+                        anyWindowTab,
+                        anyWindowActiveTab,
+                        currentWindowTab,
+                        currentWindowActiveTab: chrome.tabs.Tab | undefined;
                     for (let index = 0, size = pageTabs.length; index < size; index += 1) {
                         anyWindowTab = pageTabs[index];
                         if (anyWindowTab.active) {
@@ -414,7 +418,9 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
 
             // Tab page requests
             const tabId = sender.tab.id;
-            this.onTabMessage(message, tabId);
+            if (tabId != null) {
+                this.onTabMessage(message, tabId);
+            }
 
             senderResponse(null);
         });
@@ -436,7 +442,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
     protected override async initializePopupAction(params: IPopupParams) {
 
         // Forget about old action when user open popup again
-        this._actionOnConnect = null;
+        this._actionOnConnect = undefined;
         if (!this.timer && this._connection.canRetryConnection) {
             await this._connection.retryConnection(true);
         }
@@ -463,7 +469,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
                 break;
 
             case 'putTimer':
-                this.putExternalTimer(message.data, null, tabId);
+                this.putExternalTimer(message.data, undefined, tabId);
                 break;
 
             case 'getIssuesDurations':
@@ -667,12 +673,12 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
 
         const tab = await chrome.tabs.create({ url } as chrome.tabs.CreateProperties);
         this._loginWinId = tab.windowId;
-        this._loginTabId = tab.id;
+        this._loginTabId = tab.id!;
         this._loginWindowPending = false;
     }
 
     private getActiveTabUrl() {
-        return new Promise<string>((resolve) => {
+        return new Promise<string | null>((resolve) => {
             chrome.tabs.query({ currentWindow: true, active: true },
                 function (tabs) {
                     const activeTab = tabs && tabs[0];
@@ -699,7 +705,9 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
         chrome.storage.onChanged.addListener(async (changes) => {
             const authorizationCode = changes['authorization_code'];
             if (authorizationCode && authorizationCode.newValue) {
-                chrome.tabs.remove(this._loginTabId);
+                if (this._loginTabId != null) {
+                    chrome.tabs.remove(this._loginTabId);
+                }
                 if (await this._connection.ajaxClient.authorize()) {
                     this.reconnect(false);
                 }
@@ -710,8 +718,8 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
     private registerTabsRemoveListener() {
         chrome.tabs.onRemoved.addListener((tabId) => {
             if (tabId == this._loginTabId) {
-                this._loginTabId = null;
-                this._loginWinId = null;
+                this._loginTabId = undefined;
+                this._loginWinId = undefined;
             }
         });
     }

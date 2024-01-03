@@ -2,7 +2,7 @@ class WebToolManager {
 
     private static urlRe = /^([^:]+:\/\/)?([^:/?#]+)(:\d+)?(\/[^?#]*)?(\?[^?#]*)?(\#[^?#]*)?$/i;
 
-    static toOrigin (input: string) {
+    static toOrigin(input: string | null | undefined) {
 
         if (!input) {
             return;
@@ -68,10 +68,10 @@ class WebToolManager {
         return new RegExp(pattern, 'i');
     }
 
-    static isMatch(url: string, origin: string) {
+    static isMatch(url: string | null | undefined, origin: string) {
         const urlOrigin = this.toOrigin(url);
         const originRegExp = this.toUrlRegExp(origin);
-        return originRegExp.test(urlOrigin);
+        return originRegExp.test(urlOrigin!);
     }
 
     static toServiceTypesMap(webTools: WebTool[]) {
@@ -151,7 +151,9 @@ class WebToolManager {
             (map, url) => {
                 const serviceType = serviceTypesMap[url];
                 const origin = WebToolManager.toOrigin(url);
-                map[origin] = (map[origin] || []).concat(serviceType);
+                if (origin) {
+                    map[origin] = (map[origin] || []).concat(serviceType);
+                }
                 return map;
             },
             {} as { [origin: string]: string[] }

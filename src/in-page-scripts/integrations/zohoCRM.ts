@@ -87,17 +87,24 @@ class ZohoDesk implements WebToolIntegration {
     showIssueId = true;
 
     issueElementSelector = [
-        '.ticket-DVPanel',
-        '.zd-ticketdetailview-container'
+        '.ticket-DVPanel', // before 2022
+        '.zd-ticketdetailview-container', // 2022
+        '.zd_v2-ticketdetailview-container' // 2023
     ];
+
+    private getCssPrefix(issueElement: HTMLElement) {
+        const isV2 = issueElement.matches(this.issueElementSelector[2]);
+        return isV2 ? '.zd_v2-' : '.zd-';
+    }
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
         if (issueElement.matches(this.issueElementSelector[0])) { // Old version
             const panel = $$('#caseSubject', issueElement).parentElement.parentElement;
             panel?.insertBefore(linkElement, $$('.clboth', panel));
-        } else if (issueElement.matches(this.issueElementSelector[1])) { // New version (2022)
-            const panel = $$('.zd-secondrypanel-listItemContainer', issueElement);
+        } else { // New version (2022+)
+            const prefix = this.getCssPrefix(issueElement);
+            const panel = $$(prefix + 'secondrypanel-listItemContainer', issueElement);
             linkElement.style.marginLeft = '10px';
             panel?.appendChild(linkElement);
         }
@@ -128,19 +135,18 @@ class ZohoDesk implements WebToolIntegration {
             const tagNames = $$.all('.tagBody a', issueElement).map(_ => _.textContent);
 
             return { serviceType, serviceUrl, issueUrl, issueId, issueName, tagNames, projectName };
-        }
-
-        if (issueElement.matches(this.issueElementSelector[1])) { // New version (2022)
-            const issueId = $$.try('.zd-ticketidwrapper-ticketId', issueElement).textContent;
-            const issueName = $$.try('.zd-dvsubjectsection-subject', issueElement).textContent;
+        } else { // New version (2022+)
+            const prefix = this.getCssPrefix(issueElement);
+            const issueId = $$.try(prefix + 'ticketidwrapper-ticketId', issueElement).textContent;
+            const issueName = $$.try(prefix + 'dvsubjectsection-subject', issueElement).textContent;
 
             // https://desk.zoho.eu/agent/mycompany/mydepartment/tickets/details/80000000001234567
             const match = source.fullUrl.match(/(.+:\/\/.+\/agent\/[^\/]+)(\/.+\/tickets\/details\/\d+)/);
             const serviceUrl = match?.[1];
             const issueUrl = match?.[2];
-            const projectName = $$.try('.zd-departmentpopup-departmentPopup').textContent;
+            const projectName = $$.try(prefix + 'departmentpopup-departmentPopup').textContent;
 
-            const tagNames = $$.all('div[data-id="reqproperties"] .zd-tag-text').map(_ => _.textContent);
+            const tagNames = $$.all(`div[data-id="reqproperties"] ${prefix}tag-text`).map(_ => _.textContent);
 
             return { serviceType, serviceUrl, issueUrl, issueId, issueName, tagNames, projectName };
         }

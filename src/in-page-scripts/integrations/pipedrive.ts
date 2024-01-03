@@ -5,7 +5,7 @@ class Pipedrive implements WebToolIntegration {
     matchUrl = /.*:\/\/.*.pipedrive.com(\/deal\/(\d+))/;
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        let host = $$.visible('.dealDetails .actionsContent .stateActions');
+        let host = document.querySelector('[data-testid="followersButton"]'); 
         if (host) {
             let container = $$.create('span');
             container.classList.add('content', 'relatedItems');
@@ -16,7 +16,7 @@ class Pipedrive implements WebToolIntegration {
 
             container.appendChild(span);
 
-            host.insertBefore(container, host.firstElementChild);
+            host.parentElement.insertBefore(container, host.parentElement.firstElementChild);
         }
     }
 
@@ -24,7 +24,9 @@ class Pipedrive implements WebToolIntegration {
         let matches = source.fullUrl.match(this.matchUrl);
         let issueId = matches[2];
         let issueName: string;
-        let title = $$.visible('.dealDetails .descriptionHead .title');
+        
+        let titleElement = document.querySelector('[data-testid="header-title"]');
+        var title = $$.try('textarea', titleElement);
         if (title) {
             issueName = title.textContent;
         }

@@ -67,16 +67,17 @@ class YouTrackLite implements WebToolIntegration {
     issueElementSelector = '[class^=ticketContent__]';
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        const host = $$('[class^=toolbar__]', issueElement);
+        const host = $$('span[data-test="updater-info"]', issueElement);
         if (host) {
-            linkElement.classList.add('devart-timer-link-youtrack');
-            host.insertBefore(linkElement, $$('[class^=visibilityPicker__]', host));
+            linkElement.classList.add('devart-timer-link-youtrack-lite');
+            host.parentElement.appendChild(linkElement);
         }
     }
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        const issueName = $$.try('summary h1', issueElement).textContent;
+        const issueName1 = $$.try('h1[data-test="ticket-summary"]', issueElement);
+        const issueName = issueName1.textContent;
 
         if (!issueName) {
             return;
@@ -92,8 +93,8 @@ class YouTrackLite implements WebToolIntegration {
 
         const issueUrl = linkElement && $$.getRelativeUrl(serviceUrl, linkElement.getAttribute('href'));
 
-        const projectField = $$.try('img[src*=\\/api\\/rest\\/projects\\/][src*=\\/icon]', issueElement).parentElement;
-        const projectName = projectField ? $$.try('button', projectField).textContent : null;
+        const projectField = $$.try('div[aria-label^="Project: "]', issueElement).textContent;
+        const projectName = projectField ? projectField.substring('Project'.length)  : null;
 
         const tagNames = $$.all('[class^=tags_] a', issueElement).map(_ => _.textContent);
 

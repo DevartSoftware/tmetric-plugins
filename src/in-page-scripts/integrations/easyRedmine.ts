@@ -6,7 +6,7 @@ class EasyRedmine implements WebToolIntegration {
 
     matchUrl = /(.*)\/(issues|easy_crm_cases|test_cases)\/(\d+)/;
 
-    match(source: Source): boolean {
+    match() {
         return $$.getAttribute('meta[name=application-name]', 'content') == 'Easy Redmine';
     }
 

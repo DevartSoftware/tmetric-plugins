@@ -7,9 +7,11 @@ class GitLab implements WebToolIntegration {
         '*://*/merge_requests/*'
     ];
 
-    match(source: Source): boolean {
-        return !!$$('.detail-page-description .title');
+    match() {
+        return !!$$(this.titleSelector);
     }
+
+    titleSelector = '.detail-page-description .title, .merge-request .detail-page-header .title';
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
@@ -20,8 +22,16 @@ class GitLab implements WebToolIntegration {
             return;
         }
 
+        // Merge request
+        const actionsGroup = $$.visible('.js-issuable-actions');
+        if (actionsGroup) {
+            linkElement.style.marginRight = '8px';
+            actionsGroup.insertBefore(linkElement, actionsGroup.firstChild);
+            return;
+        }
+
         // New design
-        const issueButton = $$.visible('.js-issuable-actions', header);
+        const issueButton = $$.visible('.js-issuable-edit', header);
         if (issueButton) {
             linkElement.classList.add('btn-grouped');
             issueButton.parentElement.insertBefore(linkElement, issueButton);
@@ -45,7 +55,6 @@ class GitLab implements WebToolIntegration {
         // https://gitlab.com/NAMESPACE/PROJECT/issues/incident/NUMBER
         // https://gitlab.com/NAMESPACE/PROJECT/merge_requests/NUMBER
         const match = /^(.+)\/(issues|issues\/incident|merge_requests)\/(\d+)$/.exec(source.path);
-
         if (!match) {
             return;
         }
@@ -59,22 +68,15 @@ class GitLab implements WebToolIntegration {
         const issueType = match[2];
         issueId = (issueType == 'merge_requests' ? '!' : '#') + issueId;
 
-        const issueNameElement = $$.try('.detail-page-description .title');
+        const issueNameElement = $$.try(this.titleSelector);
         const issueName = issueNameElement.firstChild ? issueNameElement.firstChild.textContent : issueNameElement.textContent;
         if (!issueName) {
             return;
         }
 
-        const projectNameNode = $$.findNode('.title .project-item-select-holder', Node.TEXT_NODE);
-
-        const projectName = projectNameNode ?
-            projectNameNode.textContent : // New design (both new and old navigation)
-            ($$.try('.context-header .sidebar-context-title').textContent // Newest design
-                || $$.try('.title > span > a:nth-last-child(2)').textContent); // Old design
-
         const serviceType = 'GitLab';
 
-        let serviceUrl = ($$('a#logo') as HTMLAnchorElement).href;
+        let serviceUrl = $$<HTMLAnchorElement>('a#logo, a.tanuki-logo-container')?.href;
         if (!serviceUrl || !source.fullUrl.startsWith(serviceUrl)) {
             serviceUrl = source.protocol + source.host;
         }
@@ -83,6 +85,13 @@ class GitLab implements WebToolIntegration {
         if (issueType == 'issues/incident') {
             issueUrl = issueUrl.replace('/incident', '');
         }
+
+        const projectNameNode = $$.findNode('.title .project-item-select-holder', Node.TEXT_NODE);
+        const projectName =
+            projectNameNode?.textContent || // New design (both new and old navigation)
+            $$.try('.context-header .sidebar-context-title').textContent || // Newest design
+            $$.try('.title > span > a:nth-last-child(2)').textContent || // Old design
+            GitLab.getProjectFromBreadcrumbs(serviceUrl, issueUrl);
 
         let tagNames = $$.all('.issuable-show-labels .gl-label[data-qa-label-name]').map(el => el.getAttribute('data-qa-label-name'));
         if (!tagNames.length) {
@@ -97,6 +106,13 @@ class GitLab implements WebToolIntegration {
         }
 
         return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
+    }
+
+    static getProjectFromBreadcrumbs(serviceUrl: string, issueUrl: string) {
+        if (issueUrl?.indexOf('/-/') >= 0) {
+            const projectUrl = serviceUrl.replace(/\/$/, '') + issueUrl.substring(0, issueUrl.indexOf('/-/'));
+            return $$<HTMLAnchorElement>('.breadcrumbs-list a', null, a => a.href == projectUrl)?.innerText;
+        }
     }
 }
 
@@ -141,10 +157,9 @@ class GitLabSidebar implements WebToolIntegration {
 
         // Joining selectors from old and new sidebar with comma is problematic because layout with new sidebar contain also empty old sidebar.
         const issueName = $$.try(isOldSidebar ? '.issuable-header-text > strong' : 'header > span', issueElement).textContent;
-        const projectName = $$.try('.sidebar-context-title').textContent;
         const serviceType = 'GitLab';
 
-        let serviceUrl = ($$('a#logo') as HTMLAnchorElement).href;
+        let serviceUrl = $$<HTMLAnchorElement>('a#logo, a.tanuki-logo-container')?.href;
         if (!serviceUrl || !source.fullUrl.startsWith(serviceUrl)) {
             serviceUrl = source.protocol + source.host;
         }
@@ -178,6 +193,10 @@ class GitLabSidebar implements WebToolIntegration {
                 issueId = '#' + issueId;
             }
         }
+
+        const projectName =
+            $$('.sidebar-context-title')?.textContent ||
+            GitLab.getProjectFromBreadcrumbs(serviceUrl, issueUrl);
 
         let tagNames = $$.all('.gl-label-text', issueElement).map(label => {
             const labelScoped = $$.next('.gl-label-text-scoped', label);

@@ -41,20 +41,6 @@ const getWebToolDescriptions = function () {
             }
         },
         {
-            serviceType: 'TFS',
-            serviceName: 'Azure DevOps',
-            keywords: 'microsoft tfs visual studio team foundation server',
-            icon: 'azuredevops.svg',
-            origins: [
-                'https://*.visualstudio.com/*',
-                'https://dev.azure.com/*'
-            ],
-            hasAdditionalOrigins: true,
-            scripts: {
-                js: ['in-page-scripts/integrations/tfs.js']
-            }
-        },
-        {
             serviceType: 'Bitbucket',
             serviceName: 'Bitbucket',
             icon: 'bitbucket.svg',
@@ -114,6 +100,16 @@ const getWebToolDescriptions = function () {
             }
         },
         {
+            serviceType: 'CodaAI',
+            serviceName: 'Coda AI',
+            icon: 'codaai.svg',
+            origins: ['https://coda.io/*'],
+            scripts: {
+                js: ['in-page-scripts/integrations/codaai.js'],
+                allFrames: true
+            }
+        },
+        {
             serviceType: 'Dixa',
             serviceName: 'Dixa',
             icon: 'dixa.svg',
@@ -129,6 +125,15 @@ const getWebToolDescriptions = function () {
             origins: ['https://i.doit.im/*'],
             scripts: {
                 js: ['in-page-scripts/integrations/doitIm.js']
+            }
+        },
+        {
+            serviceType: 'Evernote',
+            serviceName: 'Evernote',
+            icon: 'evernote.svg',
+            origins: ['https://www.evernote.com/*'],
+            scripts: {
+                js: ['in-page-scripts/integrations/evernote.js']
             }
         },
         {
@@ -173,6 +178,16 @@ const getWebToolDescriptions = function () {
             }
         },
         {
+            serviceType: 'Gmail',
+            serviceName: 'Gmail',
+            keywords: 'google email',
+            icon: 'gmail.svg',
+            origins: ['https://mail.google.com/*'],
+            scripts: {
+                js: ['in-page-scripts/integrations/google-mail.js']
+            }
+        },
+        {
             serviceType: 'GoogleCalendar',
             serviceName: 'Google Calendar',
             icon: 'gcalendar.svg',
@@ -200,13 +215,24 @@ const getWebToolDescriptions = function () {
             }
         },
         {
-            serviceType: 'Gmail',
-            serviceName: 'Gmail',
-            keywords: 'google email',
-            icon: 'gmail.svg',
-            origins: ['https://mail.google.com/*'],
+            serviceType: 'HubSpot',
+            serviceName: 'HubSpot',
+            icon: 'hubspot.svg',
+            origins: [
+                'https://app.hubspot.com/*',
+                'https://app-eu1.hubspot.com/*'
+            ],
             scripts: {
-                js: ['in-page-scripts/integrations/google-mail.js']
+                js: ['in-page-scripts/integrations/hubspot.js']
+            }
+        },
+        {
+            serviceType: 'Insightly',
+            serviceName: 'Insightly',
+            icon: 'insightly.svg',
+            origins: ['https://*.insightly.com/*'],
+            scripts: {
+                js: ['in-page-scripts/integrations/insightly.js']
             }
         },
         {
@@ -231,6 +257,15 @@ const getWebToolDescriptions = function () {
             hasAdditionalOrigins: true,
             scripts: {
                 js: ['in-page-scripts/integrations/kayako.js']
+            }
+        },
+        {
+            serviceType: 'Kissflow',
+            serviceName: 'Kissflow',
+            icon: 'kissflow.svg',
+            origins: ['https://*.kissflow.com/*'],
+            scripts: {
+                js: ['in-page-scripts/integrations/kissflow.js']
             }
         },
         {
@@ -277,6 +312,59 @@ const getWebToolDescriptions = function () {
             ],
             scripts: {
                 js: ['in-page-scripts/integrations/microsoft-outlook-online.js']
+            }
+        },
+        {
+            serviceType: 'MicrosoftToDo',
+            serviceName: 'Microsoft To Do',
+            keywords: 'todo',
+            icon: 'mstodo.svg',
+            origins: [
+                'https://to-do.live.com/*',
+                'https://to-do.office.com/*'
+            ],
+            scripts: {
+                js: ['in-page-scripts/integrations/microsoft-todo.js']
+            }
+        },
+        {
+            serviceType: 'Monday',
+            serviceName: 'Monday',
+            icon: 'monday.svg',
+            origins: ['https://*.monday.com/*'],
+            scripts: {
+                js: ['in-page-scripts/integrations/monday.js']
+            }
+        },
+        {
+            serviceType: 'Nifty',
+            serviceName: 'Nifty',
+            icon: 'nifty.svg',
+            origins: ['https://*.nifty.pm/*'],
+            scripts: {
+                js: ['in-page-scripts/integrations/nifty.js']
+            }
+        },
+        {
+            serviceType: 'NinjaOneRmm',
+            serviceName: 'NinjaOne RMM',
+            icon: 'ninjaOneRmm.svg',
+            origins: [
+                'https://*.ninjarmm.com/*',
+                'https://*.rmmservice.eu/*'
+            ],
+            hasAdditionalOrigins: true,
+            scripts: {
+                js: ['in-page-scripts/integrations/ninjaOneRmm.js']
+            }
+        },
+        {
+            serviceType: 'Notion',
+            serviceName: 'Notion',
+            icon: 'notion.svg',
+            origins: ['https://www.notion.so/*'],
+            scripts: {
+                js: ['in-page-scripts/integrations/notion.js']
             }
         },
         {
@@ -351,6 +439,15 @@ const getWebToolDescriptions = function () {
             }
         },
         {
+            serviceType: 'Slack',
+            serviceName: 'Slack',
+            icon: 'slack.svg',
+            origins: ['https://app.slack.com/*'],
+            scripts: {
+                js: ['in-page-scripts/integrations/slack.js']
+            }
+        },
+        {
             serviceType: 'Sprintly',
             serviceName: 'Sprintly',
             icon: 'sprintly.svg',
@@ -358,6 +455,20 @@ const getWebToolDescriptions = function () {
             origins: ['https://sprint.ly/*'],
             scripts: {
                 js: ['in-page-scripts/integrations/sprintly.js']
+            }
+        },
+        {
+            serviceType: 'TFS',
+            serviceName: 'Azure DevOps',
+            keywords: 'microsoft tfs visual studio team foundation server',
+            icon: 'azuredevops.svg',
+            origins: [
+                'https://*.visualstudio.com/*',
+                'https://dev.azure.com/*'
+            ],
+            hasAdditionalOrigins: true,
+            scripts: {
+                js: ['in-page-scripts/integrations/tfs.js']
             }
         },
         {
@@ -406,10 +517,25 @@ const getWebToolDescriptions = function () {
             }
         },
         {
+            serviceType: 'TickTick',
+            serviceName: 'TickTick',
+            icon: 'ticktick.svg',
+            origins: [
+                'https://ticktick.com/*',
+                'https://www.ticktick.com/*'
+            ],
+            scripts: {
+                js: ['in-page-scripts/integrations/ticktick.js']
+            }
+        },
+        {
             serviceType: 'Todoist',
             serviceName: 'Todoist',
             icon: 'todoist.svg',
-            origins: ['https://todoist.com/*'],
+            origins: [
+                'https://todoist.com/*',
+                'https://*.todoist.com/*'
+            ],
             scripts: {
                 js: ['in-page-scripts/integrations/todoist.js']
             }
@@ -444,16 +570,6 @@ const getWebToolDescriptions = function () {
             }
         },
         {
-            serviceType: 'Userecho',
-            serviceName: 'UserEcho',
-            icon: 'userecho.svg',
-            origins: ['https://*.userecho.com/*'],
-            hasAdditionalOrigins: true,
-            scripts: {
-                js: ['in-page-scripts/integrations/userecho.js']
-            }
-        },
-        {
             serviceType: 'UserVoice',
             serviceName: 'UserVoice',
             icon: 'uservoice.svg',
@@ -461,6 +577,16 @@ const getWebToolDescriptions = function () {
             hasAdditionalOrigins: true,
             scripts: {
                 js: ['in-page-scripts/integrations/uservoice.js']
+            }
+        },
+        {
+            serviceType: 'Userecho',
+            serviceName: 'UserEcho',
+            icon: 'userecho.svg',
+            origins: ['https://*.userecho.com/*'],
+            hasAdditionalOrigins: true,
+            scripts: {
+                js: ['in-page-scripts/integrations/userecho.js']
             }
         },
         {
@@ -493,6 +619,15 @@ const getWebToolDescriptions = function () {
             }
         },
         {
+            serviceType: 'ZenHub',
+            serviceName: 'ZenHub',
+            icon: 'zenhub.svg',
+            origins: ['https://app.zenhub.com/*'],
+            scripts: {
+                js: ['in-page-scripts/integrations/zenhub.js']
+            }
+        },
+        {
             serviceType: 'Zendesk',
             serviceName: 'Zendesk',
             icon: 'zendesk.svg',
@@ -515,103 +650,6 @@ const getWebToolDescriptions = function () {
             scripts: {
                 js: ['in-page-scripts/integrations/zohoCRM.js'],
                 allFrames: true
-            }
-        },
-        {
-            serviceType: 'Evernote',
-            serviceName: 'Evernote',
-            icon: 'evernote.svg',
-            origins: ['https://www.evernote.com/*'],
-            scripts: {
-                js: ['in-page-scripts/integrations/evernote.js']
-            }
-        },
-        {
-            serviceType: 'Monday',
-            serviceName: 'Monday',
-            icon: 'monday.svg',
-            origins: ['https://*.monday.com/*'],
-            scripts: {
-                js: ['in-page-scripts/integrations/monday.js']
-            }
-        },
-        {
-            serviceType: 'MicrosoftToDo',
-            serviceName: 'Microsoft To Do',
-            keywords: 'todo',
-            icon: 'mstodo.svg',
-            origins: [
-                'https://to-do.live.com/*',
-                'https://to-do.office.com/*'
-            ],
-            scripts: {
-                js: ['in-page-scripts/integrations/microsoft-todo.js']
-            }
-        },
-        {
-            serviceType: 'HubSpot',
-            serviceName: 'HubSpot',
-            icon: 'hubspot.svg',
-            origins: [
-                'https://app.hubspot.com/*',
-                'https://app-eu1.hubspot.com/*'
-            ],
-            scripts: {
-                js: ['in-page-scripts/integrations/hubspot.js']
-            }
-        },
-        {
-            serviceType: 'Insightly',
-            serviceName: 'Insightly',
-            icon: 'insightly.svg',
-            origins: ['https://*.insightly.com/*'],
-            scripts: {
-                js: ['in-page-scripts/integrations/insightly.js']
-            }
-        },
-        {
-            serviceType: 'ZenHub',
-            serviceName: 'ZenHub',
-            icon: 'zenhub.svg',
-            origins: ['https://app.zenhub.com/*'],
-            scripts: {
-                js: ['in-page-scripts/integrations/zenhub.js']
-            }
-        },
-        {
-            serviceType: 'Notion',
-            serviceName: 'Notion',
-            icon: 'notion.svg',
-            origins: ['https://www.notion.so/*'],
-            scripts: {
-                js: ['in-page-scripts/integrations/notion.js']
-            }
-        },
-        {
-            serviceType: 'Nifty',
-            serviceName: 'Nifty',
-            icon: 'nifty.svg',
-            origins: ['https://*.nifty.pm/*'],
-            scripts: {
-                js: ['in-page-scripts/integrations/nifty.js']
-            }
-        },
-        {
-            serviceType: 'Slack',
-            serviceName: 'Slack',
-            icon: 'slack.svg',
-            origins: ['https://app.slack.com/*'],
-            scripts: {
-                js: ['in-page-scripts/integrations/slack.js']
-            }
-        },
-        {
-            serviceType: 'TickTick',
-            serviceName: 'TickTick',
-            icon: 'ticktick.svg',
-            origins: ['https://ticktick.com/*'],
-            scripts: {
-                js: ['in-page-scripts/integrations/ticktick.js']
             }
         }
     ];

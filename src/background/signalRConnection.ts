@@ -18,11 +18,11 @@ class SignalRConnection extends ServerConnection<OidcClient> {
 
     private _retryTimeout: number;
 
-    private _retryTimeoutHandle: number;
+    private _retryTimeoutHandle: number | undefined;
 
     private _retryTimeStamp = new Date();
 
-    private _disconnectPromise: Promise<void>;
+    private _disconnectPromise: Promise<void> | undefined;
 
     private readonly _urls: Promise<{
         serviceUrl: string,
@@ -36,7 +36,7 @@ class SignalRConnection extends ServerConnection<OidcClient> {
 
     onRemoveExternalIssuesDurations = SimpleEvent.create<WebToolIssueIdentifier[]>();
 
-    onUpdateTimer = SimpleEvent.create<Models.TimerEx>();
+    onUpdateTimer = SimpleEvent.create<Models.TimerEx | null>();
 
     onUpdateTracker = SimpleEvent.create<Models.TimeEntry[]>();
 
@@ -196,12 +196,12 @@ class SignalRConnection extends ServerConnection<OidcClient> {
             this._retryTimeout = timeout;
             timeout *= 1 + Math.random(); // Random for uniform server load
             this._retryTimeoutHandle = setTimeout(() => {
-                this._retryTimeoutHandle = null;
+                this._retryTimeoutHandle = undefined;
                 this.retryConnection();
             }, timeout);
         } else if (this._retryTimeoutHandle) {
             clearTimeout(this._retryTimeoutHandle);
-            this._retryTimeoutHandle = null;
+            this._retryTimeoutHandle = undefined;
         }
     }
 

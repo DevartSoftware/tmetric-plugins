@@ -4,7 +4,7 @@ class Jira implements WebToolIntegration {
 
     issueLinkSelector = 'a[href^="/browse/"][target=_blank]';
 
-    match(source: Source): boolean {
+    match() {
         return $$.getAttribute('meta[name=application-name]', 'content') == 'JIRA';
     }
 
