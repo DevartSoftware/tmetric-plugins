@@ -13,7 +13,7 @@ class GitLab implements WebToolIntegration {
 
     titleSelector = '.detail-page-description .title, .merge-request .detail-page-header .title';
 
-    render(issueElement: HTMLElement, linkElement: HTMLElement) {
+    render(_issueElement: HTMLElement, linkElement: HTMLElement) {
 
         linkElement.classList.add('btn');
         linkElement.style.margin = 'auto'
@@ -34,7 +34,7 @@ class GitLab implements WebToolIntegration {
         const issueButton = $$.visible('.js-issuable-edit', header);
         if (issueButton) {
             linkElement.classList.add('btn-grouped');
-            issueButton.parentElement.insertBefore(linkElement, issueButton);
+            issueButton.parentElement!.insertBefore(linkElement, issueButton);
             return;
         }
 
@@ -49,7 +49,7 @@ class GitLab implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(_issueElement: HTMLElement, source: Source) {
 
         // https://gitlab.com/NAMESPACE/PROJECT/issues/NUMBER
         // https://gitlab.com/NAMESPACE/PROJECT/issues/incident/NUMBER
@@ -81,9 +81,9 @@ class GitLab implements WebToolIntegration {
             serviceUrl = source.protocol + source.host;
         }
 
-        let issueUrl = $$.getRelativeUrl(serviceUrl, source.fullUrl).match(/[^#]*/)[0]; // trim hash
+        let issueUrl = $$.getRelativeUrl(serviceUrl, source.fullUrl).match(/[^#]*/)?.[0]; // trim hash
         if (issueType == 'issues/incident') {
-            issueUrl = issueUrl.replace('/incident', '');
+            issueUrl = issueUrl?.replace('/incident', '');
         }
 
         const projectNameNode = $$.findNode('.title .project-item-select-holder', Node.TEXT_NODE);
@@ -105,11 +105,13 @@ class GitLab implements WebToolIntegration {
                 .map(label => label.textContent);
         }
 
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
+        return {
+            issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames
+        } as WebToolIssue;
     }
 
-    static getProjectFromBreadcrumbs(serviceUrl: string, issueUrl: string) {
-        if (issueUrl?.indexOf('/-/') >= 0) {
+    static getProjectFromBreadcrumbs(serviceUrl: string, issueUrl: string | undefined) {
+        if (issueUrl && issueUrl.indexOf('/-/')! >= 0) {
             const projectUrl = serviceUrl.replace(/\/$/, '') + issueUrl.substring(0, issueUrl.indexOf('/-/'));
             return $$<HTMLAnchorElement>('.breadcrumbs-list a', null, a => a.href == projectUrl)?.innerText;
         }
@@ -140,14 +142,14 @@ class GitLabSidebar implements WebToolIntegration {
         div.appendChild(linkElement);
 
         if (isOldSidebar) {
-            $$('.issuable-sidebar-header .issuable-header-text', issueElement).appendChild(div);
+            $$('.issuable-sidebar-header .issuable-header-text', issueElement)?.appendChild(div);
         } else {
             div.classList.add('devart-timer-link-gitlab-container');
-            $$('header', issueElement).parentElement.appendChild(div);
+            $$('header', issueElement)?.parentElement!.appendChild(div);
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
         const isOldSidebar = issueElement.matches(this.issueElementSelector[0]);
 
@@ -166,25 +168,24 @@ class GitLabSidebar implements WebToolIntegration {
 
         // #123, MyProject#123
         const issueFullId = $$.try(isOldSidebar ? '.issuable-header-text > span' : 'header ~ div', issueElement).textContent;
-        let issueUrl: string;
-        let issueId: string;
-        let projectId: string;
+        let issueUrl: string | undefined;
+        let issueId: string | undefined;
 
         const idMatch = issueFullId && issueFullId.match(/\s*(.*)#(\d+)\s*/);
         if (idMatch) {
 
-            projectId = idMatch[1];
+            const projectId = idMatch[1];
             issueId = idMatch[2];
 
             // /MyGroup1/MyProject, /groups/MyGroup1/-
-            issueUrl = $$.getRelativeUrl(serviceUrl, source.fullUrl.match(this.matchUrl)[1]);
+            issueUrl = $$.getRelativeUrl(serviceUrl, source.fullUrl.match(this.matchUrl)![1]);
             const groupIssueMatch = issueUrl.match(/\/groups\/(.+)\/-/);
             if (groupIssueMatch) {
                 if (projectId) {
                     issueUrl = `/${groupIssueMatch[1]}/${projectId}`;
                 } else {
-                    issueId = null; // Unknown group url (TE-304)
-                    issueUrl = null;
+                    issueId = undefined; // Unknown group url (TE-304)
+                    issueUrl = undefined;
                 }
             }
 
@@ -199,9 +200,11 @@ class GitLabSidebar implements WebToolIntegration {
             GitLab.getProjectFromBreadcrumbs(serviceUrl, issueUrl);
 
         let tagNames = $$.all('.gl-label-text', issueElement).map(label => {
-            const labelScoped = $$.next('.gl-label-text-scoped', label);
-            const text = label.textContent.trim() + (labelScoped ? '::' + labelScoped.textContent.trim() : '');
-            return text;
+            const scopedLabel = $$.next('.gl-label-text-scoped', label);
+            const segments = [label.textContent, scopedLabel?.textContent]
+                .map(text => text?.trim() || '')
+                .filter(text => text);
+            return segments.join('::')
         });
 
         if (!tagNames.length) {
@@ -212,10 +215,13 @@ class GitLabSidebar implements WebToolIntegration {
                 '.issuable-show-labels > a span',
             ]
                 .reduce((tags, selector) => tags.length ? tags : $$.all(selector), [] as HTMLElement[])
-                .map(label => label.textContent);
+                .map(label => label.textContent!)
+                .filter(text => text);
         }
 
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
+        return {
+            issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames
+        } as WebToolIssue;
     }
 }
 

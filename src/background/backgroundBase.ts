@@ -14,11 +14,11 @@ abstract class BackgroundBase<TConnection extends ServerConnection = ServerConne
      * @param message
      * @param title
      */
-    protected abstract showNotification(message: string, title?: string)
+    protected abstract showNotification(message: string, title?: string): void;
 
     protected readonly _connection: TConnection;
 
-    protected timer: Models.TimerEx | undefined;
+    protected timer: Models.TimerEx | null;
 
     protected newPopupIssue: WebToolIssueTimer | undefined;
 
@@ -161,11 +161,14 @@ abstract class BackgroundBase<TConnection extends ServerConnection = ServerConne
         if (!timer.isStarted) {
             timer = <WebToolIssueTimer>{ isStarted: false }
         } else {
-            const trim = (s: string) => s ? s.trim() : s;
+            const trim = (s: string | null | undefined) => s ? s.trim() : s;
             timer.issueName = trim(timer.issueName);
             timer.description = trim(timer.description);
             timer.projectName = trim(timer.projectName);
-            timer.tagNames = timer.tagNames?.map(t => trim(t));
+            if (timer.tagNames)
+            {
+                timer.tagNames = timer.tagNames.map(t => trim(t)!);
+            }
         }
 
         this.putData(timer, async timer => {
@@ -432,8 +435,8 @@ abstract class BackgroundBase<TConnection extends ServerConnection = ServerConne
         let accountId = params.accountId;
 
         // get popup default data from account where project exist
-        if (!accountId && this.newPopupAccountId) {
-            accountId = this.newPopupAccountId;
+        if (!accountId) {
+            accountId = this.newPopupAccountId || this.userProfile.activeAccountId;
         }
 
         // get default data from active account

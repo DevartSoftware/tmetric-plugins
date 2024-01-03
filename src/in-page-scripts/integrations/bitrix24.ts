@@ -4,38 +4,41 @@ class Bitrix24 implements WebToolIntegration {
 
     matchUrl = 'https://*/*/tasks*'; // url of iframe
 
-    render(issueElement: HTMLElement, linkElement: HTMLElement) {
+    render(_issueElement: HTMLElement, linkElement: HTMLElement) {
 
-        let host = $$('[data-bx-id="task-view-b-buttonset"]');
+        const host = $$('[data-bx-id="task-view-b-buttonset"]');
         if (host) {
             linkElement.classList.add('webform-small-button', 'webform-small-button-transparent')
             host.appendChild(linkElement);
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(_issueElement: HTMLElement, source: Source) {
 
-        let issueName = $$.try('#pagetitle').textContent;
+        const issueName = $$.try('#pagetitle').textContent;
 
         if (!issueName) {
             return;
         }
 
-        let issueUrl: string;
-        let issueId: string;
+        let issueUrl: string | undefined;
+        let issueId: string | undefined;
 
-        let matches = source.fullUrl.match(/(?:company|workgroups)\/.*\/task\/view\/(\d+)/);
+        const matches = source.fullUrl.match(/(?:company|workgroups)\/.*\/task\/view\/(\d+)/);
 
         if (matches) {
             issueId = matches[1];
             issueUrl = '/company/personal/user/0/tasks/task/view/' + issueId + '/';
         }
 
-        var serviceUrl = source.protocol + source.host;
+        const serviceUrl = source.protocol + source.host;
+        const serviceType = 'Bitrix24';
 
-        let projectName = $$.try('.task-detail-extra .task-group-field').textContent;
+        const projectName = $$.try('.task-detail-extra .task-group-field').textContent;
 
-        return { issueId, issueName, issueUrl, serviceUrl, projectName, serviceType: 'Bitrix24' };
+        return {
+            issueId, issueName, issueUrl, serviceUrl, projectName, serviceType
+        } as WebToolIssue;
     }
 }
 

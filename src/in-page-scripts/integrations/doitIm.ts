@@ -11,26 +11,29 @@ class DoitIm implements WebToolIntegration {
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
-        let toolbar = $$('li.task-op, li.project-op, li.goal-op', issueElement);
+        const toolbar = $$('li.task-op, li.project-op, li.goal-op', issueElement);
         if (toolbar) {
             linkElement.classList.add('btn-4');
             toolbar.insertBefore(linkElement, toolbar.firstChild);
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
-        let matches = source.fullUrl.match(this.matchUrl);
-        let serviceUrl = matches[1];
-        let issueUrl = matches[2];
-        let issueId = matches[3];
+        const matches = source.fullUrl.match(this.matchUrl)!;
+        const serviceUrl = matches[1];
+        const issueUrl = matches[2];
+        const issueId = matches[3];
 
-        let issueName = $$.try('span.title', issueElement).textContent;
-        let projectElement = $$.visible('.project, .goal', issueElement);
-        let projectName = projectElement && projectElement.textContent.replace(/^[#@]/, '');
-        let tagNames = $$.all('.tags .tag', issueElement).map(_ => _.textContent);
+        const issueName = $$.try('span.title', issueElement).textContent;
+        const projectElement = $$.visible('.project, .goal', issueElement);
+        const projectName = projectElement?.textContent?.replace(/^[#@]/, '');
+        const tagNames = $$.all('.tags .tag', issueElement).map(_ => _.textContent);
+        const serviceType = 'Doit.im';
 
-        return { issueId, issueName, issueUrl, serviceUrl, projectName, tagNames, serviceType: 'Doit.im' };
+        return {
+            issueId, issueName, issueUrl, serviceUrl, projectName, tagNames, serviceType
+        } as WebToolIssue;
     }
 }
 

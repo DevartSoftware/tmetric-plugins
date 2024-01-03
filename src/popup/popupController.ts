@@ -21,7 +21,7 @@ class PopupController {
     private _possibleWebTool: WebToolInfo;
     private _selectedTagNames: string[];
 
-    getData(accountId: number) {
+    getData(accountId: number | null) {
 
         this.switchState(this._states.loading);
 
@@ -146,7 +146,7 @@ class PopupController {
     retryAction = this.wrapBackgroundAction<void, void>('retry');
     fixTimerAction = this.wrapBackgroundAction<void, void>('fixTimer');
     putTimerAction = this.wrapBackgroundAction<IPopupTimerData, void>('putTimer');
-    saveProjectMapAction = this.wrapBackgroundAction<{ accountId: number; projectName: string; projectId: number }, void>('saveProjectMap');
+    saveProjectMapAction = this.wrapBackgroundAction<{ accountId: number; projectName: string; projectId: number | null }, void>('saveProjectMap');
     saveDescriptionMapAction = this.wrapBackgroundAction<{ taskName: string; description: string }, void>('saveDescriptionMap');
     openOptionsPage = this.wrapBackgroundAction<void, void>('openOptionsPage');
     getRecentTasksAction = this.wrapBackgroundAction<number, Models.RecentWorkTask[]>('getRecentTasks');
@@ -223,7 +223,10 @@ class PopupController {
         }
 
         const membership = profile.accountMembership;
-        const selectedAccount = membership.find(_ => _.account.accountId == accountId).account;
+        const selectedAccount = membership.find(_ => _.account.accountId == accountId)?.account;
+        if (!selectedAccount) {
+            return;
+        }
 
         const dropdown = $('#account-selector');
 
@@ -261,11 +264,11 @@ class PopupController {
         }
     }
 
-    private getTaskLinkData(task: Models.ProjectTask | WebToolIssueTimer)
+    private getTaskLinkData(task: Models.ProjectTask | WebToolIssueTimer): { url: string, text: string } | undefined;
     private getTaskLinkData(task: Models.ProjectTask & WebToolIssueTimer) {
 
         if (!task) {
-            return {};
+            return;
         }
 
         let url = '';
@@ -279,7 +282,7 @@ class PopupController {
         if (integrationUrl && relativeUrl) { // External task
             url = integrationUrl + relativeUrl;
             if (showIssueId) {
-                text = issueId;
+                text = issueId || '';
             }
         } else if (issueId) { // Internal task
             url = `${this._constants.serviceUrl}#/tasks/${this._accountId}/${issueId}`;
@@ -330,11 +333,11 @@ class PopupController {
 
         const projectTask = details.projectTask;
 
-        const { url, text } = this.getTaskLinkData(projectTask);
+        const taskLinkData = this.getTaskLinkData(projectTask);
 
-        if (url) {
+        if (taskLinkData) {
 
-            this.fillTaskLink($(this._forms.view + ' .task .id .link'), url, text);
+            this.fillTaskLink($(this._forms.view + ' .task .id .link'), taskLinkData.url, taskLinkData.text);
 
             $(this._forms.view + ' .task')
                 .attr('title', projectTask.description)
@@ -374,7 +377,7 @@ class PopupController {
         }
     }
 
-    fillCreateForm(projectId?: number) {
+    fillCreateForm(projectId: number | null) {
 
         $(this._forms.create + ' .task-recent').toggle(!this.isPagePopup);
 
@@ -385,25 +388,25 @@ class PopupController {
 
         const issue = this._newIssue;
 
-        const { url, text } = this.getTaskLinkData(issue);
+        const taskLinkData = this.getTaskLinkData(issue);
 
-        if (url) {
-            this.fillTaskLink(task.find('.link'), url, text);
+        if (taskLinkData) {
+            this.fillTaskLink(task.find('.link'), taskLinkData.url, taskLinkData.text);
 
             task.css('display', 'inline-flex');
-            task.find('.name').text(issue.issueName);
+            task.find('.name').text(issue.issueName || '');
 
             description.find('.label').text('Notes');
             description.removeClass('required');
             descriptionInput.attr('placeholder', 'Describe your activity');
-            descriptionInput.val(issue.description);
+            descriptionInput.val(issue.description || '');
         } else {
             task.css('display', 'none');
 
             description.find('.label').text('Task');
             description.toggleClass('required', !!(this._requiredFields.description && !this._requiredFields.taskLink));
             descriptionInput.attr('placeholder', 'Enter description');
-            descriptionInput.val(issue.description || issue.issueName);
+            descriptionInput.val(issue.description || issue.issueName || '');
         }
 
         this.initProjectSelector(projectId);
@@ -481,15 +484,17 @@ class PopupController {
         }
 
         const issue = <WebToolIssueTimer>{};
-        let projectId = null;
+        let projectId: number | null = null;
 
         issue.description = task.details.description;
 
         if (task.tagsIdentifiers) {
-            issue.tagNames = task.tagsIdentifiers.map(id => {
-                const tag = this.getTag(id);
-                return tag && tag.tagName;
-            }).filter(_ => !!_);
+            issue.tagNames = task.tagsIdentifiers
+                .map(id => {
+                    const tag = this.getTag(id);
+                    return tag && tag.tagName;
+                })
+                .filter(_ => !!_) as string[];
         }
 
         if (task.details) {
@@ -535,11 +540,11 @@ class PopupController {
         const hours = Math.floor(duration / HOUR);
         const minutes = Math.floor((duration - hours * HOUR) / MINUTE);
 
-        const result = [];
+        const result = [] as string[];
         if (hours) {
-            result.push(hours + ' h');
+            result.push(`${hours} h`);
         }
-        result.push(minutes + ' min');
+        result.push(`${minutes} min`);
 
         return result.join(' ');
     }
@@ -609,18 +614,17 @@ class PopupController {
         return '';
     }
 
-    getProject(id: number): Models.ProjectLite {
-        let project = null;
-        if (this._projects) {
+    getProject(id: number | null) {
+        if (this._projects && id) {
             const projects = this._projects.filter(project => project.projectId === id);
             if (projects.length) {
-                project = projects[0];
+                return projects[0];
             }
         }
-        return project;
+        return null;
     }
 
-    getClient(id: number): Models.Client {
+    getClient(id: number) {
         if (this._clients) {
             const clients = this._clients.filter(client => client.clientId === id);
             if (clients.length) {
@@ -630,7 +634,7 @@ class PopupController {
         return null;
     }
 
-    getTag(id: number): Models.Tag {
+    getTag(id: number) {
         if (this._tags) {
             const tags = this._tags.filter(tag => tag.tagId === id);
             if (tags.length) {
@@ -643,7 +647,7 @@ class PopupController {
     makeTimerTagsElement(timerTags: number[]) {
         const sortedTags = timerTags.map(id => this.getTag(id))
             .filter(tag => !!tag)
-            .sort(this.compareTags);
+            .sort(this.compareTags) as Models.Tag[];
 
         const container = $('<span>');
 
@@ -673,7 +677,7 @@ class PopupController {
         };
     }
 
-    makeTagItems(projectId: number = null) {
+    makeTagItems(projectId: number | null) {
 
         const items: IdTextTagType[] = [];
         const accountTagNames: { [name: string]: boolean } = {};
@@ -710,11 +714,11 @@ class PopupController {
         return this._newIssue.tagNames || [];
     }
 
-    initProjectSelector(defaultProjectId: number) {
+    initProjectSelector(defaultProjectId: number | null) {
 
         const query = this._forms.create + ' .project .input';
 
-        let existingProjectId: number;
+        let existingProjectId: number | undefined;
         const newProjectName = this._newIssue && this._newIssue.projectName;
 
         const items = <IdTextPair[]>[];
@@ -724,7 +728,7 @@ class PopupController {
         items.push(this.noProjectOption);
         items.push(...this._projects.map(project => {
             const projectCode = project.projectCode ? ` [${project.projectCode}]` : '';
-            const projectClient = project.clientId ? ` / ${this.getClient(project.clientId).clientName}` : '';
+            const projectClient = project.clientId ? ` / ${this.getClient(project.clientId)?.clientName}` : '';
 
             // Find project if it is specified in new issue (TE-219)
             if (newProjectName && project.projectName.toLowerCase() == newProjectName.toLowerCase()) {
@@ -737,9 +741,9 @@ class PopupController {
             if (existingProjectId) {
                 defaultProjectId = existingProjectId; // Select existing project (TE-215)
             } else if (this.isPagePopup && this._canCreateProjects && newProjectName) {
-                defaultProjectId = this.createProjectOption.id; // Select new project
+                defaultProjectId = this.createProjectOption.id as number; // Select new project
             } else {
-                defaultProjectId = this.noProjectOption.id;
+                defaultProjectId = this.noProjectOption.id as number;
             }
         }
 
@@ -831,7 +835,7 @@ class PopupController {
             }
 
             if (project.clientId) {
-                const projectClient = ' / ' + this.getClient(project.clientId).clientName;
+                const projectClient = ' / ' + this.getClient(project.clientId)?.clientName;
                 const projectClientElement = $('<span class="text-muted" />').text(projectClient);
                 projectPartsContainer.append(projectClientElement);
                 projectTitle += projectClient;
@@ -864,7 +868,7 @@ class PopupController {
         return result;
     }
 
-    private formatProjectAvatar(project: Models.ProjectLite) {
+    private formatProjectAvatar(project: Models.ProjectLite | null) {
         let avatarUrl = project && project.avatar || 'Content/Avatars/project.svg';
         avatarUrl = avatarUrl.replace(/^\//, '');
         if (!/^https?:/.test(avatarUrl)) {
@@ -876,7 +880,7 @@ class PopupController {
         return $(`<img src="${avatarUrl}" />`).addClass('project-avatar-image');
     }
 
-    initTagSelector(projectId: number = null) {
+    initTagSelector(projectId: number | null) {
 
         const query = this._forms.create + ' .tags';
 
@@ -1232,8 +1236,8 @@ class PopupController {
             if (timer.issueId && timer.description != this._newIssue.description) {
                 // Save description map
                 this.saveDescriptionMapAction({
-                    taskName: this._newIssue.issueName,
-                    description: timer.description
+                    taskName: this._newIssue.issueName || '',
+                    description: timer.description || ''
                 });
             }
         });

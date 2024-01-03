@@ -7,23 +7,26 @@ class Insightly implements WebToolIntegration {
     issueElementSelector = () => [$$('#main-container.details') || $$('#main-container.details.details-single')];
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        let toolbar = $$('.btn-toolbar.custom-buttons-toolbar', issueElement);
+        const toolbar = $$('.btn-toolbar.custom-buttons-toolbar', issueElement);
         if (toolbar) {
             linkElement.classList.add('btn');
-            toolbar.firstChild.before(linkElement);
+            toolbar.prepend(linkElement);
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
-        let issueName = $$.try('#metadata-row-viewer-TITLE', issueElement).title;
-        let issueId = $$.try('#metadata-row-viewer-TASK_ID', issueElement).title;
-        let issueUrl = issueId && `details/task/${issueId}`;
-        let projectName = $$.try('#metadata-row-viewer-PROJECT_ID', issueElement).title ||
+        const issueName = $$.try('#metadata-row-viewer-TITLE', issueElement).title;
+        const issueId = $$.try('#metadata-row-viewer-TASK_ID', issueElement).title;
+        const issueUrl = issueId && `details/task/${issueId}`;
+        const projectName = $$.try('#metadata-row-viewer-PROJECT_ID', issueElement).title ||
             $$.try('#metadata-row-viewer-OPPORTUNITY_ID', issueElement).title;
-        let serviceUrl = source.protocol + source.host;
+        const serviceUrl = source.protocol + source.host;
+        const serviceType = 'Insightly';
 
-        return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Insightly' }
+        return {
+            issueId, issueName, issueUrl, projectName, serviceUrl, serviceType
+        } as WebToolIssue
     }
 }
 

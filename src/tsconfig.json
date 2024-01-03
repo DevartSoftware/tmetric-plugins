@@ -8,6 +8,16 @@
     "noEmitOnError": true,
     "removeComments": true,
     "noImplicitOverride": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "strictBindCallApply": true,
+
+    //TODO:
+    "strictNullChecks": false,
+    //"noImplicitAny": true,
+    //"strictFunctionTypes": true,
+    //"strictPropertyInitialization": true,
+
     "typeRoots": [
       "./typings/@fake"
     ]

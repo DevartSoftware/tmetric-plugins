@@ -15,8 +15,8 @@ if (typeof document !== 'undefined') {
 
     let constants: Models.Constants;
 
-    let framesetRows: string;
-    let framesetCols: string;
+    let framesetRows: string | null;
+    let framesetCols: string | null;
 
     const showPopup = () => {
 
@@ -26,7 +26,7 @@ if (typeof document !== 'undefined') {
 
         const body = document.body;
         const isFrameSet = body.tagName == 'FRAMESET';
-        let refChild = null as Node;
+        let refChild: ChildNode | null = null;
         const frame = document.createElement(isFrameSet ? 'frame' : 'iframe') as HTMLFrameElement | HTMLIFrameElement;
         frame.id = popupId;
         frame.src = `${constants.browserSchema}://${constants.extensionUUID}/popup/popup.html?integration`;

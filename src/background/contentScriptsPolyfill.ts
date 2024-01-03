@@ -85,16 +85,24 @@ if (typeof chrome === 'object' && !chrome.contentScripts) {
 
         const isFrame = frameId > 0;
 
-        await Promise.all(options.map(options => {
+        await Promise.all(options.map(async options => {
 
             if (isFrame && !options.allFrames) {
                 return;
             }
 
-            return Promise.all([
-                ...(options.css || []).map(({ file }: FileOrCode) => !injectedScripts[file!] && injectCss(tabId, frameId, file)),
-                ...(options.js || []).map(({ file }: FileOrCode) => !injectedScripts[file!] && injectJs(tabId, frameId, file))
-            ]);
+            for (let item of options.css || []) {
+                const file = (item as FileOrCode).file;
+                if (file && !injectedScripts[file]) {
+                    await injectCss(tabId, frameId, file);
+                }
+            }
+            for (let item of options.js || []) {
+                const file = (item as FileOrCode).file;
+                if (file && !injectedScripts[file]) {
+                    await injectJs(tabId, frameId, file);
+                }
+            }
         }));
     }
 

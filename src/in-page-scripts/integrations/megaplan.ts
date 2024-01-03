@@ -4,32 +4,34 @@ class Megaplan implements WebToolIntegration {
 
     matchUrl = /(.*megaplan.*)\/(task|project|event|crm|deals)(?:.*\/Task)?\/(\d+)/
 
-    render(issueElement: HTMLElement, linkElement: HTMLElement) {
+    render(_issueElement: HTMLElement, linkElement: HTMLElement) {
 
-        let container = $$.try('Button[data-name=favorite], .favorite-icon-normal').parentElement;
+        const container = $$.try('Button[data-name=favorite], .favorite-icon-normal').parentElement;
         if (container) {
             container.insertBefore(linkElement, container.firstElementChild);
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(_issueElement: HTMLElement, source: Source) {
 
         // https://myaccount.megaplan.ru/project/1000000/card/
-        let projectName = $$.try('a.CLink', null, (_: HTMLAnchorElement) => /\/project\/\d/.test(_.href)).textContent;
+        const projectName = $$.try('a.CLink', null, (_: HTMLAnchorElement) => /\/project\/\d/.test(_.href)).textContent;
 
         // https://myaccount.megaplan.ru/task/1000004/card/
         // https://myaccount.megaplan.ru/task/filter/all/Task/1000004
-        let match = source.fullUrl.match(this.matchUrl);
-        let serviceUrl = match[1];
-        let issueType = match[2];
-        let issueNumber = match[3];
+        const match = source.fullUrl.match(this.matchUrl);
+        const serviceUrl = match?.[1];
+        const issueType = match?.[2];
+        const issueNumber = match?.[3];
 
-        let serviceType = 'Megaplan';
-        let issueName = document.title;
-        let issueUrl = `/${issueType}/${issueNumber}/card/`;
-        let issueId = '#' + issueNumber;
+        const serviceType = 'Megaplan';
+        const issueName = document.title;
+        const issueUrl = `/${issueType}/${issueNumber}/card/`;
+        const issueId = '#' + issueNumber;
 
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+        return {
+            issueId, issueName, projectName, serviceType, serviceUrl, issueUrl
+        } as WebToolIssue;
     }
 }
 

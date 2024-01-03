@@ -4,7 +4,7 @@ class Figma implements WebToolIntegration {
 
     showIssueId = false;
 
-    render(issueElement: HTMLElement, linkElement: HTMLElement) {
+    render(_issueElement: HTMLElement, linkElement: HTMLElement) {
         const toolbar = $$('[class*=toolbar_view--rightButtonGroup]');
         if (toolbar) {
             linkElement.classList.add('devart-timer-link-figma');
@@ -12,7 +12,7 @@ class Figma implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(_issueElement: HTMLElement, source: Source) {
 
         const fileName = $$.try('[class*=filename_view--title]').textContent;
         if (!fileName) {
