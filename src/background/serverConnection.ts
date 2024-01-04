@@ -73,7 +73,7 @@ class ServerConnection<TClient extends AjaxClient = AjaxClient> {
 
         // Reset service url to post issue without external link (TE-540)
         if (!timer.issueUrl) {
-            timer.serviceType = undefined
+            timer.serviceType = undefined;
             timer.serviceUrl = undefined;
         }
 

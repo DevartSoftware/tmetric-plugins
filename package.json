@@ -10,8 +10,7 @@
     "dependencies": {
         "@microsoft/signalr": "^8.0.0",
         "jquery": "^3.7.1",
-        "select2": "^4.0.13",
-        "webextension-polyfill": "^0.10.0"
+        "select2": "^4.0.13"
     },
     "devDependencies": {
         "@types/chrome": "^0.0.248",

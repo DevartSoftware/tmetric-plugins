@@ -5,13 +5,12 @@ class AjaxClient {
         return this.ajaxInternal(null, url, method, dataReq);
     }
 
-    protected ajaxInternal<TReq, TRes>(token: string, url: string, method: string, dataReq?: TReq): Promise<TRes> {
+    protected ajaxInternal<TReq, TRes>(token: string | null, url: string, method: string, dataReq?: TReq): Promise<TRes> {
 
-        const settings = {
-            headers: {}
-        } as RequestInit;
+        const headers = {} as HeadersInit;
+        const settings = { headers } as RequestInit;
         if (token) {
-            settings.headers['Authorization'] = 'Bearer ' + token;
+            headers['Authorization'] = 'Bearer ' + token;
         }
 
         const contentTypeHeader = 'Content-Type';
@@ -19,7 +18,7 @@ class AjaxClient {
 
         if (dataReq !== undefined) {
             settings.body = JSON.stringify(dataReq);
-            settings.headers[contentTypeHeader] = contentTypeJson;
+            headers[contentTypeHeader] = contentTypeJson;
         }
 
         if (method == 'GET' || method == 'POST') {
@@ -27,7 +26,7 @@ class AjaxClient {
         }
         else {
             settings.method = 'POST';
-            settings.headers['X-HTTP-Method-Override'] = method;
+            headers['X-HTTP-Method-Override'] = method;
         }
 
         return new Promise<TRes>(async (callback, reject) => {
@@ -62,12 +61,12 @@ class AjaxClient {
                 callback(json);
             } else {
                 const statusCode = res.status;
-                let responseMessage: string;
+                let responseMessage: string | undefined;
                 if (json) {
                     responseMessage = json.message || json.Message;
                 }
 
-                let statusText: string;
+                let statusText: string | undefined;
                 if (statusCode) { // HTTP/2 does not define a way to carry the reason phrase
                     statusText = AjaxClient.statusDescriptions[statusCode];
                 }

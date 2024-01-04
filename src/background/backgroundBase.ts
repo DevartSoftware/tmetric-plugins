@@ -155,7 +155,7 @@ abstract class BackgroundBase<TConnection extends ServerConnection = ServerConne
         return true;
     }
 
-    protected async putExternalTimer(timer: WebToolIssueTimer, accountId: number = null, tabId: number = null) {
+    protected async putExternalTimer(timer: WebToolIssueTimer, accountId?: number, tabId?: number) {
 
         // Stop timer without any checks (TE-339)
         if (!timer.isStarted) {
@@ -546,6 +546,7 @@ abstract class BackgroundBase<TConnection extends ServerConnection = ServerConne
     }
 
     // task name to description map
+
     private taskNameToDescriptionMap: {
         [key: string]: string;
     };
@@ -557,7 +558,7 @@ abstract class BackgroundBase<TConnection extends ServerConnection = ServerConne
             // There should be no empty values here when the API and client is working properly,
             // just in case it's better to ignore it here so that the user doesn't get strange behavior
             return; 
-        }    
+        }
         let map = await this.getDescriptionMap();
         if (description && description != taskName) {
             map = map || {};

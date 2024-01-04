@@ -17,7 +17,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
 
     private _timeEntries: Models.TimeEntry[];
 
-    private _actionOnConnect: () => void | undefined;
+    private _actionOnConnect: (() => void) | undefined;
 
     private static async getUrl(key: string) {
         let url = await storage.getItem(key);
@@ -279,7 +279,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
             chrome.tabs.query({ currentWindow: true, active: true },
                 function (tabs) {
                     const activeTab = tabs && tabs[0];
-                    const id = activeTab && activeTab.id || null;
+                    const id = activeTab?.id || null;
                     resolve(id);
                 });
         });
@@ -632,12 +632,12 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
             const constants = await this._constants;
 
             const tab = tabs.find(tab => tab.id == this._loginTabId);
-            if (tab && tab.url.startsWith(constants.authorityUrl)) {
+            if (tab?.url?.startsWith(constants.authorityUrl) && tab.id != null) {
                 chrome.tabs.update(tab.id, { active: true });
                 chrome.windows.update(this._loginWinId, { focused: true });
             } else {
-                this._loginWinId = null;
-                this._loginTabId = null;
+                this._loginWinId = undefined;
+                this._loginTabId = undefined;
                 this.showLoginDialog();
             }
 
@@ -657,13 +657,14 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
     }
 
     private setButtonIcon(icon: string, tooltip: string) {
-        chrome.action.setIcon({
+        const action = chrome.action || chrome.browserAction;
+        action.setIcon({
             path: {
                 '19': 'images/' + icon + '19.png',
                 '38': 'images/' + icon + '38.png'
             }
         });
-        chrome.action.setTitle({ title: tooltip });
+        action.setTitle({ title: tooltip });
     }
 
     private async createLoginDialog() {
@@ -682,7 +683,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
             chrome.tabs.query({ currentWindow: true, active: true },
                 function (tabs) {
                     const activeTab = tabs && tabs[0];
-                    const url = activeTab && activeTab.url || null;
+                    const url = activeTab?.url || null;
                     resolve(url);
                 });
         });

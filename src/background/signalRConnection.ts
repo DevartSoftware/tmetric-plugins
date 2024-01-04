@@ -154,22 +154,23 @@ class SignalRConnection extends ServerConnection<OidcClient> {
                     });
                 });
                 this.hub = hub;
-
-                let hubPromise = Promise.resolve();
-                if (!this._hubProxy.isConnected) {
-                    hubPromise = this.hub.start();
-                    hubPromise.catch(() => this.setRetryPending(true));
-                    hubPromise.then(() => this._hubProxy.onConnect(this.hub));
-                }
-
-                await hubPromise;
-
-                this._hubConnected = true;
-                this.setRetryPending(false);
-                console.log('connect: register');
-                await this.hub.invoke('register', profile.userProfileId);
-                return profile;
             }
+
+            let hubPromise = Promise.resolve();
+            if (!this._hubProxy.isConnected) {
+                hubPromise = this.hub.start();
+                hubPromise.catch(() => this.setRetryPending(true));
+                hubPromise.then(() => this._hubProxy.onConnect(this.hub));
+            }
+
+            await hubPromise;
+
+            this._hubConnected = true;
+            this.setRetryPending(false);
+            console.log('connect: register');
+            await this.hub.invoke('register', profile.userProfileId);
+            return profile;
+
         }
         catch (e) {
             console.log('connect: getProfile failed');
