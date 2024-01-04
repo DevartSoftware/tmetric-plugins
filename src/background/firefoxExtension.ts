@@ -1,17 +1,9 @@
 class FirefoxExtension extends ExtensionBase {
 
-    constructor(testValues: TestValues) {
-        super(testValues);
+    constructor() {
+        super('moz-extension', window.location.host);
 
         this.sendToTabs({ action: 'initPage' });
-    }
-
-    override getBrowserSchema(): string {
-        return 'moz-extension';
-    }
-
-    override getExtensionUUID() {
-        return window.location.host;
     }
 
     /**
@@ -30,4 +22,4 @@ class FirefoxExtension extends ExtensionBase {
     }
 }
 
-getTestValues().then(x => new FirefoxExtension(x));
+new FirefoxExtension()

@@ -28,15 +28,15 @@
             return;
         }
 
-        const oldMeta = getMeta(metaName);
-        if (oldMeta) {
-            head.removeChild(oldMeta);
+        let meta = getMeta(metaName);
+        if (!meta) {
+            meta = document.createElement('meta');
+            meta.name = metaName;
+            meta.content = metaValue;
+            head.appendChild(meta);
+        } else if (meta.content != metaValue) {
+            meta.content = metaValue;
         }
-
-        const meta = document.createElement('meta');
-        meta.name = metaName;
-        meta.content = metaValue;
-        head.appendChild(meta);
     }
 
     let appMeta = getMeta('application');
@@ -59,4 +59,7 @@
     });
 
     sendBackgroundMessage({ action: 'getConstants' });
+
+    // TODO: manifest v3
+    // setInterval(() => sendBackgroundMessage({ action: 'getConstants' }), 25000);
 })();

@@ -63,9 +63,10 @@ console.log(JSON.stringify(config, null, 2));
 
 var files = {
     common: [
-        'src/background/storage.js',    
+        'src/background/storage.js',
         'src/background/webToolDescriptions.js',
         'src/background/webToolManager.js',
+        'src/background/ajaxClient.js',
         'src/background/oidcClient.js',
         'src/background/contentScriptsPolyfill.js',
         'src/background/contentScriptsRegistrator.js',
@@ -98,6 +99,7 @@ var files = {
         'src/background/backgroundBase.js',
         'src/background/extensionBase.js',
         'src/background/simpleEvent.js',
+        //TODO:'src/background-bundle.js',
         'src/manifest.json'
     ],
     chrome: [
@@ -142,26 +144,17 @@ function stripDebugCommon(folder) {
         .pipe(gulp.dest(folder));
 }
 
-function modifyJSON(transform) {
+function modifyFile(transform) {
+    return through.obj(function (file, encoding, callback) {
 
-    return through.obj(function (jsonFile, encoding, callback) {
-
-        var file = jsonFile.clone();
+        file = file.clone();
         if (!file.isBuffer()) {
-            return reject(new Error('Invalid JSON: ' + e.message));
+            return reject(new Error('Invalid file: ' + e.message));
         }
 
-        var fileContent = file.contents.toString(encoding);
-        var obj;
-        try {
-            obj = JSON.parse(fileContent);
-        }
-        catch (e) {
-            return reject(new Error('Invalid JSON: ' + e.message));
-        }
-
-        var newManifest = transform(obj);
-        file.contents = Buffer.from(JSON.stringify(newManifest, null, 4));
+        let fileContent = file.contents.toString(encoding);
+        fileContent = transform(fileContent);
+        file.contents = Buffer.from(fileContent);
         callback(null, file);
     });
 }
@@ -225,16 +218,20 @@ gulp.task('lib', () => {
         .src('node_modules/jquery/dist/jquery.min.js')
         .pipe(gulp.dest(lib));
     var signalr = gulp
-        .src('node_modules/@aspnet/signalr/dist/browser/signalr.min.js')
+        .src('node_modules/@microsoft/signalr/dist/webworker/signalr.min.js')
         .pipe(rename('signalr.min.js'))
         .pipe(gulp.dest(lib));
+    var browserPolyfill = gulp
+        .src('node_modules/webextension-polyfill/dist/browser-polyfill.min.js')
+        .pipe(rename('browser-polyfill.min.js'))
+        .pipe(gulp.dest(lib));        
     var select2 = gulp
         .src([
             'node_modules/select2/dist/js/select2.full.min.js',
             'node_modules/select2/dist/css/select2.min.css'
         ])
         .pipe(gulp.dest(lib + 'select2/'));
-    return mergeStream(jquery, signalr, select2);
+    return mergeStream(jquery, signalr, browserPolyfill, select2);
 });
 
 // compile
@@ -313,7 +310,8 @@ function stripDebugFirefox() {
 
 function modifyManifestFirefox() {
     return gulp.src(firefoxUnpackedDir + '/manifest.json')
-        .pipe(modifyJSON(manifest => {
+        .pipe(modifyFile(json => {
+            let manifest = JSON.parse(json);
 
             // Replace chromeExtension.js to firefoxExtension.js
             var scripts = manifest['background']['scripts'];
@@ -328,12 +326,15 @@ function modifyManifestFirefox() {
             //delete manifest['options_ui']['open_in_tab'];
             delete manifest['externally_connectable'];
 
-            return manifest;
+            const s = JSON.stringify(manifest, null, 4);
+            return s;
         }))
         .pipe(gulp.dest(firefoxUnpackedDir));
 }
 
-gulp.task('prepackage:firefox', gulp.series(copyFilesFireFox, stripDebugFirefox, modifyManifestFirefox));
+gulp.task(
+    'prepackage:firefox',
+    gulp.series(copyFilesFireFox, stripDebugFirefox, modifyManifestFirefox));
 
 function packageFirefox() {
     var manifest = jsonfile.readFileSync(firefoxUnpackedDir + 'manifest.json');

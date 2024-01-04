@@ -7,7 +7,7 @@ class ChromeExtension extends ExtensionBase {
         const patternToRegExp = (matchPattern: string) => new RegExp('^' + matchPattern
             .replace(/[\-\/\\\^\$\+\?\.\(\)\|\[\]\{\}]/g, '\\$&')
             .replace(/\*/g, '.*'));
-        let contentScripts = chrome.runtime.getManifest().content_scripts!
+        let contentScripts = chrome.runtime.getManifest().content_scripts
             .map(group => Object.assign({
                 regexp_matches: (group.matches || []).map(patternToRegExp),
                 regexp_exclude_matches: (group.exclude_matches || []).map(patternToRegExp)
@@ -25,21 +25,21 @@ class ChromeExtension extends ExtensionBase {
                     // Do not load same scripts twice
                     let jsFiles = (group.js || []).filter(path => !loadedFiles[path]);
                     let cssFiles = (group.css || []).filter(path => !loadedFiles[path]);
-                    let runAt = group.run_at;
+                    const isMatched = (regexps) => regexps.some(r => r.test(tab.url));
 
-                    const isMatched = (regexps: RegExp[]) => regexps.some(r => r.test(tab.url!));
+                    if (isMatched(group.regexp_matches) && !isMatched(group.regexp_exclude_matches)) {
 
-                    // Inject JS and CSS
-                    if (isMatched(group.regexp_matches) && !isMatched(group.regexp_exclude_matches) && tab.id != null) {
-                        const tabId = tab.id;
-                        jsFiles.forEach(file => {
-                            chrome.tabs.executeScript(tabId, { file, runAt });
-                            loadedFiles[file] = true;
+                        chrome.scripting.executeScript({
+                            target: { tabId: tab.id },
+                            files: jsFiles
                         });
-                        cssFiles.forEach(file => {
-                            chrome.tabs.insertCSS(tabId, { file });
-                            loadedFiles[file] = true;
+                        jsFiles.forEach(file => loadedFiles[file] = true);
+
+                        chrome.scripting.insertCSS({
+                            target: { tabId: tab.id },
+                            files: cssFiles
                         });
+                        cssFiles.forEach(file => loadedFiles[file] = true);
                     }
                 });
             }));

@@ -1,10 +1,8 @@
-class SignalRConnection extends ServerConnection {
-
-    signalRUrl: string;
+class SignalRConnection extends ServerConnection<OidcClient> {
 
     hub: signalR.HubConnection;
 
-    hubProxy = new SignalRHubProxy();
+    private readonly _hubProxy = new SignalRHubProxy();
 
     private _hubConnected: boolean;
 
@@ -26,6 +24,12 @@ class SignalRConnection extends ServerConnection {
 
     private _disconnectPromise: Promise<void> | undefined;
 
+    private readonly _urls: Promise<{
+        serviceUrl: string,
+        authorityUrl: string,
+        signalRUrl: string
+    }>
+
     onUpdateActiveAccount = SimpleEvent.create<number>();
 
     onInvalidateAccountScopeCache = SimpleEvent.create<number>();
@@ -38,17 +42,17 @@ class SignalRConnection extends ServerConnection {
 
     onUpdateProfile = SimpleEvent.create<Models.UserProfile>();
 
-    constructor() {
-        super();
-    }
+    constructor(urls: Promise<{
+        serviceUrl: string,
+        authorityUrl: string,
+        signalRUrl: string
+    }>) {
+        super(
+            urls.then(_ => _.serviceUrl),
+            new OidcClient(urls.then(_ => _.authorityUrl)));
+        this._urls = urls;
 
-    override init(options: { serviceUrl: string, authorityUrl: string, signalRUrl: string }): Promise<void> {
-
-        this.serviceUrl = options.serviceUrl;
-        this.signalRUrl = options.signalRUrl;
-        OidcClient.init(options.authorityUrl);
-
-        this.hubProxy.on('updateTimer', (accountId: number) => {
+        this._hubProxy.on('updateTimer', (accountId: number) => {
             if (this.userProfile && accountId != this.userProfile.activeAccountId) {
                 return;
             }
@@ -72,7 +76,7 @@ class SignalRConnection extends ServerConnection {
             }
         });
 
-        this.hubProxy.on('updateActiveAccount', (accountId: number) => {
+        this._hubProxy.on('updateActiveAccount', (accountId: number) => {
             this.onUpdateActiveAccount.emit(accountId);
             if (!this.userProfile || accountId != this.userProfile.activeAccountId) {
                 this.reconnect();
@@ -80,32 +84,32 @@ class SignalRConnection extends ServerConnection {
             this.onInvalidateAccountScopeCache.emit(accountId);
         });
 
-        this.hubProxy.on('updateAccount', (accountId: number) => {
+        this._hubProxy.on('updateAccount', (accountId: number) => {
             this.onInvalidateAccountScopeCache.emit(accountId);
         });
 
-        this.hubProxy.on('updateProjects', (accountId: number) => {
+        this._hubProxy.on('updateProjects', (accountId: number) => {
             this.onInvalidateAccountScopeCache.emit(accountId);
         });
 
-        this.hubProxy.on('updateClients', (accountId: number) => {
+        this._hubProxy.on('updateClients', (accountId: number) => {
             this.onInvalidateAccountScopeCache.emit(accountId);
         });
 
-        this.hubProxy.on('updateTags', (accountId: number) => {
+        this._hubProxy.on('updateTags', (accountId: number) => {
             this.onInvalidateAccountScopeCache.emit(accountId);
         });
 
-        this.hubProxy.on('updateExternalIssuesDurations', (accountId: number, identifiers: WebToolIssueIdentifier[]) => {
+        this._hubProxy.on('updateExternalIssuesDurations', (accountId: number, identifiers: WebToolIssueIdentifier[]) => {
             if (this.userProfile && this.userProfile.activeAccountId == accountId) {
                 this.onRemoveExternalIssuesDurations.emit(identifiers);
             }
         });
 
-        return this.reconnect().catch(() => { });
+        this.reconnect().catch(() => { });
     }
 
-    private get canRetryConnection() {
+    get canRetryConnection() {
         return !this._hubConnected && !this._retryInProgress;
     }
 
@@ -122,60 +126,59 @@ class SignalRConnection extends ServerConnection {
             .then(() => undefined);
     }
 
-    override connect() {
+    protected override async connect() {
 
         console.log('connect');
-        return new Promise<Models.UserProfile>((callback, reject) => {
 
-            if (this._hubConnected) {
-                console.log('connect: hubConnected');
-                callback(this.userProfile);
-                return;
+        if (this._hubConnected) {
+            console.log('connect: hubConnected');
+            return this.userProfile;
+        }
+
+        try {
+            const [, profile] = await this.waitAllRejects([this.getVersion(), this.getProfile()]);
+
+            const urls = await this._urls;
+
+            if (!this.hub) {
+                const hub = new signalR.HubConnectionBuilder()
+                    .withUrl(urls.signalRUrl + 'appHub')
+                    .configureLogging(signalR.LogLevel.Warning)
+                    .build();
+                hub.onclose(() => {
+                    this._hubProxy.onDisconnect(hub);
+                    this.expectedTimerUpdate = false;
+                    console.log('hub.disconnected');
+                    this.disconnect().then(() => {
+                        this.setRetryPending(true);
+                    });
+                });
+                this.hub = hub;
             }
 
-            this.waitAllRejects([this.getVersion(), this.getProfile()])
-                .then(([version, profile]) => {
+            let hubPromise = Promise.resolve();
+            if (!this._hubProxy.isConnected) {
+                hubPromise = this.hub.start();
+                hubPromise.catch(() => this.setRetryPending(true));
+                hubPromise.then(() => this._hubProxy.onConnect(this.hub));
+            }
 
-                    if (!this.hub) {
-                        const hub = new signalR.HubConnectionBuilder()
-                            .withUrl(this.signalRUrl + 'appHub')
-                            .configureLogging(signalR.LogLevel.Warning)
-                            .build();
-                        hub.onclose(() => {
-                            this.hubProxy.onDisconnect(hub);
-                            this.expectedTimerUpdate = false;
-                            console.log('hub.disconnected');
-                            this.disconnect().then(() => {
-                                this.setRetryPending(true);
-                            });
-                        });
-                        this.hub = hub;
-                    }
+            await hubPromise;
 
-                    let hubPromise = Promise.resolve();
-                    if (!this.hubProxy.isConnected) {
-                        hubPromise = this.hub.start();
-                        hubPromise.catch(() => this.setRetryPending(true));
-                        hubPromise.then(() => this.hubProxy.onConnect(this.hub));
-                    }
+            this._hubConnected = true;
+            this.setRetryPending(false);
+            console.log('connect: register');
+            await this.hub.invoke('register', profile.userProfileId);
+            return profile;
 
-                    hubPromise
-                        .then(() => {
-                            this._hubConnected = true;
-                            this.setRetryPending(false);
-                            console.log('connect: register');
-                            return this.hub.invoke('register', profile.userProfileId).then(() => callback(profile));
-                        })
-                        .catch(reject);
-                })
-                .catch(e => {
-                    console.log('connect: getProfile failed');
-                    reject(e);
-                });
-        });
+        }
+        catch (e) {
+            console.log('connect: getProfile failed');
+            throw e;
+        }
     }
 
-    setRetryPending(value: boolean) {
+    private setRetryPending(value: boolean) {
 
         console.log('setRetryPending: ' + value);
 
@@ -203,12 +206,12 @@ class SignalRConnection extends ServerConnection {
         }
     }
 
-    retryConnection() {
+    retryConnection(wait?: boolean) {
         console.log(`retryConnection. hubConnected: ${this._hubConnected}, retryInProgress: ${this._retryInProgress}`);
         this.setRetryPending(false);
         if (this.canRetryConnection) {
             this._retryInProgress = true;
-            this.reconnect()
+            const promise = this.reconnect()
                 .catch((err: AjaxStatus) => {
                     // Stop retrying when server returns error code
                     if (!(err.statusCode > 0)) {
@@ -216,7 +219,12 @@ class SignalRConnection extends ServerConnection {
                         this.setRetryPending(true);
                     }
                 })
-                .then(() => this._retryInProgress = false);
+                .then(() => {
+                    this._retryInProgress = false;
+                });
+            if (wait) {
+                return promise;
+            }
         }
         return Promise.resolve();
     }
@@ -246,7 +254,7 @@ class SignalRConnection extends ServerConnection {
         return promise;
     }
 
-    override async getProfile() {
+    protected override async getProfile() {
         const profile = await super.getProfile();
         this.onUpdateProfile.emit(profile);
         return profile;

@@ -24,7 +24,7 @@
   },
 
   "files": [
-    "../node_modules/@aspnet/signalr/dist/esm/index.d.ts",
+    "../node_modules/@microsoft/signalr/dist/esm/index.d.ts",
     "../node_modules/@types/chrome/index.d.ts",
     "../node_modules/@types/firefox-webext-browser/index.d.ts",
     "typings/jquery/index.d.ts",
@@ -32,6 +32,7 @@
     "interfaces/models.d.ts",
     "interfaces/integrations.d.ts",
     "interfaces/safari.d.ts",
+    "background/ajaxClient.ts",
     "background/storage.ts",
     "background/oidcClient.ts",
     "background/webToolDescriptions.ts",
@@ -47,6 +48,7 @@
     "background/simpleEvent.ts",
     "background/signalRHubProxy.ts",
     "background/signalRConnection.ts",
+    "background-bundle.ts",
     "in-page-scripts/integrations/activeCollab.ts",
     "in-page-scripts/integrations/asana.ts",
     "in-page-scripts/integrations/assembla.ts",

@@ -57,9 +57,15 @@ class PopupController {
     }
 
     callBackground(request: IPopupRequest): Promise<IPopupResponse> {
-        return new Promise(resolve => {
+        return new Promise((resolve, reject) => {
             chrome.runtime.sendMessage(request, (response: IPopupResponse) => {
-                resolve(response);
+                const error = chrome.runtime.lastError;
+                if (error) {
+                    console.error(error);
+                    reject(error)
+                } else {
+                    resolve(response);
+                }
             });
         });
     }
@@ -112,20 +118,23 @@ class PopupController {
     // actions
 
     protected wrapBackgroundAction<TData, TResult>(action: string) {
-        return (data?: TData) => {
-            return new Promise<TResult>((resolve, reject) => {
-                this.callBackground({ action, data })
-                    .then(response => {
-                        if (response.error) {
-                            reject(response.error);
-                        } else {
-                            resolve(response.data);
-                        }
-                    })
-                    .catch(error => {
-                        reject(<string>error);
-                    });
-            })
+        return async (data?: TData) => {
+            let response: IPopupResponse;
+            try {
+                response = await this.callBackground({ action, data })
+            }
+            catch (e) {
+                if (e.message == 'The message port closed before a response was received.') {
+                    response = await this.callBackground({ action, data });
+                } else {
+                    throw (e);
+                }
+            }
+
+            if (response.error) {
+                throw response.error;
+            }
+            return response.data as TResult;
         };
     }
 
