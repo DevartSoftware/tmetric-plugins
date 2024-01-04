@@ -241,19 +241,15 @@ abstract class ExtensionBase extends BackgroundBase {
         return this.buttonState == ButtonState.fixtimer;
     }
 
-    protected override async StartExternalTimer(
+    protected override async shouldShowPopup(
         timer: WebToolIssueTimer,
-        status: Models.IntegratedProjectStatus,
         scope: Models.AccountScope,
-        tabId?: number) {
-
-        const settings = await this.getSettings();
-
-        // Set default work type before popup show (TE-299)
-        await this.validateTimerTags(timer, status.accountId);
+        status: Models.IntegratedProjectStatus) {
 
         const matchedProjectCount = this.getTrackedProjects(scope).filter(p => p.projectName == timer.projectName).length;
         const requiredFields = scope.requiredFields;
+
+        const settings = await this.getSettings();
         let showPopup = settings.showPopup || Models.ShowPopupOption.Always;
 
         if (timer.serviceType === 'Shortcut') {
@@ -269,25 +265,14 @@ abstract class ExtensionBase extends BackgroundBase {
             showPopup = Models.ShowPopupOption.Always;
         }
 
-        if (showPopup != Models.ShowPopupOption.Never) {
-
-            if (showPopup == Models.ShowPopupOption.Always ||
-                !timer.projectName ||
-                status.projectStatus == null ||
-                matchedProjectCount > 1
-            ) {
-
-                this.validateTimerProject(timer, status);
-
-                // This timer will be send when popup ask for initial data
-                this.newPopupIssue = timer;
-
-                // This account id will be used to prepare initial data for popup
-                this.newPopupAccountId = status.accountId;
-
-                return this.showPopup(tabId);
-            }
+        if (showPopup == Models.ShowPopupOption.Never) {
+            return false;
         }
+
+        return showPopup == Models.ShowPopupOption.Always ||
+            !timer.projectName ||
+            status.projectStatus == null ||
+            matchedProjectCount > 1;
     }
 
     protected override putData<T>(data: T, action: (data: T) => Promise<any>, retryAction?: (data: T) => Promise<any>) {

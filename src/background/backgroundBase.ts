@@ -185,24 +185,12 @@ abstract class BackgroundBase {
     }
 
     /** @virtual */
-    protected async StartExternalTimer(
-        timer: WebToolIssueTimer,
-        status: Models.IntegratedProjectStatus,
-        scope: Models.AccountScope,
-        tabId?: number) {
+    protected async shouldShowPopup(
+        _timer: WebToolIssueTimer,
+        _scope: Models.AccountScope,
+        _status: Models.IntegratedProjectStatus) {
 
-        // Set default work type before popup show (TE-299)
-        await this.validateTimerTags(timer, status.accountId);
-
-        this.validateTimerProject(timer, status);
-
-        // This timer will be send when popup ask for initial data
-        this.newPopupIssue = timer;
-
-        // This account id will be used to prepare initial data for popup
-        this.newPopupAccountId = status.accountId;
-
-        return this.showPopup();
+        return true;
     }
 
     protected async putExternalTimer(timer: WebToolIssueTimer, accountId?: number, tabId?: number) {
@@ -235,7 +223,22 @@ abstract class BackgroundBase {
             }
 
             if (timer.isStarted) {
-                await this.StartExternalTimer(timer, status, scope, tabId);
+
+                // Set default work type before popup show (TE-299)
+                await this.validateTimerTags(timer, status.accountId);
+
+                if (await this.shouldShowPopup(timer, scope, status)) {
+
+                    this.validateTimerProject(timer, status);
+
+                    // This timer will be send when popup ask for initial data
+                    this.newPopupIssue = timer;
+
+                    // This account id will be used to prepare initial data for popup
+                    this.newPopupAccountId = status.accountId;
+
+                    return this.showPopup(tabId);
+                }
             }
 
             return this.putTimerWithIntegration(timer, status, scope.requiredFields);
@@ -367,7 +370,7 @@ abstract class BackgroundBase {
 
     // popup actions
 
-    protected abstract showPopup(): void
+    protected abstract showPopup(tabId?: number): void
 
     protected abstract hidePopup(): void
 
