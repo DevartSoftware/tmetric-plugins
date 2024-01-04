@@ -546,7 +546,6 @@ abstract class BackgroundBase<TConnection extends ServerConnection = ServerConne
     }
 
     // task name to description map
-
     private taskNameToDescriptionMap: {
         [key: string]: string;
     };
