@@ -99,7 +99,7 @@ var files = {
         'src/background/backgroundBase.js',
         'src/background/extensionBase.js',
         'src/background/simpleEvent.js',
-        'src/background-bundle.js',
+        //TODO:'src/background-bundle.js',
         'src/manifest.json'
     ],
     chrome: [
@@ -221,13 +221,17 @@ gulp.task('lib', () => {
         .src('node_modules/@microsoft/signalr/dist/webworker/signalr.min.js')
         .pipe(rename('signalr.min.js'))
         .pipe(gulp.dest(lib));
+    var browserPolyfill = gulp
+        .src('node_modules/webextension-polyfill/dist/browser-polyfill.min.js')
+        .pipe(rename('browser-polyfill.min.js'))
+        .pipe(gulp.dest(lib));        
     var select2 = gulp
         .src([
             'node_modules/select2/dist/js/select2.full.min.js',
             'node_modules/select2/dist/css/select2.min.css'
         ])
         .pipe(gulp.dest(lib + 'select2/'));
-    return mergeStream(jquery, signalr, select2);
+    return mergeStream(jquery, signalr, browserPolyfill, select2);
 });
 
 // compile
@@ -304,19 +308,15 @@ function stripDebugFirefox() {
     return stripDebugCommon(firefoxUnpackedDir);
 }
 
-function modifyBackgroundBundleFirefox() {
-    return gulp.src(firefoxUnpackedDir + '/background-bundle.js')
-        .pipe(modifyFile(code => {
-            // Replace chromeExtension.js to firefoxExtension.js
-            return code.replace('chromeExtension.js', 'firefoxExtension.js');
-        }))
-        .pipe(gulp.dest(firefoxUnpackedDir));
-}
-
 function modifyManifestFirefox() {
     return gulp.src(firefoxUnpackedDir + '/manifest.json')
         .pipe(modifyFile(json => {
             let manifest = JSON.parse(json);
+
+            // Replace chromeExtension.js to firefoxExtension.js
+            var scripts = manifest['background']['scripts'];
+            var index = scripts.indexOf('background/chromeExtension.js');
+            scripts[index]= 'background/firefoxExtension.js';
 
             // Set addon ID (TE-283)
             manifest['applications'] = {
@@ -327,7 +327,6 @@ function modifyManifestFirefox() {
             delete manifest['externally_connectable'];
 
             const s = JSON.stringify(manifest, null, 4);
-            console.error(s);
             return s;
         }))
         .pipe(gulp.dest(firefoxUnpackedDir));
@@ -335,7 +334,7 @@ function modifyManifestFirefox() {
 
 gulp.task(
     'prepackage:firefox',
-    gulp.series(copyFilesFireFox, stripDebugFirefox, modifyManifestFirefox, modifyBackgroundBundleFirefox));
+    gulp.series(copyFilesFireFox, stripDebugFirefox, modifyManifestFirefox));
 
 function packageFirefox() {
     var manifest = jsonfile.readFileSync(firefoxUnpackedDir + 'manifest.json');

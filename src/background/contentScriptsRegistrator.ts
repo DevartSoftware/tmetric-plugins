@@ -141,10 +141,8 @@ class ContentScriptsRegistrator {
 
         let method: (options: RegisteredContentScriptOptions) => Promise<RegisteredContentScript>;
 
-        if (typeof browser === 'object' && browser.contentScripts) {
+        if (typeof browser === 'object' && browser?.contentScripts?.register) {
             method = browser.contentScripts.register;
-        } else if (typeof chrome === 'object' && chrome.contentScripts) {
-            method = chrome.contentScripts.register;
         } else {
             method = () => Promise.resolve({ unregister: () => undefined as any });
         }
@@ -154,23 +152,21 @@ class ContentScriptsRegistrator {
 
     private checkContentScripts(matches: string[], allFrames: boolean) {
 
-        console.log('checkContentScripts', { matches, allFrames })
-
         const sendFunc = function () {
             chrome.runtime.sendMessage({ action: 'checkContentScripts' });
         }
 
-        if (typeof browser === 'object' && browser.contentScripts) {
-            // browser.contentScripts inject scripts only to new pages
-        } else if (typeof chrome === 'object' && chrome.contentScripts) {
+        if (typeof chrome === 'object' && chrome.contentScripts && chrome.contentScripts.isPolyfill) {
+
             chrome.tabs.query({ url: matches, status: 'complete' }, tabs => {
                 tabs.forEach(tab => {
 
                     console.log('checkContentScripts', tab.id, tab.url)
 
-                    tab.id != null && chrome.scripting.executeScript({
-                        target: { tabId: tab.id, allFrames },
-                        func: sendFunc
+                    // TODO: manifest v3 - chrome.scripting.executeScript({target, func})
+                    tab.id != null && chrome.tabs.executeScript(tab.id, {
+                        allFrames,
+                        code: `(${sendFunc})()`,
                     });
                 });
             });
