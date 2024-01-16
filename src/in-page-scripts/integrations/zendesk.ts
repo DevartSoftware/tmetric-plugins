@@ -35,7 +35,15 @@ class Zendesk implements WebToolIntegration {
         let serviceType = 'Zendesk';
         let serviceUrl = source.protocol + source.host;
 
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+        // tags
+        const divTags = $$.visible<HTMLInputElement>('div[data-test-id=ticket-fields-tags]');
+        let tagNames = [];
+
+        if (divTags) {
+            tagNames = $$.all('.garden-tag-item', divTags).map(_ => _.textContent);
+        }
+
+        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames } as WebToolIssue;
     }
 }
 
