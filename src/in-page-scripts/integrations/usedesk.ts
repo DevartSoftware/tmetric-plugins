@@ -12,7 +12,7 @@ class Usedesk implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
         let issueName = $$.try('#editable_subject').textContent;
 
         if (!issueName) {
@@ -22,7 +22,8 @@ class Usedesk implements WebToolIntegration {
         let projectName = $$.try('#ticket-channel-name').textContent;
 
         let issueId: string;
-        let serviceUrl = source.protocol + source.host;
+        const serviceUrl = source.protocol + source.host;
+        const serviceType = 'UseDesk';
         let issueUrl: string;
 
         // https://*.usedesk.ru/tickets/TICKET_ID
@@ -32,7 +33,9 @@ class Usedesk implements WebToolIntegration {
             issueUrl = source.path;
         }
 
-        return { issueId, issueName, projectName, serviceType: 'UseDesk', serviceUrl, issueUrl };
+        return {
+            issueId, issueName, projectName, serviceType, serviceUrl, issueUrl
+        } as WebToolIssue;
     }
 }
 

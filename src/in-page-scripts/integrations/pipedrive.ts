@@ -20,21 +20,24 @@ class Pipedrive implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
         let matches = source.fullUrl.match(this.matchUrl);
         let issueId = matches[2];
         let issueName: string;
         
         let titleElement = document.querySelector('[data-testid="header-title"]');
-        var title = $$.try('textarea', titleElement);
+        const title = $$.try('textarea', titleElement);
         if (title) {
             issueName = title.textContent;
         }
 
-        let serviceUrl = source.protocol + source.host;
-        let issueUrl = matches[1];
+        const serviceType = 'Pipedrive';
+        const serviceUrl = source.protocol + source.host;
+        const issueUrl = matches[1];
 
-        return { issueId, issueName, issueUrl, serviceUrl, serviceType: 'Pipedrive' };
+        return {
+            issueId, issueName, issueUrl, serviceUrl, serviceType
+        } as WebToolIssue;
     }
 }
 

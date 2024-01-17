@@ -14,7 +14,7 @@ class PodioTask implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
         let issueName = $$.try('.task-title > .header-title').textContent;
         if (!issueName) {
@@ -30,10 +30,13 @@ class PodioTask implements WebToolIntegration {
             issueId = matches[1];
         }
 
-        let projectName = $$.try('.reference .title').textContent;
-        let serviceUrl = source.protocol + source.host;
+        const projectName = $$.try('.reference .title').textContent;
+        const serviceUrl = source.protocol + source.host;
+        const serviceType = 'Podio';
 
-        return { issueId, issueName, issueUrl, serviceUrl, projectName, serviceType: 'Podio' };
+        return {
+            issueId, issueName, issueUrl, serviceUrl, projectName, serviceType
+        } as WebToolIssue;
     }
 }
 
@@ -55,7 +58,7 @@ class PodioTaskList implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
         let issueName = $$.try('.edit-task-title', issueElement).textContent;
         if (!issueName) {
@@ -74,9 +77,12 @@ class PodioTaskList implements WebToolIntegration {
             issueId = matches[1];
         }
 
-        let serviceUrl = source.protocol + source.host;
+        const serviceUrl = source.protocol + source.host;
+        const serviceType = 'Podio';
 
-        return { issueId, issueName, issueUrl, serviceUrl, projectName, serviceType: 'Podio' };
+        return {
+            issueId, issueName, issueUrl, serviceUrl, projectName, serviceType
+        } as WebToolIssue;
     }
 }
 

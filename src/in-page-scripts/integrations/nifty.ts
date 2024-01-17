@@ -9,26 +9,31 @@ class Nifty implements WebToolIntegration {
 
     showIssueId = true;
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
-        let description = '';
+        let description: string | null | undefined;
         if (issueElement.matches(this.issueElementSelector[1])) {
             description = $$.try('.item-title', issueElement).textContent;
             // search parent task for subtask
-            issueElement = $$.closest(this.issueElementSelector[0], issueElement);
-        }
-
-        const issueId = $$.try('.nice-id', issueElement).textContent;
-        if (!issueId) {
-            return;
+            const parentElement = $$.closest(this.issueElementSelector[0], issueElement);
+            if (!parentElement) {
+                return;
+            }
+            issueElement = parentElement;
         }
 
         const issueName = $$.try('.content-panel-field-input', issueElement).textContent;
+        if (!issueName) {
+            return;
+        }
+
+        const issueId = $$.try('.nice-id', issueElement).textContent;
 
         const serviceUrl = source.protocol + source.host;
+        const serviceType = 'Nifty';
 
         let projectId = '';
-        let projectName = '';
+        let projectName: string | undefined | null = '';
 
         // match url for project home page or project milestones page or project tasks page with opened task
         const projectPageMatch = source.path.match(/\/([^\/]+)\/(home|roadmap|task\/.+)/);
@@ -44,7 +49,7 @@ class Nifty implements WebToolIntegration {
             // find task element where task name or parent task name match issue name
             const task = $$('.task-name', null, element => {
                 return $$.all('.task-name-text, .task-task-name', element).some(element => {
-                    return element.textContent.trim() == issueName.trim();
+                    return element.textContent?.trim() == issueName.trim();
                 });
             });
 
@@ -62,7 +67,7 @@ class Nifty implements WebToolIntegration {
             return;
         }
 
-        const issueUrl = `${projectId}/task/${issueId}`;
+        const issueUrl = issueId ? `${projectId}/task/${issueId}` : undefined;
 
         const tagNames = $$.all('.labels-list-item-text', issueElement).map(_ => _.textContent);
 
@@ -73,9 +78,9 @@ class Nifty implements WebToolIntegration {
             description,
             projectName,
             serviceUrl,
-            serviceType: 'Nifty',
+            serviceType,
             tagNames
-        };
+        } as WebToolIssue;
     }
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {

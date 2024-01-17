@@ -16,7 +16,7 @@ class Slack implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
         let issueName;
         const getTextElement = (node: Node) => {
             let text = '';
@@ -51,8 +51,11 @@ class Slack implements WebToolIntegration {
         const projectName = $$.try('.p-view_header__channel_title').textContent;
 
         const serviceUrl = source.protocol + source.host
+        const serviceType = 'Slack';
 
-        return { issueName, projectName, serviceUrl, serviceType: 'Slack' }
+        return {
+            issueName, projectName, serviceUrl, serviceType
+        } as WebToolIssue;
     }
 }
 

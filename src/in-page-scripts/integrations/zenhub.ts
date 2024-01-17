@@ -14,7 +14,7 @@ class ZenHub implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
         let issueName: string;
         let issueId: string;
@@ -26,11 +26,14 @@ class ZenHub implements WebToolIntegration {
             issueId = splittedTitle.length > 1 && splittedTitle[1];
         }
 
-        let projectName = $$.try('.zhc-breadcrumbs__button__name', issueElement).textContent;
-        let issueUrl = source.path;
-        let serviceUrl = source.protocol + source.host;
+        const projectName = $$.try('.zhc-breadcrumbs__button__name', issueElement).textContent;
+        const issueUrl = source.path;
+        const serviceUrl = source.protocol + source.host;
+        const serviceType = 'ZenHub';
 
-        return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'ZenHub' }
+        return {
+            issueId, issueName, issueUrl, projectName, serviceUrl, serviceType
+        } as WebToolIssue;
     }
 }
 

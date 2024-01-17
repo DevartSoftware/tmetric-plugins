@@ -62,7 +62,8 @@ class Clickup implements WebToolIntegration {
             } else {
                 issueId = $$.getAttribute('.task-container[data-task-id]', 'data-task-id') ||
                     $$('.cu-task-view__container #timeTrackingItem', issueElement)?.dataset.taskId ||
-                    $$('.task-name', issueElement)?.dataset.taskId
+                    $$('.task-name', issueElement)?.dataset.taskId ||
+                    null;
             }
         }
 

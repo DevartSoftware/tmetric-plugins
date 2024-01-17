@@ -14,16 +14,18 @@ class TestRail implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
-        let issueName = $$.try('.link-tooltip.content-header-title-tooltip').textContent;
-
-        let projectName = $$.try('.top-section.top-section-with-return.text-ppp a').textContent;
+        const issueName = $$.try('.link-tooltip.content-header-title-tooltip').textContent;
+        const projectName = $$.try('.top-section.top-section-with-return.text-ppp a').textContent;
 
         // https://example.testrail.io/
-        let serviceUrl = source.protocol + source.host;
+        const serviceUrl = source.protocol + source.host;
+        const serviceType = 'TestRail';
 
-        return { issueName, projectName, serviceUrl, serviceType: 'TestRail' };
+        return {
+            issueName, projectName, serviceUrl, serviceType
+        } as WebToolIssue;
     }
 }
 

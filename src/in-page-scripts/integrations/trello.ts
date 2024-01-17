@@ -29,7 +29,7 @@ class Trello implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
         // Full card url:
         // https://trello.com/c/CARD_ID/CARD_NUMBER-CARD_TITLE_DASHED_AND_LOWERCASED
@@ -56,6 +56,7 @@ class Trello implements WebToolIntegration {
         const projectName = $$.try('.board-header h1[data-testid=board-name-display]').textContent;
 
         const serviceUrl = source.protocol + source.host;
+        const serviceType = 'Trello';
 
         const issueUrl = '/c/' + match[1];
 
@@ -66,7 +67,9 @@ class Trello implements WebToolIntegration {
             description = $$.try('.checklist-item-details-text', issueElement).textContent;
         }
 
-        return { issueId, issueName, projectName, serviceType: 'Trello', serviceUrl, issueUrl, tagNames, description };
+        return {
+            issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames, description
+        } as WebToolIssue;
     }
 }
 

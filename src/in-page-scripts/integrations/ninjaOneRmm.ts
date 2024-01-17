@@ -16,7 +16,7 @@ class NinjaOneRmm implements WebToolIntegration {
      * Extracts information about the issue (ticket or task) from a Web
      * page by querying the DOM model.
      */
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
         const issueId = $$.try(
             '.breadcrumb-history-path .last-link',
@@ -42,19 +42,21 @@ class NinjaOneRmm implements WebToolIntegration {
 
         console.log(projectName);
 
-        let tagNames = [];
+        let tagNames = [] as string[];
         $$.all('.css-4juktp', issueElement).forEach((element) => {
             if ($$.try('.css-4juktp span', element).textContent == 'Tags') {
-                tagNames = tagNames.concat(
-                    $$.all('.css-161u6g7 .text-ellipsis', element).map(
-                        (label) => label.textContent
-                    )
-                );
+                $$.all('.css-161u6g7 .text-ellipsis', element)
+                    .forEach(label => {
+                        const tagName = label.textContent;
+                        tagName && tagNames.push(tagName);
+                    });
             }
         });
 
         const serviceType = 'NinjaOneRmm'
-        return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType, tagNames };
+        return {
+            issueId, issueName, issueUrl, projectName, serviceUrl, serviceType, tagNames
+        } as WebToolIssue;
     }
 
     /**

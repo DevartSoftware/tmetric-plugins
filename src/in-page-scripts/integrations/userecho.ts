@@ -17,7 +17,7 @@ class Userecho implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
         let issue = $$('.topic-header a');
         let issueName = issue?.textContent;
@@ -35,12 +35,15 @@ class Userecho implements WebToolIntegration {
             return;
         }
 
-        let issueUrl = match[1];
-        let issueId = match[2];
-        let serviceUrl = source.protocol + source.host;
-        let projectName = $$.try('.navbar-brand').textContent;
+        const issueUrl = match[1];
+        const issueId = match[2];
+        const serviceUrl = source.protocol + source.host;
+        const serviceType = 'Userecho';
+        const projectName = $$.try('.navbar-brand').textContent;
 
-        return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Userecho' };
+        return {
+            issueId, issueName, issueUrl, projectName, serviceUrl, serviceType
+        } as WebToolIssue;
     }
 }
 
