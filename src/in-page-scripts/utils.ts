@@ -10,7 +10,7 @@ interface Utils {
     create<TElement extends HTMLElement>(tagName: string, ...classNames: string[]): TElement;
     getRelativeUrl(baseUrl: string, fullUrl: string): string;
     findNode(selector: string, nodeType: number, element?: ParentNode | null): Node | null;
-    findAllNodes(selector: string, nodeType: number, element?: ParentNode | null): Node[];
+    findAllNodes(selector: string, nodeType: number | null, element?: ParentNode | null): Node[];
     searchParams(paramString: string): { [name: string]: string };
 }
 
@@ -160,7 +160,7 @@ $$.findNode = (selector: string, nodeType: number, element?: ParentNode | null) 
     return null;
 };
 
-$$.findAllNodes = (selector: string, nodeType: number, element?: ParentNode | null) => {
+$$.findAllNodes = (selector: string, nodeType: number | null, element?: ParentNode | null) => {
     const result = [] as Node[];
     const elements = $$.all(selector, element);
     for (let el of elements) {

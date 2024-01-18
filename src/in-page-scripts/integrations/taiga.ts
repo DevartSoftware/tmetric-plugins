@@ -2,7 +2,7 @@ class TaigaIntegration implements WebToolIntegration {
 
     matchUrl = /(.+)(\/project\/[^\/]+\/[^\/]+\/(\d+))/;
 
-    render(issueElement: HTMLElement, linkElement: HTMLElement) {
+    render(_issueElement: HTMLElement, linkElement: HTMLElement) {
 
         let host = $$('.sidebar.ticket-data');
         if (!host) {
@@ -14,7 +14,7 @@ class TaigaIntegration implements WebToolIntegration {
         host.insertBefore(linkContainer, host.firstElementChild);
     }
 
-    getIssue(issueElement: HTMLElement, source: Source) {
+    getIssue(_issueElement: HTMLElement, source: Source) {
 
         let issueName = $$.try('.detail-header-container .detail-subject').textContent;
         if (!issueName) {
@@ -24,7 +24,7 @@ class TaigaIntegration implements WebToolIntegration {
         let projectName = $$.try('.detail-header-container .project-name').textContent;
 
         // https://taiga.some.server/project/PROJECT_NAME/TASK_TYPE/NUMBER
-        let match = this.matchUrl.exec(source.fullUrl);
+        let match = this.matchUrl.exec(source.fullUrl)!;
         let serviceType = 'Taiga';
         let serviceUrl = match[1];
         let issueUrl = match[2];

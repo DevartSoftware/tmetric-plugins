@@ -13,9 +13,9 @@ class Trello implements WebToolIntegration {
 
         if (issueElement.matches(this.issueElementSelector[0])) {
             // cut 'timer' so that time can be visible if we have time
-            const text = linkElement.lastElementChild.textContent;
-            if (/[0-9]/.test(text)) {
-                linkElement.lastElementChild.textContent = text.replace(' timer', '');
+            const text = linkElement.lastElementChild!.textContent;
+            if (/[0-9]/.test(text!)) {
+                linkElement.lastElementChild!.textContent = text!.replace(' timer', '');
             }
             linkElement.classList.add('trello');
             linkElement.classList.add('button-link');
@@ -62,7 +62,7 @@ class Trello implements WebToolIntegration {
 
         const tagNames = $$.all('.js-card-back-labels-container div[data-testid=card-label], button[data-testid=card-label]').map(label => label.textContent);
 
-        let description: string;
+        let description: string | undefined | null;
         if (issueElement.matches(this.issueElementSelector[1])) {
             description = $$.try('.checklist-item-details-text', issueElement).textContent;
         }

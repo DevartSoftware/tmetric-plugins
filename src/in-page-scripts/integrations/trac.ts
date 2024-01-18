@@ -14,7 +14,7 @@ class Trac implements WebToolIntegration {
             $$('.trac-id', issueElement); // ver >= 1.0
         if (host) {
             linkElement.classList.add('devart-timer-link-trac');
-            host.parentElement.appendChild(linkElement);
+            host.parentElement!.appendChild(linkElement);
         }
     }
 

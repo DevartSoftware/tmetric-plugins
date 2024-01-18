@@ -42,7 +42,7 @@ class Todoist implements WebToolIntegration {
         }
     }
 
-    getProjectName(taskDialog: HTMLElement) {
+    getProjectName(taskDialog: HTMLElement | undefined | null) {
         if (!taskDialog) {
             return;
         }
@@ -53,12 +53,12 @@ class Todoist implements WebToolIntegration {
     }
 
     getIssue(issueElement: HTMLElement, source: Source) {
-       
-        let issueNumber: string
-        let issueId: string;
-        let issueName: string;
-        let projectName: string
-        let tagNames: string[];
+
+        let issueNumber: string | undefined | null;
+        let issueId: string | undefined;
+        let issueName: string | undefined | null;
+        let projectName: string | undefined | null;
+        let tagNames: (string | null)[] | undefined;
 
         if (issueElement.matches(this.listItemSelector)) {
 
@@ -114,7 +114,7 @@ class Todoist implements WebToolIntegration {
                     })
                     .reduce((sumText, node) => {
                         let text = node.textContent;
-                        if (text[0] == ' ' && sumText[sumText.length - 1] == ' ') {
+                        if (text?.[0] == ' ' && sumText[sumText.length - 1] == ' ') {
                             text = text.substring(1);
                         }
                         return sumText + text;
@@ -156,9 +156,9 @@ class Todoist implements WebToolIntegration {
             return;
         }
 
-        let serviceType = 'Todoist';
-        let serviceUrl = source.protocol + source.host;
-        let issueUrl = 'showTask?id=' + issueNumber;
+        const serviceType = 'Todoist';
+        const serviceUrl = source.protocol + source.host;
+        const issueUrl = 'showTask?id=' + issueNumber;
 
         return {
             issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames

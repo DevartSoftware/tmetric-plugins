@@ -4,7 +4,7 @@ class TestRail implements WebToolIntegration {
 
     matchUrl = '*://*/index.php?/runs/view/*';
 
-    render(issueElement: HTMLElement, linkElement: HTMLElement) {
+    render(_issueElement: HTMLElement, linkElement: HTMLElement) {
 
         // test cases
         let buttons = $$('.button-group.form-buttons');
@@ -14,7 +14,7 @@ class TestRail implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source) {
+    getIssue(_issueElement: HTMLElement, source: Source) {
 
         const issueName = $$.try('.link-tooltip.content-header-title-tooltip').textContent;
         const projectName = $$.try('.top-section.top-section-with-return.text-ppp a').textContent;

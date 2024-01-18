@@ -12,7 +12,7 @@ class UserVoiceTicket implements WebToolIntegration {
             const linkContainer = $$.create('div', 'actionbar-item');
             linkElement.classList.add('button', 'secondary', 'small', 'actionbar-link');
             linkContainer.appendChild(linkElement);
-            ticketAnchor.parentNode.insertBefore(linkContainer, ticketAnchor.nextElementSibling);
+            ticketAnchor.parentNode!.insertBefore(linkContainer, ticketAnchor.nextElementSibling);
         }
     }
 
@@ -32,13 +32,13 @@ class UserVoiceTicket implements WebToolIntegration {
         // Issue id in url not refreshed after creating new ticket.
         // Take it from ticket field.
         const issueUrlElement = $$.try<HTMLAnchorElement>('.ticket-metadata a[href*="/tickets/"]', issueElement);
-        const match = /^(.+\/tickets\/)(\d+).*$/.exec(issueUrlElement.href);
+        const match = /^(.+\/tickets\/)(\d+).*$/.exec(issueUrlElement?.href!);
 
         let issueId: string | undefined;
         let issueUrl: string | undefined;
         if (match) {
             issueId = '#' + match[2];
-            issueUrl = $$.getRelativeUrl(serviceUrl, issueUrlElement.href);
+            issueUrl = $$.getRelativeUrl(serviceUrl, issueUrlElement?.href!);
         }
 
         const projectName = ''; // uservoice have no predefined field for project
@@ -62,7 +62,7 @@ class UserVoiceSuggestion implements WebToolIntegration {
             const linkContainer = $$.create('div', 'pull-right');
             linkElement.classList.add('button', 'secondary');
             linkContainer.appendChild(linkElement);
-            suggestionAnchor.parentNode.insertBefore(linkContainer, suggestionAnchor);
+            suggestionAnchor.parentNode!.insertBefore(linkContainer, suggestionAnchor);
         }
     }
 
@@ -76,7 +76,7 @@ class UserVoiceSuggestion implements WebToolIntegration {
         }
 
         const lastChild = $$.try('.page-header-title:not(.inline)').lastChild;
-        const issueName = lastChild && lastChild.textContent.trim();
+        const issueName = lastChild?.textContent?.trim();
         if (!issueName) {
             return;
         }
