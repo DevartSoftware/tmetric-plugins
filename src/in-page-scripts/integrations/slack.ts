@@ -12,7 +12,7 @@ class Slack implements WebToolIntegration {
 
         if (actionsGroup) {
             linkElement.classList.add('devart-timer-link-slack', 'c-button-unstyled', 'c-icon_button', 'c-icon_button--size_small', 'c-message_actions__button');
-            actionsGroup.lastChild.before(linkElement);
+            actionsGroup.lastChild?.before(linkElement);
         }
     }
 
@@ -31,7 +31,7 @@ class Slack implements WebToolIntegration {
                         return sumText + elText;
                     }, '');
             } else {
-                text = `${node.textContent.trim()} `;
+                text = `${node.textContent?.trim()} `;
             }
 
             return text;

@@ -4,7 +4,7 @@ class PodioTask implements WebToolIntegration {
 
     matchUrl = '*://podio.com/tasks/*';
 
-    render(issueElement: HTMLElement, linkElement: HTMLElement) {
+    render(_issueElement: HTMLElement, linkElement: HTMLElement) {
 
         let taskHeader = $$('.task-header .action-bar ul');
         if (taskHeader) {
@@ -14,15 +14,15 @@ class PodioTask implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source) {
+    getIssue(_issueElement: HTMLElement, source: Source) {
 
         let issueName = $$.try('.task-title > .header-title').textContent;
         if (!issueName) {
             return;
         }
 
-        let issueUrl: string;
-        let issueId: string;
+        let issueUrl: string | undefined;
+        let issueId: string | undefined;
 
         let matches = source.path.match(/^\/tasks\/(\d+)/);
         if (matches) {
@@ -67,8 +67,8 @@ class PodioTaskList implements WebToolIntegration {
 
         let projectName = $$.try('.edit-task-title + .linked-item', issueElement).textContent;
 
-        let issueUrl: string;
-        let issueId: string;
+        let issueUrl: string | undefined;
+        let issueId: string | undefined;
 
         let href = (<HTMLAnchorElement>$$.try('.task-link', issueElement)).href || '';
         let matches = href.match(/\/tasks\/(\d+)/);
@@ -104,9 +104,9 @@ class PodioAppItem implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-        let projectName = $$.try('.breadcrumb .item-title', issueElement).textContent;
-        return { projectName };
+    getIssue(issueElement: HTMLElement, source: Source) {
+        const projectName = $$.try('.breadcrumb .item-title', issueElement).textContent;
+        return { projectName } as WebToolIssue;
     }
 }
 

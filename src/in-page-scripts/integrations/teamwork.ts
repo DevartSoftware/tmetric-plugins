@@ -23,7 +23,7 @@ class Teamwork implements WebToolIntegration {
         issueElement.appendChild(container);
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
         const issueName = $$.try('.w-task-row__name > span', issueElement).textContent || $$.try<HTMLInputElement>('.task-name > textarea').value;
         if (!issueName) {
@@ -91,7 +91,9 @@ class Teamwork implements WebToolIntegration {
 
         const serviceUrl = source.protocol + source.host;
 
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
+        return {
+            issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames
+        } as WebToolIssue;
     }
 }
 
@@ -126,7 +128,7 @@ class TeamworkDesk implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
         let issueName: string, issueId: string, issueUrl: string, projectName: string;
 
@@ -166,7 +168,9 @@ class TeamworkDesk implements WebToolIntegration {
 
         const serviceUrl = source.protocol + source.host;
 
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+        return {
+            issueId, issueName, projectName, serviceType, serviceUrl, issueUrl
+        } as WebToolIssue;
     }
 }
 

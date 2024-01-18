@@ -29,7 +29,7 @@ class TfsIntegration implements WebToolIntegration {
         host.insertBefore(linkContainer, host.firstElementChild);
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
         let issue = (<HTMLInputElement>$$.visible('.work-item-form-title input, .work-item-title-textfield input', issueElement));
         let issueName = issue && issue.value;
@@ -73,7 +73,9 @@ class TfsIntegration implements WebToolIntegration {
                 || $$('.work-item-form-areaIteration input', issueElement) // old layout
         let projectName = projectInput && (<HTMLInputElement>projectInput).value;
 
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
+        return {
+            issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames
+        } as WebToolIssue;
     }
 }
 

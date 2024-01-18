@@ -26,7 +26,7 @@ class Wrike implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
         const issueNameElement = $$.try('wrike-task-title, work-item-title', issueElement); // new design 
         let issueName = $$.try<HTMLTextAreaElement>('textarea.title-field, textarea.title__field', issueElement).value || issueNameElement.textContent;
 
@@ -85,10 +85,11 @@ class Wrike implements WebToolIntegration {
         }
 
         const serviceType = 'Wrike';
-
         const serviceUrl = source.protocol + source.host;
 
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+        return {
+            issueId, issueName, projectName, serviceType, serviceUrl, issueUrl
+        } as WebToolIssue;
     }
 }
 

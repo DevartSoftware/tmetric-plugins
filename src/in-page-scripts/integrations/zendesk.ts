@@ -4,7 +4,7 @@ class Zendesk implements WebToolIntegration {
 
     matchUrl = '*://*.zendesk.com/agent/tickets/*';
 
-    render(issueElement: HTMLElement, linkElement: HTMLElement) {
+    render(_issueElement: HTMLElement, linkElement: HTMLElement) {
         let host = $$.visible('header .pane.right');
         if (host) {
             linkElement.classList.add('btn', 'origin', 'devart-timer-link-zendesk');
@@ -12,7 +12,7 @@ class Zendesk implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(_issueElement: HTMLElement, source: Source) {
 
         let issueNameElement = $$.visible<HTMLInputElement>('.ticket .editable input[name=subject]') ||
             $$.visible<HTMLInputElement>('.ticket .editable input[data-test-id=ticket-pane-subject]') || // TE-506
@@ -31,9 +31,9 @@ class Zendesk implements WebToolIntegration {
             var issueUrl = source.path;
         }
 
-        let projectName = ''; // zendesk have no predefined field for project
-        let serviceType = 'Zendesk';
-        let serviceUrl = source.protocol + source.host;
+        const projectName = ''; // zendesk have no predefined field for project
+        const serviceType = 'Zendesk';
+        const serviceUrl = source.protocol + source.host;
 
         // tags
         const divTags = $$.visible<HTMLInputElement>('div[data-test-id=ticket-fields-tags]');
@@ -43,7 +43,9 @@ class Zendesk implements WebToolIntegration {
             tagNames = $$.all('.garden-tag-item', divTags).map(_ => _.textContent);
         }
 
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames } as WebToolIssue;
+        return {
+            issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames
+        } as WebToolIssue;
     }
 }
 

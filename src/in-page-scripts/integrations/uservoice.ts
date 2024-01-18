@@ -6,41 +6,46 @@ class UserVoiceTicket implements WebToolIntegration {
 
     issueElementSelector = '.ticket';
 
-    render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        var ticketAnchor = $$('.actionbar-item.stretch');
+    render(_issueElement: HTMLElement, linkElement: HTMLElement) {
+        const ticketAnchor = $$('.actionbar-item.stretch');
         if (ticketAnchor) {
-            var linkContainer = $$.create('div', 'actionbar-item');
+            const linkContainer = $$.create('div', 'actionbar-item');
             linkElement.classList.add('button', 'secondary', 'small', 'actionbar-link');
             linkContainer.appendChild(linkElement);
             ticketAnchor.parentNode.insertBefore(linkContainer, ticketAnchor.nextElementSibling);
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
         // https://*.uservoice.com/admin/tickets/TICKET_ID
         // https://*.uservoice.com/admin/tickets/TICKET_ID/?QUERY
 
-        var issueName = $$.try<HTMLElement>('.ticket-subject-header', issueElement).textContent;
+        const issueName = $$.try<HTMLElement>('.ticket-subject-header', issueElement).textContent;
         if (!issueName) {
             return;
         }
 
-        var serviceType = 'UserVoice';
-        var serviceUrl = source.protocol + source.host;
+        const serviceType = 'UserVoice';
+        const serviceUrl = source.protocol + source.host;
 
         // Issue id in url not refreshed after creating new ticket.
         // Take it from ticket field.
-        var issueUrlElement = $$.try<HTMLAnchorElement>('.ticket-metadata a[href*="/tickets/"]', issueElement);
-        var match = /^(.+\/tickets\/)(\d+).*$/.exec(issueUrlElement.href);
+        const issueUrlElement = $$.try<HTMLAnchorElement>('.ticket-metadata a[href*="/tickets/"]', issueElement);
+        const match = /^(.+\/tickets\/)(\d+).*$/.exec(issueUrlElement.href);
+
+        let issueId: string | undefined;
+        let issueUrl: string | undefined;
         if (match) {
-            var issueId = '#' + match[2];
-            var issueUrl = $$.getRelativeUrl(serviceUrl, issueUrlElement.href);
+            issueId = '#' + match[2];
+            issueUrl = $$.getRelativeUrl(serviceUrl, issueUrlElement.href);
         }
 
-        var projectName = ''; // uservoice have no predefined field for project
+        const projectName = ''; // uservoice have no predefined field for project
 
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+        return {
+            issueId, issueName, projectName, serviceType, serviceUrl, issueUrl
+        } as WebToolIssue;
     }
 }
 
@@ -50,39 +55,41 @@ class UserVoiceSuggestion implements WebToolIntegration {
 
     matchUrl = '*://*.uservoice.com/*/suggestions/*';
 
-    render(issueElement: HTMLElement, linkElement: HTMLElement) {
+    render(_issueElement: HTMLElement, linkElement: HTMLElement) {
 
-        var suggestionAnchor = $$('.page-header-title:not(.inline)');
+        const suggestionAnchor = $$('.page-header-title:not(.inline)');
         if (suggestionAnchor) {
-            var linkContainer = $$.create('div', 'pull-right');
+            const linkContainer = $$.create('div', 'pull-right');
             linkElement.classList.add('button', 'secondary');
             linkContainer.appendChild(linkElement);
             suggestionAnchor.parentNode.insertBefore(linkContainer, suggestionAnchor);
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(_issueElement: HTMLElement, source: Source) {
 
         // Suggestion url:
         // https://*.uservoice.com/admin/v3/suggestions/SUGGESTION_ID/SUBPATH
-        var match = /^(\/.+\/suggestions\/)(\d+).*$/.exec(source.path);
+        const match = /^(\/.+\/suggestions\/)(\d+).*$/.exec(source.path);
         if (!match) {
             return;
         }
 
-        var lastChild = $$.try('.page-header-title:not(.inline)').lastChild;
-        var issueName = lastChild && lastChild.textContent.trim();
+        const lastChild = $$.try('.page-header-title:not(.inline)').lastChild;
+        const issueName = lastChild && lastChild.textContent.trim();
         if (!issueName) {
             return;
         }
 
-        var issueId = '#' + match[2];
-        var serviceType = 'UserVoice';
-        var serviceUrl = source.protocol + source.host;
-        var issueUrl = match[1] + match[2];
-        var projectName = ''; // uservoice have no predefined field for project
+        const issueId = '#' + match[2];
+        const serviceType = 'UserVoice';
+        const serviceUrl = source.protocol + source.host;
+        const issueUrl = match[1] + match[2];
+        const projectName = ''; // uservoice have no predefined field for project
 
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+        return {
+            issueId, issueName, projectName, serviceType, serviceUrl, issueUrl
+        } as WebToolIssue;
     }
 }
 

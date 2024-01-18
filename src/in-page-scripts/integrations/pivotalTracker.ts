@@ -7,7 +7,7 @@ class PivotalTracker implements WebToolIntegration {
     issueElementSelector = '.story .model_details';
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        var host = $$('aside > .wrapper', issueElement);
+        const host = $$('aside > .wrapper', issueElement);
         if (host) {
             let linkContainer = $$.create('div', 'devart-timer-link-pivotaltracker');
             linkContainer.appendChild(linkElement);
@@ -15,22 +15,22 @@ class PivotalTracker implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
-        var issueId = $$.try<HTMLInputElement>('.text_value', issueElement).value;
+        const issueId = $$.try<HTMLInputElement>('.text_value', issueElement).value;
         if (!issueId) {
             return;
         }
 
-        var issueName = $$.try('.name textarea', issueElement).textContent;
+        const issueName = $$.try('.name textarea', issueElement).textContent;
         if (!issueName) {
             return;
         }
 
-        var projectName: string;
+        let projectName: string | undefined | null;
 
         // single task page
-        var projectLinks = $$.all('.project > h2 > a');
+        const projectLinks = $$.all('.project > h2 > a');
         if (projectLinks.length == 1) {
             projectName = projectLinks[0].textContent;
         }
@@ -52,16 +52,17 @@ class PivotalTracker implements WebToolIntegration {
             }
         }
 
-        var serviceType = 'PivotalTracker';
+        const serviceType = 'PivotalTracker';
+        const serviceUrl = source.protocol + source.host;
 
-        var serviceUrl = source.protocol + source.host;
+        const issueUrl = '/story/show/' + issueId.substring(1);
 
-        var issueUrl = '/story/show/' + issueId.substring(1);
+        const closestContainer = $$.closest('.story', issueElement);
+        const tagNames = $$.all('.labels_container.full div[data-aid="Label__Name"]', closestContainer).map(label => label.textContent);
 
-        let closestContainer = $$.closest('.story', issueElement);
-        let tagNames = $$.all('.labels_container.full div[data-aid="Label__Name"]', closestContainer).map(label => label.textContent);
-
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
+        return {
+            issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames
+        } as WebToolIssue;
     }
 }
 

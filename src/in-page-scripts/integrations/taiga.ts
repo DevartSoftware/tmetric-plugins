@@ -14,7 +14,7 @@ class TaigaIntegration implements WebToolIntegration {
         host.insertBefore(linkContainer, host.firstElementChild);
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
         let issueName = $$.try('.detail-header-container .detail-subject').textContent;
         if (!issueName) {
@@ -30,7 +30,9 @@ class TaigaIntegration implements WebToolIntegration {
         let issueUrl = match[2];
         let issueId = '#' + match[3];
 
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+        return {
+            issueId, issueName, projectName, serviceType, serviceUrl, issueUrl
+        } as WebToolIssue;
     }
 }
 

@@ -52,7 +52,7 @@ class Todoist implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
        
         let issueNumber: string
         let issueId: string;
@@ -160,7 +160,9 @@ class Todoist implements WebToolIntegration {
         let serviceUrl = source.protocol + source.host;
         let issueUrl = 'showTask?id=' + issueNumber;
 
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
+        return {
+            issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames
+        } as WebToolIssue;
     }
 }
 

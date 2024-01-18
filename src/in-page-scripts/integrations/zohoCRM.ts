@@ -36,7 +36,7 @@ class ZohoActivity implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, _source: Source) {
 
         let issueName = $$.try('#subvalue_SUBJECT, #entityNameInBCView', issueElement).textContent; // 1) task or call; 2) event
         if (!issueName) {
@@ -49,8 +49,11 @@ class ZohoActivity implements WebToolIntegration {
         }
 
         const tagNames = $$.all('.linktoTagA', issueElement).map(_ => _.textContent);
+        const serviceType = 'ZohoCRM';
 
-        return { serviceType: 'ZohoCRM', issueName, tagNames };
+        return {
+            serviceType, issueName, tagNames
+        } as WebToolIssue;
     }
 }
 

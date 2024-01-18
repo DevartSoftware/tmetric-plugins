@@ -26,7 +26,7 @@ class YouTrack implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, _source: Source) {
 
         const issueName =
             $$.try('.yt-issue-body__summary', issueElement).textContent || // single task
@@ -37,20 +37,18 @@ class YouTrack implements WebToolIntegration {
         }
 
         const linkElement = $$('.yt-issue-id', issueElement);
-
         const issueId = linkElement && linkElement.textContent;
-
         const issueUrl = linkElement && linkElement.getAttribute('href');
 
         const projectName = $$.try('yt-issue-project', issueElement).textContent;
-
         const tagNames = $$.all('.yt-issue-tags__tag__name', issueElement).map(_ => _.textContent);
 
         const serviceType = 'YouTrack';
-
         const serviceUrl = ($$.try('base') as HTMLBaseElement).href;
 
-        return { issueId, issueName, projectName, tagNames, serviceType, serviceUrl, issueUrl };
+        return {
+            issueId, issueName, projectName, tagNames, serviceType, serviceUrl, issueUrl
+        } as WebToolIssue;
     }
 }
 
@@ -74,7 +72,7 @@ class YouTrackLite implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, _source: Source) {
 
         const issueName1 = $$.try('h1[data-test="ticket-summary"]', issueElement);
         const issueName = issueName1.textContent;
@@ -98,7 +96,9 @@ class YouTrackLite implements WebToolIntegration {
 
         const tagNames = $$.all('[class^=tags_] a', issueElement).map(_ => _.textContent);
 
-        return { issueId, issueName, projectName, tagNames, serviceType, serviceUrl, issueUrl };
+        return {
+            issueId, issueName, projectName, tagNames, serviceType, serviceUrl, issueUrl
+        } as WebToolIssue;
     }
 }
 
@@ -114,7 +114,7 @@ class YouTrackOld implements WebToolIntegration {
         issueElement.appendChild(linkElement);
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
         // Full url:
         // https://HOST/PATH/issue/ISSUE_ID#PARAMETERS
@@ -134,14 +134,14 @@ class YouTrackOld implements WebToolIntegration {
         }
 
         const projectName = $$.try('.fsi-properties .fsi-property .attribute.bold').textContent;
-
-        const serviceType = 'YouTrack';
-
-        const serviceUrl = match[1];
-
         const issueUrl = 'issue/' + issueId;
 
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+        const serviceType = 'YouTrack';
+        const serviceUrl = match[1];
+
+        return {
+            issueId, issueName, projectName, serviceType, serviceUrl, issueUrl
+        } as WebToolIssue;
     }
 }
 
@@ -160,7 +160,7 @@ class YouTrackBoardOld implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
         // Full url:
         // https://HOST/PATH/rest/agile/*/sprint/*
@@ -186,12 +186,13 @@ class YouTrackBoardOld implements WebToolIntegration {
         const projectName = projectSelector ? $$.try('label[for=editAgileProjects_' + issueId.split('-')[0] + ']', projectSelector).textContent : null;
 
         const serviceType = 'YouTrack';
-
         const serviceUrl = match[1];
 
         const issueUrl = 'issue/' + issueId;
 
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+        return {
+            issueId, issueName, projectName, serviceType, serviceUrl, issueUrl
+        } as WebToolIssue;
     }
 }
 

@@ -16,7 +16,7 @@ class Notion implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
         let issueId, issueName, issueUrl: string | undefined;
 

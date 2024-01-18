@@ -18,7 +18,7 @@ class Ticktick implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
         let issueName = $$.try('.CodeMirror-code span', issueElement).textContent || // tasks or note
             $$.try('header', issueElement).textContent; // habit
@@ -78,7 +78,9 @@ class Ticktick implements WebToolIntegration {
         }
         const serviceUrl = source.protocol + host;
 
-        return { issueId, issueName, serviceType, serviceUrl, issueUrl, tagNames };
+        return {
+            issueId, issueName, serviceType, serviceUrl, issueUrl, tagNames
+        } as WebToolIssue;
     }
 }
 IntegrationService.register(new Ticktick());

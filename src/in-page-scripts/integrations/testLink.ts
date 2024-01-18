@@ -13,7 +13,7 @@ class TestLink implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
         let projectId = '';
         let issueId = '';
@@ -44,15 +44,14 @@ class TestLink implements WebToolIntegration {
         }
 
         // http(s)://testlink.company.local/lib/execute/...
-        let serviceUrl = source.fullUrl.split('/lib/execute/')[0];
+        const serviceUrl = source.fullUrl.split('/lib/execute/')[0];
+        const serviceType = 'TestLink';
 
-        let issueUrl = `/linkto.php?tprojectPrefix=${projectId}&item=testcase&id=${issueId}`;
+        const issueUrl = `/linkto.php?tprojectPrefix=${projectId}&item=testcase&id=${issueId}`;
 
-        let projectName = '';
-
-        let serviceType = 'TestLink';
-
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+        return {
+            issueId, issueName, serviceType, serviceUrl, issueUrl
+        } as WebToolIssue;
     }
 }
 
