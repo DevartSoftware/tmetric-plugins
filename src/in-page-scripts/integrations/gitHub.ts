@@ -22,7 +22,12 @@ class GitHub implements WebToolIntegration {
             return;
         }
 
-        const projectName = $$.try('[itemprop=name]').textContent;
+        let projectName = $$.try('[itemprop=name]').textContent;
+        if (!projectName)
+        {
+            const headerItems = $$.all('.AppHeader-context-item .AppHeader-context-item-label');
+            projectName = headerItems[headerItems.length - 1]?.textContent;
+        }
 
         // https://github.com/NAMESPACE/PROJECT/issues/NUMBER
         // https://github.com/NAMESPACE/PROJECT/pull/NUMBER
