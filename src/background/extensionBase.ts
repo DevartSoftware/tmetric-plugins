@@ -3,7 +3,7 @@ const invalidProfileError = 'Profile not configured';
 
 abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
 
-    private _lastNotificationId: string;
+    private _lastNotificationId: string | undefined;
 
     private _buttonState = ButtonState.start;
 
@@ -11,11 +11,11 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
 
     private _loginWinId: number | undefined;
 
-    private _loginWindowPending: boolean;
+    private _loginWindowPending = false;
 
     private _extraHours: Promise<number>;
 
-    private _timeEntries: Models.TimeEntry[];
+    private _timeEntries: Models.TimeEntry[] | undefined;
 
     private _actionOnConnect: (() => void) | undefined;
 
@@ -446,10 +446,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
         if (!this.timer && this._connection.canRetryConnection) {
             await this._connection.retryConnection(true);
         }
-        if (this.timer) {
-            return await this.getPopupData(params);
-        }
-        throw 'Not connected';
+        return await this.getPopupData(params);
     }
 
     /** Handles messages from in-page scripts */
@@ -529,7 +526,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
     }
 
     private getDuration(timer: Models.Timer): number
-    private getDuration(timeEntries: Models.TimeEntry[]): number
+    private getDuration(timeEntries: Models.TimeEntry[] | undefined): number
     private getDuration(arg: any): any {
         if (arg) {
             const now = new Date().getTime();

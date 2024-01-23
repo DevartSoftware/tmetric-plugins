@@ -1,10 +1,10 @@
 class SignalRConnection extends ServerConnection<OidcClient> {
 
-    hub: signalR.HubConnection;
+    hub: signalR.HubConnection | undefined;
 
     private readonly _hubProxy = new SignalRHubProxy();
 
-    private _hubConnected: boolean;
+    private _hubConnected = false;
 
     private readonly minRetryInterval = 15000; // 15 seconds
 
@@ -14,9 +14,9 @@ class SignalRConnection extends ServerConnection<OidcClient> {
 
     private readonly intervalMultiplierTimeout = 5 * 60000; // 5 mins
 
-    private _retryInProgress: boolean;
+    private _retryInProgress = false;
 
-    private _retryTimeout: number;
+    private _retryTimeout: number | undefined;
 
     private _retryTimeoutHandle: number | undefined;
 
@@ -132,7 +132,7 @@ class SignalRConnection extends ServerConnection<OidcClient> {
 
         if (this._hubConnected) {
             console.log('connect: hubConnected');
-            return this.userProfile;
+            return this.userProfile!;
         }
 
         try {
@@ -140,13 +140,14 @@ class SignalRConnection extends ServerConnection<OidcClient> {
 
             const urls = await this._urls;
 
-            if (!this.hub) {
-                const hub = new signalR.HubConnectionBuilder()
+            let hub = this.hub;
+            if (!hub) {
+                hub = new signalR.HubConnectionBuilder()
                     .withUrl(urls.signalRUrl + 'appHub')
                     .configureLogging(signalR.LogLevel.Warning)
                     .build();
                 hub.onclose(() => {
-                    this._hubProxy.onDisconnect(hub);
+                    this._hubProxy.onDisconnect(hub!);
                     this.expectedTimerUpdate = false;
                     console.log('hub.disconnected');
                     this.disconnect().then(() => {
@@ -158,9 +159,9 @@ class SignalRConnection extends ServerConnection<OidcClient> {
 
             let hubPromise = Promise.resolve();
             if (!this._hubProxy.isConnected) {
-                hubPromise = this.hub.start();
+                hubPromise = hub.start();
                 hubPromise.catch(() => this.setRetryPending(true));
-                hubPromise.then(() => this._hubProxy.onConnect(this.hub));
+                hubPromise.then(() => this._hubProxy.onConnect(hub!));
             }
 
             await hubPromise;
@@ -168,9 +169,8 @@ class SignalRConnection extends ServerConnection<OidcClient> {
             this._hubConnected = true;
             this.setRetryPending(false);
             console.log('connect: register');
-            await this.hub.invoke('register', profile.userProfileId);
+            await hub.invoke('register', profile.userProfileId);
             return profile;
-
         }
         catch (e) {
             console.log('connect: getProfile failed');
@@ -241,7 +241,8 @@ class SignalRConnection extends ServerConnection<OidcClient> {
             this._hubConnected = false;
             this.onUpdateTimer.emit(null);
             console.log('disconnect: stop hub');
-            disconnectPromise = this.hub.stop();
+            const hub = this.hub;
+            disconnectPromise = hub ? hub.stop() : Promise.resolve();
         }
         const promise = disconnectPromise.then(() => {
             console.log('disconnect: disable retrying');

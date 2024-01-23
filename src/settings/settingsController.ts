@@ -1,7 +1,7 @@
 function initShowPopupSelector() {
     chrome.storage.sync.get(
-        <IExtensionSettings>{showPopup: Models.ShowPopupOption.Always},
-        (settings: IExtensionSettings) => {
+        { showPopup: Models.ShowPopupOption.Always } as IExtensionSettings,
+        settings => {
 
             document.body.style.visibility = 'visible'; // Prevent flickering (TE-128)
 
@@ -17,7 +17,7 @@ function initShowPopupSelector() {
 
             $('#show-popup-settings')
                 .append(items)
-                .val(settings.showPopup.toString())
+                .val((settings as IExtensionSettings).showPopup.toString())
                 .on('change', () => {
                     chrome.storage.sync.set(<IExtensionSettings>{
                         showPopup: $('#show-popup-settings :selected').val()

@@ -10,20 +10,20 @@ class ZenHub implements WebToolIntegration {
         let actions = $$('.zhc-issue-meta__actions', issueElement);
         if (actions) {
             linkElement.classList.add('devart-timer-link-zenhub', 'zhc-btn', 'zhc-btn--secondary');
-            actions.firstChild.before(linkElement);
+            actions.firstChild?.before(linkElement);
         }
     }
 
     getIssue(issueElement: HTMLElement, source: Source) {
 
-        let issueName: string;
-        let issueId: string;
+        let issueName: string | undefined;
+        let issueId: string | undefined;
 
         let issueTitle = $$.try('.zhc-issue-description__title', issueElement).textContent;
         if (issueTitle) {
             let splittedTitle = issueTitle.split('#');
             issueName = splittedTitle[0];
-            issueId = splittedTitle.length > 1 && splittedTitle[1];
+            issueId = splittedTitle.length > 1 ? splittedTitle[1] : undefined;
         }
 
         const projectName = $$.try('.zhc-breadcrumbs__button__name', issueElement).textContent;

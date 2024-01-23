@@ -26,9 +26,11 @@ class Zendesk implements WebToolIntegration {
         // Ticket url:
         // https://*.zendesk.com/agent/tickets/TICKET_ID or https://*.zendesk.com/agent/tickets/TICKET_ID/events
         let match = /^\/agent\/tickets\/(\d+)(?:\/events)?/.exec(source.path);
+        let issueId: string | undefined;
+        let issueUrl: string | undefined;
         if (match) {
-            var issueId = '#' + match[1];
-            var issueUrl = source.path;
+            issueId = '#' + match[1];
+            issueUrl = source.path;
         }
 
         const projectName = ''; // zendesk have no predefined field for project
@@ -37,7 +39,7 @@ class Zendesk implements WebToolIntegration {
 
         // tags
         const divTags = $$.visible<HTMLInputElement>('div[data-test-id=ticket-fields-tags]');
-        let tagNames = [];
+        let tagNames = [] as (string | null)[];
 
         if (divTags) {
             tagNames = $$.all('.garden-tag-item', divTags).map(_ => _.textContent);

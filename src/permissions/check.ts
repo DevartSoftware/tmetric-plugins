@@ -3,7 +3,7 @@ $(document).ready(async () => {
     const skipPermissionsRequest = await new Promise<boolean>(resolve => {
         chrome.storage.local.get(
             { skipPermissionsRequest: false } as IExtensionLocalSettings,
-            ({ skipPermissionsRequest }: IExtensionLocalSettings) => resolve(skipPermissionsRequest)
+            value => resolve((value as IExtensionLocalSettings).skipPermissionsRequest)
         );
     });
 

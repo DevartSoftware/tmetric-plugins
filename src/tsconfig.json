@@ -11,12 +11,12 @@
     "noImplicitThis": true,
     "alwaysStrict": true,
     "strictBindCallApply": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
 
     //TODO:
-    "strictNullChecks": false,
     //"noImplicitAny": true,
-    //"strictFunctionTypes": true,
-    //"strictPropertyInitialization": true,
 
     "typeRoots": [
       "./typings/@fake"

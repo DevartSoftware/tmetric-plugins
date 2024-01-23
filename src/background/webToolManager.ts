@@ -85,9 +85,9 @@ class WebToolManager {
     private static _getServiceTypes(callback?: (serviceTypes: ServiceTypesMap) => void) {
         chrome.storage.local.get(
             { serviceTypes: {} } as IExtensionLocalSettings,
-            ({ serviceTypes }: IExtensionLocalSettings) => {
-                this.serviceTypes = serviceTypes || {};
-                callback && callback(serviceTypes);
+            (value) => {
+                this.serviceTypes = (value as IExtensionLocalSettings).serviceTypes || {};
+                callback && callback(this.serviceTypes);
             }
         );
     }

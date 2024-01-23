@@ -68,7 +68,7 @@ class YouTrackLite implements WebToolIntegration {
         const host = $$('span[data-test="updater-info"]', issueElement);
         if (host) {
             linkElement.classList.add('devart-timer-link-youtrack-lite');
-            host.parentElement.appendChild(linkElement);
+            host.parentElement!.appendChild(linkElement);
         }
     }
 
@@ -89,10 +89,10 @@ class YouTrackLite implements WebToolIntegration {
 
         const issueId = linkElement && linkElement.textContent;
 
-        const issueUrl = linkElement && $$.getRelativeUrl(serviceUrl, linkElement.getAttribute('href'));
+        const issueUrl = linkElement && $$.getRelativeUrl(serviceUrl, linkElement.getAttribute('href')!);
 
         const projectField = $$.try('div[aria-label^="Project: "]', issueElement).textContent;
-        const projectName = projectField ? projectField.substring('Project'.length)  : null;
+        const projectName = projectField ? projectField.substring('Project'.length) : null;
 
         const tagNames = $$.all('[class^=tags_] a', issueElement).map(_ => _.textContent);
 
@@ -156,7 +156,7 @@ class YouTrackBoardOld implements WebToolIntegration {
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
         const host = $$('.sb-issue-edit-id', issueElement);
         if (host) {
-            host.parentElement.insertBefore(linkElement, host.nextElementSibling);
+            host.parentElement!.insertBefore(linkElement, host.nextElementSibling);
         }
     }
 

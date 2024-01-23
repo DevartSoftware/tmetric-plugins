@@ -18,13 +18,13 @@ abstract class BackgroundBase<TConnection extends ServerConnection = ServerConne
 
     protected readonly _connection: TConnection;
 
-    protected timer: Models.TimerEx | null;
+    protected timer: Models.TimerEx | null = null;
 
     protected newPopupIssue: WebToolIssueTimer | undefined;
 
     protected newPopupAccountId: number | undefined;
 
-    protected userProfile: Models.UserProfile;
+    protected userProfile: Models.UserProfile | undefined;
 
     constructor(constants: Promise<Models.Constants>, connection: (constants: Promise<Models.Constants>) => TConnection) {
 
@@ -47,7 +47,11 @@ abstract class BackgroundBase<TConnection extends ServerConnection = ServerConne
     }
 
     protected async getProject(projectId: number, accountId?: number) {
-        accountId = accountId || this.userProfile.activeAccountId;
+        const profile = this.userProfile;
+        if (!profile) {
+            return;
+        }
+        accountId = accountId || profile.activeAccountId;
 
         const scope = await this.getAccountScope(accountId);
         if (scope) {
@@ -165,8 +169,7 @@ abstract class BackgroundBase<TConnection extends ServerConnection = ServerConne
             timer.issueName = trim(timer.issueName);
             timer.description = trim(timer.description);
             timer.projectName = trim(timer.projectName);
-            if (timer.tagNames)
-            {
+            if (timer.tagNames) {
                 timer.tagNames = timer.tagNames.map(t => trim(t)!);
             }
         }
@@ -225,7 +228,11 @@ abstract class BackgroundBase<TConnection extends ServerConnection = ServerConne
 
     protected async validateTimerTags(timer: WebToolIssueTimer, accountId?: number) {
 
-        accountId = accountId || this.userProfile.activeAccountId;
+        const profile = this.userProfile;
+        if (!profile) {
+            return;
+        }
+        accountId = accountId || profile.activeAccountId;
 
         const scope = await this.getAccountScope(accountId);
 
@@ -275,10 +282,15 @@ abstract class BackgroundBase<TConnection extends ServerConnection = ServerConne
 
     protected async getDefaultWorkType(accountId?: number) {
 
-        accountId = accountId || this.userProfile.activeAccountId;
+        const profile = this.userProfile;
+        if (!profile) {
+            return;
+        }
+
+        accountId = accountId || profile.activeAccountId;
 
         const scope = await this.getAccountScope(accountId);
-        const member = this.userProfile.accountMembership.find(_ => _.account.accountId == accountId);
+        const member = profile.accountMembership.find(_ => _.account.accountId == accountId);
         if (!member) {
             return;
         }
@@ -286,7 +298,11 @@ abstract class BackgroundBase<TConnection extends ServerConnection = ServerConne
     }
 
     protected async getRecentTasks(accountId?: number) {
-        return await this._connection.getRecentWorkTasks(accountId || this.userProfile.activeAccountId);
+        const profile = this.userProfile;
+        if (!profile) {
+            return;
+        }
+        return await this._connection.getRecentWorkTasks(accountId || profile.activeAccountId);
     }
 
     // account scope cache
@@ -341,11 +357,7 @@ abstract class BackgroundBase<TConnection extends ServerConnection = ServerConne
 
     /** @virtual */
     protected async initializePopupAction(params: IPopupParams) {
-
-        if (this.timer) {
-            return await this.getPopupData(params);
-        }
-        throw 'Not connected';
+        return await this.getPopupData(params);
     }
 
     protected openTrackerPagePopupAction() {
@@ -433,15 +445,19 @@ abstract class BackgroundBase<TConnection extends ServerConnection = ServerConne
     protected async getPopupData(params: IPopupParams) {
 
         let accountId = params.accountId;
+        const profile = this.userProfile;
+        if (!profile || !this.timer) {
+            throw 'Not connected';
+        }
 
         // get popup default data from account where project exist
         if (!accountId) {
-            accountId = this.newPopupAccountId || this.userProfile.activeAccountId;
+            accountId = this.newPopupAccountId || profile.activeAccountId;
         }
 
         // get default data from active account
-        if (!this.userProfile.accountMembership.some(_ => _.account.accountId == accountId)) {
-            accountId = this.userProfile.activeAccountId;
+        if (!profile.accountMembership.some(_ => _.account.accountId == accountId)) {
+            accountId = profile.activeAccountId;
         }
 
         const [title, webTool, scope, defaultWorkType] = await Promise.all([
@@ -451,7 +467,7 @@ abstract class BackgroundBase<TConnection extends ServerConnection = ServerConne
             this.getDefaultWorkType(accountId),
         ]);
 
-        const userRole = this.userProfile.accountMembership
+        const userRole = profile.accountMembership
             .find(_ => _.account.accountId == accountId)
             ?.role || Models.ServiceRole.Member;
 
@@ -517,7 +533,7 @@ abstract class BackgroundBase<TConnection extends ServerConnection = ServerConne
         [accountId: number]: {
             [key: string]: number;
         };
-    };
+    } | undefined;
 
     private accountToProjectMapKey = 'accountToProjectMap';
 
@@ -527,6 +543,7 @@ abstract class BackgroundBase<TConnection extends ServerConnection = ServerConne
         if (projectId) {
             map = map || {};
             map[projectName] = projectId;
+            this.accountToProjectMap ||= {};
             this.accountToProjectMap[accountId] = map;
         } else if (map) {
             delete map[projectName];
@@ -542,13 +559,13 @@ abstract class BackgroundBase<TConnection extends ServerConnection = ServerConne
             this.accountToProjectMap = json ? JSON.parse(json) : {};
         }
 
-        return this.accountToProjectMap[accountId];
+        return this.accountToProjectMap![accountId];
     }
 
     // task name to description map
     private taskNameToDescriptionMap: {
         [key: string]: string;
-    };
+    } | undefined;
 
     private taskNameToDescriptionMapKey = 'taskNameToDescriptionMap';
 
@@ -556,14 +573,14 @@ abstract class BackgroundBase<TConnection extends ServerConnection = ServerConne
         if (!taskName) {
             // There should be no empty values here when the API and client is working properly,
             // just in case it's better to ignore it here so that the user doesn't get strange behavior
-            return; 
+            return;
         }
         let map = await this.getDescriptionMap();
         if (description && description != taskName) {
             map = map || {};
             map[taskName] = description;
             this.taskNameToDescriptionMap = map;
-        } else {
+        } else if (map) {
             delete map[taskName];
         }
 

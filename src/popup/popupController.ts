@@ -5,21 +5,22 @@ class PopupController {
         this.getData(null);
     }
 
-    private _timeFormat: string;
-    private _profile: Models.UserProfile;
-    private _accountId: number;
-    private _projects: Models.ProjectLite[];
-    private _clients: Models.Client[];
-    private _tags: Models.Tag[];
-    private _tagsByName: { [key: string]: Models.Tag };
-    private _recentTasks: Models.RecentWorkTask[];
-    private _constants: Models.Constants;
-    private _canCreateProjects: boolean;
-    private _canCreateTags: boolean;
-    private _requiredFields: Models.RequiredFields;
-    private _newIssue: WebToolIssueTimer;
-    private _possibleWebTool: WebToolInfo;
-    private _selectedTagNames: string[];
+    private _timeFormat!: string;
+    private _profile!: Models.UserProfile;
+    private _accountId!: number;
+    private _projects!: Models.ProjectLite[];
+    private _clients!: Models.Client[];
+    private _tags!: Models.Tag[];
+    private _tagsByName!: { [key: string]: Models.Tag };
+    private _constants!: Models.Constants;
+    private _canCreateProjects!: boolean;
+    private _canCreateTags!: boolean;
+    private _requiredFields!: Models.RequiredFields;
+    private _newIssue!: WebToolIssueTimer;
+    private _possibleWebTool!: WebToolInfo;
+
+    private _recentTasks: Models.RecentWorkTask[] | undefined;
+    private _selectedTagNames: string[] | undefined;
 
     getData(accountId: number | null) {
 
@@ -645,9 +646,11 @@ class PopupController {
     }
 
     makeTimerTagsElement(timerTags: number[]) {
-        const sortedTags = timerTags.map(id => this.getTag(id))
+
+        const sortedTags = timerTags
+            .map(id => this.getTag(id)!)
             .filter(tag => !!tag)
-            .sort(this.compareTags) as Models.Tag[];
+            .sort(this.compareTags);
 
         const container = $('<span>');
 
@@ -927,8 +930,8 @@ class PopupController {
                         }
                     }
                 },
-                templateSelection: (options: TagSelection) => this.formatTag(options, false),
-                templateResult: (options: TagSelection) => this.formatTag(options, true)
+                templateSelection: options => this.formatTag(options as TagSelection, false),
+                templateResult: options => this.formatTag(options as TagSelection, true)
             })
             .val(selectedItems)
             .trigger('change');
@@ -1134,9 +1137,9 @@ class PopupController {
 
         const oldTagNames = this._selectedTagNames;
         const newTagNames = (select.val() || []) as string[];
-        const addedTagNames = newTagNames.filter(_ => oldTagNames.indexOf(_) < 0);
+        const addedTagNames = newTagNames.filter(_ => (oldTagNames?.indexOf(_) || -1) < 0);
 
-        const oldWorkTypeName = oldTagNames.find(tagName => {
+        const oldWorkTypeName = oldTagNames?.find(tagName => {
             const tag = this._tagsByName[tagName];
             return tag && tag.isWorkType;
         });

@@ -65,14 +65,14 @@ class ZohoProject implements WebToolIntegration {
 
     issueElementSelector = '#zpsDetailView .detail_rhs';
 
-    render(issueElement: HTMLElement, linkElement: HTMLElement) {
+    render(_issueElement: HTMLElement, linkElement: HTMLElement) {
         const panel = $$('#headerIconSection');
         if (panel) {
             panel.appendChild(linkElement);
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source) {
+    getIssue(issueElement: HTMLElement, _source: Source) {
 
         const issueName = $$.try('.detail-title-plain', issueElement).textContent;
 
@@ -106,7 +106,7 @@ class ZohoDesk implements WebToolIntegration {
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
         if (issueElement.matches(this.issueElementSelector[0])) { // Old version
-            const panel = $$('#caseSubject', issueElement).parentElement.parentElement;
+            const panel = $$('#caseSubject', issueElement)?.parentElement?.parentElement;
             panel?.insertBefore(linkElement, $$('.clboth', panel));
         } else { // New version (2022+)
             const prefix = this.getCssPrefix(issueElement);

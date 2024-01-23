@@ -346,9 +346,9 @@ class IntegrationService {
         newLink.setAttribute('data-session', this.session.toString());
         newLink.href = '#';
         newLink.title = 'Track spent time via TMetric service';
-        newLink.onclick = function (this: HTMLAnchorElement, e) {
+        newLink.onclick = function (this, e) {
             // TE-342 - prevent keeping focus on timer button
-            this.blur();
+            (this as HTMLAnchorElement).blur?.();
             e.stopPropagation();
             window.sendBackgroundMessagee({ action: 'putTimer', data: newIssueTimer });
             return false;

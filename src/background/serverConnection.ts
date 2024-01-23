@@ -4,7 +4,7 @@ class ServerConnection<TClient extends AjaxClient = AjaxClient> {
 
     private _accountToPost: number | null = null;
 
-    protected userProfile: Models.UserProfile;
+    protected userProfile: Models.UserProfile | undefined;
 
     protected expectedTimerUpdate = false;
 
