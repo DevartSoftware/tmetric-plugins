@@ -412,7 +412,7 @@ abstract class BackgroundBase {
         const filteredProjects = this.getTrackedProjects(scope)
             .sort((a, b) => a.projectName.localeCompare(b.projectName, [], { sensitivity: 'base' }));
 
-        const projectMap = this.getProjectMap(accountId);
+        const projectMap = await this.getProjectMap(accountId);
 
         // Determine default project
         let defaultProjectId: number | null = null;
