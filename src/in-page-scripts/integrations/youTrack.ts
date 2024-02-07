@@ -67,7 +67,8 @@ class YouTrackLite implements WebToolIntegration {
     issueElementSelector = '[class^=ticketContent__]';
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        const host = $$('span[data-test="updater-info"]', issueElement);
+        const host = $$('span[data-test="updater-info"]', issueElement) ||
+            $$('span[data-test="reporter-info"]', issueElement);
         if (host) {
             linkElement.classList.add('devart-timer-link-youtrack-lite');
             host.parentElement.appendChild(linkElement);
