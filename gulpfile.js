@@ -68,7 +68,6 @@ var files = {
         'src/background/webToolManager.js',
         'src/background/ajaxClient.js',
         'src/background/oidcClient.js',
-        'src/background/contentScriptsPolyfill.js',
         'src/background/contentScriptsRegistrator.js',
         'src/background/serverConnection.js',
         'src/background/signalRHubProxy.js',
@@ -98,11 +97,12 @@ var files = {
         'src/settings/settingsController.js',
         'src/background/backgroundBase.js',
         'src/background/extensionBase.js',
-        'src/background/simpleEvent.js',
-        //TODO:'src/background-bundle.js',
-        'src/manifest.json'
+        'src/background/simpleEvent.js'
+
     ],
     chrome: [
+        'src/manifest.json',
+        'src/chrome-background-bundle.js',
         'src/background/chromeExtension.js',
     ],
     firefox: [
@@ -169,6 +169,7 @@ gulp.task('version', (callback) => {
         [
             'package.json',
             src + 'manifest.json',
+            src + 'manifest-v2/manifest.json',
             src + 'in-page-scripts/version.ts'
         ].forEach(file => replaceInFile(
             file,
@@ -221,17 +222,13 @@ gulp.task('lib', () => {
         .src('node_modules/@microsoft/signalr/dist/webworker/signalr.min.js')
         .pipe(rename('signalr.min.js'))
         .pipe(gulp.dest(lib));
-    var browserPolyfill = gulp
-        .src('node_modules/webextension-polyfill/dist/browser-polyfill.min.js')
-        .pipe(rename('browser-polyfill.min.js'))
-        .pipe(gulp.dest(lib));        
     var select2 = gulp
         .src([
             'node_modules/select2/dist/js/select2.full.min.js',
             'node_modules/select2/dist/css/select2.min.css'
         ])
         .pipe(gulp.dest(lib + 'select2/'));
-    return mergeStream(jquery, signalr, browserPolyfill, select2);
+    return mergeStream(jquery, signalr, select2);
 });
 
 // compile
@@ -304,37 +301,18 @@ function copyFilesFireFox() {
         .pipe(gulp.dest(firefoxUnpackedDir));
 }
 
+function copyManifestFirefox() {
+    return gulp.src(['src/manifest-v2/manifest.json'])
+        .pipe(gulp.dest(firefoxUnpackedDir));
+}
+
 function stripDebugFirefox() {
     return stripDebugCommon(firefoxUnpackedDir);
 }
 
-function modifyManifestFirefox() {
-    return gulp.src(firefoxUnpackedDir + '/manifest.json')
-        .pipe(modifyFile(json => {
-            let manifest = JSON.parse(json);
-
-            // Replace chromeExtension.js to firefoxExtension.js
-            var scripts = manifest['background']['scripts'];
-            var index = scripts.indexOf('background/chromeExtension.js');
-            scripts[index]= 'background/firefoxExtension.js';
-
-            // Set addon ID (TE-283)
-            manifest['applications'] = {
-                gecko: { id: '@tmetric' }
-            };
-
-            //delete manifest['options_ui']['open_in_tab'];
-            delete manifest['externally_connectable'];
-
-            const s = JSON.stringify(manifest, null, 4);
-            return s;
-        }))
-        .pipe(gulp.dest(firefoxUnpackedDir));
-}
-
 gulp.task(
     'prepackage:firefox',
-    gulp.series(copyFilesFireFox, stripDebugFirefox, modifyManifestFirefox));
+    gulp.series(copyFilesFireFox, copyManifestFirefox, stripDebugFirefox));
 
 function packageFirefox() {
     var manifest = jsonfile.readFileSync(firefoxUnpackedDir + 'manifest.json');

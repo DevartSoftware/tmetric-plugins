@@ -1,15 +1,19 @@
+declare var browser: unknown;
+
 class PermissionManager {
 
+    browser!: typeof chrome;
+
+    constructor() {
+        this.browser = typeof browser !== 'undefined' ? browser as any : chrome;
+    }
+
     private request(origins: string[]) {
-        return typeof browser != 'undefined' ?
-            browser.permissions.request({ origins }) :
-            new Promise<boolean>(resolve => chrome.permissions.request({ origins }, result => resolve(result)));
+        return this.browser.permissions.request({ origins });
     }
 
     private remove(origins: string[]) {
-        return typeof browser != 'undefined' ?
-            browser.permissions.remove({ origins }) :
-            new Promise<boolean>(resolve => chrome.permissions.remove({ origins }, result => resolve(result)));
+        return this.browser.permissions.remove({ origins })
     }
 
     requestPermissions(serviceTypes: ServiceTypesMap) {
@@ -40,16 +44,16 @@ class PermissionManager {
 
         let callback: (result: boolean) => void;
 
-        chrome.permissions.getAll(allPermissions => {
+        this.browser.permissions.getAll(allPermissions => {
 
-            const manifest = chrome.runtime.getManifest();
+            const manifest = this.browser.runtime.getManifest();
             const requiredPermissions = (manifest.permissions as string[])
                 .concat(
                     ...(manifest.content_scripts || []).map(_ => _.matches as string[])
                 );
             const origins = (allPermissions.origins || []).filter(o => requiredPermissions.indexOf(o) < 0);
 
-            chrome.permissions.remove({ origins }, result => callback(result));
+            this.browser.permissions.remove({ origins }, result => callback(result));
         });
 
         return new Promise<boolean>(resolve => callback = resolve);

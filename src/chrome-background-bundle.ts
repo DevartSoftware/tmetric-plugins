@@ -6,7 +6,6 @@ try {
         "background/oidcClient.js",
         "background/webToolDescriptions.js",
         "background/webToolManager.js",
-        "background/contentScriptsPolyfill.js",
         "background/contentScriptsRegistrator.js",
         "background/simpleEvent.js",
         "background/serverConnection.js",

@@ -159,7 +159,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
         const matchedProjectCount = this.getTrackedProjects(scope).filter(p => p.projectName == timer.projectName).length;
         const requiredFields = scope.requiredFields;
 
-        const settings = await browser.storage.sync.get(<IExtensionSettings>{ showPopup: Models.ShowPopupOption.Always });
+        const settings = await chrome.storage.sync.get(<IExtensionSettings>{ showPopup: Models.ShowPopupOption.Always });
         let showPopup = (settings as IExtensionSettings).showPopup || Models.ShowPopupOption.Always;
 
         if (timer.serviceType === 'Shortcut') {
@@ -269,7 +269,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
     }
 
     protected override async getActiveTabTitle() {
-        const tabs = await browser.tabs.query({ currentWindow: true, active: true });
+        const tabs = await chrome.tabs.query({ currentWindow: true, active: true });
         const activeTab = tabs && tabs[0];
         return activeTab?.title || null;
     }
@@ -625,7 +625,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
 
         if (this._loginWinId) {
 
-            const tabs = await browser.tabs.query({ windowId: this._loginWinId });
+            const tabs = await chrome.tabs.query({ windowId: this._loginWinId });
             const constants = await this._constants;
 
             const tab = tabs.find(tab => tab.id == this._loginTabId);
@@ -669,7 +669,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
         const constants = await this._constants;
         const url = `${constants.authorityUrl}extension/login.html`;
 
-        const tab = await browser.tabs.create({ url } as chrome.tabs.CreateProperties);
+        const tab = await chrome.tabs.create({ url } as chrome.tabs.CreateProperties);
         this._loginWinId = tab.windowId;
         this._loginTabId = tab.id!;
         this._loginWindowPending = false;

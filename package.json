@@ -2,7 +2,7 @@
     "name": "TMetric",
     "license": "BSD-2-Clause",
     "description": "Browser extensions that integrate TMetric service with popular issue tracking systems.",
-    "version": "4.9.2",
+    "version": "5.0.0",
     "repository": {
         "type": "Git",
         "url": "https://github.com/DevartSoftware/tt-plugins.git"
@@ -14,8 +14,7 @@
         "webextension-polyfill": "^0.10.0"
     },
     "devDependencies": {
-        "@types/chrome": "^0.0.248",
-        "@types/firefox-webext-browser": "94.0.1",
+        "@types/chrome": "^0.0.260",
         "del": "3.0.0",
         "gulp": "^4.0.2",
         "gulp-cli": "2.0.1",

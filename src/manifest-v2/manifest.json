@@ -1,20 +1,15 @@
 {
-  "manifest_version": 3,
+  "manifest_version": 2,
 
   "name": "TMetric – Time Tracker & Productivity App",
   "short_name": "TMetric",
   "description": "Simple time tracking extension which helps you be more productive, complete projects in time and bill your clients correctly.",
   "author": "Devart",
-  "version": "5.0.8",
-  "minimum_chrome_version": "102",
+  "version": "5.0.0",
 
-  "browser_specific_settings": {
+  "applications": {
     "gecko": {
-      "id": "@tmetric",
-      "strict_min_version": "109"
-    },
-    "safari": {
-      "strict_min_version": "15.4",
+      "id": "@tmetric"
     }
   },
 
@@ -25,7 +20,7 @@
     "128": "images/icon128.png"
   },
 
-  "action": {
+  "browser_action": {
     "default_icon": {
       "19": "images/inactive19.png",
       "38": "images/inactive38.png"
@@ -39,25 +34,34 @@
     "webNavigation",
     "notifications",
     "storage",
-    "scripting"
-  ],
-  "host_permissions": [
+    "scripting",
     "*://*.tmetric.com/*"
   ],
-  "optional_host_permissions": [
-    "*://*/"
+  "optional_permissions": [
+    "http://*/*",
+    "https://*/*"
   ],
   "background": {
-    "service_worker": "background-bundle.js"
+    "scripts": [
+      "lib/signalr.min.js",
+      "background/storage.js",
+      "background/ajaxClient.js",
+      "background/oidcClient.js",
+      "background/webToolDescriptions.js",
+      "background/webToolManager.js",
+      "background/contentScriptsRegistrator.js",
+      "background/simpleEvent.js",
+      "background/serverConnection.js",
+      "background/signalRHubProxy.js",
+      "background/signalRConnection.js",
+      "background/backgroundBase.js",
+      "background/extensionBase.js",
+      "background/firefoxExtension.js"
+    ]
   },
   "web_accessible_resources": [
-    {
-      "resources": [
-        "popup/popup.html",
-        "settings/settings.html"
-      ],
-      "matches": [ "<all_urls>" ]
-    }
+    "popup/popup.html",
+    "settings/settings.html"
   ],
   "content_scripts": [
     {
@@ -71,9 +75,6 @@
       "run_at": "document_end"
     }
   ],
-  "externally_connectable": {
-    "matches": [ "*://*.tmetric.com/*" ]
-  },
   "options_ui": {
     "page": "settings/settings.html",
     "open_in_tab": true

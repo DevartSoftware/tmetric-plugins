@@ -2,61 +2,91 @@ class ContentScriptsRegistrator {
 
     private static instance: ContentScriptsRegistrator;
 
+    browser!: typeof chrome;
+
     constructor() {
+
+        this.browser = typeof browser !== 'undefined' ? browser as any : chrome;
 
         if (!ContentScriptsRegistrator.instance) {
 
             ContentScriptsRegistrator.instance = this;
 
-            chrome.permissions.onAdded.addListener(event => this.register(event.origins));
-            chrome.permissions.onRemoved.addListener(event => this.unregister(event.origins));
+            this.browser.permissions.onAdded.addListener(event => this.register(event.origins));
+            this.browser.permissions.onRemoved.addListener(event => this.unregister(event.origins));
         }
 
         return ContentScriptsRegistrator.instance;
     }
 
-    private scripts: { [serviceUrl: string]: RegisteredContentScript[] } = {};
+    private addRequiredScriptOptions(scriptId: string, scripts: chrome.scripting.RegisteredContentScript) {
 
-    private addRequiredScriptOptions(scripts: RegisteredContentScriptOptions) {
-
-        const js: FileOrCode[] = [
-            { file: 'in-page-scripts/utils.js' },
-            { file: 'in-page-scripts/integrationService.js' },
-            { file: 'in-page-scripts/page.js' },
+        const js = [
+            'in-page-scripts/utils.js',
+            'in-page-scripts/integrationService.js',
+            'in-page-scripts/page.js',
             ...(scripts.js || []),
-            { file: 'in-page-scripts/init.js' }
+            'in-page-scripts/init.js'
         ];
 
-        const css: FileOrCode[] = [
-            { file: 'css/timer-link.css' },
+        const css = [
+            'css/timer-link.css',
             ...(scripts.css || [])
         ];
 
-        let origins = scripts.matches.map(url => WebToolManager.toOrigin(url)!).filter(origin => origin);
+        let origins = scripts.matches?.map(url => WebToolManager.toOrigin(url)!).filter(origin => origin);
         origins = [...new Set(origins)];
 
         return [
             {
+                id: 'tmetric_' + scriptId,
                 matches: scripts.matches,
-                js: js,
-                css: css,
+                js,
+                css,
                 allFrames: scripts.allFrames || false,
                 runAt: 'document_end'
             },
             {
+                id: 'tmetric_topmost_' + scriptId,
                 matches: origins,
                 js: [
-                    { file: 'in-page-scripts/topmostPage.js' }
+                    'in-page-scripts/topmostPage.js'
                 ],
                 allFrames: false,
                 runAt: scripts.runAt
             }
-        ] as RegisteredContentScriptOptions[];
+        ] as chrome.scripting.RegisteredContentScript[];
+    }
+
+    private getScriptId(url: string) {
+        return Array.prototype.map.call(url, c => c.charCodeAt(0).toString(16)).join('');
+    }
+
+    async unregister(origins?: string[]) {
+        if (!origins) {
+            return;
+        }
+        const serviceTypes = await WebToolManager.getServiceTypes();
+
+        const serviceUrls = Object
+            .keys(serviceTypes)
+            .filter(url => origins.some(origin => WebToolManager.isMatch(url, origin)));
+        for (let url of serviceUrls) {
+            const scriptId = this.getScriptId(url);
+            try {
+                await this.browser.scripting.unregisterContentScripts({
+                    ids: ['tmetric_' + scriptId, 'tmetric_topmost_' + scriptId]
+                });
+            }
+            catch (e) {
+                console.error(e);
+            }
+        }
     }
 
     async register(origins?: string[]) {
 
-        console.log('ContentScriptsRegistrator.register origins', origins)
+        console.log('ContentScriptsRegistrator.register origins', origins);
 
         await this.unregister(origins);
 
@@ -86,7 +116,7 @@ class ContentScriptsRegistrator {
         serviceUrls = (await Promise.all(
             serviceUrls.map(
                 serviceUrl => new Promise<string>(
-                    resolve => chrome.permissions.contains({ origins: [serviceUrl] }, result => resolve(result ? serviceUrl : ''))
+                    resolve => this.browser.permissions.contains({ origins: [serviceUrl] }, result => resolve(result ? serviceUrl : ''))
                 )
             )
         )).filter(item => !!item);
@@ -106,70 +136,16 @@ class ContentScriptsRegistrator {
 
             const matches = [ serviceUrl ];
 
-            const options: RegisteredContentScriptOptions = {
+            const options = {
                 allFrames: scripts.allFrames,
-                js: (scripts.js || []).map(file => ({ file })),
-                css: (scripts.css || []).map(file => ({ file })),
-                matches: matches
-            };
+                js: (scripts.js || []),
+                css: (scripts.css || []),
+                matches: matches,
+            } as chrome.scripting.RegisteredContentScript;
 
-            const scriptsOptions = this.addRequiredScriptOptions(options);
+            const scriptsOptions = this.addRequiredScriptOptions(this.getScriptId(serviceUrl), options);
 
-            this.scripts[serviceUrl] = [... await Promise.all(scriptsOptions.map(this.registerInternal))];
-
-            this.checkContentScripts(matches, !!scripts.allFrames);
+            await this.browser.scripting.registerContentScripts(scriptsOptions);
         });
-    }
-
-    async unregister(origins?: string[]) {
-
-        console.log('ContentScriptsRegistrator.unregister origins', origins)
-
-        const serviceUrls = Object.keys(this.scripts).filter(url => origins ? origins.some(origin => WebToolManager.isMatch(url, origin)) : true);
-
-        serviceUrls.forEach(serviceUrl => {
-            const script = this.scripts[serviceUrl];
-            if (!script) {
-                return;
-            }
-            script.forEach(s => s.unregister());
-            delete this.scripts[serviceUrl];
-        });
-    }
-
-    private registerInternal(options: RegisteredContentScriptOptions) {
-
-        let method: (options: RegisteredContentScriptOptions) => Promise<RegisteredContentScript>;
-
-        if (typeof browser === 'object' && browser?.contentScripts?.register) {
-            method = browser.contentScripts.register;
-        } else {
-            method = () => Promise.resolve({ unregister: () => undefined as any });
-        }
-
-        return method(options);
-    }
-
-    private checkContentScripts(matches: string[], allFrames: boolean) {
-
-        const sendFunc = function () {
-            chrome.runtime.sendMessage({ action: 'checkContentScripts' });
-        }
-
-        if (typeof chrome === 'object' && chrome.contentScripts && chrome.contentScripts.isPolyfill) {
-
-            chrome.tabs.query({ url: matches, status: 'complete' }, tabs => {
-                tabs.forEach(tab => {
-
-                    console.log('checkContentScripts', tab.id, tab.url)
-
-                    // TODO: manifest v3 - chrome.scripting.executeScript({target, func})
-                    tab.id != null && chrome.tabs.executeScript(tab.id, {
-                        allFrames,
-                        code: `(${sendFunc})()`,
-                    });
-                });
-            });
-        }
     }
 }

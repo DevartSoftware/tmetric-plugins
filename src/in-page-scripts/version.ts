@@ -45,7 +45,7 @@
     }
 
     const extensionInfo = { // object is updated from gulp build
-        version: '4.9.2'
+        version: '5.0.0'
     };
 
     addMeta('tmetric-extension-version', extensionInfo.version);
@@ -60,6 +60,5 @@
 
     sendBackgroundMessage({ action: 'getConstants' });
 
-    // TODO: manifest v3
-    // setInterval(() => sendBackgroundMessage({ action: 'getConstants' }), 25000);
+    setInterval(() => sendBackgroundMessage({ action: 'getConstants' }), 25000);
 })();

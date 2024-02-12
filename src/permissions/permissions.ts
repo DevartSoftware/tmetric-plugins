@@ -308,9 +308,7 @@ $(document).ready(async () => {
 
             await permissionsManager.updatePermissions(urlsAdded, urlsRemoved);
 
-
             closePopup();
-
         });
     }
 

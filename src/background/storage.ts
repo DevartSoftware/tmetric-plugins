@@ -2,11 +2,11 @@
 const storage = {
 
     getItem: async (key: string) => {
-        const response = await browser.storage.local.get(key);
+        const response = await chrome.storage.local.get(key);
         return response && response[key] as string || null;
     },
 
     setItem: async (key: string, value: string) => {
-        await browser.storage.local.set({ [key]: value });
+        await chrome.storage.local.set({ [key]: value });
     }
 };
