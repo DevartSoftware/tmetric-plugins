@@ -46,6 +46,7 @@
     "background/simpleEvent.ts",
     "background/signalRHubProxy.ts",
     "background/signalRConnection.ts",
+    "browser.ts",
     "chrome-background-bundle.ts",
     "in-page-scripts/integrations/activeCollab.ts",
     "in-page-scripts/integrations/asana.ts",

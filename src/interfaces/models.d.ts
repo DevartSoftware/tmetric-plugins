@@ -1,3 +1,5 @@
+declare var browser: typeof chrome;
+
 declare module Models {
 
     export const enum Limits {

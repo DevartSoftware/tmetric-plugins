@@ -3,7 +3,7 @@ $(document).ready(async () => {
     const permissionsManager = new PermissionManager();
 
     const integratedServices = await new Promise<ServiceTypesMap>(resolve => {
-        chrome.runtime.sendMessage({ action: 'getIntegratedServices' }, resolve);
+        browser.runtime.sendMessage({ action: 'getIntegratedServices' }, resolve);
     });
 
     const integratedServiceUrls = WebToolManager.getServiceUrls(integratedServices);
@@ -337,9 +337,9 @@ $(document).ready(async () => {
 
     function initClosePage() {
         $('.close-page').click(() => {
-            chrome.tabs.getCurrent(tab => {
+            browser.tabs.getCurrent(tab => {
                 const tabId = tab?.id;
-                tabId != null && chrome.tabs.remove(tabId);
+                tabId != null && browser.tabs.remove(tabId);
             });
         });
     }

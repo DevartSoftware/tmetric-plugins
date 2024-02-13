@@ -22,7 +22,7 @@ var dist = path.normalize(process.cwd() + '/dist/');
 
 var config = {
     distDir: dist,
-    keepDebug: false,
+    keepDebug: true,
     keepSources: false
 };
 
@@ -102,10 +102,12 @@ var files = {
     ],
     chrome: [
         'src/manifest.json',
+        'src/browser.js',
         'src/chrome-background-bundle.js',
         'src/background/chromeExtension.js',
     ],
     firefox: [
+        'src/browser.js',
         'src/background/firefoxExtension.js'
     ],
     safari: [

@@ -56,7 +56,7 @@ if (typeof window != 'undefined' && !window.initPage) {
             initialize();
         }
 
-        chrome.runtime.onMessage.addListener(onBackgroundMessage);
+        browser.runtime.onMessage.addListener(onBackgroundMessage);
 
         /**
          * Sends message to background script.
@@ -70,8 +70,8 @@ if (typeof window != 'undefined' && !window.initPage) {
             pingTimeouts[callbackAction] = setTimeout(() => finalize(), 30000);
 
             try {
-                chrome.runtime.sendMessage(message, () => {
-                    const error = chrome.runtime.lastError;
+                browser.runtime.sendMessage(message, () => {
+                    const error = browser.runtime.lastError;
 
                     // Background page is not loaded yet
                     if (error) {

@@ -8,16 +8,6 @@
   "version": "5.0.0",
   "minimum_chrome_version": "102",
 
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "@tmetric",
-      "strict_min_version": "109"
-    },
-    "safari": {
-      "strict_min_version": "15.4"
-    }
-  },
-
   "icons": {
     "16": "images/icon16.png",
     "48": "images/icon48.png",
@@ -62,12 +52,18 @@
   "content_scripts": [
     {
       "matches": [ "*://*.tmetric.com/*" ],
-      "js": [ "in-page-scripts/version.js" ],
+      "js": [
+        "browser.js",
+        "in-page-scripts/version.js"
+      ],
       "run_at": "document_end"
     },
     {
       "matches": [ "*://*.tmetric.com/extension/callback.html?*" ],
-      "js": [ "in-page-scripts/authorizationCode.js" ],
+      "js": [
+        "browser.js",
+        "in-page-scripts/authorizationCode.js"
+      ],
       "run_at": "document_end"
     }
   ],

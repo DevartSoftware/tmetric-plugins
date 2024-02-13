@@ -1,5 +1,5 @@
 function initShowPopupSelector() {
-    chrome.storage.sync.get(
+    browser.storage.sync.get(
         { showPopup: Models.ShowPopupOption.Always } as IExtensionSettings,
         settings => {
 
@@ -19,7 +19,7 @@ function initShowPopupSelector() {
                 .append(items)
                 .val((settings as IExtensionSettings).showPopup.toString())
                 .on('change', () => {
-                    chrome.storage.sync.set(<IExtensionSettings>{
+                    browser.storage.sync.set(<IExtensionSettings>{
                         showPopup: $('#show-popup-settings :selected').val()
                     });
                 })

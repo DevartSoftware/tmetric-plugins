@@ -46,7 +46,7 @@ class OidcClient extends AjaxClient {
 
     private getStorageValue(key: string): Promise<string | null> {
         return new Promise<string>((resolve) => {
-            chrome.storage.local.get([key], function (result) {
+            browser.storage.local.get([key], function (result) {
                 resolve(result[key]);
             });
         });
@@ -56,7 +56,7 @@ class OidcClient extends AjaxClient {
         return new Promise((resolve) => {
             const obj = {};
             obj[key] = value;
-            chrome.storage.local.set(obj, function () {
+            browser.storage.local.set(obj, function () {
                 resolve(undefined);
             });
         });

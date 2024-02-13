@@ -1,8 +1,8 @@
 if (typeof document !== 'undefined') {
 
     const sendBackgroundMessage = (message: ITabMessage) => {
-        chrome.runtime.sendMessage(message, response => {
-            const error = chrome.runtime.lastError;
+        browser.runtime.sendMessage(message, response => {
+            const error = browser.runtime.lastError;
 
             // Background page is not loaded yet
             if (error) {
@@ -73,7 +73,7 @@ if (typeof document !== 'undefined') {
         }
     }
 
-    chrome.runtime.onMessage.addListener((message: ITabMessage) => {
+    browser.runtime.onMessage.addListener((message: ITabMessage) => {
 
         switch (message.action) {
 

@@ -8,8 +8,8 @@
 
     const sendBackgroundMessage = (message: ITabMessage) => {
 
-        chrome.runtime.sendMessage(message, () => {
-            const error = chrome.runtime.lastError;
+        browser.runtime.sendMessage(message, () => {
+            const error = browser.runtime.lastError;
 
             // Background page is not loaded yet
             if (error) {
@@ -50,7 +50,7 @@
 
     addMeta('tmetric-extension-version', extensionInfo.version);
 
-    chrome.runtime.onMessage.addListener((message: ITabMessage) => {
+    browser.runtime.onMessage.addListener((message: ITabMessage) => {
         switch (message.action) {
             case 'setConstants':
                 addMeta('tmetric-extension-id', (message.data as Models.Constants).extensionUUID);

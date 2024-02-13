@@ -36,7 +36,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
             serviceUrl: await this.getUrl('tmetric.url') || 'https://app.tmetric.com/',
             storageUrl: await this.getUrl('tmetric.storageUrl') || 'https://services.tmetric.com/storage/',
             authorityUrl: await this.getUrl('tmetric.authorityUrl') || 'https://id.tmetric.com/',
-            extensionName: chrome.runtime.getManifest().name,
+            extensionName: browser.runtime.getManifest().name,
             browserSchema,
             extensionUUID
         } as Models.Constants;
@@ -136,12 +136,12 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
      */
     protected override showNotification(message: string, title?: string) {
         if (this._lastNotificationId) {
-            chrome.notifications.clear(this._lastNotificationId, () => { });
+            browser.notifications.clear(this._lastNotificationId, () => { });
         }
         title = title || 'TMetric';
         const type = 'basic';
         const iconUrl = 'images/icon80.png';
-        chrome.notifications.create(
+        browser.notifications.create(
             '',
             { title, message, type, iconUrl },
             id => this._lastNotificationId = id);
@@ -159,7 +159,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
         const matchedProjectCount = this.getTrackedProjects(scope).filter(p => p.projectName == timer.projectName).length;
         const requiredFields = scope.requiredFields;
 
-        const settings = await chrome.storage.sync.get(<IExtensionSettings>{ showPopup: Models.ShowPopupOption.Always });
+        const settings = await browser.storage.sync.get(<IExtensionSettings>{ showPopup: Models.ShowPopupOption.Always });
         let showPopup = (settings as IExtensionSettings).showPopup || Models.ShowPopupOption.Always;
 
         if (timer.serviceType === 'Shortcut') {
@@ -192,7 +192,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
             this._actionOnConnect = undefined;
 
             if (status == invalidProfileError && showDialog) {
-                this._constants.then(constants => chrome.tabs.create({ url: constants.serviceUrl }));
+                this._constants.then(constants => browser.tabs.create({ url: constants.serviceUrl }));
             }
             // Zero status when server is unavailable or certificate fails (#59755). Show dialog in that case too.
             else if (!status
@@ -250,16 +250,16 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
     protected sendToTabs(message: ITabMessage, tabId?: number) {
 
         if (tabId != null) {
-            chrome.tabs.sendMessage(tabId, message);
+            browser.tabs.sendMessage(tabId, message);
             return;
         }
 
-        chrome.tabs.query({}, tabs => tabs && tabs.forEach(tab => {
+        browser.tabs.query({}, tabs => tabs && tabs.forEach(tab => {
             if (tab.id != null && tab.url && tab.url.startsWith('http')) {
-                chrome.tabs.sendMessage(tab.id, message, () => {
+                browser.tabs.sendMessage(tab.id, message, () => {
 
                     // Ignore errors in broadcast messages
-                    const error = chrome.runtime.lastError;
+                    const error = browser.runtime.lastError;
                     if (error) {
                         console.log(`${message.action}: ${error.message}`)
                     }
@@ -269,14 +269,14 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
     }
 
     protected override async getActiveTabTitle() {
-        const tabs = await chrome.tabs.query({ currentWindow: true, active: true });
+        const tabs = await browser.tabs.query({ currentWindow: true, active: true });
         const activeTab = tabs && tabs[0];
         return activeTab?.title || null;
     }
 
     protected getActiveTabId() {
         return new Promise<number | null>((resolve) => {
-            chrome.tabs.query({ currentWindow: true, active: true },
+            browser.tabs.query({ currentWindow: true, active: true },
                 function (tabs) {
                     const activeTab = tabs && tabs[0];
                     const id = activeTab?.id || null;
@@ -312,13 +312,13 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
 
     protected override openPage(url: string) {
 
-        chrome.tabs.query({ active: true, windowId: chrome.windows.WINDOW_ID_CURRENT }, tabs => {
+        browser.tabs.query({ active: true, windowId: browser.windows.WINDOW_ID_CURRENT }, tabs => {
 
             const currentWindowId = tabs && tabs.length && tabs[0].windowId;
 
             // chrome.tabs.query do not support tab search with hashed urls
             // https://developer.chrome.com/extensions/match_patterns
-            chrome.tabs.query({ url: url.split('#')[0] + '*' }, tabs => {
+            browser.tabs.query({ url: url.split('#')[0] + '*' }, tabs => {
                 // filter tabs queried without hashes by actual url
                 const pageTabs = tabs && tabs.filter(tab => tab.url == url);
                 if (pageTabs && pageTabs.length) {
@@ -342,10 +342,10 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
                     }
 
                     const tabToActivate = currentWindowActiveTab || currentWindowTab || anyWindowActiveTab || anyWindowTab;
-                    chrome.windows.update(tabToActivate.windowId, { focused: true });
-                    chrome.tabs.update(tabToActivate.id, { active: true });
+                    browser.windows.update(tabToActivate.windowId, { focused: true });
+                    browser.tabs.update(tabToActivate.id, { active: true });
                 } else {
-                    chrome.tabs.create({ active: true, windowId: currentWindowId, url });
+                    browser.tabs.create({ active: true, windowId: currentWindowId, url });
                 }
             });
         });
@@ -357,19 +357,19 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
 
             const key = 'skipPermissionsSetup';
             const skipPermissionsSetup = await new Promise<boolean>(resolve =>
-                chrome.storage.local.get([key], result => resolve(result[key]))
+                browser.storage.local.get([key], result => resolve(result[key]))
             );
 
             if (!skipPermissionsSetup) {
-                chrome.storage.local.set({ [key]: true });
-                const url = chrome.runtime.getURL('permissions/check.html');
-                chrome.tabs.create({ url, active: true });
+                browser.storage.local.set({ [key]: true });
+                const url = browser.runtime.getURL('permissions/check.html');
+                browser.tabs.create({ url, active: true });
             }
         }
         catch (err) {
             const constants = await this._constants;
             if (err === invalidProfileError) {
-                chrome.tabs.create({ url: constants.serviceUrl });
+                browser.tabs.create({ url: constants.serviceUrl });
             } else if (showLoginDialog) {
                 this.showLoginDialog();
             }
@@ -378,7 +378,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
 
     protected override registerMessageListener() {
 
-        chrome.runtime.onMessageExternal.addListener((message: ITabMessage, _sender, sendResponse) => {
+        browser.runtime.onMessageExternal.addListener((message: ITabMessage, _sender, sendResponse) => {
             switch (message.action) {
                 case 'ping':
                     sendResponse('pong');
@@ -386,7 +386,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
             }
         });
 
-        chrome.runtime.onMessage.addListener((
+        browser.runtime.onMessage.addListener((
             message: ITabMessage | IPopupRequest | IExtensionSettingsMessage,
             sender: chrome.runtime.MessageSender,
             senderResponse: (IPopupResponse) => void
@@ -395,13 +395,13 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
             console.log(message, sender)
 
             // Popup requests
-            if (!sender.url || sender.url.startsWith(chrome.runtime.getURL('popup'))) {
+            if (!sender.url || sender.url.startsWith(browser.runtime.getURL('popup'))) {
                 this.onPopupRequest(message, senderResponse);
                 return !!senderResponse;
             }
 
-            if (sender.url?.startsWith(chrome.runtime.getURL('permissions')) ||
-                sender.url?.startsWith(chrome.runtime.getURL('settings'))) {
+            if (sender.url?.startsWith(browser.runtime.getURL('permissions')) ||
+                sender.url?.startsWith(browser.runtime.getURL('settings'))) {
 
                 this.onPermissionsMessage(message, senderResponse);
                 return !!senderResponse;
@@ -625,13 +625,13 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
 
         if (this._loginWinId) {
 
-            const tabs = await chrome.tabs.query({ windowId: this._loginWinId });
+            const tabs = await browser.tabs.query({ windowId: this._loginWinId });
             const constants = await this._constants;
 
             const tab = tabs.find(tab => tab.id == this._loginTabId);
             if (tab?.url?.startsWith(constants.authorityUrl) && tab.id != null) {
-                chrome.tabs.update(tab.id, { active: true });
-                chrome.windows.update(this._loginWinId, { focused: true });
+                browser.tabs.update(tab.id, { active: true });
+                browser.windows.update(this._loginWinId, { focused: true });
             } else {
                 this._loginWinId = undefined;
                 this._loginTabId = undefined;
@@ -654,7 +654,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
     }
 
     private setButtonIcon(icon: string, tooltip: string) {
-        const action = chrome.action || chrome.browserAction;
+        const action = browser.action || browser.browserAction;
         action.setIcon({
             path: {
                 '19': 'images/' + icon + '19.png',
@@ -669,7 +669,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
         const constants = await this._constants;
         const url = `${constants.authorityUrl}extension/login.html`;
 
-        const tab = await chrome.tabs.create({ url } as chrome.tabs.CreateProperties);
+        const tab = await (browser as any).tabs.create({ url } as chrome.tabs.CreateProperties);
         this._loginWinId = tab.windowId;
         this._loginTabId = tab.id!;
         this._loginWindowPending = false;
@@ -677,7 +677,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
 
     private getActiveTabUrl() {
         return new Promise<string | null>((resolve) => {
-            chrome.tabs.query({ currentWindow: true, active: true },
+            browser.tabs.query({ currentWindow: true, active: true },
                 function (tabs) {
                     const activeTab = tabs && tabs[0];
                     const url = activeTab?.url || null;
@@ -687,10 +687,10 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
     }
 
     private registerInstallListener() {
-        chrome.runtime.onInstalled.addListener(async details => {
+        browser.runtime.onInstalled.addListener(async details => {
             const neverLoggedIn = await this._connection.ajaxClient.neverLoggedIn();
             if (!neverLoggedIn) {
-                chrome.storage.local.set({ 'skipPermissionsSetup': true });
+                browser.storage.local.set({ 'skipPermissionsSetup': true });
             }
             if (details.reason == 'install' ||
                 neverLoggedIn && details.reason == 'update') {
@@ -700,11 +700,11 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
     }
 
     private registerStorageListener() {
-        chrome.storage.onChanged.addListener(async (changes) => {
+        browser.storage.onChanged.addListener(async (changes) => {
             const authorizationCode = changes['authorization_code'];
             if (authorizationCode && authorizationCode.newValue) {
                 if (this._loginTabId != null) {
-                    chrome.tabs.remove(this._loginTabId);
+                    browser.tabs.remove(this._loginTabId);
                 }
                 if (await this._connection.ajaxClient.authorize()) {
                     this.reconnect(false);
@@ -714,7 +714,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
     }
 
     private registerTabsRemoveListener() {
-        chrome.tabs.onRemoved.addListener((tabId) => {
+        browser.tabs.onRemoved.addListener((tabId) => {
             if (tabId == this._loginTabId) {
                 this._loginTabId = undefined;
                 this._loginWinId = undefined;
@@ -768,7 +768,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
     }
 
     private async openOptionsPageUrl() {
-        const url = chrome.runtime.getURL('settings/settings.html');
+        const url = browser.runtime.getURL('settings/settings.html');
         this.openPage(url);
     }
 

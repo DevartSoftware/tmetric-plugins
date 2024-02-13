@@ -59,8 +59,8 @@ class PopupController {
 
     callBackground(request: IPopupRequest): Promise<IPopupResponse> {
         return new Promise((resolve, reject) => {
-            chrome.runtime.sendMessage(request, (response: IPopupResponse) => {
-                const error = chrome.runtime.lastError;
+            browser.runtime.sendMessage(request, (response: IPopupResponse) => {
+                const error = browser.runtime.lastError;
                 if (error) {
                     console.error(error);
                     reject(error)

@@ -24,3 +24,4 @@ node_modules/
 /src/popup/*.css
 /src/settings/*.js
 /src/*background-bundle.js
+/src/browser.js

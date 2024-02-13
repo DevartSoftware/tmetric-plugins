@@ -2,18 +2,14 @@ class ContentScriptsRegistrator {
 
     private static instance: ContentScriptsRegistrator;
 
-    browser!: typeof chrome;
-
     constructor() {
-
-        this.browser = typeof browser !== 'undefined' ? browser as any : chrome;
 
         if (!ContentScriptsRegistrator.instance) {
 
             ContentScriptsRegistrator.instance = this;
 
-            this.browser.permissions.onAdded.addListener(event => this.register(event.origins));
-            this.browser.permissions.onRemoved.addListener(event => this.unregister(event.origins));
+            browser.permissions.onAdded.addListener(event => this.register(event.origins));
+            browser.permissions.onRemoved.addListener(event => this.unregister(event.origins));
         }
 
         return ContentScriptsRegistrator.instance;
@@ -22,6 +18,7 @@ class ContentScriptsRegistrator {
     private addRequiredScriptOptions(scriptId: string, scripts: chrome.scripting.RegisteredContentScript) {
 
         const js = [
+            'browser.js',
             'in-page-scripts/utils.js',
             'in-page-scripts/integrationService.js',
             'in-page-scripts/page.js',
@@ -50,6 +47,7 @@ class ContentScriptsRegistrator {
                 id: 'tmetric_topmost_' + scriptId,
                 matches: origins,
                 js: [
+                    'browser.js',
                     'in-page-scripts/topmostPage.js'
                 ],
                 allFrames: false,
@@ -74,7 +72,7 @@ class ContentScriptsRegistrator {
         for (let url of serviceUrls) {
             const scriptId = this.getScriptId(url);
             try {
-                await this.browser.scripting.unregisterContentScripts({
+                await browser.scripting.unregisterContentScripts({
                     ids: ['tmetric_' + scriptId, 'tmetric_topmost_' + scriptId]
                 });
             }
@@ -116,7 +114,7 @@ class ContentScriptsRegistrator {
         serviceUrls = (await Promise.all(
             serviceUrls.map(
                 serviceUrl => new Promise<string>(
-                    resolve => this.browser.permissions.contains({ origins: [serviceUrl] }, result => resolve(result ? serviceUrl : ''))
+                    resolve => browser.permissions.contains({ origins: [serviceUrl] }, result => resolve(result ? serviceUrl : ''))
                 )
             )
         )).filter(item => !!item);
@@ -145,7 +143,7 @@ class ContentScriptsRegistrator {
 
             const scriptsOptions = this.addRequiredScriptOptions(this.getScriptId(serviceUrl), options);
 
-            await this.browser.scripting.registerContentScripts(scriptsOptions);
+            await browser.scripting.registerContentScripts(scriptsOptions);
         });
     }
 }
