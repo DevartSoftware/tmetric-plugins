@@ -11,7 +11,8 @@ class MicrosofOutlookOnline implements WebToolIntegration {
     issueElementSelector = '#app';
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        const container = $$('.ms-CommandBar-primaryCommand', issueElement);
+        const container = $$('.ms-CommandBar-primaryCommand', issueElement) ||
+            $$('#paddleContainer #\\31 -panel', issueElement);
         if (container) {
             linkElement.classList.add('devart-timer-link-microsoft-outlook-live');
             container.appendChild(linkElement);
