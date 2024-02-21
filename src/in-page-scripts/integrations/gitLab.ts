@@ -113,7 +113,8 @@ class GitLab implements WebToolIntegration {
     static getProjectFromBreadcrumbs(serviceUrl: string, issueUrl: string | undefined) {
         if (issueUrl && issueUrl.indexOf('/-/')! >= 0) {
             const projectUrl = serviceUrl.replace(/\/$/, '') + issueUrl.substring(0, issueUrl.indexOf('/-/'));
-            return $$<HTMLAnchorElement>('.breadcrumbs-list a', null, a => a.href == projectUrl)?.innerText;
+            return $$<HTMLAnchorElement>('.breadcrumbs-list a', null, a => a.href == projectUrl)?.innerText || // Old design
+                $$<HTMLAnchorElement>('.breadcrumb a', null, a => a.href == projectUrl)?.innerText; // Newest design
         }
     }
 }
