@@ -112,11 +112,18 @@ class ContentScriptsRegistrator {
 
         // filter permitted urls
         serviceUrls = (await Promise.all(
-            serviceUrls.map(
-                serviceUrl => new Promise<string>(
-                    resolve => browser.permissions.contains({ origins: [serviceUrl] }, result => resolve(result ? serviceUrl : ''))
-                )
-            )
+            serviceUrls.map(async serviceUrl => {
+                try {
+                    if (await browser.permissions.contains({ origins: [serviceUrl] })) {
+                        return serviceUrl;
+                    }
+                }
+                catch(e) {
+                    const c = console; // save console to prevent strip in release;
+                    c.error(e);
+                }
+                return '';
+            })
         )).filter(item => !!item);
 
         console.log('ContentScriptsRegistrator.register serviceUrls', serviceUrls)
@@ -132,7 +139,7 @@ class ContentScriptsRegistrator {
 
             const scripts = webToolDescription.scripts;
 
-            const matches = [ serviceUrl ];
+            const matches = [serviceUrl];
 
             const options = {
                 allFrames: scripts.allFrames,
