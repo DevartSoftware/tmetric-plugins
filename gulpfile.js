@@ -330,13 +330,13 @@ function copyFilesSafari() {
 }
 
 function stripDebugSafari() {
-    return stripDebugCommon(firefoxUnpackedDir);
+    return stripDebugCommon(safariUnpackedDir);
 }
 
 function modifyBackgoundBundleSafari() {
     return gulp.src(safariUnpackedDir + '/chrome-background-bundle.js')
         .pipe(modifyFile(text => text.replace('/chromeExtension.js', '/safariExtension.js')))
-        .pipe(gulp.dest(firefoxUnpackedDir));
+        .pipe(gulp.dest(safariUnpackedDir));
 }
 
 gulp.task(
