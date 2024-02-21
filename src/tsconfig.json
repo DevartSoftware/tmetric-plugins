@@ -38,9 +38,10 @@
     "background/webToolManager.ts",
     "background/contentScriptsRegistrator.ts",
     "background/backgroundBase.ts",
-    "background/chromeExtension.ts",
     "background/extensionBase.ts",
+    "background/chromeExtension.ts",
     "background/firefoxExtension.ts",
+    "background/safariExtension.ts",
     "background/httpStatusCode.d.ts",
     "background/serverConnection.ts",
     "background/simpleEvent.ts",
@@ -123,7 +124,6 @@
     "permissions/permissionManager.ts",
     "permissions/check.ts",
     "permissions/permissions.ts",
-    "settings/settingsController.ts",
-    "safari/TMetric for Safari Extension/script.ts"
+    "settings/settingsController.ts"
   ]
 }

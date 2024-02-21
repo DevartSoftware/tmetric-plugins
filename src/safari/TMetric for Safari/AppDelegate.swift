@@ -2,25 +2,20 @@
 //  AppDelegate.swift
 //  TMetric for Safari
 //
-//  Copyright © 2022 Devart. All rights reserved.
+//  Copyright © 2024 Devart. All rights reserved.
 //
 
 import Cocoa
 
-@NSApplicationMain
+@main
 class AppDelegate: NSObject, NSApplicationDelegate {
-    
-    func applicationDidFinishLaunching(_ aNotification: Notification) {
-        // Insert code here to initialize your application
+
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        // Override point for customization after application launch.
     }
-    
-    func applicationWillTerminate(_ aNotification: Notification) {
-        // Insert code here to tear down your application
+
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        return true
     }
-    
-    
-    @IBAction func openTMetricHelp(_ sender: AnyObject?) {
-        let url = URL(string: "https://tmetric.com/help/apps/browser-extension")
-        NSWorkspace.shared.open(url!)
-    }
+
 }

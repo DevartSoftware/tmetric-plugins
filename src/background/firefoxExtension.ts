@@ -1,7 +1,7 @@
 class FirefoxExtension extends ExtensionBase {
 
     constructor() {
-        super('moz-extension', window.location.host);
+        super('moz-extension', globalThis.location.host);
 
         this.sendToTabs({ action: 'initPage' });
     }

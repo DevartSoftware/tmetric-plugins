@@ -1,174 +1,214 @@
+
 // !$*UTF8*$!
 {
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 56;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		515EA7BD2497E95400494954 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 515EA7BC2497E95400494954 /* Images.xcassets */; };
-		51E93C7423C8D87D0073C76C /* ToolbarItemIcon.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 51E93C7323C8D87C0073C76C /* ToolbarItemIcon.pdf */; };
-		9378DE6B2316ECD100C38834 /* TMetric_for_Safari.entitlements in Resources */ = {isa = PBXBuildFile; fileRef = 9378DE6A2316ECD100C38834 /* TMetric_for_Safari.entitlements */; };
-		9378DE6D2316ECD100C38834 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9378DE6C2316ECD100C38834 /* AppDelegate.swift */; };
-		9378DE702316ECD100C38834 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9378DE6E2316ECD100C38834 /* Main.storyboard */; };
-		9378DE722316ECD100C38834 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9378DE712316ECD100C38834 /* ViewController.swift */; };
-		9378DE7B2316ECD200C38834 /* TMetric for Safari Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 9378DE7A2316ECD200C38834 /* TMetric for Safari Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		9378DE802316ECD200C38834 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9378DE7F2316ECD200C38834 /* Cocoa.framework */; };
-		9378DE832316ECD200C38834 /* SafariExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9378DE822316ECD200C38834 /* SafariExtensionHandler.swift */; };
-		9378DE852316ECD200C38834 /* SafariExtensionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9378DE842316ECD200C38834 /* SafariExtensionViewController.swift */; };
-		9378DE882316ECD200C38834 /* SafariExtensionViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9378DE862316ECD200C38834 /* SafariExtensionViewController.xib */; };
-		9378DE8B2316ECD200C38834 /* script.js in Resources */ = {isa = PBXBuildFile; fileRef = 9378DE8A2316ECD200C38834 /* script.js */; };
-		9379BE0F23202728004E10A6 /* styles.css in Resources */ = {isa = PBXBuildFile; fileRef = 9379BE0E23202728004E10A6 /* styles.css */; };
+		522C97462B7CE2A10095EAF8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 522C97452B7CE2A10095EAF8 /* AppDelegate.swift */; };
+		522C974A2B7CE2A10095EAF8 /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 522C97482B7CE2A10095EAF8 /* Main.html */; };
+		522C974C2B7CE2A10095EAF8 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 522C974B2B7CE2A10095EAF8 /* Icon.png */; };
+		522C974E2B7CE2A10095EAF8 /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = 522C974D2B7CE2A10095EAF8 /* Style.css */; };
+		522C97502B7CE2A10095EAF8 /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = 522C974F2B7CE2A10095EAF8 /* Script.js */; };
+		522C97522B7CE2A10095EAF8 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 522C97512B7CE2A10095EAF8 /* ViewController.swift */; };
+		522C97552B7CE2A10095EAF8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 522C97532B7CE2A10095EAF8 /* Main.storyboard */; };
+		522C97572B7CE2A20095EAF8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 522C97562B7CE2A20095EAF8 /* Assets.xcassets */; };
+		522C97602B7CE2A20095EAF8 /* TMetric for Safari Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 522C975F2B7CE2A20095EAF8 /* TMetric for Safari Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		522C97652B7CE2A20095EAF8 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 522C97642B7CE2A20095EAF8 /* SafariWebExtensionHandler.swift */; };
+		522C977E2B7CE2A20095EAF8 /* background in Resources */ = {isa = PBXBuildFile; fileRef = 522C97722B7CE2A20095EAF8 /* background */; };
+		522C977F2B7CE2A20095EAF8 /* settings in Resources */ = {isa = PBXBuildFile; fileRef = 522C97732B7CE2A20095EAF8 /* settings */; };
+		522C97802B7CE2A20095EAF8 /* popup in Resources */ = {isa = PBXBuildFile; fileRef = 522C97742B7CE2A20095EAF8 /* popup */; };
+		522C97812B7CE2A20095EAF8 /* in-page-scripts in Resources */ = {isa = PBXBuildFile; fileRef = 522C97752B7CE2A20095EAF8 /* in-page-scripts */; };
+		522C97822B7CE2A20095EAF8 /* css in Resources */ = {isa = PBXBuildFile; fileRef = 522C97762B7CE2A20095EAF8 /* css */; };
+		522C97832B7CE2A20095EAF8 /* images in Resources */ = {isa = PBXBuildFile; fileRef = 522C97772B7CE2A20095EAF8 /* images */; };
+		522C97842B7CE2A20095EAF8 /* permissions in Resources */ = {isa = PBXBuildFile; fileRef = 522C97782B7CE2A20095EAF8 /* permissions */; };
+		522C97852B7CE2A20095EAF8 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 522C97792B7CE2A20095EAF8 /* manifest.json */; };
+		522C97862B7CE2A20095EAF8 /* lib in Resources */ = {isa = PBXBuildFile; fileRef = 522C977A2B7CE2A20095EAF8 /* lib */; };
+		522C97872B7CE2A20095EAF8 /* chrome-background-bundle.js in Resources */ = {isa = PBXBuildFile; fileRef = 522C977B2B7CE2A20095EAF8 /* chrome-background-bundle.js */; };
+		522C97882B7CE2A20095EAF8 /* browser.js in Resources */ = {isa = PBXBuildFile; fileRef = 522C977C2B7CE2A20095EAF8 /* browser.js */; };
+		522C97892B7CE2A20095EAF8 /* TMetric for Safari in Resources */ = {isa = PBXBuildFile; fileRef = 522C977D2B7CE2A20095EAF8 /* TMetric for Safari */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		9378DE7C2316ECD200C38834 /* PBXContainerItemProxy */ = {
+		522C97612B7CE2A20095EAF8 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 9378DE5F2316ECD100C38834 /* Project object */;
+			containerPortal = 522C973A2B7CE2A10095EAF8 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 9378DE792316ECD200C38834;
+			remoteGlobalIDString = 522C975E2B7CE2A20095EAF8;
 			remoteInfo = "TMetric for Safari Extension";
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		9378DE942316ECD200C38834 /* Embed App Extensions */ = {
+		522C976D2B7CE2A20095EAF8 /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				9378DE7B2316ECD200C38834 /* TMetric for Safari Extension.appex in Embed App Extensions */,
+				522C97602B7CE2A20095EAF8 /* TMetric for Safari Extension.appex in Embed Foundation Extensions */,
 			);
-			name = "Embed App Extensions";
+			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		515EA7BC2497E95400494954 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		51E93C7323C8D87C0073C76C /* ToolbarItemIcon.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = ToolbarItemIcon.pdf; sourceTree = "<group>"; };
-		9378DE672316ECD100C38834 /* TMetric for Safari.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "TMetric for Safari.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		9378DE6A2316ECD100C38834 /* TMetric_for_Safari.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TMetric_for_Safari.entitlements; sourceTree = "<group>"; };
-		9378DE6C2316ECD100C38834 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		9378DE6F2316ECD100C38834 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		9378DE712316ECD100C38834 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		9378DE752316ECD200C38834 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		9378DE7A2316ECD200C38834 /* TMetric for Safari Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "TMetric for Safari Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
-		9378DE7F2316ECD200C38834 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
-		9378DE822316ECD200C38834 /* SafariExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariExtensionHandler.swift; sourceTree = "<group>"; };
-		9378DE842316ECD200C38834 /* SafariExtensionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariExtensionViewController.swift; sourceTree = "<group>"; };
-		9378DE872316ECD200C38834 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/SafariExtensionViewController.xib; sourceTree = "<group>"; };
-		9378DE892316ECD200C38834 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		9378DE8A2316ECD200C38834 /* script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = script.js; sourceTree = "<group>"; };
-		9378DE8E2316ECD200C38834 /* TMetric_for_Safari_Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TMetric_for_Safari_Extension.entitlements; sourceTree = "<group>"; };
-		9379BE0E23202728004E10A6 /* styles.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = styles.css; sourceTree = "<group>"; };
+		522C97422B7CE2A10095EAF8 /* TMetric for Safari.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "TMetric for Safari.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		522C97452B7CE2A10095EAF8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		522C97492B7CE2A10095EAF8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = ../Base.lproj/Main.html; sourceTree = "<group>"; };
+		522C974B2B7CE2A10095EAF8 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		522C974D2B7CE2A10095EAF8 /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Style.css; sourceTree = "<group>"; };
+		522C974F2B7CE2A10095EAF8 /* Script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Script.js; sourceTree = "<group>"; };
+		522C97512B7CE2A10095EAF8 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		522C97542B7CE2A10095EAF8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		522C97562B7CE2A20095EAF8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		522C97582B7CE2A20095EAF8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		522C97592B7CE2A20095EAF8 /* TMetric_for_Safari.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "TMetric_for_Safari.entitlements"; sourceTree = "<group>"; };
+		522C975A2B7CE2A20095EAF8 /* TMetric for Safari.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "TMetric for Safari.entitlements"; sourceTree = "<group>"; };
+		522C975F2B7CE2A20095EAF8 /* TMetric for Safari Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "TMetric for Safari Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		522C97642B7CE2A20095EAF8 /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
+		522C97662B7CE2A20095EAF8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		522C97672B7CE2A20095EAF8 /* TMetric_for_Safari_Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "TMetric_for_Safari_Extension.entitlements"; sourceTree = "<group>"; };
+		522C97722B7CE2A20095EAF8 /* background */ = {isa = PBXFileReference; lastKnownFileType = folder; name = background; path = ../../background; sourceTree = "<group>"; };
+		522C97732B7CE2A20095EAF8 /* settings */ = {isa = PBXFileReference; lastKnownFileType = folder; name = settings; path = ../../settings; sourceTree = "<group>"; };
+		522C97742B7CE2A20095EAF8 /* popup */ = {isa = PBXFileReference; lastKnownFileType = folder; name = popup; path = ../../popup; sourceTree = "<group>"; };
+		522C97752B7CE2A20095EAF8 /* in-page-scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "in-page-scripts"; path = "../../in-page-scripts"; sourceTree = "<group>"; };
+		522C97762B7CE2A20095EAF8 /* css */ = {isa = PBXFileReference; lastKnownFileType = folder; name = css; path = ../../css; sourceTree = "<group>"; };
+		522C97772B7CE2A20095EAF8 /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; name = images; path = ../../images; sourceTree = "<group>"; };
+		522C97782B7CE2A20095EAF8 /* permissions */ = {isa = PBXFileReference; lastKnownFileType = folder; name = permissions; path = ../../permissions; sourceTree = "<group>"; };
+		522C97792B7CE2A20095EAF8 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = ../../manifest.json; sourceTree = "<group>"; };
+		522C977A2B7CE2A20095EAF8 /* lib */ = {isa = PBXFileReference; lastKnownFileType = folder; name = lib; path = ../../lib; sourceTree = "<group>"; };
+		522C977B2B7CE2A20095EAF8 /* chrome-background-bundle.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = "chrome-background-bundle.js"; path = "../../chrome-background-bundle.js"; sourceTree = "<group>"; };
+		522C977C2B7CE2A20095EAF8 /* browser.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = browser.js; path = ../../browser.js; sourceTree = "<group>"; };
+		522C977D2B7CE2A20095EAF8 /* TMetric for Safari */ = {isa = PBXFileReference; lastKnownFileType = text; path = "TMetric for Safari"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		9378DE642316ECD100C38834 /* Frameworks */ = {
+		522C973F2B7CE2A10095EAF8 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		9378DE772316ECD200C38834 /* Frameworks */ = {
+		522C975C2B7CE2A20095EAF8 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9378DE802316ECD200C38834 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		9378DE5E2316ECD100C38834 = {
+		522C97392B7CE2A10095EAF8 = {
 			isa = PBXGroup;
 			children = (
-				9378DE692316ECD100C38834 /* TMetric for Safari */,
-				9378DE812316ECD200C38834 /* TMetric for Safari Extension */,
-				9378DE7E2316ECD200C38834 /* Frameworks */,
-				9378DE682316ECD100C38834 /* Products */,
+				522C97442B7CE2A10095EAF8 /* TMetric for Safari */,
+				522C97632B7CE2A20095EAF8 /* TMetric for Safari Extension */,
+				522C97432B7CE2A10095EAF8 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		9378DE682316ECD100C38834 /* Products */ = {
+		522C97432B7CE2A10095EAF8 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				9378DE672316ECD100C38834 /* TMetric for Safari.app */,
-				9378DE7A2316ECD200C38834 /* TMetric for Safari Extension.appex */,
+				522C97422B7CE2A10095EAF8 /* TMetric for Safari.app */,
+				522C975F2B7CE2A20095EAF8 /* TMetric for Safari Extension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		9378DE692316ECD100C38834 /* TMetric for Safari */ = {
+		522C97442B7CE2A10095EAF8 /* TMetric for Safari */ = {
 			isa = PBXGroup;
 			children = (
-				9378DE6A2316ECD100C38834 /* TMetric_for_Safari.entitlements */,
-				9378DE6C2316ECD100C38834 /* AppDelegate.swift */,
-				9378DE6E2316ECD100C38834 /* Main.storyboard */,
-				9378DE712316ECD100C38834 /* ViewController.swift */,
-				9378DE752316ECD200C38834 /* Info.plist */,
-				515EA7BC2497E95400494954 /* Images.xcassets */,
+				522C97452B7CE2A10095EAF8 /* AppDelegate.swift */,
+				522C97512B7CE2A10095EAF8 /* ViewController.swift */,
+				522C97532B7CE2A10095EAF8 /* Main.storyboard */,
+				522C97562B7CE2A20095EAF8 /* Assets.xcassets */,
+				522C97582B7CE2A20095EAF8 /* Info.plist */,
+				522C97592B7CE2A20095EAF8 /* TMetric_for_Safari.entitlements */,
+				522C975A2B7CE2A20095EAF8 /* TMetric for Safari.entitlements */,
+				522C97472B7CE2A10095EAF8 /* Resources */,
 			);
 			path = "TMetric for Safari";
 			sourceTree = "<group>";
 		};
-		9378DE7E2316ECD200C38834 /* Frameworks */ = {
+		522C97472B7CE2A10095EAF8 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				9378DE7F2316ECD200C38834 /* Cocoa.framework */,
+				522C97482B7CE2A10095EAF8 /* Main.html */,
+				522C974B2B7CE2A10095EAF8 /* Icon.png */,
+				522C974D2B7CE2A10095EAF8 /* Style.css */,
+				522C974F2B7CE2A10095EAF8 /* Script.js */,
 			);
-			name = Frameworks;
+			path = Resources;
 			sourceTree = "<group>";
 		};
-		9378DE812316ECD200C38834 /* TMetric for Safari Extension */ = {
+		522C97632B7CE2A20095EAF8 /* TMetric for Safari Extension */ = {
 			isa = PBXGroup;
 			children = (
-				51E93C7323C8D87C0073C76C /* ToolbarItemIcon.pdf */,
-				9378DE822316ECD200C38834 /* SafariExtensionHandler.swift */,
-				9378DE842316ECD200C38834 /* SafariExtensionViewController.swift */,
-				9378DE862316ECD200C38834 /* SafariExtensionViewController.xib */,
-				9378DE892316ECD200C38834 /* Info.plist */,
-				9378DE8A2316ECD200C38834 /* script.js */,
-				9378DE8E2316ECD200C38834 /* TMetric_for_Safari_Extension.entitlements */,
-				9379BE0E23202728004E10A6 /* styles.css */,
+				522C97712B7CE2A20095EAF8 /* Resources */,
+				522C97642B7CE2A20095EAF8 /* SafariWebExtensionHandler.swift */,
+				522C97662B7CE2A20095EAF8 /* Info.plist */,
+				522C97672B7CE2A20095EAF8 /* TMetric_for_Safari_Extension.entitlements */,
 			);
 			path = "TMetric for Safari Extension";
 			sourceTree = "<group>";
 		};
+		522C97712B7CE2A20095EAF8 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				522C97722B7CE2A20095EAF8 /* background */,
+				522C97732B7CE2A20095EAF8 /* settings */,
+				522C97742B7CE2A20095EAF8 /* popup */,
+				522C97752B7CE2A20095EAF8 /* in-page-scripts */,
+				522C97762B7CE2A20095EAF8 /* css */,
+				522C97772B7CE2A20095EAF8 /* images */,
+				522C97782B7CE2A20095EAF8 /* permissions */,
+				522C97792B7CE2A20095EAF8 /* manifest.json */,
+				522C977A2B7CE2A20095EAF8 /* lib */,
+				522C977B2B7CE2A20095EAF8 /* chrome-background-bundle.js */,
+				522C977C2B7CE2A20095EAF8 /* browser.js */,
+				522C977D2B7CE2A20095EAF8 /* TMetric for Safari */,
+			);
+			name = Resources;
+			path = "TMetric for Safari Extension";
+			sourceTree = SOURCE_ROOT;
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		9378DE662316ECD100C38834 /* TMetric for Safari */ = {
+		522C97412B7CE2A10095EAF8 /* TMetric for Safari */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 9378DE952316ECD200C38834 /* Build configuration list for PBXNativeTarget "TMetric for Safari" */;
+			buildConfigurationList = 522C976E2B7CE2A20095EAF8 /* Build configuration list for PBXNativeTarget "TMetric for Safari" */;
 			buildPhases = (
-				9378DE632316ECD100C38834 /* Sources */,
-				9378DE642316ECD100C38834 /* Frameworks */,
-				9378DE652316ECD100C38834 /* Resources */,
-				9378DE942316ECD200C38834 /* Embed App Extensions */,
+				522C973E2B7CE2A10095EAF8 /* Sources */,
+				522C973F2B7CE2A10095EAF8 /* Frameworks */,
+				522C97402B7CE2A10095EAF8 /* Resources */,
+				522C976D2B7CE2A20095EAF8 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				9378DE7D2316ECD200C38834 /* PBXTargetDependency */,
+				522C97622B7CE2A20095EAF8 /* PBXTargetDependency */,
 			);
 			name = "TMetric for Safari";
 			productName = "TMetric for Safari";
-			productReference = 9378DE672316ECD100C38834 /* TMetric for Safari.app */;
+			productReference = 522C97422B7CE2A10095EAF8 /* TMetric for Safari.app */;
 			productType = "com.apple.product-type.application";
 		};
-		9378DE792316ECD200C38834 /* TMetric for Safari Extension */ = {
+		522C975E2B7CE2A20095EAF8 /* TMetric for Safari Extension */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 9378DE912316ECD200C38834 /* Build configuration list for PBXNativeTarget "TMetric for Safari Extension" */;
+			buildConfigurationList = 522C976A2B7CE2A20095EAF8 /* Build configuration list for PBXNativeTarget "TMetric for Safari Extension" */;
 			buildPhases = (
-				9378DE762316ECD200C38834 /* Sources */,
-				9378DE772316ECD200C38834 /* Frameworks */,
-				9378DE782316ECD200C38834 /* Resources */,
+				522C975B2B7CE2A20095EAF8 /* Sources */,
+				522C975C2B7CE2A20095EAF8 /* Frameworks */,
+				522C975D2B7CE2A20095EAF8 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -176,127 +216,137 @@
 			);
 			name = "TMetric for Safari Extension";
 			productName = "TMetric for Safari Extension";
-			productReference = 9378DE7A2316ECD200C38834 /* TMetric for Safari Extension.appex */;
+			productReference = 522C975F2B7CE2A20095EAF8 /* TMetric for Safari Extension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		9378DE5F2316ECD100C38834 /* Project object */ = {
+		522C973A2B7CE2A10095EAF8 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1030;
-				LastUpgradeCheck = 1130;
-				ORGANIZATIONNAME = Devart;
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1520;
+				LastUpgradeCheck = 1520;
 				TargetAttributes = {
-					9378DE662316ECD100C38834 = {
-						CreatedOnToolsVersion = 10.3;
+					522C97412B7CE2A10095EAF8 = {
+						CreatedOnToolsVersion = 15.2;
 					};
-					9378DE792316ECD200C38834 = {
-						CreatedOnToolsVersion = 10.3;
+					522C975E2B7CE2A20095EAF8 = {
+						CreatedOnToolsVersion = 15.2;
 					};
 				};
 			};
-			buildConfigurationList = 9378DE622316ECD100C38834 /* Build configuration list for PBXProject "TMetric for Safari" */;
-			compatibilityVersion = "Xcode 9.3";
+			buildConfigurationList = 522C973D2B7CE2A10095EAF8 /* Build configuration list for PBXProject "TMetric for Safari" */;
+			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
 			);
-			mainGroup = 9378DE5E2316ECD100C38834;
-			productRefGroup = 9378DE682316ECD100C38834 /* Products */;
+			mainGroup = 522C97392B7CE2A10095EAF8;
+			productRefGroup = 522C97432B7CE2A10095EAF8 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				9378DE662316ECD100C38834 /* TMetric for Safari */,
-				9378DE792316ECD200C38834 /* TMetric for Safari Extension */,
+				522C97412B7CE2A10095EAF8 /* TMetric for Safari */,
+				522C975E2B7CE2A20095EAF8 /* TMetric for Safari Extension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		9378DE652316ECD100C38834 /* Resources */ = {
+		522C97402B7CE2A10095EAF8 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				515EA7BD2497E95400494954 /* Images.xcassets in Resources */,
-				9378DE6B2316ECD100C38834 /* TMetric_for_Safari.entitlements in Resources */,
-				9378DE702316ECD100C38834 /* Main.storyboard in Resources */,
+				522C974C2B7CE2A10095EAF8 /* Icon.png in Resources */,
+				522C97552B7CE2A10095EAF8 /* Main.storyboard in Resources */,
+				522C97502B7CE2A10095EAF8 /* Script.js in Resources */,
+				522C974A2B7CE2A10095EAF8 /* Main.html in Resources */,
+				522C97572B7CE2A20095EAF8 /* Assets.xcassets in Resources */,
+				522C974E2B7CE2A10095EAF8 /* Style.css in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		9378DE782316ECD200C38834 /* Resources */ = {
+		522C975D2B7CE2A20095EAF8 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9379BE0F23202728004E10A6 /* styles.css in Resources */,
-				9378DE882316ECD200C38834 /* SafariExtensionViewController.xib in Resources */,
-				51E93C7423C8D87D0073C76C /* ToolbarItemIcon.pdf in Resources */,
-				9378DE8B2316ECD200C38834 /* script.js in Resources */,
+				522C97872B7CE2A20095EAF8 /* chrome-background-bundle.js in Resources */,
+				522C97862B7CE2A20095EAF8 /* lib in Resources */,
+				522C97832B7CE2A20095EAF8 /* images in Resources */,
+				522C97822B7CE2A20095EAF8 /* css in Resources */,
+				522C97842B7CE2A20095EAF8 /* permissions in Resources */,
+				522C97802B7CE2A20095EAF8 /* popup in Resources */,
+				522C97852B7CE2A20095EAF8 /* manifest.json in Resources */,
+				522C97812B7CE2A20095EAF8 /* in-page-scripts in Resources */,
+				522C97892B7CE2A20095EAF8 /* TMetric for Safari in Resources */,
+				522C97882B7CE2A20095EAF8 /* browser.js in Resources */,
+				522C977E2B7CE2A20095EAF8 /* background in Resources */,
+				522C977F2B7CE2A20095EAF8 /* settings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		9378DE632316ECD100C38834 /* Sources */ = {
+		522C973E2B7CE2A10095EAF8 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9378DE722316ECD100C38834 /* ViewController.swift in Sources */,
-				9378DE6D2316ECD100C38834 /* AppDelegate.swift in Sources */,
+				522C97522B7CE2A10095EAF8 /* ViewController.swift in Sources */,
+				522C97462B7CE2A10095EAF8 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		9378DE762316ECD200C38834 /* Sources */ = {
+		522C975B2B7CE2A20095EAF8 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9378DE852316ECD200C38834 /* SafariExtensionViewController.swift in Sources */,
-				9378DE832316ECD200C38834 /* SafariExtensionHandler.swift in Sources */,
+				522C97652B7CE2A20095EAF8 /* SafariWebExtensionHandler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		9378DE7D2316ECD200C38834 /* PBXTargetDependency */ = {
+		522C97622B7CE2A20095EAF8 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 9378DE792316ECD200C38834 /* TMetric for Safari Extension */;
-			targetProxy = 9378DE7C2316ECD200C38834 /* PBXContainerItemProxy */;
+			target = 522C975E2B7CE2A20095EAF8 /* TMetric for Safari Extension */;
+			targetProxy = 522C97612B7CE2A20095EAF8 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		9378DE6E2316ECD100C38834 /* Main.storyboard */ = {
+		522C97482B7CE2A10095EAF8 /* Main.html */ = {
 			isa = PBXVariantGroup;
 			children = (
-				9378DE6F2316ECD100C38834 /* Base */,
+				522C97492B7CE2A10095EAF8 /* Base */,
 			);
-			name = Main.storyboard;
+			name = Main.html;
 			sourceTree = "<group>";
 		};
-		9378DE862316ECD200C38834 /* SafariExtensionViewController.xib */ = {
+		522C97532B7CE2A10095EAF8 /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				9378DE872316ECD200C38834 /* Base */,
+				522C97542B7CE2A10095EAF8 /* Base */,
 			);
-			name = SafariExtensionViewController.xib;
+			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		9378DE8F2316ECD200C38834 /* Debug */ = {
+		522C97682B7CE2A20095EAF8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
@@ -315,18 +365,19 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -340,24 +391,25 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
-		9378DE902316ECD200C38834 /* Release */ = {
+		522C97692B7CE2A20095EAF8 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
@@ -376,18 +428,19 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -395,101 +448,145 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.2;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
 			};
 			name = Release;
 		};
-		9378DE922316ECD200C38834 /* Debug */ = {
+		522C976B2B7CE2A20095EAF8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "TMetric for Safari Extension/TMetric_for_Safari_Extension.entitlements";
-				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 0;
+				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "TMetric for Safari Extension/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "TMetric for Safari Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MARKETING_VERSION = 5.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tmetric.app.safari.extension;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tmetric.app.safari.extension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
-		9378DE932316ECD200C38834 /* Release */ = {
+		522C976C2B7CE2A20095EAF8 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "TMetric for Safari Extension/TMetric_for_Safari_Extension.entitlements";
-				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 0;
+				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "TMetric for Safari Extension/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "TMetric for Safari Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MARKETING_VERSION = 5.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tmetric.app.safari.extension;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tmetric.app.safari.extension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
-		9378DE962316ECD200C38834 /* Debug */ = {
+		522C976F2B7CE2A20095EAF8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = "TMetric for Safari/TMetric_for_Safari.entitlements";
-				CODE_SIGN_IDENTITY = "-";
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				CODE_SIGN_ENTITLEMENTS = "TMetric for Safari/TMetric for Safari.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = NO;
-				CURRENT_PROJECT_VERSION = 0;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "TMetric for Safari/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "TMetric for Safari";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MARKETING_VERSION = 5.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tmetric.app.safari;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tmetric.app.safari";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
-		9378DE972316ECD200C38834 /* Release */ = {
+		522C97702B7CE2A20095EAF8 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = "TMetric for Safari/TMetric_for_Safari.entitlements";
-				CODE_SIGN_IDENTITY = "-";
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				CODE_SIGN_ENTITLEMENTS = "TMetric for Safari/TMetric for Safari.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = NO;
-				CURRENT_PROJECT_VERSION = 0;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "TMetric for Safari/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "TMetric for Safari";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MARKETING_VERSION = 5.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tmetric.app.safari;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tmetric.app.safari";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
@@ -497,34 +594,34 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		9378DE622316ECD100C38834 /* Build configuration list for PBXProject "TMetric for Safari" */ = {
+		522C973D2B7CE2A10095EAF8 /* Build configuration list for PBXProject "TMetric for Safari" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				9378DE8F2316ECD200C38834 /* Debug */,
-				9378DE902316ECD200C38834 /* Release */,
+				522C97682B7CE2A20095EAF8 /* Debug */,
+				522C97692B7CE2A20095EAF8 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		9378DE912316ECD200C38834 /* Build configuration list for PBXNativeTarget "TMetric for Safari Extension" */ = {
+		522C976A2B7CE2A20095EAF8 /* Build configuration list for PBXNativeTarget "TMetric for Safari Extension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				9378DE922316ECD200C38834 /* Debug */,
-				9378DE932316ECD200C38834 /* Release */,
+				522C976B2B7CE2A20095EAF8 /* Debug */,
+				522C976C2B7CE2A20095EAF8 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		9378DE952316ECD200C38834 /* Build configuration list for PBXNativeTarget "TMetric for Safari" */ = {
+		522C976E2B7CE2A20095EAF8 /* Build configuration list for PBXNativeTarget "TMetric for Safari" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				9378DE962316ECD200C38834 /* Debug */,
-				9378DE972316ECD200C38834 /* Release */,
+				522C976F2B7CE2A20095EAF8 /* Debug */,
+				522C97702B7CE2A20095EAF8 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 9378DE5F2316ECD100C38834 /* Project object */;
+	rootObject = 522C973A2B7CE2A10095EAF8 /* Project object */;
 }

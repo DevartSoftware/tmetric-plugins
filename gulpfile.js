@@ -53,10 +53,7 @@ var chromeDir = distDir + 'chrome/';
 var chromeUnpackedDir = chromeDir + 'unpacked/';
 var firefoxDir = distDir + 'firefox/';
 var firefoxUnpackedDir = firefoxDir + 'unpacked/';
-var safariAppFolderName = 'TMetric for Safari';
-var safariAppExtensionFolderName = 'TMetric for Safari Extension';
-var safariDir = distDir + 'safari/';
-var safariExtensionDir = safariDir + safariAppExtensionFolderName + '/';
+var safariUnpackedDir = distDir + 'safari/';
 
 console.log('Start build');
 console.log(JSON.stringify(config, null, 2));
@@ -111,11 +108,11 @@ var files = {
         'src/background/firefoxExtension.js'
     ],
     safari: [
-        'src/safari/**',
-        '!src/safari/**/*.ts',
-        '!src/safari/**/*.map',
-        '!src/safari/build/**',
-        '!src/safari/**/xcuserdata/**'
+        'src/manifest.json',
+        'src/browser.js',
+        'src/chrome-background-bundle.js',
+        'src/background/safariExtension.js',
+        'src/safari/**'
     ]
 };
 
@@ -201,9 +198,7 @@ gulp.task('clean:sources', () => {
         'src/in-page-scripts/**/*.js',
         'src/lib/*',
         'src/popup/*.js',
-        'src/settings/*.js',
-        'src/safari/**/*.js',
-        'src/safari/**/*.css'
+        'src/settings/*.js'
     ]);
 });
 
@@ -298,7 +293,7 @@ gulp.task('package:chrome', gulp.series('prepackage:chrome', packageChrome));
 // Tasks for building Firefox addon
 // =============================================================================
 
-function copyFilesFireFox() {
+function copyFilesFirefox() {
     return gulp.src(files.common.concat(files.firefox), { base: src })
         .pipe(gulp.dest(firefoxUnpackedDir));
 }
@@ -314,7 +309,7 @@ function stripDebugFirefox() {
 
 gulp.task(
     'prepackage:firefox',
-    gulp.series(copyFilesFireFox, copyManifestFirefox, stripDebugFirefox));
+    gulp.series(copyFilesFirefox, copyManifestFirefox, stripDebugFirefox));
 
 function packageFirefox() {
     var manifest = jsonfile.readFileSync(firefoxUnpackedDir + 'manifest.json');
@@ -326,120 +321,27 @@ function packageFirefox() {
 gulp.task('package:firefox', gulp.series('prepackage:firefox', packageFirefox));
 
 // =============================================================================
-// Tasks for building Safari App Extension xcode project
+// Tasks for building Safari extension
 // =============================================================================
 
-var safariSrcDir = src + 'safari/';
-var safariAppSrcDir = safariSrcDir + safariAppFolderName + '/';
-var safariAppExtensionSrcDir = safariSrcDir + safariAppExtensionFolderName + '/';
-
-function bundleScriptsSafari() {
-
-    var scriptFileName = 'script.js';
-    var scriptFile = safariAppExtensionSrcDir + scriptFileName;
-
-    var manifestFile = src + 'manifest.json';
-    var manifest = jsonfile.readFileSync(manifestFile);
-    var manifestScripts = manifest.content_scripts;
-
-    var integrationScriptsFolder = `${src}/in-page-scripts/integrations`;
-    var integrationScripts = fs.readdirSync(integrationScriptsFolder)
-        .filter(filename => filename.endsWith('.js'))
-        .map(filename => `in-page-scripts/integrations/${filename}`);
-
-    function loadFilesContent(filePaths) {
-        return filePaths.map(filePath => {
-            try {
-                let srcFilePath = path.normalize(src + filePath);
-                return `// ${filePath}\n\n${fs.readFileSync(srcFilePath)}`;
-            }
-            catch (err) {
-                console.log(`Not found file ${filePath} in folder ${src}.`);
-            }
-        }).join('\n\n');
-    }
-
-    return gulp.src([scriptFile])
-        .pipe(through.obj((file, encoding, callback) => {
-
-            let extensionContent = '';
-
-            // add web tool descriptions
-
-            extensionContent += '\n\n' + loadFilesContent(["background/webToolDescriptions.js"]);
-
-            // add script file content
-
-            extensionContent += `${file.contents.toString(encoding)}`;
-
-            // add common scripts
-
-            extensionContent += '\n\n' + loadFilesContent([
-                "in-page-scripts/utils.js",
-                "in-page-scripts/integrationService.js",
-                "in-page-scripts/page.js"
-            ]);
-
-            // add manifest scripts
-
-            manifestScripts.forEach(info => {
-                extensionContent += `\n\nif (shouldIncludeManifestScripts(${JSON.stringify(info, null, 4)})) {\n${loadFilesContent([info.js])}\n}`;
-            });
-
-            // add integrations scripts
-
-            integrationScripts.forEach(file => {
-                extensionContent += `\n\nif (shouldIncludeIntegrationScripts(${JSON.stringify(file, null, 4)})) {\n${loadFilesContent([file])}\n}`;
-            });
-
-            // add init script
-
-            extensionContent += '\n\n' + loadFilesContent([ "in-page-scripts/init.js" ]);
-
-            // combine file content
-
-            var combinedContent = '';
-            combinedContent += `\n\nfunction initTMetricExtension () {\n\n${extensionContent}\n\n}`;
-            combinedContent += `\n\nif (document.readyState == "loading") {\n\tdocument.addEventListener("DOMContentLoaded", initTMetricExtension);\n} else {\n\tinitTMetricExtension();\n}`;
-
-            // replace file content
-
-            file.contents = Buffer.from(combinedContent, encoding);
-
-            callback(null, file);
-
-        }))
-        .pipe(concat(scriptFileName))
-        .pipe(gulp.dest(safariAppExtensionSrcDir))
-}
-
-function bundleStylesSafari() {
-
-    var styleFileName = 'styles.css';
-    var styleFile = safariAppExtensionSrcDir + styleFileName;
-
-    return gulp.src([ 'src/css/timer-link.css' ], { base: src })
-        .pipe(concat(styleFileName))
-        .pipe(gulp.dest(safariAppExtensionSrcDir))
-}
-
 function copyFilesSafari() {
-    return gulp.src(files.safari, { base: safariSrcDir })
-        .pipe(gulp.dest(safariDir));
+    return gulp.src(files.common.concat(files.safari), { base: src })
+        .pipe(gulp.dest(safariUnpackedDir));
 }
 
 function stripDebugSafari() {
-    return stripDebugCommon(safariExtensionDir);
+    return stripDebugCommon(firefoxUnpackedDir);
 }
 
-gulp.task('prepackage:safari', gulp.series(
-    bundleScriptsSafari,
-    bundleStylesSafari,
-    copyFilesSafari,
-    stripDebugSafari
-));
+function modifyBackgoundBundleSafari() {
+    return gulp.src(safariUnpackedDir + '/chrome-background-bundle.js')
+        .pipe(modifyFile(text => text.replace('/chromeExtension.js', '/safariExtension.js')))
+        .pipe(gulp.dest(firefoxUnpackedDir));
+}
 
-gulp.task('package:safari', gulp.series('prepackage:safari'));
+gulp.task(
+    'package:safari',
+    gulp.series(copyFilesSafari, stripDebugSafari, modifyBackgoundBundleSafari));
 
 // =============================================================================
 // Task for building addons

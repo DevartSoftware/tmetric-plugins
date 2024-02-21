@@ -59,7 +59,7 @@
       "run_at": "document_end"
     },
     {
-      "matches": [ "*://*.tmetric.com/extension/callback.html?*" ],
+      "matches": [ "*://*.tmetric.com/extension/*" ],
       "js": [
         "browser.js",
         "in-page-scripts/authorizationCode.js"

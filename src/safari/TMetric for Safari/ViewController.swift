@@ -2,26 +2,54 @@
 //  ViewController.swift
 //  TMetric for Safari
 //
-//  Copyright © 2022 Devart. All rights reserved.
+//  Copyright © 2024 Devart. All rights reserved.
 //
 
 import Cocoa
-import SafariServices.SFSafariApplication
+import SafariServices
+import WebKit
 
-class ViewController: NSViewController {
+let extensionBundleIdentifier = "com.tmetric.app.safari.extension"
 
-    @IBOutlet var appNameLabel: NSTextField!
-    
+class ViewController: NSViewController, WKNavigationDelegate, WKScriptMessageHandler {
+
+    @IBOutlet var webView: WKWebView!
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.appNameLabel.stringValue = "TMetric for Safari";
-    }
-    
-    @IBAction func openSafariExtensionPreferences(_ sender: AnyObject?) {
-        SFSafariApplication.showPreferencesForExtension(withIdentifier: "com.tmetric.app.safari.extension") { error in
-            if let _ = error {
-                // Insert code to inform the user that something went wrong.
 
+        self.webView.navigationDelegate = self
+
+        self.webView.configuration.userContentController.add(self, name: "controller")
+
+        self.webView.loadFileURL(Bundle.main.url(forResource: "Main", withExtension: "html")!, allowingReadAccessTo: Bundle.main.resourceURL!)
+    }
+
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        SFSafariExtensionManager.getStateOfSafariExtension(withIdentifier: extensionBundleIdentifier) { (state, error) in
+            guard let state = state, error == nil else {
+                // Insert code to inform the user that something went wrong.
+                return
+            }
+
+            DispatchQueue.main.async {
+                if #available(macOS 13, *) {
+                    webView.evaluateJavaScript("show(\(state.isEnabled), true)")
+                } else {
+                    webView.evaluateJavaScript("show(\(state.isEnabled), false)")
+                }
+            }
+        }
+    }
+
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        if (message.body as! String != "open-preferences") {
+            return;
+        }
+
+        SFSafariApplication.showPreferencesForExtension(withIdentifier: extensionBundleIdentifier) { error in
+            DispatchQueue.main.async {
+                NSApplication.shared.terminate(nil)
             }
         }
     }
