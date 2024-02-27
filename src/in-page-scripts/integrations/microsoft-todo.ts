@@ -39,7 +39,7 @@ class MicrosoftToDo implements WebToolIntegration {
         let issueName = $$.try('.taskItem-titleWrapper > .taskItem-title', issueElement).textContent;
         if (!issueName) {
             // try get name from details
-            issueName = $$.try('.detailHeader-title', issueElement).textContent;
+            issueName = $$.try('.detailHeader-title .editableContent-display', issueElement).textContent;
         }
 
         if (!issueName) {
