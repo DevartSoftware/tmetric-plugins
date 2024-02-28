@@ -1,10 +1,9 @@
 $(document).ready(async () => {
 
     const permissionsManager = new PermissionManager();
-
-    const integratedServices = await new Promise<ServiceTypesMap>(resolve => {
-        browser.runtime.sendMessage({ action: 'getIntegratedServices' }, resolve);
-    });
+    const integratedServices = await browser.sendToBackgroundReliably(
+        { action: 'getIntegratedServices' }
+    ) as ServiceTypesMap;
 
     const integratedServiceUrls = WebToolManager.getServiceUrls(integratedServices);
 

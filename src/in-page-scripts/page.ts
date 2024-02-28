@@ -68,20 +68,7 @@ if (typeof window != 'undefined' && !window.initPage) {
             const pingTimeout = pingTimeouts[callbackAction]
             pingTimeout && clearTimeout(pingTimeout);
             pingTimeouts[callbackAction] = setTimeout(() => finalize(), 30000);
-
-            try {
-                browser.runtime.sendMessage(message, () => {
-                    const error = browser.runtime.lastError;
-
-                    // Background page is not loaded yet
-                    if (error) {
-                        console.log(`${message.action}: ${JSON.stringify(error, null, '  ')}`)
-                    }
-                });
-            }
-            catch (e) {
-                finalize();
-            }
+            void browser.sendToBackgroundReliably(message).catch(() => finalize());
         };
 
         /**

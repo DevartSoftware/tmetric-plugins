@@ -20,9 +20,7 @@ $(document).ready(async () => {
             action: 'getIntegratedServices'
         }
 
-        const map = await new Promise<ServiceTypesMap>(resolve => {
-            browser.runtime.sendMessage(message, resolve);
-        });
+        const map = await browser.sendToBackgroundReliably(message) as ServiceTypesMap;
 
         onClick = async () => {
 

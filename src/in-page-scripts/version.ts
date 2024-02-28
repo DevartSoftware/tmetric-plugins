@@ -7,15 +7,7 @@
     const head = document.querySelector('head');
 
     const sendBackgroundMessage = (message: ITabMessage) => {
-
-        browser.runtime.sendMessage(message, () => {
-            const error = browser.runtime.lastError;
-
-            // Background page is not loaded yet
-            if (error) {
-                console.log(`${message.action}: ${JSON.stringify(error, null, '  ')}`)
-            }
-        });
+        void browser.sendToBackgroundReliably(message);
     }
 
     const getMeta = (metaName: string) => {

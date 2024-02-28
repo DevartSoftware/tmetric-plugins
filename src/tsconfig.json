@@ -30,7 +30,6 @@
     "typings/select2/index.d.ts",
     "interfaces/models.d.ts",
     "interfaces/integrations.d.ts",
-    "interfaces/safari.d.ts",
     "background/ajaxClient.ts",
     "background/storage.ts",
     "background/oidcClient.ts",

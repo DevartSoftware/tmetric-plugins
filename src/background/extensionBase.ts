@@ -392,7 +392,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
             senderResponse: (IPopupResponse) => void
         ) => {
 
-            console.log(message, sender)
+            console.log(message, sender);
 
             // Popup requests
             if (!sender.url || sender.url.startsWith(browser.runtime.getURL('popup'))) {

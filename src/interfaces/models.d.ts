@@ -1,4 +1,6 @@
-declare var browser: typeof chrome;
+declare var browser: typeof chrome & {
+    sendToBackgroundReliably(message: any, options?: { throwErrors?: boolean }): Promise<any>;
+};
 
 declare module Models {
 

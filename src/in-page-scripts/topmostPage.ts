@@ -1,14 +1,7 @@
 if (typeof document !== 'undefined') {
 
     const sendBackgroundMessage = (message: ITabMessage) => {
-        browser.runtime.sendMessage(message, response => {
-            const error = browser.runtime.lastError;
-
-            // Background page is not loaded yet
-            if (error) {
-                console.log(`${message.action}: ${JSON.stringify(error, null, '  ')}`)
-            }
-        });
+        void browser.sendToBackgroundReliably(message);
     }
 
     const popupId = 'tmetric-popup';
