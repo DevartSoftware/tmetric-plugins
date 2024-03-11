@@ -106,7 +106,16 @@ class SignalRConnection extends ServerConnection<OidcClient> {
             }
         });
 
-        ['updateWorkTasks'].forEach(m => this._hubProxy.on(m, () => { }));
+        [
+            'updateMembers',
+            'updateUserAccounts',
+            'updateTeams',
+            'updateWorkTasks',
+            'updateTimelineEntries',
+            'updateTimeOffPolicies',
+            'updateSubscription',
+            'updateUserCalendars'
+        ].forEach(m => this._hubProxy.on(m, () => { }));
 
         this.reconnect().catch(() => { });
     }
