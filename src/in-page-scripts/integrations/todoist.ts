@@ -128,7 +128,7 @@ class Todoist implements WebToolIntegration {
                 $$.try('.task_list_item__project', issueElement).textContent || // Upcoming
                 $$.try('.pname', issueElement).textContent || // Project tab (old design)
                 $$.try('.view_header .view_header__content .simple_content').textContent || // project tab and inbox
-                $$.try('div[data-testid="large-header"] h1').textContent;
+                $$.try('div[data-testid="large-header"] h1').textContent; // project tab and inbox
 
             if (projectName) {
                 projectName = projectName.split("/")[0];
