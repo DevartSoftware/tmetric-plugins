@@ -19,6 +19,20 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
 
     private _actionOnConnect: (() => void) | undefined;
 
+    /**
+     * @param message
+     */
+    protected override showError(message: string) {
+        this.getActiveTabId().then(id => {
+            if (id) {
+                this.sendToTabs({
+                    action: 'error',
+                    data: { message }
+                }, id);
+            }
+        });
+    }
+
     private static async getUrl(key: string) {
         let url = await storage.getItem(key);
         if (!url) {
@@ -249,20 +263,21 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
 
     protected sendToTabs(message: ITabMessage, tabId?: number) {
 
+        console.log('sendToTabs', message.action, tabId);
+
         if (tabId != null) {
-            browser.tabs.sendMessage(tabId, message);
+            browser.tabs.sendMessage(tabId, message)
+                .catch(error => {
+                    console.log(`sendToTabs ${tabId} failed: ${message.action}: ${error?.message || error}`)
+                });
             return;
         }
 
         browser.tabs.query({}, tabs => tabs && tabs.forEach(tab => {
             if (tab.id != null && tab.url && tab.url.startsWith('http')) {
-                browser.tabs.sendMessage(tab.id, message, () => {
-
+                browser.tabs.sendMessage(tab.id, message).catch(error => {
                     // Ignore errors in broadcast messages
-                    const error = browser.runtime.lastError;
-                    if (error) {
-                        console.log(`${message.action}: ${error.message}`)
-                    }
+                    console.log(`sendToTabs failed: ${message.action}: ${error?.message || error}`)
                 });
             }
         }));
@@ -452,6 +467,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
     /** Handles messages from in-page scripts */
     private async onTabMessage(message: ITabMessage, tabId: number) {
 
+        console.log('onTabMessage', message.action + '_callback');
         this.sendToTabs({ action: message.action + '_callback' }, tabId);
 
         switch (message.action) {

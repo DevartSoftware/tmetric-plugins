@@ -87,7 +87,7 @@ if (typeof document !== 'undefined') {
                 sendBackgroundMessage({ action: 'getConstants' });
                 break;
 
-            // Only for Firefox to show error alerts
+            // Show error alerts
             case 'error':
                 const a = alert; // prevent strip in release;
                 a(constants.extensionName + '\n\n' + message.data.message);

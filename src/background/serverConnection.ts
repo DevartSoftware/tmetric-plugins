@@ -51,11 +51,10 @@ class ServerConnection<TClient extends AjaxClient = AjaxClient> {
     }
 
     /** @virtual */
-    reconnect() {
+    async reconnect() {
         console.log('reconnect');
-        return this.disconnect()
-            .then(() => this.connect())
-            .then(() => undefined);
+        await this.disconnect()
+        await this.connect();
     }
 
     /** @virtual */

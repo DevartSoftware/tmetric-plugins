@@ -150,7 +150,12 @@ class ContentScriptsRegistrator {
 
             const scriptsOptions = this.addRequiredScriptOptions(this.getScriptId(serviceUrl), options);
 
-            await browser.scripting.registerContentScripts(scriptsOptions);
+            try {
+                await browser.scripting.registerContentScripts(scriptsOptions);
+            }
+            catch (error) {
+                console.error('registerContentScripts', error);
+            }
         });
     }
 }

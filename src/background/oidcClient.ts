@@ -23,7 +23,7 @@ class OidcClient extends AjaxClient {
             body
         })
         if (res.status !== 200) {
-            throw res.status;
+            throw { statusCode: res.status } as AjaxStatus;
         }
 
         const json = (await res.json()) as { refresh_token: string, access_token: string };
@@ -39,9 +39,17 @@ class OidcClient extends AjaxClient {
 
     private async getTokensByRefresh(refreshToken) {
         const authorityUrl = await this._authorityUrl;
-        return await this.getTokensByAuthorizationInternal(
-            authorityUrl,
-            `client_id=browser_extension&grant_type=refresh_token&refresh_token=${refreshToken}&redirect_uri=${authorityUrl}extension/callback.html`);
+        try {
+            return await this.getTokensByAuthorizationInternal(
+                authorityUrl,
+                `client_id=browser_extension&grant_type=refresh_token&refresh_token=${refreshToken}&redirect_uri=${authorityUrl}extension/callback.html`);
+        }
+        catch (e) {
+            if ((e as AjaxStatus).statusCode == HttpStatusCode.BadRequest) {
+                throw { statusCode: HttpStatusCode.Unauthorized } as AjaxStatus;
+            }
+            throw e;
+        }
     }
 
     private getStorageValue(key: string): Promise<string | null> {
@@ -94,7 +102,15 @@ class OidcClient extends AjaxClient {
                 // Try to get new acces token with presaved refresh token
                 const refreshToken = await this.getStorageValue('refresh_token');
                 if (refreshToken) {
-                    const tokens = await this.getTokensByRefresh(refreshToken);
+                    let tokens: Awaited<ReturnType<typeof this.getTokensByRefresh>> | undefined;
+                    try {
+                        tokens = await this.getTokensByRefresh(refreshToken);
+                    }
+                    catch (e) {
+                        if ((e as AjaxStatus).statusCode == HttpStatusCode.Unauthorized) {
+                            throw e;
+                        }
+                    }
                     if (tokens && tokens.refresh_token && tokens.access_token) {
                         await this.setStorageValue('refresh_token', tokens.refresh_token);
                         await this.setStorageValue('access_token', tokens.access_token);

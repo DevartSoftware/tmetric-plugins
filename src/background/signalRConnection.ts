@@ -120,12 +120,11 @@ class SignalRConnection extends ServerConnection<OidcClient> {
         return Promise.resolve(!!(this._retryTimeoutHandle || this._retryInProgress));
     }
 
-    override reconnect() {
+    override async reconnect() {
         console.log('reconnect');
-        return this.disconnect()
-            .then(() => this.connect())
-            .then(() => this.getData())
-            .then(() => undefined);
+        await this.disconnect();
+        await this.connect();
+        await this.getData();
     }
 
     protected override async connect() {
@@ -175,7 +174,10 @@ class SignalRConnection extends ServerConnection<OidcClient> {
             return profile;
         }
         catch (e) {
-            console.log('connect: getProfile failed');
+            if (e == HttpStatusCode.Unauthorized) {
+                this.setRetryPending(false);
+            }
+            console.log('connect: getProfile failed', e);
             throw e;
         }
     }
@@ -216,7 +218,7 @@ class SignalRConnection extends ServerConnection<OidcClient> {
             const promise = this.reconnect()
                 .catch((err: AjaxStatus) => {
                     // Stop retrying when server returns error code
-                    if (!(err.statusCode > 0)) {
+                    if (!(err?.statusCode > 0)) {
                         console.log(`Retry error: ${err.statusCode}`);
                         this.setRetryPending(true);
                     }
