@@ -334,17 +334,21 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
             // chrome.tabs.query do not support tab search with hashed urls
             // https://developer.chrome.com/extensions/match_patterns
             browser.tabs.query({ url: url.split('#')[0] + '*' }, tabs => {
-                // filter tabs queried without hashes by actual url
-                const pageTabs = tabs && tabs.filter(tab => tab.url == url);
-                if (pageTabs && pageTabs.length) {
+                if (url.indexOf('#') >= 0) {
+                    // filter tabs queried without hashes by actual url
+                    tabs = tabs?.filter(
+                        tab => tab.url?.split('#')[0] == url
+                    );
+                }
+                if (tabs.length) {
 
                     let
                         anyWindowTab,
                         anyWindowActiveTab,
                         currentWindowTab,
                         currentWindowActiveTab: chrome.tabs.Tab | undefined;
-                    for (let index = 0, size = pageTabs.length; index < size; index += 1) {
-                        anyWindowTab = pageTabs[index];
+                    for (let index = 0, size = tabs.length; index < size; index += 1) {
+                        anyWindowTab = tabs[index];
                         if (anyWindowTab.active) {
                             anyWindowActiveTab = anyWindowTab;
                         }

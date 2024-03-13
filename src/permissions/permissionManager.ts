@@ -1,54 +1,50 @@
 class PermissionManager {
 
-    private request(origins: string[]) {
-        return browser.permissions.request({ origins });
+    private async request(origins: string[]) {
+        origins = origins.filter(x => !this.isRequired(x));
+        if (origins.length == 0) {
+            return true;
+        }
+        return await browser.permissions.request({ origins });
     }
 
-    private remove(origins: string[]) {
-        return browser.permissions.remove({ origins })
+    private async remove(origins: string[]) {
+        origins = origins.filter(x => !this.isRequired(x));
+        if (origins.length == 0) {
+            return false;
+        }
+        return await browser.permissions.remove({ origins })
+    }
+
+    private isRequired(origin: string) {
+        return /^.*:\/\/.*\.tmetric\.com(?:\:\d+)?\/.*/i.test(origin);
     }
 
     requestPermissions(serviceTypes: ServiceTypesMap) {
-
         const { originsAdded } = WebToolManager.addServiceTypes(serviceTypes);
-
         return this.request(Object.keys(originsAdded));
     }
 
     removePermissions(serviceTypes: ServiceTypesMap) {
-
         const { originsRemoved } = WebToolManager.removeServiceTypes(serviceTypes);
-
         return this.remove(Object.keys(originsRemoved));
     }
 
     updatePermissions(serviceTypesAdded: ServiceTypesMap, serviceTypesRemoved: ServiceTypesMap) {
-
-        const { originsAdded, originsRemoved } = WebToolManager.updateServiceTypes(serviceTypesAdded, serviceTypesRemoved);
-
+        const { originsAdded, originsRemoved } =
+            WebToolManager.updateServiceTypes(serviceTypesAdded, serviceTypesRemoved);
         return Promise.all([
             this.request(Object.keys(originsAdded)),
             this.remove(Object.keys(originsRemoved)),
         ]);
     }
 
-    cleanupPermissions() {
-
-        let callback: (result: boolean) => void;
-
-        browser.permissions.getAll(allPermissions => {
-
-            const manifest = browser.runtime.getManifest();
-            const requiredPermissions = (manifest.permissions as string[])
-                .concat(
-                    ...(manifest.content_scripts || []).map(_ => _.matches as string[])
-                );
-            const origins = (allPermissions.origins || []).filter(o => requiredPermissions.indexOf(o) < 0);
-
-            browser.permissions.remove({ origins }, result => callback(result));
-        });
-
-        return new Promise<boolean>(resolve => callback = resolve);
-
+    async cleanupPermissions() {
+        const allPermissions = await browser.permissions.getAll();
+        const origins = (allPermissions.origins || []).filter(o => !this.isRequired(o));
+        if (origins.length == 0) {
+            return true;
+        }
+        return await browser.permissions.remove({ origins });
     }
 }

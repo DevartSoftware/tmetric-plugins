@@ -107,7 +107,12 @@ $(document).ready(async () => {
 
             const serviceTypes = WebToolManager.serviceTypes;
             Object.keys(serviceTypes).forEach(serviceUrl => map[serviceUrl] = serviceTypes[serviceUrl]);
-            await permissionsManager.removePermissions(map);
+            try {
+                await permissionsManager.removePermissions(map);
+            }
+            catch (error) {
+                console.error('disable-all', error, JSON.stringify(map));
+            }
             await permissionsManager.cleanupPermissions();
 
             updatePermissionCheckboxes();

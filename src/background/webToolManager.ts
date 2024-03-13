@@ -64,7 +64,7 @@ class WebToolManager {
     static toUrlRegExp(url: string) {
         const pattern = '^' + url
             .replace(/[\/\.]/g, '\\$&')
-            .replace(/\*/g, '.+');
+            .replace(/\*/g, '.*');
         return new RegExp(pattern, 'i');
     }
 

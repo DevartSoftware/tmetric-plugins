@@ -8,8 +8,16 @@ class ContentScriptsRegistrator {
 
             ContentScriptsRegistrator.instance = this;
 
-            browser.permissions.onAdded.addListener(event => this.register(event.origins));
-            browser.permissions.onRemoved.addListener(event => this.unregister(event.origins));
+            browser.permissions.onAdded.addListener(async event => {
+                await this.register(event.origins);
+            });
+            browser.permissions.onRemoved.addListener(async event => {
+                if (event.origins) {
+                    const serviceTypeByUrl = await WebToolManager.getServiceTypes();
+                    const affectedServiceUrls = await this.getAffectedUrls(serviceTypeByUrl, event.origins);
+                    this.unregister(affectedServiceUrls)
+                }
+            });
         }
 
         return ContentScriptsRegistrator.instance;
@@ -60,21 +68,16 @@ class ContentScriptsRegistrator {
         return Array.prototype.map.call(url, c => c.charCodeAt(0).toString(16)).join('');
     }
 
-    async unregister(origins?: string[]) {
-        if (!origins) {
-            return;
-        }
-        const serviceTypes = await WebToolManager.getServiceTypes();
-
-        const serviceUrls = Object
-            .keys(serviceTypes)
-            .filter(url => origins.some(origin => WebToolManager.isMatch(url, origin)));
+    async unregister(serviceUrls: string[]) {
         for (let url of serviceUrls) {
             const scriptId = this.getScriptId(url);
             try {
-                await browser.scripting.unregisterContentScripts({
-                    ids: ['tmetric_' + scriptId, 'tmetric_topmost_' + scriptId]
-                });
+                let ids = ['tmetric_' + scriptId, 'tmetric_topmost_' + scriptId];
+                const scripts = (await browser.scripting.getRegisteredContentScripts({ ids }));
+                if (scripts?.length > 0) {
+                    ids = scripts.map(x => x.id);
+                    await browser.scripting.unregisterContentScripts({ ids });
+                }
             }
             catch (e) {
                 console.error(e);
@@ -82,72 +85,93 @@ class ContentScriptsRegistrator {
         }
     }
 
-    async register(origins?: string[]) {
+    private async getAffectedUrls(serviceTypeByUrl: ServiceTypesMap, origins?: string[]) {
 
-        console.log('ContentScriptsRegistrator.register origins', origins);
+        // example:
+        // "https:∕∕*.easyredmine.com/*", "http:∕∕jira.server.local/*", "https:∕∕*.atlassian.com/*"
+        const serviceUrls = Object.keys(serviceTypeByUrl);
 
-        await this.unregister(origins);
+        const requiredRegexp = /^.*:\/\/.*\.tmetric\.com(?:\:\d+)?\/.*/i;
+        const regexpByServiceTypeUrl = serviceUrls.reduce(
+            (map, url) => (map[url] = WebToolManager.toUrlRegExp(url)) && map,
+            {} as { [serviceUrl: string]: RegExp });
 
-        const serviceTypes = await WebToolManager.getServiceTypes();
-        const serviceTypeUrls = Object.keys(serviceTypes);
-        const serviceTypeUrlRegExps = serviceTypeUrls.reduce((map, url) => (map[url] = WebToolManager.toUrlRegExp(url)) && map, {} as { [serviceUrl: string]: RegExp });
+        return serviceUrls.filter(url => {
 
-        const webToolDescriptions = getWebToolDescriptions().reduce((map, item) => (map[item.serviceType] = item) && map, {} as { [serviceType: string]: WebToolDescription });
+            // ignore required "*.tmetric.com" permissions
+            if (requiredRegexp.test(url)) {
+                return false;
+            }
 
-        let serviceUrls = serviceTypeUrls;
+            // filter by passed origins
+            if (origins && !origins.some(origin => WebToolManager.isMatch(url, origin))) {
+                return false;
+            }
 
-        // filter by passed origins
-        if (origins) {
-            serviceUrls = serviceUrls.filter(url => origins.some(origin => WebToolManager.isMatch(url, origin)));
-        }
-
-        // filter non overlapped urls
-        serviceUrls = serviceUrls.filter(a => {
-            return serviceTypeUrls.every(b => {
-                return b == a // same url 
-                    || serviceTypes[b] != serviceTypes[a] // another service type url
-                    || !serviceTypeUrlRegExps[b].test(a) // non overlapped url
+            // filter non overlapped urls
+            return serviceUrls.every(x => {
+                return x == url // same url 
+                    || serviceTypeByUrl[x] != serviceTypeByUrl[url] // another service type url
+                    || !regexpByServiceTypeUrl[x].test(url) // non overlapped url
             });
         });
+    }
 
-        // filter permitted urls
-        serviceUrls = (await Promise.all(
-            serviceUrls.map(async serviceUrl => {
+    async register(origins?: string[]) {
+
+        console.log('ContentScriptsRegistrator.register', origins);
+
+        // example:
+        // "https://*.easyredmine.com/*": "Redmine",
+        // "http∶//jira.server.local/*": "Jira",
+        // "https://*.atlassian.com/*": "Jira"
+        const serviceTypeByUrl = await WebToolManager.getServiceTypes();
+        const affectedServiceUrls = await this.getAffectedUrls(serviceTypeByUrl, origins);
+
+        await this.unregister(affectedServiceUrls);
+
+        // get permissions
+        const permissionByServiceUrl = {} as { [serviceUrl: string]: boolean };
+        await Promise.all(
+            affectedServiceUrls.map(async serviceUrl => {
+                let hasPermission = false;
                 try {
-                    if (await browser.permissions.contains({ origins: [serviceUrl] })) {
-                        return serviceUrl;
-                    }
+                    hasPermission = await browser.permissions.contains({ origins: [serviceUrl] });
                 }
-                catch(e) {
+                catch (e) {
                     const c = console; // save console to prevent strip in release;
                     c.error(e);
                 }
-                return '';
+                permissionByServiceUrl[serviceUrl] = hasPermission;
             })
-        )).filter(item => !!item);
+        );
 
-        console.log('ContentScriptsRegistrator.register serviceUrls', serviceUrls)
+        console.log('ContentScriptsRegistrator.register serviceUrls', affectedServiceUrls)
 
-        serviceUrls.forEach(async serviceUrl => {
+        const descriptionByServiceType = getWebToolDescriptions().reduce(
+            (map, item) => (map[item.serviceType] = item) && map,
+            {} as { [serviceType: string]: WebToolDescription });
 
-            const serviceType = serviceTypes[serviceUrl];
+        affectedServiceUrls.forEach(async serviceUrl => {
 
-            const webToolDescription = webToolDescriptions[serviceType];
+            if (!permissionByServiceUrl[serviceUrl]) {
+                return;
+            }
+
+            // abandoned integration
+            const webToolDescription = descriptionByServiceType[serviceTypeByUrl[serviceUrl]];
             if (!webToolDescription || !webToolDescription.scripts) {
                 return;
             }
 
+            // get scripts options
             const scripts = webToolDescription.scripts;
-
-            const matches = [serviceUrl];
-
             const options = {
                 allFrames: scripts.allFrames,
                 js: (scripts.js || []),
                 css: (scripts.css || []),
-                matches: matches,
+                matches: [serviceUrl],
             } as chrome.scripting.RegisteredContentScript;
-
             const scriptsOptions = this.addRequiredScriptOptions(this.getScriptId(serviceUrl), options);
 
             try {
