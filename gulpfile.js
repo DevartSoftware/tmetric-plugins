@@ -99,17 +99,17 @@ var files = {
     ],
     chrome: [
         'src/manifest.json',
-        'src/browser.js',
+        'src/unified-ext.js',
         'src/chrome-background-bundle.js',
         'src/background/chromeExtension.js',
     ],
     firefox: [
-        'src/browser.js',
+        'src/unified-ext.js',
         'src/background/firefoxExtension.js'
     ],
     safari: [
         'src/manifest.json',
-        'src/browser.js',
+        'src/unified-ext.js',
         'src/chrome-background-bundle.js',
         'src/background/safariExtension.js',
         'src/safari/**'

@@ -26,7 +26,7 @@ class ContentScriptsRegistrator {
     private addRequiredScriptOptions(scriptId: string, scripts: chrome.scripting.RegisteredContentScript) {
 
         const js = [
-            'browser.js',
+            'unified-ext.js',
             'in-page-scripts/utils.js',
             'in-page-scripts/integrationService.js',
             'in-page-scripts/page.js',
@@ -55,7 +55,7 @@ class ContentScriptsRegistrator {
                 id: 'tmetric_topmost_' + scriptId,
                 matches: origins,
                 js: [
-                    'browser.js',
+                    'unified-ext.js',
                     'in-page-scripts/topmostPage.js'
                 ],
                 allFrames: false,

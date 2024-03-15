@@ -1,7 +1,7 @@
 {
   "compileOnSave": true,
   "compilerOptions": {
-    "target": "ES2018",
+    "target": "ES2020",
     "module": "ES2015",
     "inlineSourceMap": true,
     "inlineSources": true,
@@ -46,7 +46,7 @@
     "background/simpleEvent.ts",
     "background/signalRHubProxy.ts",
     "background/signalRConnection.ts",
-    "browser.ts",
+    "unified-ext.ts",
     "chrome-background-bundle.ts",
     "in-page-scripts/integrations/activeCollab.ts",
     "in-page-scripts/integrations/asana.ts",
