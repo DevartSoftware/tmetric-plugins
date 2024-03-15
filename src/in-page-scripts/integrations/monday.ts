@@ -53,6 +53,14 @@ class Monday implements WebToolIntegration {
             issueName = $$.try('.pulse-page-name-wrapper', issueElement).textContent;
             issueUrl = this._latestPulseElement &&
                 $$.try<HTMLAnchorElement>('.board-cell-component a', this._latestPulseElement).href;
+            if (!issueUrl) { // if issue url didn't find, than parse id and create url manually
+                const idMatch = this._latestPulseElement.id?.match(/row-pulse-+(\d+)-\w+/);
+                const boardUrl = $$.try<HTMLAnchorElement>('.open-pulse-in-board-link', issueElement).pathname;
+                if (idMatch && boardUrl) {
+                    issueUrl = `${boardUrl}/pulses/${idMatch[1]}`;
+                }
+            }
+
             projectName = $$.try('.open-pulse-in-board-link').innerText;
         } else if (issueElement.matches(this.issueElementSelector[3])) { // list item in My Work and Boards pages
             issueName = $$.try('div[data-walkthrough-id="item-name-text"]', issueElement).textContent;
@@ -61,13 +69,21 @@ class Monday implements WebToolIntegration {
             if (!issueUrl) { // if issue url didn't find, than parse id and create url manually
                 const rowId = $$.try('.pulse-component', issueElement).id;
                 const idMatch = rowId?.match(/row-pulse-+(\d+)-\w+/);
-                const boardMatch = source.path?.match(/\/boards\/\d+/);
-                if (idMatch && boardMatch) {
-                    issueUrl = `${boardMatch[0]}/pulses/${idMatch[1]}`;
+                let boardMatch = source.path?.match(/\/boards\/\d+/); // on boards page
+                let boardUrl = boardMatch ? boardMatch[0] : null;
+                if (!boardUrl) {
+                    boardMatch = issueElement.className.match(/board-id-(\d+)/); // on My Work page
+                    if (boardMatch) {
+                        boardUrl = `/boards/${boardMatch[1]}`;
+                    }
+                }
+
+                if (idMatch && boardUrl) {
+                    issueUrl = `${boardUrl}/pulses/${idMatch[1]}`;
                 }
             }
             projectName = $$.try('.board-header-main .board-name').textContent // on boards page
-                || $$.try('.pulse-component .board-cell-component a', issueElement).textContent; // on My Work page
+                || $$.try('.pulse-component .file-breadcrumbs-component ol li:first-child', issueElement).textContent; // on My Work page
         }
 
         if (!issueName) {
