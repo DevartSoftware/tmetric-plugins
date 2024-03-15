@@ -54,7 +54,7 @@ class Monday implements WebToolIntegration {
             issueUrl = this._latestPulseElement &&
                 $$.try<HTMLAnchorElement>('.board-cell-component a', this._latestPulseElement).href;
             if (!issueUrl) { // if issue url didn't find, than parse id and create url manually
-                const idMatch = this._latestPulseElement.id?.match(/row-pulse-+(\d+)-\w+/);
+                const idMatch = this._latestPulseElement?.id?.match(/row-pulse-+(\d+)-\w+/);
                 const boardUrl = $$.try<HTMLAnchorElement>('.open-pulse-in-board-link', issueElement).pathname;
                 if (idMatch && boardUrl) {
                     issueUrl = `${boardUrl}/pulses/${idMatch[1]}`;
