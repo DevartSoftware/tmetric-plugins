@@ -83,7 +83,8 @@ class Monday implements WebToolIntegration {
                 }
             }
             projectName = $$.try('.board-header-main .board-name').textContent // on boards page
-                || $$.try('.pulse-component .file-breadcrumbs-component ol li:first-child', issueElement).textContent; // on My Work page
+                || $$.try('.pulse-component .file-breadcrumbs-component ol li:first-child', issueElement).textContent // on My Work page
+                || $$.try('.col-identifier-board', issueElement).textContent; // old My Work page
         }
 
         if (!issueName) {
