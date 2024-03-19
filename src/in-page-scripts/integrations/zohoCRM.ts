@@ -153,4 +153,54 @@ class ZohoDesk implements WebToolIntegration {
     }
 }
 
-IntegrationService.register(new ZohoActivity(), new ZohoProject(), new ZohoDesk());
+class SalesIq implements WebToolIntegration {
+
+    showIssueId = false;
+
+    matchUrl = '*://*.zoho.eu';
+
+
+    issueElementSelector = [
+        '#chatarea'
+    ];
+
+    render(issueElement: HTMLElement, linkElement: HTMLElement) {
+        let panel = $$('[data-zsqa="owner"]', issueElement);
+        if (panel) {
+            panel.parentElement.insertBefore(linkElement, panel.nextSibling);
+        }
+    }
+
+    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+
+        let serviceType = 'Salesiq';
+
+        let serviceUrl = source.protocol + source.host;
+
+        let issueName: string;
+        let issueId: string;
+        let issueUrl: string;
+        let relativePath: string;
+                
+        let match = /\/([^\/]+\/[^\/]+)\/[^\/]+\/(\d+)/.exec(source.path);
+        if (match) {
+            relativePath = match[1]; 
+            issueId = match[2];
+
+            issueName = $$.try('[data-zsqa="question_msg"] span span:first-child', issueElement).textContent;
+        } 
+
+        if (!issueName) {
+            return;
+        }
+
+        if (issueId) {
+            issueUrl = `${relativePath}/allchats/${issueId}`;
+        }
+
+        return { serviceType, serviceUrl, issueName, issueId, issueUrl };
+    }
+
+}
+
+IntegrationService.register(new ZohoActivity(), new ZohoProject(), new ZohoDesk(), new SalesIq());
