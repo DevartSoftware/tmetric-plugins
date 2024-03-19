@@ -73,9 +73,14 @@ class ContentScriptsRegistrator {
             const scriptId = this.getScriptId(url);
             try {
                 let ids = ['tmetric_' + scriptId, 'tmetric_topmost_' + scriptId];
-                const scripts = (await browser.scripting.getRegisteredContentScripts({ ids }));
-                if (scripts?.length > 0) {
-                    ids = scripts.map(x => x.id);
+                let scripts: chrome.scripting.RegisteredContentScript[] | undefined;
+                try {
+                    scripts = (await browser.scripting.getRegisteredContentScripts({ ids }));
+                }
+                catch {
+                }
+                if (scripts?.length! > 0) {
+                    ids = scripts!.map(x => x.id);
                     await browser.scripting.unregisterContentScripts({ ids });
                 }
             }
