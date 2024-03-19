@@ -462,18 +462,16 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
             senderResponse: (IPopupResponse) => void
         ) => {
 
-            console.log(message, sender);
+            console.log(message);
 
             // Popup requests
-            if (!sender.url || sender.url.startsWith(browser.runtime.getURL('popup'))) {
-                this.onPopupRequest(message, senderResponse);
+            if ((message as IPopupRequest).sender === 'popup') {
+                this.onPopupRequest(message as IPopupRequest, senderResponse);
                 return !!senderResponse;
             }
 
-            if (sender.url?.startsWith(browser.runtime.getURL('permissions')) ||
-                sender.url?.startsWith(browser.runtime.getURL('settings'))) {
-
-                this.onPermissionsMessage(message, senderResponse);
+            if ((message as IExtensionSettingsMessage).sender === 'settings') {
+                this.onPermissionsMessage(message as IExtensionSettingsMessage, senderResponse);
                 return !!senderResponse;
             }
 
@@ -793,7 +791,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
         });
     }
 
-    private async onPermissionsMessage(message: ITabMessage, callback: (data: any) => void) {
+    private async onPermissionsMessage(message: IExtensionSettingsMessage, callback: (data: any) => void) {
         if (message.action == 'getIntegratedServices') {
             const items = await this.getIntegratedServices();
             callback(items);

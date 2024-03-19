@@ -115,11 +115,11 @@ class PopupController {
         return async (data?: TData) => {
             let response: IPopupResponse;
             try {
-                response = await this.callBackground({ action, data })
+                response = await this.callBackground({ action, data, sender: 'popup' })
             }
             catch (e) {
                 if (e.message == 'The message port closed before a response was received.') {
-                    response = await this.callBackground({ action, data });
+                    response = await this.callBackground({ action, data, sender: 'popup' });
                 } else {
                     throw (e);
                 }

@@ -27,8 +27,21 @@
 		522C97842B7CE2A20095EAF8 /* permissions in Resources */ = {isa = PBXBuildFile; fileRef = 522C97782B7CE2A20095EAF8 /* permissions */; };
 		522C97852B7CE2A20095EAF8 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 522C97792B7CE2A20095EAF8 /* manifest.json */; };
 		522C97862B7CE2A20095EAF8 /* lib in Resources */ = {isa = PBXBuildFile; fileRef = 522C977A2B7CE2A20095EAF8 /* lib */; };
-		522C97872B7CE2A20095EAF8 /* chrome-background-bundle.js in Resources */ = {isa = PBXBuildFile; fileRef = 522C977B2B7CE2A20095EAF8 /* chrome-background-bundle.js */; };
-		522C97882B7CE2A20095EAF8 /* browser.js in Resources */ = {isa = PBXBuildFile; fileRef = 522C977C2B7CE2A20095EAF8 /* browser.js */; };
+		522C90001B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80001B7CE2A20095EAF8; };
+		522C90002B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80002B7CE2A20095EAF8; };
+		522C90003B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80003B7CE2A20095EAF8; };
+		522C90004B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80004B7CE2A20095EAF8; };
+		522C90005B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80005B7CE2A20095EAF8; };
+		522C90006B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80006B7CE2A20095EAF8; };
+		522C90007B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80007B7CE2A20095EAF8; };
+		522C90008B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80008B7CE2A20095EAF8; };
+		522C90009B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80009B7CE2A20095EAF8; };
+		522C9000AB7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C8000AB7CE2A20095EAF8; };
+		522C9000BB7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C8000BB7CE2A20095EAF8; };
+		522C9000CB7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C8000CB7CE2A20095EAF8; };
+		522C9000DB7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C8000DB7CE2A20095EAF8; };
+		522C9000EB7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C8000EB7CE2A20095EAF8; };
+		522C9000FB7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C8000FB7CE2A20095EAF8; };
 		522C97892B7CE2A20095EAF8 /* TMetric for Safari in Resources */ = {isa = PBXBuildFile; fileRef = 522C977D2B7CE2A20095EAF8 /* TMetric for Safari */; };
 /* End PBXBuildFile section */
 
@@ -82,8 +95,21 @@
 		522C97782B7CE2A20095EAF8 /* permissions */ = {isa = PBXFileReference; lastKnownFileType = folder; name = permissions; path = ../../permissions; sourceTree = "<group>"; };
 		522C97792B7CE2A20095EAF8 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = ../../manifest.json; sourceTree = "<group>"; };
 		522C977A2B7CE2A20095EAF8 /* lib */ = {isa = PBXFileReference; lastKnownFileType = folder; name = lib; path = ../../lib; sourceTree = "<group>"; };
-		522C977B2B7CE2A20095EAF8 /* chrome-background-bundle.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = "chrome-background-bundle.js"; path = "../../chrome-background-bundle.js"; sourceTree = "<group>"; };
-		522C977C2B7CE2A20095EAF8 /* browser.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = browser.js; path = ../../browser.js; sourceTree = "<group>"; };
+		522C80001B7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = signalr.min.js; path = ../../lib/signalr.min.js; sourceTree = "<group>"; };
+		522C80002B7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = unified-ext.js; path = ../../unified-ext.js; sourceTree = "<group>"; };
+		522C80003B7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = storage.js; path = ../../background/storage.js; sourceTree = "<group>"; };
+		522C80004B7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = ajaxClient.js; path = ../../background/ajaxClient.js; sourceTree = "<group>"; };
+		522C80005B7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = oidcClient.js; path = ../../background/oidcClient.js; sourceTree = "<group>"; };
+		522C80006B7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = webToolDescriptions.js; path = ../../background/webToolDescriptions.js; sourceTree = "<group>"; };
+		522C80007B7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = webToolManager.js; path = ../../background/webToolManager.js; sourceTree = "<group>"; };
+		522C80008B7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = contentScriptsRegistrator.js; path = ../../background/contentScriptsRegistrator.js; sourceTree = "<group>"; };
+		522C80009B7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = simpleEvent.js; path = ../../background/simpleEvent.js; sourceTree = "<group>"; };
+		522C8000AB7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = serverConnection.js; path = ../../background/serverConnection.js; sourceTree = "<group>"; };
+		522C8000BB7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = signalRHubProxy.js; path = ../../background/signalRHubProxy.js; sourceTree = "<group>"; };
+		522C8000CB7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = signalRConnection.js; path = ../../background/signalRConnection.js; sourceTree = "<group>"; };
+		522C8000DB7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = backgroundBase.js; path = ../../background/backgroundBase.js; sourceTree = "<group>"; };
+		522C8000EB7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = extensionBase.js; path = ../../background/extensionBase.js; sourceTree = "<group>"; };
+		522C8000FB7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = safariExtension.js; path = ../../background/safariExtension.js; sourceTree = "<group>"; };
 		522C977D2B7CE2A20095EAF8 /* TMetric for Safari */ = {isa = PBXFileReference; lastKnownFileType = text; path = "TMetric for Safari"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
@@ -172,8 +198,21 @@
 				522C97782B7CE2A20095EAF8 /* permissions */,
 				522C97792B7CE2A20095EAF8 /* manifest.json */,
 				522C977A2B7CE2A20095EAF8 /* lib */,
-				522C977B2B7CE2A20095EAF8 /* chrome-background-bundle.js */,
-				522C977C2B7CE2A20095EAF8 /* browser.js */,
+				522C80001B7CE2A20095EAF8,
+				522C80002B7CE2A20095EAF8,
+				522C80003B7CE2A20095EAF8,
+				522C80004B7CE2A20095EAF8,
+				522C80005B7CE2A20095EAF8,
+				522C80006B7CE2A20095EAF8,
+				522C80007B7CE2A20095EAF8,
+				522C80008B7CE2A20095EAF8,
+				522C80009B7CE2A20095EAF8,
+				522C8000AB7CE2A20095EAF8,
+				522C8000BB7CE2A20095EAF8,
+				522C8000CB7CE2A20095EAF8,
+				522C8000DB7CE2A20095EAF8,
+				522C8000EB7CE2A20095EAF8,
+				522C8000FB7CE2A20095EAF8,
 				522C977D2B7CE2A20095EAF8 /* TMetric for Safari */,
 			);
 			name = Resources;
@@ -274,7 +313,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				522C97872B7CE2A20095EAF8 /* chrome-background-bundle.js in Resources */,
 				522C97862B7CE2A20095EAF8 /* lib in Resources */,
 				522C97832B7CE2A20095EAF8 /* images in Resources */,
 				522C97822B7CE2A20095EAF8 /* css in Resources */,
@@ -283,7 +321,21 @@
 				522C97852B7CE2A20095EAF8 /* manifest.json in Resources */,
 				522C97812B7CE2A20095EAF8 /* in-page-scripts in Resources */,
 				522C97892B7CE2A20095EAF8 /* TMetric for Safari in Resources */,
-				522C97882B7CE2A20095EAF8 /* browser.js in Resources */,
+				522C90001B7CE2A20095EAF8,
+				522C90002B7CE2A20095EAF8,
+				522C90003B7CE2A20095EAF8,
+				522C90004B7CE2A20095EAF8,
+				522C90005B7CE2A20095EAF8,
+				522C90006B7CE2A20095EAF8,
+				522C90007B7CE2A20095EAF8,
+				522C90008B7CE2A20095EAF8,
+				522C90009B7CE2A20095EAF8,
+				522C9000AB7CE2A20095EAF8,
+				522C9000BB7CE2A20095EAF8,
+				522C9000CB7CE2A20095EAF8,
+				522C9000DB7CE2A20095EAF8,
+				522C9000EB7CE2A20095EAF8,
+				522C9000FB7CE2A20095EAF8,
 				522C977E2B7CE2A20095EAF8 /* background in Resources */,
 				522C977F2B7CE2A20095EAF8 /* settings in Resources */,
 			);

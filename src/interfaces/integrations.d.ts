@@ -97,6 +97,7 @@ interface ITabMessage {
 }
 
 interface IPopupRequest {
+    sender: 'popup',
     action: string;
     data?: any;
 }
@@ -173,6 +174,7 @@ interface IExtensionLocalSettings {
 }
 
 interface IExtensionSettingsMessage {
+    sender: 'settings',
     action: string;
     data?: any;
 }

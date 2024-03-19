@@ -1,9 +1,10 @@
 $(document).ready(async () => {
 
     const permissionsManager = new PermissionManager();
-    const integratedServices = await browser.sendToBackgroundReliably(
-        { action: 'getIntegratedServices' }
-    ) as ServiceTypesMap;
+    const integratedServices = await browser.sendToBackgroundReliably({
+        action: 'getIntegratedServices',
+        sender: 'settings'
+    } as IExtensionSettingsMessage) as ServiceTypesMap;
 
     const integratedServiceUrls = WebToolManager.getServiceUrls(integratedServices);
 

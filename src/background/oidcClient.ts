@@ -120,6 +120,6 @@ class OidcClient extends AjaxClient {
             }
         }
 
-        throw 'No credentials to connect';
+        throw { statusCode: HttpStatusCode.Unauthorized } as AjaxStatus;
     }
 }

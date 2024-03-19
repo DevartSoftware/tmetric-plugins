@@ -345,7 +345,7 @@ abstract class BackgroundBase<TConnection extends ServerConnection = ServerConne
                 callback({ action: action, error: error || 'Error' });
             });
         } else {
-            callback({ action: action, error: 'Not found handler for action ' + action });
+            callback({ action, error: 'Not found handler for action ' + action });
         }
     }
 

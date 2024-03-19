@@ -1,25 +1,16 @@
 {
   "manifest_version": 2,
-
   "name": "TMetric – Time Tracker & Productivity App",
   "short_name": "TMetric",
   "description": "Simple time tracking extension which helps you be more productive, complete projects in time and bill your clients correctly.",
   "author": "Devart",
   "version": "5.0.0",
-
-  "applications": {
-    "gecko": {
-      "id": "@tmetric"
-    }
-  },
-
   "icons": {
     "16": "images/icon16.png",
     "48": "images/icon48.png",
     "64": "images/icon64.png",
     "128": "images/icon128.png"
   },
-
   "browser_action": {
     "default_icon": {
       "19": "images/inactive19.png",
@@ -44,6 +35,7 @@
   "background": {
     "scripts": [
       "lib/signalr.min.js",
+      "unified-ext.js",
       "background/storage.js",
       "background/ajaxClient.js",
       "background/oidcClient.js",
@@ -65,13 +57,23 @@
   ],
   "content_scripts": [
     {
-      "matches": [ "*://*.tmetric.com/*" ],
-      "js": [ "in-page-scripts/version.js" ],
+      "matches": [
+        "*://*.tmetric.com/*"
+      ],
+      "js": [
+        "unified-ext.js",
+        "in-page-scripts/version.js"
+      ],
       "run_at": "document_end"
     },
     {
-      "matches": [ "*://*.tmetric.com/extension/callback.html?*" ],
-      "js": [ "in-page-scripts/authorizationCode.js" ],
+      "matches": [
+        "*://*.tmetric.com/extension/*"
+      ],
+      "js": [
+        "unified-ext.js",
+        "in-page-scripts/authorizationCode.js"
+      ],
       "run_at": "document_end"
     }
   ],

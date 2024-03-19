@@ -16,11 +16,10 @@ $(document).ready(async () => {
 
     if (!skipPermissionsRequest) {
 
-        const message: ITabMessage = {
-            action: 'getIntegratedServices'
-        }
-
-        const map = await browser.sendToBackgroundReliably(message) as ServiceTypesMap;
+        const map = await browser.sendToBackgroundReliably({
+            action: 'getIntegratedServices',
+            sender: 'settings'
+        } as IExtensionSettingsMessage) as ServiceTypesMap;
 
         onClick = async () => {
 

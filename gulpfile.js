@@ -108,9 +108,7 @@ var files = {
         'src/background/firefoxExtension.js'
     ],
     safari: [
-        'src/manifest.json',
         'src/unified-ext.js',
-        'src/chrome-background-bundle.js',
         'src/background/safariExtension.js',
         'src/safari/**'
     ]
@@ -156,6 +154,10 @@ function modifyFile(transform) {
         file.contents = Buffer.from(fileContent);
         callback(null, file);
     });
+}
+
+function modifyFileJSON(transform) {
+    return modifyFile(text => JSON.stringify(transform(JSON.parse(text)), null, '  '));
 }
 
 // =============================================================================
@@ -303,13 +305,19 @@ function copyManifestFirefox() {
         .pipe(gulp.dest(firefoxUnpackedDir));
 }
 
+function modifyManifestFirefox() {
+    return gulp.src(firefoxUnpackedDir + '/manifest.json')
+        .pipe(modifyFileJSON(json => ({applications : { gecko: '@tmetric' }, ...json})))
+        .pipe(gulp.dest(firefoxUnpackedDir));
+}
+
 function stripDebugFirefox() {
     return stripDebugCommon(firefoxUnpackedDir);
 }
 
 gulp.task(
     'prepackage:firefox',
-    gulp.series(copyFilesFirefox, copyManifestFirefox, stripDebugFirefox));
+    gulp.series(copyFilesFirefox, copyManifestFirefox, stripDebugFirefox, modifyManifestFirefox));
 
 function packageFirefox() {
     var manifest = jsonfile.readFileSync(firefoxUnpackedDir + 'manifest.json');
@@ -333,15 +341,20 @@ function stripDebugSafari() {
     return stripDebugCommon(safariUnpackedDir);
 }
 
-function modifyBackgoundBundleSafari() {
-    return gulp.src(safariUnpackedDir + '/chrome-background-bundle.js')
-        .pipe(modifyFile(text => text.replace('/chromeExtension.js', '/safariExtension.js')))
+function copyManifestSafari() {
+    return gulp.src(['src/manifest-v2/manifest.json'])
+        .pipe(gulp.dest(safariUnpackedDir));
+}
+
+function modifyManifestSafari() {
+    return gulp.src(safariUnpackedDir + '/manifest.json')
+        .pipe(modifyFile(text => text.replace('/firefoxExtension.js', '/safariExtension.js')))
         .pipe(gulp.dest(safariUnpackedDir));
 }
 
 gulp.task(
     'package:safari',
-    gulp.series(copyFilesSafari, stripDebugSafari, modifyBackgoundBundleSafari));
+    gulp.series(copyFilesSafari, copyManifestSafari, stripDebugSafari, modifyManifestSafari));
 
 // =============================================================================
 // Task for building addons
