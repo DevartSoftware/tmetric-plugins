@@ -81,7 +81,9 @@ class ContentScriptsRegistrator {
                 }
                 if (scripts?.length! > 0) {
                     ids = scripts!.map(x => x.id);
-                    await browser.scripting.unregisterContentScripts({ ids });
+                    if (ids.length) {
+                        await browser.scripting.unregisterContentScripts({ ids });
+                    }
                 }
             }
             catch (e) {
@@ -104,7 +106,7 @@ class ContentScriptsRegistrator {
         return serviceUrls.filter(url => {
 
             // ignore required "*.tmetric.com" permissions
-            if (requiredRegexp.test(url)) {
+            if (!url || requiredRegexp.test(url)) {
                 return false;
             }
 
