@@ -698,7 +698,9 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
             const constants = await this._constants;
 
             const tab = tabs.find(tab => tab.id == this._loginTabId);
-            if (tab?.url?.startsWith(constants.authorityUrl) && tab.id != null) {
+            if (tab?.url?.startsWith(constants.authorityUrl) && // login/register url
+                !tab.url.startsWith(constants.authorityUrl + 'extension/') && // failed callback url
+                tab.id != null) {
                 browser.tabs.update(tab.id, { active: true });
                 browser.windows.update(this._loginWinId, { focused: true });
             } else {
