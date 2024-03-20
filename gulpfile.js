@@ -307,7 +307,7 @@ function copyManifestFirefox() {
 
 function modifyManifestFirefox() {
     return gulp.src(firefoxUnpackedDir + '/manifest.json')
-        .pipe(modifyFileJSON(json => ({applications : { gecko: '@tmetric' }, ...json})))
+        .pipe(modifyFileJSON(json => ({applications: { gecko: { id: '@tmetric'} }, ...json})))
         .pipe(gulp.dest(firefoxUnpackedDir));
 }
 
