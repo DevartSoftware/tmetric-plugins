@@ -329,7 +329,7 @@ class PopupController {
 
         const taskLinkData = this.getTaskLinkData(projectTask);
 
-        if (taskLinkData) {
+        if (taskLinkData?.url) {
 
             this.fillTaskLink($(this._forms.view + ' .task .id .link'), taskLinkData.url, taskLinkData.text);
 
@@ -384,7 +384,7 @@ class PopupController {
 
         const taskLinkData = this.getTaskLinkData(issue);
 
-        if (taskLinkData) {
+        if (taskLinkData?.url) {
             this.fillTaskLink(task.find('.link'), taskLinkData.url, taskLinkData.text);
 
             task.css('display', 'inline-flex');
