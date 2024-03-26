@@ -77,7 +77,10 @@ class ServerConnection<TClient extends AjaxClient = AjaxClient> {
         }
 
         return this.connect().then(profile => {
-            const accountId = this._accountToPost || profile.activeAccountId;
+            const accountId = this._accountToPost || profile?.activeAccountId;
+            if (!accountId) {
+                return Promise.reject('Connection failed');
+            }
             this.expectedTimerUpdate = true;
             const promise = this.post(this.getIssueTimerUrl(accountId), timer).then(() => {
                 this.checkProfileChange();
@@ -147,24 +150,13 @@ class ServerConnection<TClient extends AjaxClient = AjaxClient> {
 
     protected isProfileChanged() {
         const previousProfileId = this.userProfile && this.userProfile.userProfileId;
-        return this.getProfile().then(profile => profile.userProfileId != previousProfileId);
+        return this.getProfile().then(profile => profile?.userProfileId != previousProfileId);
     }
 
     /** @virtual */
-    protected connect() {
-
-        console.log('connect');
-        return new Promise<Models.UserProfile>((callback, reject) => {
-
-            this.waitAllRejects([this.getVersion(), this.getProfile()])
-                .then(([, profile]) => {
-                    callback(profile);
-                })
-                .catch(e => {
-                    console.log('connect: getProfile failed');
-                    reject(e);
-                });
-        });
+    protected async connect() {
+        const [, profile] = await this.waitAllRejects([this.getVersion(), this.getProfile()]);
+        return profile;
     }
 
     protected checkProfile() {
@@ -180,12 +172,15 @@ class ServerConnection<TClient extends AjaxClient = AjaxClient> {
     }
 
     /** @virtual */
-    protected getProfile() {
-        const profile = this.get<Models.UserProfile>('api/userprofile').then(profile => {
-            this.userProfile = profile;
-            return profile;
-        });
-        profile.catch(() => this.disconnect());
+    protected async getProfile() {
+        let profile: Models.UserProfile | undefined;
+        try {
+            profile = await this.get<Models.UserProfile>('api/userprofile')
+            this.userProfile = profile
+        }
+        catch {
+            void this.disconnect();
+        }
         return profile;
     }
 
@@ -235,7 +230,11 @@ class ServerConnection<TClient extends AjaxClient = AjaxClient> {
     private putTimer(timer: Models.Timer) {
         return this.connect().then(profile => {
 
-            const accountId = this._accountToPost || profile.activeAccountId;
+            const accountId = this._accountToPost || profile?.activeAccountId;
+            if (!accountId) {
+                return Promise.reject('Connection failed');
+            }
+
             this.expectedTimerUpdate = true;
 
             const promise = this

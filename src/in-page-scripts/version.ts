@@ -52,5 +52,11 @@
 
     sendBackgroundMessage({ action: 'getConstants' });
 
-    setInterval(() => sendBackgroundMessage({ action: 'getConstants' }), 25000);
+    const interval = setInterval(() => {
+        if (browser.runtime?.id) {
+            sendBackgroundMessage({ action: 'getConstants' });
+        } else {
+            clearInterval(interval); // extension has been updated
+        }
+    }, 25000);
 })();

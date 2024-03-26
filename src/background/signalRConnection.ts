@@ -40,7 +40,7 @@ class SignalRConnection extends ServerConnection<OidcClient> {
 
     onUpdateTracker = SimpleEvent.create<Models.TimeEntry[]>();
 
-    onUpdateProfile = SimpleEvent.create<Models.UserProfile>();
+    onUpdateProfile = SimpleEvent.create<Models.UserProfile | undefined>();
 
     constructor(urls: Promise<{
         serviceUrl: string,
@@ -147,6 +147,11 @@ class SignalRConnection extends ServerConnection<OidcClient> {
 
         try {
             const [, profile] = await this.waitAllRejects([this.getVersion(), this.getProfile()]);
+            const userId = profile?.userProfileId;
+            if (!userId) {
+                console.log(JSON.stringify(profile || null));
+                throw invalidProfileError;
+            }
 
             const urls = await this._urls;
 
@@ -169,9 +174,15 @@ class SignalRConnection extends ServerConnection<OidcClient> {
 
             let hubPromise = Promise.resolve();
             if (!this._hubProxy.isConnected) {
-                hubPromise = hub.start();
-                hubPromise.catch(() => this.setRetryPending(true));
-                hubPromise.then(() => this._hubProxy.onConnect(hub!));
+                while (hub.state == signalR.HubConnectionState.Connecting
+                    || hub.state == signalR.HubConnectionState.Disconnecting) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+                if (hub.state != signalR.HubConnectionState.Connected) {
+                    hubPromise = hub.start();
+                    hubPromise.catch(() => this.setRetryPending(true));
+                    hubPromise.then(() => this._hubProxy.onConnect(hub!));
+                }
             }
 
             await hubPromise;
@@ -179,7 +190,7 @@ class SignalRConnection extends ServerConnection<OidcClient> {
             this._hubConnected = true;
             this.setRetryPending(false);
             console.log('connect: register');
-            await hub.invoke('register', profile.userProfileId);
+            await hub.invoke('register', userId);
             return profile;
         }
         catch (e) {

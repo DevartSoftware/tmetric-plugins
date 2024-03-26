@@ -7,6 +7,9 @@
     const r = b.runtime;
     const f = r.sendMessage.bind(r);
     b.sendToBackgroundReliably ||= async (message, options) => {
+        if (!b.runtime?.id) {
+            return;
+        }
         let delay = 100;
         while (delay) {
             try {
@@ -26,4 +29,4 @@
             }
         }
     }
-})(this)
+})(this);
