@@ -408,8 +408,8 @@ abstract class BackgroundBase<TConnection extends ServerConnection = ServerConne
 
     protected abstract registerMessageListener(): void
 
-    protected saveProjectMapPopupAction({ accountId, projectName, projectId }: IAccountProjectMapping) {
-        this.setProjectMap(accountId, projectName, projectId);
+    protected saveProjectMapPopupAction({ accountId, projectName, projectId, serviceType }: IAccountProjectMapping) {
+        this.setProjectMap(accountId, projectName, projectId, serviceType);
         return Promise.resolve(null as null);
     }
 
@@ -491,12 +491,17 @@ abstract class BackgroundBase<TConnection extends ServerConnection = ServerConne
         if (projectMap) {
 
             const projectName = newIssue.projectName || '';
+            const serviceType = this.newPopupIssue?.serviceType || ''; 
 
-            defaultProjectId = projectMap[projectName];
+            const newKey = `${serviceType} - ${projectName}`;
+            
+            const projectKey = newKey in projectMap ? newKey : projectName in projectMap ? projectName : newKey;
+
+            defaultProjectId = projectMap[projectKey];
 
             // Remove mapped project from localstorage if project was deleted/closed
             if (defaultProjectId && filteredProjects.every(_ => _.projectId != defaultProjectId)) {
-                this.setProjectMap(accountId, projectName, null);
+                this.setProjectMap(accountId, projectName, null, serviceType);
                 defaultProjectId = null;
             }
         }
@@ -537,18 +542,24 @@ abstract class BackgroundBase<TConnection extends ServerConnection = ServerConne
 
     private accountToProjectMapKey = 'accountToProjectMap';
 
-    private async setProjectMap(accountId: number, projectName: string, projectId: number | null) {
+    private async setProjectMap(accountId: number, projectName: string, projectId: number | null, serviceType: string | null | undefined) {
 
-        let map = await this.getProjectMap(accountId);
+        let map = await this.getProjectMap(accountId) || {};
+        const newKey = `${serviceType} - ${projectName}`;
+        
+        const projectKey = newKey in map ? newKey : projectName in map ? projectName : newKey;
+
         if (projectId) {
             map = map || {};
-            map[projectName] = projectId;
+            map[newKey] = projectId;
             this.accountToProjectMap ||= {};
             this.accountToProjectMap[accountId] = map;
-        } else if (map) {
-            delete map[projectName];
         }
 
+        if (projectKey in map && (!projectId || projectKey !== newKey) ) {
+            delete map[projectKey];
+        }
+        
         await storage.setItem(this.accountToProjectMapKey, JSON.stringify(this.accountToProjectMap));
     }
 

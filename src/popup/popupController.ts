@@ -140,7 +140,7 @@ class PopupController {
     retryAction = this.wrapBackgroundAction<void, void>('retry');
     fixTimerAction = this.wrapBackgroundAction<void, void>('fixTimer');
     putTimerAction = this.wrapBackgroundAction<IPopupTimerData, void>('putTimer');
-    saveProjectMapAction = this.wrapBackgroundAction<{ accountId: number; projectName: string; projectId: number | null }, void>('saveProjectMap');
+    saveProjectMapAction = this.wrapBackgroundAction<{ accountId: number; projectName: string; projectId: number | null; serviceType: string | null | undefined }, void>('saveProjectMap');
     saveDescriptionMapAction = this.wrapBackgroundAction<{ taskName: string; description: string }, void>('saveDescriptionMap');
     openOptionsPage = this.wrapBackgroundAction<void, void>('openOptionsPage');
     getRecentTasksAction = this.wrapBackgroundAction<number, Models.RecentWorkTask[]>('getRecentTasks');
@@ -1225,9 +1225,9 @@ class PopupController {
             const existingProject = existingProjects.find(p => p.projectId == timer.projectId) || existingProjects[0];
 
             if (newProjectName == projectName && existingProjects.length < 2) {
-                this.saveProjectMapAction({ accountId, projectName, projectId: null });
+                this.saveProjectMapAction({ accountId, projectName, projectId: null, serviceType: timer.serviceType });
             } else if (existingProject) {
-                this.saveProjectMapAction({ accountId, projectName, projectId: existingProject.projectId });
+                this.saveProjectMapAction({ accountId, projectName, projectId: existingProject.projectId, serviceType: timer.serviceType });
             }
 
             if (timer.issueId && timer.description != this._newIssue.description) {

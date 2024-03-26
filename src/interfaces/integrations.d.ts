@@ -149,6 +149,7 @@ interface IAccountProjectMapping {
     accountId: number;
     projectName: string;
     projectId: number | null;
+    serviceType: string | null | undefined;
 }
 
 interface ITaskDescriptionMapping {
