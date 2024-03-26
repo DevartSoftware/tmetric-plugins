@@ -385,6 +385,7 @@ class PopupController {
         const taskLinkData = this.getTaskLinkData(issue);
 
         if (taskLinkData?.url) {
+            task.toggleClass('required', !!this._requiredFields.taskLink);
             this.fillTaskLink(task.find('.link'), taskLinkData.url, taskLinkData.text);
 
             task.css('display', 'inline-flex');
@@ -398,7 +399,7 @@ class PopupController {
             task.css('display', 'none');
 
             description.find('.label').text('Task');
-            description.toggleClass('required', !!(this._requiredFields.description && !this._requiredFields.taskLink));
+            description.toggleClass('required', !!(this._requiredFields.description || this._requiredFields.taskLink));
             descriptionInput.attr('placeholder', 'Enter description');
             descriptionInput.val(issue.description || issue.issueName || '');
         }
