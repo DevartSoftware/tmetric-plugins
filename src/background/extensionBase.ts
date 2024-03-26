@@ -23,14 +23,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
      * @param message
      */
     protected override showError(message: string) {
-        this.getActiveTabId().then(id => {
-            if (id) {
-                this.sendToTabs({
-                    action: 'error',
-                    data: { message }
-                }, id);
-            }
-        });
+        this.showNotification(message, undefined, true);
     }
 
     protected async injectVersionScript() {
@@ -162,7 +155,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
      * @param message
      * @param title
      */
-    protected override showNotification(message: string, title?: string) {
+    protected override showNotification(message: string, title?: string, requireInteraction?: boolean) {
         if (this._lastNotificationId) {
             browser.notifications.clear(this._lastNotificationId, () => { });
         }
@@ -171,7 +164,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
         const iconUrl = 'images/icon80.png';
         browser.notifications.create(
             '',
-            { title, message, type, iconUrl },
+            { title, message, type, iconUrl, requireInteraction: !!requireInteraction },
             id => this._lastNotificationId = id);
     }
 

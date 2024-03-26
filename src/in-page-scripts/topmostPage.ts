@@ -86,12 +86,6 @@ if (typeof document !== 'undefined') {
             case 'initPage':
                 sendBackgroundMessage({ action: 'getConstants' });
                 break;
-
-            // Show error alerts
-            case 'error':
-                const a = alert; // prevent strip in release;
-                a(constants.extensionName + '\n\n' + message.data.message);
-                break;
         }
     });
 

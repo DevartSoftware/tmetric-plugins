@@ -130,7 +130,7 @@ class ContentScriptsRegistrator {
 
         // example:
         // "https://*.easyredmine.com/*": "Redmine",
-        // "http∶//jira.server.local/*": "Jira",
+        // "http ://jira.server.local/*": "Jira",
         // "https://*.atlassian.com/*": "Jira"
         const serviceTypeByUrl = await WebToolManager.getServiceTypes();
         const affectedServiceUrls = await this.getAffectedUrls(serviceTypeByUrl, origins);
