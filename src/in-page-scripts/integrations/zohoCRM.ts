@@ -155,10 +155,12 @@ class ZohoDesk implements WebToolIntegration {
 
 class SalesIq implements WebToolIntegration {
 
-    showIssueId = false;
+    showIssueId = true;
 
-    matchUrl = '*://*.zoho.eu';
-
+    matchUrl = [
+        "*://salesiq.*",
+        "*://crmplus.*"
+    ];
 
     issueElementSelector = [
         '#chatarea'
@@ -173,34 +175,30 @@ class SalesIq implements WebToolIntegration {
 
     getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
 
-        let serviceType = 'Salesiq';
+        const serviceType = 'ZohoCRM';
 
-        let serviceUrl = source.protocol + source.host;
-
-        let issueName: string;
-        let issueId: string;
+        const serviceUrl = source.protocol + source.host;
+        
         let issueUrl: string;
-        let relativePath: string;
-                
-        let match = /\/([^\/]+\/[^\/]+)\/[^\/]+\/(\d+)/.exec(source.path);
-        if (match) {
-            relativePath = match[1]; 
-            issueId = match[2];
 
-            issueName = $$.try('[data-zsqa="question_msg"] span span:first-child', issueElement).textContent;
-        } 
+        const issueId = $$('[data-zsqa]', issueElement, _ => !!_.dataset.zsqa?.startsWith('#'))?.dataset.zsqa;
 
+        const issueName = $$.try('[data-zsqa="question_msg"] span span:first-child', issueElement).textContent;
+        
         if (!issueName) {
             return;
         }
 
-        if (issueId) {
-            issueUrl = `${relativePath}/allchats/${issueId}`;
-        }
+        let match = /\/([^\/]+\/[^\/]+)\/[^\/]+\/(\d+)/.exec(source.path);
+        if (match) {
+            const relativePath = match[1];
+            const urlId = match[2];
+
+            issueUrl = `${relativePath}/allchats/${urlId}`;
+        } 
 
         return { serviceType, serviceUrl, issueName, issueId, issueUrl };
     }
-
 }
 
 IntegrationService.register(new ZohoActivity(), new ZohoProject(), new ZohoDesk(), new SalesIq());
