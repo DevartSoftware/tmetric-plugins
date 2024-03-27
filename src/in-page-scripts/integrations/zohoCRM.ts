@@ -163,4 +163,52 @@ class ZohoDesk implements WebToolIntegration {
     }
 }
 
-IntegrationService.register(new ZohoActivity(), new ZohoProject(), new ZohoDesk());
+class SalesIq implements WebToolIntegration {
+
+    showIssueId = true;
+
+    matchUrl = [
+        "*://salesiq.*",
+        "*://crmplus.*"
+    ];
+
+    issueElementSelector = [
+        '#chatarea'
+    ];
+
+    render(issueElement: HTMLElement, linkElement: HTMLElement) {
+        let panel = $$('[data-zsqa="owner"]', issueElement);
+        if (panel) {
+            panel.parentElement.insertBefore(linkElement, panel.nextSibling);
+        }
+    }
+
+    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+
+        const serviceType = 'ZohoCRM';
+
+        const serviceUrl = source.protocol + source.host;
+        
+        let issueUrl: string;
+
+        const issueId = $$('[data-zsqa]', issueElement, _ => !!_.dataset.zsqa?.startsWith('#'))?.dataset.zsqa;
+
+        const issueName = $$.try('[data-zsqa="question_msg"] span span:first-child', issueElement).textContent;
+        
+        if (!issueName) {
+            return;
+        }
+
+        let match = /\/([^\/]+\/[^\/]+)\/[^\/]+\/(\d+)/.exec(source.path);
+        if (match) {
+            const relativePath = match[1];
+            const urlId = match[2];
+
+            issueUrl = `${relativePath}/allchats/${urlId}`;
+        } 
+
+        return { serviceType, serviceUrl, issueName, issueId, issueUrl };
+    }
+}
+
+IntegrationService.register(new ZohoActivity(), new ZohoProject(), new ZohoDesk(), new SalesIq());
