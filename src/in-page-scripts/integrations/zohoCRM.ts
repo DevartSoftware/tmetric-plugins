@@ -179,17 +179,17 @@ class SalesIq implements WebToolIntegration {
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
         let panel = $$('[data-zsqa="owner"]', issueElement);
         if (panel) {
-            panel.parentElement.insertBefore(linkElement, panel.nextSibling);
+            panel.parentElement!.insertBefore(linkElement, panel.nextSibling);
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
         const serviceType = 'ZohoCRM';
 
         const serviceUrl = source.protocol + source.host;
-        
-        let issueUrl: string;
+
+        let issueUrl: string | undefined;
 
         const issueId = $$('[data-zsqa]', issueElement, _ => !!_.dataset.zsqa?.startsWith('#'))?.dataset.zsqa;
 
@@ -207,7 +207,7 @@ class SalesIq implements WebToolIntegration {
             issueUrl = `${relativePath}/allchats/${urlId}`;
         } 
 
-        return { serviceType, serviceUrl, issueName, issueId, issueUrl };
+        return { serviceType, serviceUrl, issueName, issueId, issueUrl } as WebToolIssue;
     }
 }
 
