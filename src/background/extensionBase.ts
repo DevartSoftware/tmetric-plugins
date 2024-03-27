@@ -23,7 +23,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
      * @param message
      */
     protected override showError(message: string) {
-        this.showNotification(message, undefined, true);
+        void this.showNotification(message);
     }
 
     protected async injectVersionScript() {
@@ -155,17 +155,18 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
      * @param message
      * @param title
      */
-    protected override showNotification(message: string, title?: string, requireInteraction?: boolean) {
+    protected override showNotification(message: string, title?: string) {
         if (this._lastNotificationId) {
             browser.notifications.clear(this._lastNotificationId, () => { });
         }
-        title = title || 'TMetric';
-        const type = 'basic';
-        const iconUrl = 'images/icon80.png';
-        browser.notifications.create(
-            '',
-            { title, message, type, iconUrl, requireInteraction: !!requireInteraction },
-            id => this._lastNotificationId = id);
+        title ||= 'TMetric';
+        const options = {
+            title,
+            message,
+            type: 'basic',
+            iconUrl: 'images/icon80.png'
+        } as chrome.notifications.NotificationOptions<true>;
+        browser.notifications.create('', options, id => this._lastNotificationId = id);
     }
 
     protected override isLongTimer() {
