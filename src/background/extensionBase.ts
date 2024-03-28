@@ -347,12 +347,11 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
             // chrome.tabs.query do not support tab search with hashed urls
             // https://developer.chrome.com/extensions/match_patterns
             browser.tabs.query({ url: url.split('#')[0] + '*' }, tabs => {
-                if (url.indexOf('#') >= 0) {
-                    // filter tabs queried without hashes by actual url
-                    tabs = tabs?.filter(
-                        tab => tab.url?.split('#')[0] == url
-                    );
-                }
+
+                // additional filtering by url and hash, if specified
+                const urlWithAnyHash = url.indexOf('#') < 0 ? url + '#' : '';
+                tabs = tabs.filter(tab => tab.url == url || urlWithAnyHash && tab.url?.startsWith(urlWithAnyHash));
+
                 if (tabs.length) {
 
                     let
@@ -457,7 +456,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
     }
 
     protected override openOptionsPagePopupAction() {
-        this.openOptionsPageUrl()
+        this.openOptionsPageUrl();
         return Promise.resolve(null);
     }
 
@@ -688,7 +687,6 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
 
     private setButtonIcon(icon: string, tooltip: string) {
         const action = browser.action || browser.browserAction;
-
         action.setBadgeText?.({ text: this._badgeMessage ? '!' : '' });
         action.setIcon({
             path: {
