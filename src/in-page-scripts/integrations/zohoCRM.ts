@@ -181,6 +181,18 @@ class SalesIq implements WebToolIntegration {
         
         let issueUrl: string;
 
+        let match = /\/(.*)\/(?:allchats|mychats)\/(\d+)$/.exec(source.path);
+
+        if (match) {
+            const relativePath = match[1];
+            const urlId = match[2];
+            issueUrl = `/${relativePath}/allchats/${urlId}`;
+        } 
+
+        if (!issueUrl) {
+            return;
+        }
+
         const issueId = $$('[data-zsqa]', issueElement, _ => !!_.dataset.zsqa?.startsWith('#'))?.dataset.zsqa;
 
         const issueName = $$.try('[data-zsqa="question_msg"] span span:first-child', issueElement).textContent;
@@ -188,15 +200,6 @@ class SalesIq implements WebToolIntegration {
         if (!issueName) {
             return;
         }
-
-        let match = /\/(.*)\/(?:allchats|mychats)\/(\d+)$/.exec(source.path);
-
-        if (match) {
-            const relativePath = match[1];
-            const urlId = match[2];
-
-            issueUrl = `/${relativePath}/allchats/${urlId}`;
-        } 
 
         return { serviceType, serviceUrl, issueName, issueId, issueUrl };
     }
