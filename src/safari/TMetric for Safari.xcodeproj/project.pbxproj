@@ -1,13 +1,27 @@
-
 // !$*UTF8*$!
 {
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 55;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		522C90001B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80001B7CE2A20095EAF8; };
+		522C90002B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80002B7CE2A20095EAF8; };
+		522C90003B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80003B7CE2A20095EAF8; };
+		522C90004B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80004B7CE2A20095EAF8; };
+		522C90005B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80005B7CE2A20095EAF8; };
+		522C90006B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80006B7CE2A20095EAF8; };
+		522C90007B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80007B7CE2A20095EAF8; };
+		522C90008B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80008B7CE2A20095EAF8; };
+		522C90009B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80009B7CE2A20095EAF8; };
+		522C9000AB7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C8000AB7CE2A20095EAF8; };
+		522C9000BB7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C8000BB7CE2A20095EAF8; };
+		522C9000CB7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C8000CB7CE2A20095EAF8; };
+		522C9000DB7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C8000DB7CE2A20095EAF8; };
+		522C9000EB7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C8000EB7CE2A20095EAF8; };
+		522C9000FB7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C8000FB7CE2A20095EAF8; };
 		522C97462B7CE2A10095EAF8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 522C97452B7CE2A10095EAF8 /* AppDelegate.swift */; };
 		522C974A2B7CE2A10095EAF8 /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 522C97482B7CE2A10095EAF8 /* Main.html */; };
 		522C974C2B7CE2A10095EAF8 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 522C974B2B7CE2A10095EAF8 /* Icon.png */; };
@@ -27,21 +41,6 @@
 		522C97842B7CE2A20095EAF8 /* permissions in Resources */ = {isa = PBXBuildFile; fileRef = 522C97782B7CE2A20095EAF8 /* permissions */; };
 		522C97852B7CE2A20095EAF8 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 522C97792B7CE2A20095EAF8 /* manifest.json */; };
 		522C97862B7CE2A20095EAF8 /* lib in Resources */ = {isa = PBXBuildFile; fileRef = 522C977A2B7CE2A20095EAF8 /* lib */; };
-		522C90001B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80001B7CE2A20095EAF8; };
-		522C90002B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80002B7CE2A20095EAF8; };
-		522C90003B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80003B7CE2A20095EAF8; };
-		522C90004B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80004B7CE2A20095EAF8; };
-		522C90005B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80005B7CE2A20095EAF8; };
-		522C90006B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80006B7CE2A20095EAF8; };
-		522C90007B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80007B7CE2A20095EAF8; };
-		522C90008B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80008B7CE2A20095EAF8; };
-		522C90009B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80009B7CE2A20095EAF8; };
-		522C9000AB7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C8000AB7CE2A20095EAF8; };
-		522C9000BB7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C8000BB7CE2A20095EAF8; };
-		522C9000CB7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C8000CB7CE2A20095EAF8; };
-		522C9000DB7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C8000DB7CE2A20095EAF8; };
-		522C9000EB7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C8000EB7CE2A20095EAF8; };
-		522C9000FB7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C8000FB7CE2A20095EAF8; };
 		522C97892B7CE2A20095EAF8 /* TMetric for Safari in Resources */ = {isa = PBXBuildFile; fileRef = 522C977D2B7CE2A20095EAF8 /* TMetric for Safari */; };
 /* End PBXBuildFile section */
 
@@ -70,31 +69,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		522C97422B7CE2A10095EAF8 /* TMetric for Safari.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "TMetric for Safari.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		522C97452B7CE2A10095EAF8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		522C97492B7CE2A10095EAF8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = ../Base.lproj/Main.html; sourceTree = "<group>"; };
-		522C974B2B7CE2A10095EAF8 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
-		522C974D2B7CE2A10095EAF8 /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Style.css; sourceTree = "<group>"; };
-		522C974F2B7CE2A10095EAF8 /* Script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Script.js; sourceTree = "<group>"; };
-		522C97512B7CE2A10095EAF8 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		522C97542B7CE2A10095EAF8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		522C97562B7CE2A20095EAF8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		522C97582B7CE2A20095EAF8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		522C97592B7CE2A20095EAF8 /* TMetric_for_Safari.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "TMetric_for_Safari.entitlements"; sourceTree = "<group>"; };
-		522C975A2B7CE2A20095EAF8 /* TMetric for Safari.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "TMetric for Safari.entitlements"; sourceTree = "<group>"; };
-		522C975F2B7CE2A20095EAF8 /* TMetric for Safari Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "TMetric for Safari Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
-		522C97642B7CE2A20095EAF8 /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
-		522C97662B7CE2A20095EAF8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		522C97672B7CE2A20095EAF8 /* TMetric_for_Safari_Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "TMetric_for_Safari_Extension.entitlements"; sourceTree = "<group>"; };
-		522C97722B7CE2A20095EAF8 /* background */ = {isa = PBXFileReference; lastKnownFileType = folder; name = background; path = ../../background; sourceTree = "<group>"; };
-		522C97732B7CE2A20095EAF8 /* settings */ = {isa = PBXFileReference; lastKnownFileType = folder; name = settings; path = ../../settings; sourceTree = "<group>"; };
-		522C97742B7CE2A20095EAF8 /* popup */ = {isa = PBXFileReference; lastKnownFileType = folder; name = popup; path = ../../popup; sourceTree = "<group>"; };
-		522C97752B7CE2A20095EAF8 /* in-page-scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "in-page-scripts"; path = "../../in-page-scripts"; sourceTree = "<group>"; };
-		522C97762B7CE2A20095EAF8 /* css */ = {isa = PBXFileReference; lastKnownFileType = folder; name = css; path = ../../css; sourceTree = "<group>"; };
-		522C97772B7CE2A20095EAF8 /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; name = images; path = ../../images; sourceTree = "<group>"; };
-		522C97782B7CE2A20095EAF8 /* permissions */ = {isa = PBXFileReference; lastKnownFileType = folder; name = permissions; path = ../../permissions; sourceTree = "<group>"; };
-		522C97792B7CE2A20095EAF8 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = ../../manifest.json; sourceTree = "<group>"; };
-		522C977A2B7CE2A20095EAF8 /* lib */ = {isa = PBXFileReference; lastKnownFileType = folder; name = lib; path = ../../lib; sourceTree = "<group>"; };
 		522C80001B7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = signalr.min.js; path = ../../lib/signalr.min.js; sourceTree = "<group>"; };
 		522C80002B7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = unified-ext.js; path = ../../unified-ext.js; sourceTree = "<group>"; };
 		522C80003B7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = storage.js; path = ../../background/storage.js; sourceTree = "<group>"; };
@@ -110,6 +84,31 @@
 		522C8000DB7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = backgroundBase.js; path = ../../background/backgroundBase.js; sourceTree = "<group>"; };
 		522C8000EB7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = extensionBase.js; path = ../../background/extensionBase.js; sourceTree = "<group>"; };
 		522C8000FB7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = safariExtension.js; path = ../../background/safariExtension.js; sourceTree = "<group>"; };
+		522C97422B7CE2A10095EAF8 /* TMetric for Safari.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "TMetric for Safari.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		522C97452B7CE2A10095EAF8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		522C97492B7CE2A10095EAF8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = ../Base.lproj/Main.html; sourceTree = "<group>"; };
+		522C974B2B7CE2A10095EAF8 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		522C974D2B7CE2A10095EAF8 /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Style.css; sourceTree = "<group>"; };
+		522C974F2B7CE2A10095EAF8 /* Script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Script.js; sourceTree = "<group>"; };
+		522C97512B7CE2A10095EAF8 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		522C97542B7CE2A10095EAF8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		522C97562B7CE2A20095EAF8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		522C97582B7CE2A20095EAF8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		522C97592B7CE2A20095EAF8 /* TMetric_for_Safari.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TMetric_for_Safari.entitlements; sourceTree = "<group>"; };
+		522C975A2B7CE2A20095EAF8 /* TMetric for Safari.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "TMetric for Safari.entitlements"; sourceTree = "<group>"; };
+		522C975F2B7CE2A20095EAF8 /* TMetric for Safari Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "TMetric for Safari Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		522C97642B7CE2A20095EAF8 /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
+		522C97662B7CE2A20095EAF8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		522C97672B7CE2A20095EAF8 /* TMetric_for_Safari_Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TMetric_for_Safari_Extension.entitlements; sourceTree = "<group>"; };
+		522C97722B7CE2A20095EAF8 /* background */ = {isa = PBXFileReference; lastKnownFileType = folder; name = background; path = ../../background; sourceTree = "<group>"; };
+		522C97732B7CE2A20095EAF8 /* settings */ = {isa = PBXFileReference; lastKnownFileType = folder; name = settings; path = ../../settings; sourceTree = "<group>"; };
+		522C97742B7CE2A20095EAF8 /* popup */ = {isa = PBXFileReference; lastKnownFileType = folder; name = popup; path = ../../popup; sourceTree = "<group>"; };
+		522C97752B7CE2A20095EAF8 /* in-page-scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "in-page-scripts"; path = "../../in-page-scripts"; sourceTree = "<group>"; };
+		522C97762B7CE2A20095EAF8 /* css */ = {isa = PBXFileReference; lastKnownFileType = folder; name = css; path = ../../css; sourceTree = "<group>"; };
+		522C97772B7CE2A20095EAF8 /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; name = images; path = ../../images; sourceTree = "<group>"; };
+		522C97782B7CE2A20095EAF8 /* permissions */ = {isa = PBXFileReference; lastKnownFileType = folder; name = permissions; path = ../../permissions; sourceTree = "<group>"; };
+		522C97792B7CE2A20095EAF8 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = ../../manifest.json; sourceTree = "<group>"; };
+		522C977A2B7CE2A20095EAF8 /* lib */ = {isa = PBXFileReference; lastKnownFileType = folder; name = lib; path = ../../lib; sourceTree = "<group>"; };
 		522C977D2B7CE2A20095EAF8 /* TMetric for Safari */ = {isa = PBXFileReference; lastKnownFileType = text; path = "TMetric for Safari"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
@@ -277,7 +276,7 @@
 				};
 			};
 			buildConfigurationList = 522C973D2B7CE2A10095EAF8 /* Build configuration list for PBXProject "TMetric for Safari" */;
-			compatibilityVersion = "Xcode 14.0";
+			compatibilityVersion = "Xcode 13.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -531,7 +530,7 @@
 					"-framework",
 					SafariServices,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.tmetric.app.safari.extension";
+				PRODUCT_BUNDLE_IDENTIFIER = com.tmetric.app.safari.extension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -561,7 +560,7 @@
 					"-framework",
 					SafariServices,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.tmetric.app.safari.extension";
+				PRODUCT_BUNDLE_IDENTIFIER = com.tmetric.app.safari.extension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -599,7 +598,7 @@
 					"-framework",
 					WebKit,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.tmetric.app.safari";
+				PRODUCT_BUNDLE_IDENTIFIER = com.tmetric.app.safari;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -636,7 +635,7 @@
 					"-framework",
 					WebKit,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.tmetric.app.safari";
+				PRODUCT_BUNDLE_IDENTIFIER = com.tmetric.app.safari;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
