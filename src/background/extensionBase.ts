@@ -19,6 +19,13 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
 
     private _actionOnConnect: (() => void) | undefined;
 
+    private _badgeMessage: string | undefined;
+
+    protected setBadgeMessage(message: string | undefined) {
+        this._badgeMessage = message;
+        this.updateState();
+    }
+
     /**
      * @param message
      */
@@ -153,15 +160,13 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
     /**
      * Show push notification
      * @param message
-     * @param title
      */
-    protected override showNotification(message: string, title?: string) {
+    protected override showNotification(message: string) {
         if (this._lastNotificationId) {
             browser.notifications.clear(this._lastNotificationId, () => { });
         }
-        title ||= 'TMetric';
         const options = {
-            title,
+            title: 'TMetric',
             message,
             type: 'basic',
             iconUrl: 'images/icon80.png'
@@ -683,13 +688,16 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
 
     private setButtonIcon(icon: string, tooltip: string) {
         const action = browser.action || browser.browserAction;
+
+        action.setBadgeText?.({ text: this._badgeMessage ? '!' : '' });
         action.setIcon({
             path: {
                 '19': 'images/' + icon + '19.png',
                 '38': 'images/' + icon + '38.png'
             }
         });
-        action.setTitle({ title: tooltip });
+        const title = this._badgeMessage ? `${this._badgeMessage}\n\n${tooltip}` : tooltip;
+        action.setTitle({ title });
     }
 
     private async createLoginDialog() {

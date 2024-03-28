@@ -12,9 +12,8 @@ abstract class BackgroundBase<TConnection extends ServerConnection = ServerConne
     /**
      * Show push notification
      * @param message
-     * @param title
      */
-    protected abstract showNotification(message: string, title?: string): void;
+    protected abstract showNotification(message: string): void;
 
     protected readonly _connection: TConnection;
 
