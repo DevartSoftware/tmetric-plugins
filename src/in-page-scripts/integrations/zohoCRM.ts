@@ -189,12 +189,13 @@ class SalesIq implements WebToolIntegration {
             return;
         }
 
-        let match = /\/([^\/]+\/[^\/]+)\/[^\/]+\/(\d+)/.exec(source.path);
+        let match = /\/(.*)\/(?:allchats|mychats)\/(\d+)$/.exec(source.path);
+
         if (match) {
             const relativePath = match[1];
             const urlId = match[2];
 
-            issueUrl = `${relativePath}/allchats/${urlId}`;
+            issueUrl = `/${relativePath}/allchats/${urlId}`;
         } 
 
         return { serviceType, serviceUrl, issueName, issueId, issueUrl };
