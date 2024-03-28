@@ -167,6 +167,7 @@ class SalesIq implements WebToolIntegration {
     ];
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
+        linkElement.classList.add('devart-timer-link-salesiq');
         let panel = $$('[data-zsqa="owner"]', issueElement);
         if (panel) {
             panel.parentElement.insertBefore(linkElement, panel.nextSibling);
