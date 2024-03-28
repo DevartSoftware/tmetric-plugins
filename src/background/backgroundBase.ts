@@ -531,11 +531,21 @@ abstract class BackgroundBase<TConnection extends ServerConnection = ServerConne
         };
     }
 
-    // account to project map
-
+    /**
+    * Account to project map.
+    * A composite key is formed by concatenating the service type and project name.
+    * 
+    * Example structure of accountToProjectMap:
+    * {
+    *   123: { // Account ID
+    *     "Jira - Project Alpha": 456, // New composite key format: "ServiceType - ProjectName" => Project ID
+    *     "Clickup - Project Beta": 789
+    *   }
+    * }
+    */
     private accountToProjectMap: {
         [accountId: number]: {
-            [key: string]: number;
+            [key: string]: number; 
         };
     } | undefined;
 
@@ -544,19 +554,19 @@ abstract class BackgroundBase<TConnection extends ServerConnection = ServerConne
     private async setProjectMap(accountId: number, projectName: string, projectId: number | null, serviceType: string | null | undefined) {
 
         let map = await this.getProjectMap(accountId) || {};
-        const newKey = `${serviceType} - ${projectName}`;
-        
-        const projectKey = newKey in map ? newKey : projectName in map ? projectName : newKey;
+        const serviceProjectKey = `${serviceType} - ${projectName}`;
+
+        if (projectName in map) {
+            delete map[projectName]; // delete old mapping 
+        }
 
         if (projectId) {
             map = map || {};
-            map[newKey] = projectId;
+            map[serviceProjectKey] = projectId;
             this.accountToProjectMap ||= {};
             this.accountToProjectMap[accountId] = map;
-        }
-
-        if (projectKey in map && (!projectId || projectKey !== newKey) ) {
-            delete map[projectKey];
+        } else if (serviceProjectKey in map) {
+            delete map[serviceProjectKey];
         }
         
         await storage.setItem(this.accountToProjectMapKey, JSON.stringify(this.accountToProjectMap));
