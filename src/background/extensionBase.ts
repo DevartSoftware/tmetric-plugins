@@ -21,10 +21,9 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
 
     private _badgeMessage: string | undefined;
 
-    protected setBadgeMessage(message: string | undefined) {
-        this._badgeMessage = message;
-        this.updateState();
-    }
+    private _badgeTimeout: number | undefined;
+
+    private _useBadgeNotifications = false;
 
     /**
      * @param message
@@ -76,11 +75,19 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
         return { serviceUrl, authorityUrl, signalRUrl };
     }
 
-    constructor(browserSchema: string, extensionUUID: string) {
+    constructor(browserSchema: string, extensionUUID: string, forceBadgeNotifications = false) {
 
         super(
             ExtensionBase.getConstants(browserSchema, extensionUUID),
             constants => new SignalRConnection(ExtensionBase.getConnectionOptions(constants)));
+
+        if (forceBadgeNotifications) {
+            this._useBadgeNotifications = true;
+        } else {
+            browser.runtime.getPlatformInfo().then(info => {
+                this._useBadgeNotifications = info.os == 'mac';
+            });
+        }
 
         this._extraHours = (async () => {
             const extraHours = await storage.getItem('tmetric.extraHours');
@@ -162,8 +169,23 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
      * @param message
      */
     protected override showNotification(message: string) {
+
+        if (this._useBadgeNotifications) {
+            if (this._badgeTimeout) {
+                clearTimeout(this._badgeTimeout);
+                this._badgeTimeout = undefined;
+            }
+            this._badgeMessage = message;
+            this.updateState();
+            this._badgeTimeout = setTimeout(() => {
+                this._badgeMessage = undefined;
+                this._badgeTimeout = undefined;
+                this.updateState();
+            }, 10000);
+        }
+
         if (this._lastNotificationId) {
-            browser.notifications.clear(this._lastNotificationId, () => { });
+            browser.notifications?.clear?.(this._lastNotificationId, () => { });
         }
         const options = {
             title: 'TMetric',
@@ -171,7 +193,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
             type: 'basic',
             iconUrl: 'images/icon80.png'
         } as chrome.notifications.NotificationOptions<true>;
-        browser.notifications.create('', options, id => this._lastNotificationId = id);
+        browser.notifications?.create?.('', options, id => this._lastNotificationId = id);
     }
 
     protected override isLongTimer() {
@@ -298,19 +320,14 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
 
     protected override async getActiveTabTitle() {
         const tabs = await browser.tabs.query({ currentWindow: true, active: true });
-        const activeTab = tabs && tabs[0];
+        const activeTab = tabs?.[0];
         return activeTab?.title || null;
     }
 
-    protected getActiveTabId() {
-        return new Promise<number | null>((resolve) => {
-            browser.tabs.query({ currentWindow: true, active: true },
-                function (tabs) {
-                    const activeTab = tabs && tabs[0];
-                    const id = activeTab?.id || null;
-                    resolve(id);
-                });
-        });
+    protected async getActiveTabId() {
+        const tabs = await browser.tabs.query({ currentWindow: true, active: true });
+        const activeTab = tabs?.[0];
+        return activeTab?.id || null;
     }
 
     protected async getActiveTabPossibleWebTool() {
@@ -687,7 +704,11 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
 
     private setButtonIcon(icon: string, tooltip: string) {
         const action = browser.action || browser.browserAction;
-        action.setBadgeText?.({ text: this._badgeMessage ? '!' : '' });
+        if (this._useBadgeNotifications) {
+            action.setBadgeBackgroundColor?.({ color: '#F22' });
+            action.setBadgeTextColor?.({ color: '#FFF' });
+            action.setBadgeText?.({ text: this._badgeMessage ? '!' : '' });
+        }
         action.setIcon({
             path: {
                 '19': 'images/' + icon + '19.png',
