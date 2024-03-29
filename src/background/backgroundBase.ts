@@ -553,20 +553,18 @@ abstract class BackgroundBase<TConnection extends ServerConnection = ServerConne
 
     private async setProjectMap(accountId: number, projectName: string, projectId: number | null, serviceType: string | null | undefined) {
 
-        let map = await this.getProjectMap(accountId) || {};
+        let map = await this.getProjectMap(accountId);
         const serviceProjectKey = `${serviceType} - ${projectName}`;
-
-        if (projectName in map) {
-            delete map[projectName]; // delete old mapping 
-        }
 
         if (projectId) {
             map = map || {};
             map[serviceProjectKey] = projectId;
+            map[projectName] = projectId;
             this.accountToProjectMap ||= {};
             this.accountToProjectMap[accountId] = map;
-        } else if (serviceProjectKey in map) {
+        } else if (map) {
             delete map[serviceProjectKey];
+            delete map[projectName];
         }
         
         await storage.setItem(this.accountToProjectMapKey, JSON.stringify(this.accountToProjectMap));
