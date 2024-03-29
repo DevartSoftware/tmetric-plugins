@@ -157,10 +157,7 @@ class SalesIq implements WebToolIntegration {
 
     showIssueId = true;
 
-    matchUrl = [
-        "*://salesiq.*",
-        "*://crmplus.*"
-    ];
+    matchUrl = /(^https\:\/\/(?:salesiq|crmplus)\..*)\/(?:allchats|mychats)\/(\d+)$/;
 
     issueElementSelector = [
         '#chatarea'
@@ -182,17 +179,13 @@ class SalesIq implements WebToolIntegration {
         
         let issueUrl: string;
 
-        let match = /\/(.*)\/(?:allchats|mychats)\/(\d+)$/.exec(source.path);
+        const match = this.matchUrl.exec(source.fullUrl)
 
         if (match) {
-            const relativePath = match[1];
+            const path = match[1];
             const urlId = match[2];
-            issueUrl = `/${relativePath}/allchats/${urlId}`;
+            issueUrl = $$.getRelativeUrl(serviceUrl, `${path}/allchats/${urlId}`);
         } 
-
-        if (!issueUrl) {
-            return;
-        }
 
         const issueId = $$('[data-zsqa]', issueElement, _ => !!_.dataset.zsqa?.startsWith('#'))?.dataset.zsqa;
 
