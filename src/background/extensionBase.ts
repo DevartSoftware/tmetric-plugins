@@ -705,9 +705,12 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
     private setButtonIcon(icon: string, tooltip: string) {
         const action = browser.action || browser.browserAction;
         if (this._useBadgeNotifications) {
-            action.setBadgeBackgroundColor?.({ color: '#F22' });
-            action.setBadgeTextColor?.({ color: '#FFF' });
-            action.setBadgeText?.({ text: this._badgeMessage ? '!' : '' });
+            const text = this._badgeMessage ? '!' : '';
+            if (text) {
+                action.setBadgeBackgroundColor?.({ color: '#F22' });
+                action.setBadgeTextColor?.({ color: '#FFF' });
+            }
+            action.setBadgeText?.({ text });
         }
         action.setIcon({
             path: {
