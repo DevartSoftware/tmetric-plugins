@@ -167,16 +167,14 @@ class SalesIq implements WebToolIntegration {
 
     showIssueId = true;
 
-    matchUrl = [
-        "*://salesiq.*",
-        "*://crmplus.*"
-    ];
+    matchUrl = /(^https\:\/\/(?:salesiq|crmplus)\..*)\/(?:allchats|mychats)\/(\d+)$/;
 
     issueElementSelector = [
         '#chatarea'
     ];
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
+        linkElement.classList.add('devart-timer-link-salesiq');
         let panel = $$('[data-zsqa="owner"]', issueElement);
         if (panel) {
             panel.parentElement!.insertBefore(linkElement, panel.nextSibling);
@@ -191,6 +189,14 @@ class SalesIq implements WebToolIntegration {
 
         let issueUrl: string | undefined;
 
+        const match = this.matchUrl.exec(source.fullUrl)
+
+        if (match) {
+            const path = match[1];
+            const urlId = match[2];
+            issueUrl = $$.getRelativeUrl(serviceUrl, `${path}/allchats/${urlId}`);
+        } 
+
         const issueId = $$('[data-zsqa]', issueElement, _ => !!_.dataset.zsqa?.startsWith('#'))?.dataset.zsqa;
 
         const issueName = $$.try('[data-zsqa="question_msg"] span span:first-child', issueElement).textContent;
@@ -199,15 +205,9 @@ class SalesIq implements WebToolIntegration {
             return;
         }
 
-        let match = /\/([^\/]+\/[^\/]+)\/[^\/]+\/(\d+)/.exec(source.path);
-        if (match) {
-            const relativePath = match[1];
-            const urlId = match[2];
-
-            issueUrl = `${relativePath}/allchats/${urlId}`;
-        } 
-
-        return { serviceType, serviceUrl, issueName, issueId, issueUrl } as WebToolIssue;
+        return {
+            serviceType, serviceUrl, issueName, issueId, issueUrl
+        } as WebToolIssue;
     }
 }
 
