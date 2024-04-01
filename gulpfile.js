@@ -219,6 +219,7 @@ gulp.task('lib', () => {
         .pipe(gulp.dest(lib));
     var signalr = gulp
         .src('node_modules/@microsoft/signalr/dist/webworker/signalr.min.js')
+        .pipe(modifyFile(text => text.replace(/\/\/\s*#\s*sourceMappingURL.+?\.map/, '')))
         .pipe(rename('signalr.min.js'))
         .pipe(gulp.dest(lib));
     var select2 = gulp

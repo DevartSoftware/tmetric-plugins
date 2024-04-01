@@ -4,6 +4,11 @@ class ContentScriptsRegistrator {
 
     constructor() {
 
+        if (!browser.scripting) {
+            const c = console;
+            c.error('browser.scripting not supported');
+        }
+
         if (!ContentScriptsRegistrator.instance) {
 
             ContentScriptsRegistrator.instance = this;
@@ -69,6 +74,9 @@ class ContentScriptsRegistrator {
     }
 
     async unregister(serviceUrls: string[]) {
+        if (!browser.scripting) {
+            return;
+        }
         for (let url of serviceUrls) {
             const scriptId = this.getScriptId(url);
             try {
@@ -126,6 +134,9 @@ class ContentScriptsRegistrator {
 
     async register(origins?: string[]) {
 
+        if (!browser.scripting) {
+            return;
+        }
         console.log('ContentScriptsRegistrator.register', origins);
 
         // example:

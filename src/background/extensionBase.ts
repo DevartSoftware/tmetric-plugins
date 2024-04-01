@@ -33,15 +33,23 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
     }
 
     protected async injectVersionScript() {
+        if (!browser.scripting) {
+            return;
+        }
         const tabs = await browser.tabs.query({ url: '*://*.tmetric.com/*' });
-        const files = [
-            'unified-ext.js',
-            'in-page-scripts/version.js'
-        ];
         for (let tab of tabs) {
-            const tabId = tab.id;
-            if (tabId != null) {
-                browser.scripting.executeScript({ target: { tabId }, files });
+            if (tab.id != null && (tab.url || '').indexOf('.tmetric.com') >= 0) {
+                browser.scripting.executeScript({
+                    target: {
+                        tabId: tab.id
+                    },
+                    files: [
+                        'unified-ext.js',
+                        tab.url!.indexOf('/extension/') >= 0 ?
+                            'in-page-scripts/authorizationCode.js' :
+                            'in-page-scripts/version.js'
+                    ]
+                });
             }
         }
     }
