@@ -63,7 +63,7 @@ class Monday implements WebToolIntegration {
 
             projectName = $$.try('.open-pulse-in-board-link').innerText;
         } else if (issueElement.matches(this.issueElementSelector[3])) { // list item in My Work and Boards pages
-            issueName = $$.try('div[data-walkthrough-id="item-name-text"]', issueElement).textContent;
+            issueName = $$.try('.name-cell-text', issueElement).textContent;
             // find issue ulr on 'My Work' page
             issueUrl = $$.try<HTMLAnchorElement>('.pulse-component .board-cell-component a', issueElement).href;
             if (!issueUrl) { // if issue url didn't find, than parse id and create url manually
