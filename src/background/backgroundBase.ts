@@ -3,6 +3,9 @@ abstract class BackgroundBase<TConnection extends ServerConnection = ServerConne
     protected readonly _constants: Promise<Models.Constants>;
 
     /** @virtual */
+    protected readonly _noOffers: boolean | undefined;
+
+    /** @virtual */
     protected showError(message: string) {
         // This needed to prevent alert cleaning via build.
         const a = alert;
@@ -58,8 +61,12 @@ abstract class BackgroundBase<TConnection extends ServerConnection = ServerConne
         }
     }
 
+    protected getWebAppUrl(constants: Models.Constants) {
+        return constants.serviceUrl + (this._noOffers ? 'no-offers/' : '');
+    }
+
     protected async openTrackerPage() {
-        let url = (await this._constants).serviceUrl;
+        let url = this.getWebAppUrl(await this._constants);
         if (this.userProfile && this.userProfile.activeAccountId) {
             url += '#/tracker/' + this.userProfile.activeAccountId + '/';
         }

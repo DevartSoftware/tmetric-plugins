@@ -425,7 +425,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
         catch (err) {
             const constants = await this._constants;
             if (err === invalidProfileError) {
-                browser.tabs.create({ url: constants.serviceUrl });
+                browser.tabs.create({ url: this.getWebAppUrl(constants) });
             } else if (showLoginDialog) {
                 this.showLoginDialog();
             }
