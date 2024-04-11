@@ -22,7 +22,7 @@ var dist = path.normalize(process.cwd() + '/dist/');
 
 var config = {
     distDir: dist,
-    keepDebug: true,
+    keepDebug: false,
     keepSources: false
 };
 
