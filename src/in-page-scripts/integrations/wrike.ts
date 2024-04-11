@@ -26,7 +26,7 @@ class Wrike implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
         const issueNameElement = $$.try('wrike-task-title, work-item-title', issueElement); // new design 
         let issueName = $$.try<HTMLTextAreaElement>('textarea.title-field, textarea.title__field', issueElement).value || issueNameElement.textContent;
 
@@ -42,7 +42,8 @@ class Wrike implements WebToolIntegration {
         }
         const params = $$.searchParams(document.location.hash);
 
-        let issueId = params['t']                 // folder, My Work,
+        let issueId: string | null | undefined =
+            params['t']                 // folder, My Work,
             || params['ot'];                      // modal
 
         const inboxMatch = document.location.hash && document.location.hash.match(/#\/inbox\/(work_item|task)\/(\d+)/);
@@ -57,7 +58,7 @@ class Wrike implements WebToolIntegration {
             // find issue identifier by name
             const foundIdentifiers = $$.all('wrike-task-list-task')
                 .map(task => {
-                    if ($$('.task-block wrike-task-title', task).textContent == issueName) {
+                    if ($$('.task-block wrike-task-title', task)?.textContent == issueName) {
                         return task.getAttribute('data-id');
                     }
                 })
@@ -78,17 +79,18 @@ class Wrike implements WebToolIntegration {
             issueId = params.get('overlayEntityId') || params.get('sidePanelItemId') || params.get('id');
         }
 
-        let issueUrl: string;
+        let issueUrl: string | undefined;
         if (issueId) {
             issueUrl = '/open.htm?id=' + issueId;
             issueId = '#' + issueId;
         }
 
         const serviceType = 'Wrike';
-
         const serviceUrl = source.protocol + source.host;
 
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+        return {
+            issueId, issueName, projectName, serviceType, serviceUrl, issueUrl
+        } as WebToolIssue;
     }
 }
 

@@ -13,14 +13,17 @@ class MicrosoftToDo implements WebToolIntegration {
 
         if (issueElement.className == 'taskItem-body') {
             linkElement.classList.add('devart-timer-link-microsoft-todo');
-            linkElement.lastElementChild.textContent = '';
+            const el = linkElement.lastElementChild;
+            if (el) {
+                el.textContent = '';
+            }
             issueElement.appendChild(linkElement);
         }
 
         if (issueElement.className == 'details-body') {
             linkElement.classList.add('section-title', 'devart-timer-link-microsoft-todo-details');
 
-            let section = $$.all('.section', issueElement)[1];
+            const section = $$.all('.section', issueElement)[1];
             if (section) {
                 let sectionItem = $$.create('div', 'section-item');
                 let btn = $$.create('button', 'section-innerClick');
@@ -34,7 +37,7 @@ class MicrosoftToDo implements WebToolIntegration {
             }
         }
     }
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
         let issueName = $$.try('.taskItem-titleWrapper > .taskItem-title', issueElement).textContent;
         if (!issueName) {
@@ -46,9 +49,12 @@ class MicrosoftToDo implements WebToolIntegration {
             return;
         }
 
-        let serviceUrl = source.protocol + source.host;
+        const serviceUrl = source.protocol + source.host;
+        const serviceType = 'MicrosoftToDo';
 
-        return { issueName, serviceUrl, serviceType: 'MicrosoftToDo' };
+        return {
+            issueName, serviceUrl, serviceType
+        } as WebToolIssue;
     }
 }
 

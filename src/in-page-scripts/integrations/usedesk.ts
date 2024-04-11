@@ -4,35 +4,38 @@ class Usedesk implements WebToolIntegration {
 
     matchUrl = '*://*.usedesk.*/tickets/*';
 
-    render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        let host = $$.visible('#ticket-buttons');
+    render(_issueElement: HTMLElement, linkElement: HTMLElement) {
+        const host = $$.visible('#ticket-buttons');
         if (host) {
             linkElement.classList.add('btn', 'btn-default');
             host.appendChild(linkElement);
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-        let issueName = $$.try('#editable_subject').textContent;
+    getIssue(_issueElement: HTMLElement, source: Source) {
 
+        const issueName = $$.try('#editable_subject').textContent;
         if (!issueName) {
             return;
         }
 
-        let projectName = $$.try('#ticket-channel-name').textContent;
+        const projectName = $$.try('#ticket-channel-name').textContent;
 
-        let issueId: string;
-        let serviceUrl = source.protocol + source.host;
-        let issueUrl: string;
+        let issueId: string | undefined;
+        const serviceUrl = source.protocol + source.host;
+        const serviceType = 'UseDesk';
+        let issueUrl: string | undefined;
 
         // https://*.usedesk.ru/tickets/TICKET_ID
-        let match = /^\/tickets\/(\d+)$/.exec(source.path);
+        const match = /^\/tickets\/(\d+)$/.exec(source.path);
         if (match) {
             issueId = `#${match[1]}`;
             issueUrl = source.path;
         }
 
-        return { issueId, issueName, projectName, serviceType: 'UseDesk', serviceUrl, issueUrl };
+        return {
+            issueId, issueName, projectName, serviceType, serviceUrl, issueUrl
+        } as WebToolIssue;
     }
 }
 

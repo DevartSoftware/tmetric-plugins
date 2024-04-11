@@ -1,19 +1,22 @@
-class ServerConnection {
+class ServerConnection<TClient extends AjaxClient = AjaxClient> {
 
-    serviceUrl: string;
+    private readonly _serviceUrl: Promise<string>;
 
-    userProfile: Models.UserProfile;
+    private _accountToPost: number | null = null;
 
-    accountToPost: number | null = null;
+    protected userProfile: Models.UserProfile | undefined;
 
-    expectedTimerUpdate = false;
+    protected expectedTimerUpdate = false;
 
-    serverApiVersion: number;
+    readonly ajaxClient: TClient;
 
     /** Like promise.all but reject is called after all promises are settled */
-    waitAllRejects = Promise.all;
+    protected readonly waitAllRejects = Promise.all;
 
-    constructor() {
+    constructor(mainUrl: Promise<string>, ajaxClient: TClient) {
+
+        this._serviceUrl = mainUrl;
+        this.ajaxClient = ajaxClient;
 
         this.waitAllRejects = <any>((promises: Promise<any>[]) => new Promise((resolve, reject) => {
 
@@ -39,21 +42,6 @@ class ServerConnection {
         }));
     }
 
-
-    /** @virtual */
-    init(options: { serviceUrl: string, authorityUrl: string}): Promise<void> {
-
-        this.serviceUrl = options.serviceUrl;
-        OidcClient.init(options.authorityUrl);
-
-        return this.reconnect().catch(() => { });
-    }
-
-    isProfileChanged() {
-        const previousProfileId = this.userProfile && this.userProfile.userProfileId;
-        return this.getProfile().then(profile => profile.userProfileId != previousProfileId);
-    }
-
     checkProfileChange() {
         return this.isProfileChanged().then(isProfileChanged => {
             if (isProfileChanged) {
@@ -63,52 +51,15 @@ class ServerConnection {
     }
 
     /** @virtual */
-    reconnect() {
+    async reconnect() {
         console.log('reconnect');
-        return this.disconnect()
-            .then(() => this.connect())
-            .then(() => undefined);
-    }
-
-    /** @virtual */
-    connect() {
-
-        console.log('connect');
-        return new Promise<Models.UserProfile>((callback, reject) => {
-
-            this.waitAllRejects([this.getVersion(), this.getProfile()])
-                .then(([version, profile]) => {
-                    callback(profile);
-                })
-                .catch(e => {
-                    console.log('connect: getProfile failed');
-                    reject(e);
-                });
-        });
+        await this.disconnect()
+        await this.connect();
     }
 
     /** @virtual */
     disconnect() {
         return Promise.resolve();
-    }
-
-    putTimer(timer: Models.Timer) {
-        return this.connect().then(profile => {
-
-            const accountId = this.accountToPost || profile.activeAccountId;
-            this.expectedTimerUpdate = true;
-
-            const promise = this
-                .put(this.getTimerUrl(accountId), timer)
-                .then(() => this.checkProfileChange());
-
-            promise.catch(() => {
-                this.expectedTimerUpdate = false;
-                this.checkProfileChange();
-            });
-
-            return promise;
-        });
     }
 
     putIssueTimer(timer: WebToolIssueTimer) {
@@ -126,7 +77,10 @@ class ServerConnection {
         }
 
         return this.connect().then(profile => {
-            const accountId = this.accountToPost || profile.activeAccountId;
+            const accountId = this._accountToPost || profile?.activeAccountId;
+            if (!accountId) {
+                return Promise.reject('Connection failed');
+            }
             this.expectedTimerUpdate = true;
             const promise = this.post(this.getIssueTimerUrl(accountId), timer).then(() => {
                 this.checkProfileChange();
@@ -139,26 +93,9 @@ class ServerConnection {
         });
     }
 
-    getIntegrations() {
-        return this.checkProfile().then(profile =>
-            this.get<Models.IntegrationInfo[]>(
-                this.getIntegrationsUrl()
-            ));
-    }
-
-    objToParams(obj: any) {
-        const params = new URLSearchParams();
-        for (let name in obj) {
-            let value = obj[name];
-            if (Array.isArray(value)) {
-                for (let item of value) {
-                    params.append(name, item);
-                }
-            } else if (value != null) {
-                params.set(name, value)
-            }
-        }
-        return params.toString();
+    async getIntegrations() {
+        await this.checkProfile()
+        return this.get<Models.IntegrationInfo[]>(this.getIntegrationsUrl());
     }
 
     getIntegration(identifier: Models.IntegratedProjectIdentifier, accountId?: number, keepAccount?: boolean) {
@@ -172,13 +109,13 @@ class ServerConnection {
     postIntegration(identifier: Models.IntegratedProjectIdentifier) {
         return this.checkProfile().then(profile =>
             this.post<Models.IntegratedProjectIdentifier>(
-                this.getIntegrationProjectUrl(this.accountToPost || profile.activeAccountId),
+                this.getIntegrationProjectUrl(this._accountToPost || profile.activeAccountId),
                 identifier));
     }
 
     setAccountToPost(accountId: number | null) {
         return new Promise<void>(callback => {
-            this.accountToPost = accountId;
+            this._accountToPost = accountId;
             callback();
         });
     }
@@ -189,43 +126,6 @@ class ServerConnection {
             this.post<WebToolIssueIdentifier[], WebToolIssueDuration[]>(
                 this.getTimeEntriesSummaryUrl(profile.activeAccountId),
                 identifiers));
-    }
-
-    checkProfile() {
-        return new Promise<Models.UserProfile>((callback, reject) => {
-            const profile = this.userProfile;
-            if (profile && profile.activeAccountId) {
-                callback(profile);
-            }
-            else {
-                reject(invalidProfileError);
-            }
-        });
-    }
-
-    /** @virtual */
-    getProfile() {
-        const profile = this.get<Models.UserProfile>('api/userprofile').then(profile => {
-            this.userProfile = profile;
-            return profile;
-        });
-        profile.catch(() => this.disconnect());
-        return profile;
-    }
-
-    getVersion() {
-        return this.get<number>('api/version').then(version => {
-            this.serverApiVersion = version;
-            return version;
-        });
-    }
-
-    getTimer() {
-        return this.checkProfile().then(profile => {
-            const accountId = profile.activeAccountId;
-            const url = this.getTimerUrl(accountId);
-            return this.get<Models.TimerEx>(url);
-        });
     }
 
     getAccountScope(accountId?: number) {
@@ -248,91 +148,120 @@ class ServerConnection {
         return this.checkProfile();
     }
 
-    get<TRes>(url: string): Promise<TRes> {
-        return OidcClient.ajax(this.serviceUrl + url, 'GET');
+    protected isProfileChanged() {
+        const previousProfileId = this.userProfile && this.userProfile.userProfileId;
+        return this.getProfile().then(profile => profile?.userProfileId != previousProfileId);
     }
 
-    post<TReq, TRes>(url: string, data: TReq): Promise<TRes>
-    post<TReq>(url: string, data: TReq): Promise<void>
-    post<TReq>(url: string, data: TReq): Promise<any> {
-        return OidcClient.ajax<TReq, any>(this.serviceUrl + url, 'POST', data);
+    /** @virtual */
+    protected async connect() {
+        const [, profile] = await this.waitAllRejects([this.getVersion(), this.getProfile()]);
+        return profile;
     }
 
-    put<TReq>(url: string, data: TReq): Promise<void> {
-        return OidcClient.ajax<TReq, void>(this.serviceUrl + url, 'PUT', data);
+    protected checkProfile() {
+        return new Promise<Models.UserProfile>((callback, reject) => {
+            const profile = this.userProfile;
+            if (profile && profile.activeAccountId) {
+                callback(profile);
+            }
+            else {
+                reject(invalidProfileError);
+            }
+        });
     }
 
-    getIntegrationsUrl() {
-        return `api/userprofile/integrations`;
+    /** @virtual */
+    protected async getProfile() {
+        let profile: Models.UserProfile | undefined;
+        try {
+            profile = await this.get<Models.UserProfile>('api/userprofile')
+            this.userProfile = profile
+        }
+        catch {
+            void this.disconnect();
+        }
+        return profile;
     }
 
-    getIntegrationProjectUrl(accountId: number) {
-        return `api/accounts/${accountId}/integrations/project`;
+    protected getVersion() {
+        return this.get<number>('api/version')
     }
 
-    getTimerUrl(accountId: number) {
+    protected async get<TRes>(url: string): Promise<TRes> {
+        const serviceUrl = await this._serviceUrl;
+        return await this.ajaxClient.ajax(serviceUrl + url, 'GET');
+    }
+
+    protected async post<TReq, TRes = void>(url: string, data: TReq): Promise<TRes> {
+        const serviceUrl = await this._serviceUrl;
+        return await this.ajaxClient.ajax<TReq, any>(serviceUrl + url, 'POST', data);
+    }
+
+    protected async put<TReq>(url: string, data: TReq): Promise<void> {
+        const serviceUrl = await this._serviceUrl;
+        return await this.ajaxClient.ajax<TReq, void>(serviceUrl + url, 'PUT', data);
+    }
+
+    protected getTimerUrl(accountId: number) {
         return `api/accounts/${accountId}/timer`;
     }
 
-    getIssueTimerUrl(accountId: number) {
-        return `api/accounts/${accountId}/timer/issue`;
-    }
-
-    getTimeEntriesUrl(accountId: number, userProfileId: number) {
+    protected getTimeEntriesUrl(accountId: number, userProfileId: number) {
         return `api/accounts/${accountId}/timeentries/${userProfileId}`;
     }
 
-    getTimeEntriesSummaryUrl(accountId: number) {
+    private getIntegrationsUrl() {
+        return `api/userprofile/integrations`;
+    }
+
+    private getIntegrationProjectUrl(accountId: number) {
+        return `api/accounts/${accountId}/integrations/project`;
+    }
+
+    private getIssueTimerUrl(accountId: number) {
+        return `api/accounts/${accountId}/timer/issue`;
+    }
+
+    private getTimeEntriesSummaryUrl(accountId: number) {
         return `api/accounts/${accountId}/timeentries/external/summary`;
     }
 
-    static statusDescriptions = <{ [code: number]: string }>{
-        100: "Continue",
-        101: "Switching Protocols",
-        102: "Processing",
-        200: "OK",
-        201: "Created",
-        202: "Accepted",
-        203: "Non-Authoritative Information",
-        204: "No Content",
-        205: "Reset Content",
-        206: "Partial Content",
-        207: "Multi-Status",
-        300: "Multiple Choices",
-        301: "Moved Permanently",
-        302: "Found",
-        303: "See Other",
-        304: "Not Modified",
-        305: "Use Proxy",
-        307: "Temporary Redirect",
-        400: "Bad Request",
-        401: "Unauthorized",
-        402: "Payment Required",
-        403: "Forbidden",
-        404: "Not Found",
-        405: "Method Not Allowed",
-        406: "Not Acceptable",
-        407: "Proxy Authentication Required",
-        408: "Request Timeout",
-        409: "Conflict",
-        410: "Gone",
-        411: "Length Required",
-        412: "Precondition Failed",
-        413: "Request Entity Too Large",
-        414: "Request-Uri Too Long",
-        415: "Unsupported Media Type",
-        416: "Requested Range Not Satisfiable",
-        417: "Expectation Failed",
-        422: "Unprocessable Entity",
-        423: "Locked",
-        424: "Failed Dependency",
-        426: "Upgrade Required",
-        500: "Internal Server Error",
-        501: "Not Implemented",
-        502: "Bad Gateway",
-        503: "Service Unavailable",
-        504: "Gateway Timeout",
-        505: "Http Version Not Supported",
-        507: "Insufficient Storage"
+    private putTimer(timer: Models.Timer) {
+        return this.connect().then(profile => {
+
+            const accountId = this._accountToPost || profile?.activeAccountId;
+            if (!accountId) {
+                return Promise.reject('Connection failed');
+            }
+
+            this.expectedTimerUpdate = true;
+
+            const promise = this
+                .put(this.getTimerUrl(accountId), timer)
+                .then(() => this.checkProfileChange());
+
+            promise.catch(() => {
+                this.expectedTimerUpdate = false;
+                this.checkProfileChange();
+            });
+
+            return promise;
+        });
+    }
+
+    private objToParams(obj: any) {
+        const params = new URLSearchParams();
+        for (let name in obj) {
+            let value = obj[name];
+            if (Array.isArray(value)) {
+                for (let item of value) {
+                    params.append(name, item);
+                }
+            } else if (value != null) {
+                params.set(name, value)
+            }
+        }
+        return params.toString();
     }
 }

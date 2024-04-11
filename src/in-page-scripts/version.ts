@@ -7,15 +7,7 @@
     const head = document.querySelector('head');
 
     const sendBackgroundMessage = (message: ITabMessage) => {
-
-        chrome.runtime.sendMessage(message, () => {
-            const error = chrome.runtime.lastError;
-
-            // Background page is not loaded yet
-            if (error) {
-                console.log(`${message.action}: ${JSON.stringify(error, null, '  ')}`)
-            }
-        });
+        void browser.sendToBackgroundReliably(message);
     }
 
     const getMeta = (metaName: string) => {
@@ -28,15 +20,15 @@
             return;
         }
 
-        const oldMeta = getMeta(metaName);
-        if (oldMeta) {
-            head.removeChild(oldMeta);
+        let meta = getMeta(metaName);
+        if (!meta) {
+            meta = document.createElement('meta');
+            meta.name = metaName;
+            meta.content = metaValue;
+            head.appendChild(meta);
+        } else if (meta.content != metaValue) {
+            meta.content = metaValue;
         }
-
-        const meta = document.createElement('meta');
-        meta.name = metaName;
-        meta.content = metaValue;
-        head.appendChild(meta);
     }
 
     let appMeta = getMeta('application');
@@ -45,12 +37,12 @@
     }
 
     const extensionInfo = { // object is updated from gulp build
-        version: '4.9.7'
+        version: '5.0.0'
     };
 
     addMeta('tmetric-extension-version', extensionInfo.version);
 
-    chrome.runtime.onMessage.addListener((message: ITabMessage) => {
+    browser.runtime.onMessage.addListener((message: ITabMessage) => {
         switch (message.action) {
             case 'setConstants':
                 addMeta('tmetric-extension-id', (message.data as Models.Constants).extensionUUID);
@@ -59,4 +51,12 @@
     });
 
     sendBackgroundMessage({ action: 'getConstants' });
+
+    const interval = setInterval(() => {
+        if (browser.runtime?.id) {
+            sendBackgroundMessage({ action: 'getConstants' });
+        } else {
+            clearInterval(interval); // extension has been updated
+        }
+    }, 25000);
 })();

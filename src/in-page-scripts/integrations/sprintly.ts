@@ -10,7 +10,7 @@ class Sprintly implements WebToolIntegration {
 
         // Add link to actions if card opens in single mode
         if ($$.closest('#product-item-view', issueElement)) {
-            let host = $$('.actions .buttons', issueElement);
+            const host = $$('.actions .buttons', issueElement);
             if (host) {
                 host.appendChild(linkElement);
                 return;
@@ -18,42 +18,46 @@ class Sprintly implements WebToolIntegration {
         }
 
         // Add link to menu otherwise
-        let host = $$('.settings .popup ul', issueElement);
+        const host = $$('.settings .popup ul', issueElement);
         if (host) {
-            let li = $$.create('li', 'devart-timer-link-sprintly');
+            const li = $$.create('li', 'devart-timer-link-sprintly');
             li.appendChild(linkElement);
             host.insertBefore(li, host.firstChild);
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
-        let issueName = $$.try('.title', issueElement).textContent;
+        const issueName = $$.try('.title', issueElement).textContent;
         if (!issueName) {
             return;
         }
 
-        let projectNameElement = $$('a.products');
+        let projectUrl: string | null | undefined;
+        const projectNameElement = $$('a.products');
+        let projectName: string | null | undefined;
         if (projectNameElement) {
-            var projectName = projectNameElement.textContent;
-            var projectUrl = projectNameElement.getAttribute('href');
+            projectName = projectNameElement.textContent;
+            projectUrl = projectNameElement.getAttribute('href');
         }
 
-        let serviceType = 'Sprintly';
-        let serviceUrl = source.protocol + source.host;
+        const serviceType = 'Sprintly';
+        const serviceUrl = source.protocol + source.host;
 
-        let issueNumberElement = $$('.number .value', issueElement);
+        const issueNumberElement = $$('.number .value', issueElement);
+        let issueId: string | undefined | null;
+        let issueUrl: string | undefined | null;
         if (issueNumberElement) {
-            var issueId = issueNumberElement.textContent;
+            issueId = issueNumberElement.textContent;
             if (projectUrl) {
-                var match = /^([^\d]*)(\d+)$/.exec(issueNumberElement.textContent);
+                const match = /^([^\d]*)(\d+)$/.exec(issueNumberElement.textContent || '');
                 if (match) {
-                    var issueUrl = projectUrl + 'item/' + match[2];
+                    issueUrl = projectUrl + 'item/' + match[2];
                 }
             }
         }
 
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl } as WebToolIssue;
     }
 }
 

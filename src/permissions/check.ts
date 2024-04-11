@@ -1,27 +1,25 @@
 $(document).ready(async () => {
 
     const skipPermissionsRequest = await new Promise<boolean>(resolve => {
-        chrome.storage.local.get(
+        browser.storage.local.get(
             { skipPermissionsRequest: false } as IExtensionLocalSettings,
-            ({ skipPermissionsRequest }: IExtensionLocalSettings) => resolve(skipPermissionsRequest)
+            value => resolve((value as IExtensionLocalSettings).skipPermissionsRequest)
         );
     });
 
     let onClick = () => {
-        chrome.tabs.getCurrent(tab => {
-            chrome.tabs.remove(tab.id);
+        browser.tabs.getCurrent(tab => {
+            const tabId = tab?.id;
+            tabId != null && browser.tabs.remove(tabId);
         });
     };
 
     if (!skipPermissionsRequest) {
 
-        const message: ITabMessage = {
-            action: 'getIntegratedServices'
-        }
-
-        const map = await new Promise<ServiceTypesMap>(resolve => {
-            chrome.runtime.sendMessage(message, resolve);
-        });
+        const map = await browser.sendToBackgroundReliably({
+            action: 'getIntegratedServices',
+            sender: 'settings'
+        } as IExtensionSettingsMessage) as ServiceTypesMap;
 
         onClick = async () => {
 
@@ -31,14 +29,14 @@ $(document).ready(async () => {
                 await permissionManager.requestPermissions(map);
 
                 await new Promise<void>(resolve => {
-                    chrome.storage.local.set(
+                    browser.storage.local.set(
                         { skipPermissionsRequest: true } as IExtensionLocalSettings,
                         () => resolve()
                     );
                 });
             }
 
-            window.location.href = chrome.runtime.getURL('permissions/permissions.html');
+            window.location.href = browser.runtime.getURL('permissions/permissions.html');
         }
     }
 

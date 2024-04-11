@@ -1,42 +1,53 @@
 {
   "compileOnSave": true,
   "compilerOptions": {
-    "target": "ES2018",
+    "target": "ES2020",
     "module": "ES2015",
     "inlineSourceMap": true,
     "inlineSources": true,
     "noEmitOnError": true,
     "removeComments": true,
     "noImplicitOverride": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "strictBindCallApply": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
+
+    //TODO:
+    //"noImplicitAny": true,
+
     "typeRoots": [
       "./typings/@fake"
     ]
   },
 
   "files": [
-    "../node_modules/@aspnet/signalr/dist/esm/index.d.ts",
+    "../node_modules/@microsoft/signalr/dist/esm/index.d.ts",
     "../node_modules/@types/chrome/index.d.ts",
-    "../node_modules/@types/firefox-webext-browser/index.d.ts",
     "typings/jquery/index.d.ts",
     "typings/select2/index.d.ts",
     "interfaces/models.d.ts",
     "interfaces/integrations.d.ts",
-    "interfaces/safari.d.ts",
+    "background/ajaxClient.ts",
     "background/storage.ts",
     "background/oidcClient.ts",
     "background/webToolDescriptions.ts",
     "background/webToolManager.ts",
-    "background/contentScriptsPolyfill.ts",
     "background/contentScriptsRegistrator.ts",
     "background/backgroundBase.ts",
-    "background/chromeExtension.ts",
     "background/extensionBase.ts",
+    "background/chromeExtension.ts",
     "background/firefoxExtension.ts",
+    "background/safariExtension.ts",
     "background/httpStatusCode.d.ts",
     "background/serverConnection.ts",
     "background/simpleEvent.ts",
     "background/signalRHubProxy.ts",
     "background/signalRConnection.ts",
+    "unified-ext.ts",
+    "chrome-background-bundle.ts",
     "in-page-scripts/integrations/activeCollab.ts",
     "in-page-scripts/integrations/asana.ts",
     "in-page-scripts/integrations/assembla.ts",
@@ -45,6 +56,7 @@
     "in-page-scripts/integrations/bitrix24.ts",
     "in-page-scripts/integrations/bugzilla.ts",
     "in-page-scripts/integrations/clickup.ts",
+    "in-page-scripts/integrations/codaai.ts",
     "in-page-scripts/integrations/dixa.ts",
     "in-page-scripts/integrations/doitIm.ts",
     "in-page-scripts/integrations/easyRedmine.ts",
@@ -68,10 +80,9 @@
     "in-page-scripts/integrations/microsoft-outlook-online.ts",
     "in-page-scripts/integrations/microsoft-todo.ts",
     "in-page-scripts/integrations/monday.ts",
-    "in-page-scripts/integrations/notion.ts",
-    "in-page-scripts/integrations/codaai.ts",
     "in-page-scripts/integrations/nifty.ts",
     "in-page-scripts/integrations/ninjaOneRmm.ts",
+    "in-page-scripts/integrations/notion.ts",
     "in-page-scripts/integrations/openProject.ts",
     "in-page-scripts/integrations/pipedrive.ts",
     "in-page-scripts/integrations/pivotalTracker.ts",
@@ -112,7 +123,6 @@
     "permissions/permissionManager.ts",
     "permissions/check.ts",
     "permissions/permissions.ts",
-    "settings/settingsController.ts",
-    "safari/TMetric for Safari Extension/script.ts"
+    "settings/settingsController.ts"
   ]
 }

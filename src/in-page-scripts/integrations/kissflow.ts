@@ -13,7 +13,7 @@ class Kissflow implements WebToolIntegration {
         '[class*="rightSideLayout"]',   // Item
     ];
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(_issueElement: HTMLElement, source: Source) {
 
         // Currently only coded for Kissflow Boards
         // Kissflow board item full url:
@@ -24,10 +24,10 @@ class Kissflow implements WebToolIntegration {
         const matchSubItem = /^\/view\/case\/([^\/]+)\/form\/([^\/]+)\/subitem\/([^\/]+)\/?$/.exec(source.path);
 
 
-        let issueId = ''
-        let projectName = ''
-        let issueUrl = ''
-        let issueName = ''
+        let issueId: string | undefined;
+        let projectName: string | undefined;
+        let issueUrl: string | undefined;
+        let issueName: string | null | undefined;
         if (matchMainItem) {
 
             issueId = matchMainItem[2]
@@ -35,7 +35,7 @@ class Kissflow implements WebToolIntegration {
             projectName = matchMainItem[1]
 
             // Getting the textContent if the element exists
-            issueName = $$.try('[class*="formTitleText"] span').textContent;
+            issueName = $$('[class*="formTitleText"] span')?.textContent || '';
 
         } else if (matchSubItem) {
 
@@ -44,23 +44,19 @@ class Kissflow implements WebToolIntegration {
             projectName = matchSubItem[1]
 
             // Getting the textContent if the element exists
-            issueName = $$.try('[class*="formTitleText"] span').textContent;
+            issueName = $$('[class*="formTitleText"] span')?.textContent;
 
         } else {
             return;
         }
 
         const serviceUrl = source.protocol + source.host;
+        const serviceType = 'Kissflow';
 
         // Return an object with the task properties
         return {
-            issueId,
-            issueName,
-            projectName,
-            serviceType: 'Kissflow',
-            serviceUrl,
-            issueUrl
-        };
+            issueId, issueName, projectName, serviceType, serviceUrl, issueUrl
+        } as WebToolIssue;
     }
 
     /**
@@ -72,7 +68,7 @@ class Kissflow implements WebToolIntegration {
         const referenceElement = issueElement.className.includes('rightSideLayout') ?
             $$('#AssignedTo', issueElement) :
             $$('[class*="systemField"]', issueElement)?.nextSibling;
-        referenceElement?.parentNode.insertBefore(linkElement, referenceElement);
+        referenceElement?.parentNode?.insertBefore(linkElement, referenceElement);
     }
 }
 

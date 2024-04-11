@@ -18,20 +18,20 @@ class Ticktick implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
         let issueName = $$.try('.CodeMirror-code span', issueElement).textContent || // tasks or note
             $$.try('header', issueElement).textContent; // habit
 
         // remove &zerowidthspace; symbols (TMET-8864)
-        issueName = issueName.replace(/\u200B/g, '').trim();
+        issueName = issueName?.replace(/\u200B/g, '').trim();
         if (!issueName) {
             return;
         }
 
-        let issueId: string;
-        let projectId: string;
-        let issueUrl: string;
+        let issueId: string | undefined;
+        let projectId: string | undefined;
+        let issueUrl: string | undefined;
 
         // List/Kanban/Inbox
         let match = source.fullUrl.match(/#p\/(\w+)\/(?:tasks|kanban)\/(\w{24,})/);
@@ -43,19 +43,19 @@ class Ticktick implements WebToolIntegration {
         // Today/Next 7 Days
         if (!issueId) {
             match = source.fullUrl.match(/#q\/.*\/(\w{24,})/);
-            issueId = match && match[1];
+            issueId = match?.[1];
         }
 
         // Eisenhower Matrix
         if (!issueId) {
             match = source.fullUrl.match(/#m.*\/quadrant[1-4]\/(\w{24,})/);
-            issueId = match && match[1];
+            issueId = match?.[1];
         }
 
         // Tags
         if (!issueId) {
             match = source.fullUrl.match(/#.*\/tasks\/(\w{24,})/);
-            issueId = match && match[1];
+            issueId = match?.[1];
         }
 
         if (issueId && issueId.length === 24) {
@@ -78,7 +78,9 @@ class Ticktick implements WebToolIntegration {
         }
         const serviceUrl = source.protocol + host;
 
-        return { issueId, issueName, serviceType, serviceUrl, issueUrl, tagNames };
+        return {
+            issueId, issueName, serviceType, serviceUrl, issueUrl, tagNames
+        } as WebToolIssue;
     }
 }
 IntegrationService.register(new Ticktick());

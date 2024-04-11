@@ -13,9 +13,9 @@ class Trello implements WebToolIntegration {
 
         if (issueElement.matches(this.issueElementSelector[0])) {
             // cut 'timer' so that time can be visible if we have time
-            const text = linkElement.lastElementChild.textContent;
-            if (/[0-9]/.test(text)) {
-                linkElement.lastElementChild.textContent = text.replace(' timer', '');
+            const text = linkElement.lastElementChild!.textContent;
+            if (/[0-9]/.test(text!)) {
+                linkElement.lastElementChild!.textContent = text!.replace(' timer', '');
             }
             linkElement.classList.add('trello');
             linkElement.classList.add('button-link');
@@ -29,7 +29,7 @@ class Trello implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
         // Full card url:
         // https://trello.com/c/CARD_ID/CARD_NUMBER-CARD_TITLE_DASHED_AND_LOWERCASED
@@ -56,17 +56,20 @@ class Trello implements WebToolIntegration {
         const projectName = $$.try('.board-header h1[data-testid=board-name-display]').textContent;
 
         const serviceUrl = source.protocol + source.host;
+        const serviceType = 'Trello';
 
         const issueUrl = '/c/' + match[1];
 
         const tagNames = $$.all('.js-card-back-labels-container div[data-testid=card-label], button[data-testid=card-label]').map(label => label.textContent);
 
-        let description: string;
+        let description: string | undefined | null;
         if (issueElement.matches(this.issueElementSelector[1])) {
             description = $$.try('.checklist-item-details-text', issueElement).textContent;
         }
 
-        return { issueId, issueName, projectName, serviceType: 'Trello', serviceUrl, issueUrl, tagNames, description };
+        return {
+            issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames, description
+        } as WebToolIssue;
     }
 }
 

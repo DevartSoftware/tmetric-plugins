@@ -23,13 +23,13 @@ class Clickup implements WebToolIntegration {
             linkElement.classList.add('devart-timer-link-minimal');
             let element = $$('.task-todo-item__name-text .task-todo-item__actions', issueElement); // v 2.0
             if (element) {
-                element.parentElement.insertBefore(linkElement, element);
+                element.parentElement!.insertBefore(linkElement, element);
             }
         } else if (issueElement.matches(this.issueElementSelector[2])) {
             linkElement.classList.add('devart-timer-link-minimal');
             let element = $$('.checklist2-row-item-name', issueElement); // v 2.0
             if (element) {
-                element.parentElement.insertBefore(linkElement, element.nextElementSibling);
+                element.parentElement!.insertBefore(linkElement, element.nextElementSibling);
             } 
         } else if (issueElement.matches(this.issueElementSelector[3])) {
             let element = $$('.cu-task-view-header__right.ng-star-inserted', issueElement); // v 3.0
@@ -48,7 +48,7 @@ class Clickup implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
         const serviceType = 'ClickUp';
 
@@ -62,7 +62,8 @@ class Clickup implements WebToolIntegration {
             } else {
                 issueId = $$.getAttribute('.task-container[data-task-id]', 'data-task-id') ||
                     $$('.cu-task-view__container #timeTrackingItem', issueElement)?.dataset.taskId ||
-                    $$('.task-name', issueElement)?.dataset.taskId
+                    $$('.task-name', issueElement)?.dataset.taskId ||
+                    null;
             }
         }
 
@@ -78,7 +79,7 @@ class Clickup implements WebToolIntegration {
             tags = $$.all('.cu-tags-view__item .cu-tags-select__name', issueElement); //v 3.0 - tasks list
         }
 
-        let description: string;
+        let description: string | null | undefined;
         if (issueElement.matches(this.issueElementSelector[1])) {
             const subtaskLink = $$('.task-todo-item__name-text a', issueElement) as HTMLAnchorElement;
             if (subtaskLink) {
@@ -108,7 +109,9 @@ class Clickup implements WebToolIntegration {
         const tagNames = tags.map(_ => _.textContent);
         const issueUrl = issueId && ('/t/' + issueId);
 
-        return { serviceType, serviceUrl, issueId, issueName, issueUrl, description, projectName, tagNames };
+        return {
+            serviceType, serviceUrl, issueId, issueName, issueUrl, description, projectName, tagNames
+        } as WebToolIssue;
     }
 }
 

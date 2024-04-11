@@ -17,7 +17,7 @@ class Hubspot implements WebToolIntegration {
             const taskForm = $$('[data-selenium-test="task-form"]', issueElement);
             if (taskForm) {
                 linkElement.classList.add('private-button--secondary');
-                taskForm.firstChild.before(linkElement);
+                taskForm.prepend(linkElement);
             }
         }
 
@@ -34,12 +34,12 @@ class Hubspot implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
-        let issueName: string;
-        let issueId: string;
-        let issueUrl: string;
-        let accountId: string;
+        let issueName: string | undefined | null;
+        let issueId: string | undefined | null;
+        let issueUrl: string | undefined;
+        let accountId: string | undefined | null;
 
         // task side panel
         if (issueElement.matches(this.issueElementSelector[0])) {
@@ -66,8 +66,11 @@ class Hubspot implements WebToolIntegration {
         }
 
         const serviceUrl = source.protocol + source.host;
+        const serviceType = 'HubSpot';
 
-        return { issueId, issueName, issueUrl, serviceUrl, serviceType: 'HubSpot' }
+        return {
+            issueId, issueName, issueUrl, serviceUrl, serviceType
+        } as WebToolIssue
     }
 }
 

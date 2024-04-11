@@ -4,25 +4,28 @@ class GoogleMail implements WebToolIntegration {
 
     matchUrl = '*://mail.google.com/mail/*';
 
-    render(issueElement: HTMLElement, linkElement: HTMLElement) {
+    render(_issueElement: HTMLElement, linkElement: HTMLElement) {
 
-        let taskHeader = $$('.ha');
+        const taskHeader = $$('.ha');
         if (taskHeader) {
             linkElement.classList.add('devart-timer-link-google-mail');
             taskHeader.appendChild(linkElement);
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(_issueElement: HTMLElement, source: Source) {
 
-        let issueName = $$.try('.ha h2').textContent;
+        const issueName = $$.try('.ha h2').textContent;
         if (!issueName) {
             return;
         }
 
-        let projectName = $$.try('.ha:last-of-type .hN').textContent;
-        let serviceUrl = source.protocol + source.host;
-        return { issueName, projectName, serviceUrl, serviceType: 'Gmail' };
+        const projectName = $$.try('.ha:last-of-type .hN').textContent;
+        const serviceUrl = source.protocol + source.host;
+        const serviceType = 'Gmail';
+        return {
+            issueName, projectName, serviceUrl, serviceType
+        } as WebToolIssue;
     }
 }
 

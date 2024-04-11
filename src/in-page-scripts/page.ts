@@ -8,9 +8,9 @@ if (typeof window != 'undefined' && !window.initPage) {
 
     let oldUrl = '';
     let oldTitle = '';
-    let changeCheckerHandle: number;
-    let mutationObserver: MutationObserver;
-    const pingTimeouts = {} as { [callbackAction: string]: number };
+    let changeCheckerHandle: number | null;
+    let mutationObserver: MutationObserver | null;
+    const pingTimeouts = {} as { [callbackAction: string]: number | null };
     let isInitialized = false;
     let isFinalized = false;
     let parseAfterPings = true;
@@ -26,10 +26,9 @@ if (typeof window != 'undefined' && !window.initPage) {
                 return;
             }
 
-            if (pingTimeouts[message.action]) {
-                clearTimeout(pingTimeouts[message.action]);
-                pingTimeouts[message.action] = null;
-            }
+            const pingTimeout = pingTimeouts[message.action]
+            pingTimeout && clearTimeout(pingTimeout);
+            pingTimeouts[message.action] = null;
 
             // Only for Firefox to inject scripts in right order
             if (message.action == 'initPage') {
@@ -57,7 +56,7 @@ if (typeof window != 'undefined' && !window.initPage) {
             initialize();
         }
 
-        chrome.runtime.onMessage.addListener(onBackgroundMessage);
+        browser.runtime.onMessage.addListener(onBackgroundMessage);
 
         /**
          * Sends message to background script.
@@ -66,25 +65,10 @@ if (typeof window != 'undefined' && !window.initPage) {
 
             // finalize script when extension removed/disabled/upgraded (#66666)
             const callbackAction = message.action + '_callback';
-            if (pingTimeouts[callbackAction]) {
-                clearTimeout(pingTimeouts[callbackAction]);
-            }
-
+            const pingTimeout = pingTimeouts[callbackAction]
+            pingTimeout && clearTimeout(pingTimeout);
             pingTimeouts[callbackAction] = setTimeout(() => finalize(), 30000);
-
-            try {
-                chrome.runtime.sendMessage(message, response => {
-                    const error = chrome.runtime.lastError;
-
-                    // Background page is not loaded yet
-                    if (error) {
-                        console.log(`${message.action}: ${JSON.stringify(error, null, '  ')}`)
-                    }
-                });
-            }
-            catch (e) {
-                finalize();
-            }
+            void browser.sendToBackgroundReliably(message).catch(() => finalize());
         };
 
         /**
@@ -97,7 +81,7 @@ if (typeof window != 'undefined' && !window.initPage) {
                         window.parsePage();
                     }
                     if (!document.hasFocus()) {
-                        clearInterval(changeCheckerHandle);
+                        changeCheckerHandle && clearInterval(changeCheckerHandle);
                         changeCheckerHandle = null;
                     }
                 }, 100);
@@ -123,8 +107,9 @@ if (typeof window != 'undefined' && !window.initPage) {
         function finalize() {
             isFinalized = true;
             for (const ping in pingTimeouts) {
-                if (pingTimeouts[ping]) {
-                    clearTimeout(pingTimeouts[ping]);
+                const pingTimeout = pingTimeouts[ping];
+                if (pingTimeout) {
+                    clearTimeout(pingTimeout);
                     pingTimeouts[ping] = null;
                 }
             }

@@ -1,22 +1,15 @@
 if (typeof document !== 'undefined') {
 
     const sendBackgroundMessage = (message: ITabMessage) => {
-        chrome.runtime.sendMessage(message, response => {
-            const error = chrome.runtime.lastError;
-
-            // Background page is not loaded yet
-            if (error) {
-                console.log(`${message.action}: ${JSON.stringify(error, null, '  ')}`)
-            }
-        });
+        void browser.sendToBackgroundReliably(message);
     }
 
     const popupId = 'tmetric-popup';
 
     let constants: Models.Constants;
 
-    let framesetRows: string;
-    let framesetCols: string;
+    let framesetRows: string | null;
+    let framesetCols: string | null;
 
     const showPopup = () => {
 
@@ -26,7 +19,7 @@ if (typeof document !== 'undefined') {
 
         const body = document.body;
         const isFrameSet = body.tagName == 'FRAMESET';
-        let refChild = null as Node;
+        let refChild: ChildNode | null = null;
         const frame = document.createElement(isFrameSet ? 'frame' : 'iframe') as HTMLFrameElement | HTMLIFrameElement;
         frame.id = popupId;
         frame.src = `${constants.browserSchema}://${constants.extensionUUID}/popup/popup.html?integration`;
@@ -73,7 +66,7 @@ if (typeof document !== 'undefined') {
         }
     }
 
-    chrome.runtime.onMessage.addListener((message: ITabMessage) => {
+    browser.runtime.onMessage.addListener((message: ITabMessage) => {
 
         switch (message.action) {
 
@@ -92,12 +85,6 @@ if (typeof document !== 'undefined') {
             // Only for Firefox to inject scripts in right order
             case 'initPage':
                 sendBackgroundMessage({ action: 'getConstants' });
-                break;
-
-            // Only for Firefox to show error alerts
-            case 'error':
-                const a = alert; // prevent strip in release;
-                a(constants.extensionName + '\n\n' + message.data.message);
                 break;
         }
     });

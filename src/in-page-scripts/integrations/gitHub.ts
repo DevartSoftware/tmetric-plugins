@@ -4,7 +4,7 @@ class GitHub implements WebToolIntegration {
 
     matchUrl = /(https:\/\/github\.com)(\/.+\/(issues|pull)\/(\d+))/
 
-    render(issueElement: HTMLElement, linkElement: HTMLElement) {
+    render(_issueElement: HTMLElement, linkElement: HTMLElement) {
         const host = $$('.gh-header-actions');
         if (host) {
             linkElement.style.display = 'inline-block'; // ZenHub hides action links by default
@@ -15,7 +15,7 @@ class GitHub implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(_issueElement: HTMLElement, source: Source) {
 
         const issueName = $$.try('.js-issue-title').textContent;
         if (!issueName) {
@@ -27,7 +27,7 @@ class GitHub implements WebToolIntegration {
 
         // https://github.com/NAMESPACE/PROJECT/issues/NUMBER
         // https://github.com/NAMESPACE/PROJECT/pull/NUMBER
-        const match = this.matchUrl.exec(source.fullUrl);
+        const match = this.matchUrl.exec(source.fullUrl)!;
         const serviceUrl = match[1];
         const issueUrl = match[2];
         const issueType = match[3];
@@ -36,7 +36,9 @@ class GitHub implements WebToolIntegration {
         const serviceType = 'GitHub';
         const tagNames = $$.all('.js-issue-labels .IssueLabel').map(label => label.textContent);
 
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
+        return {
+            issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames
+        } as WebToolIssue;
     }
 }
 

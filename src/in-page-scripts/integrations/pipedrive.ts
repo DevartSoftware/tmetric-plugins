@@ -4,7 +4,7 @@ class Pipedrive implements WebToolIntegration {
 
     matchUrl = /.*:\/\/.*.pipedrive.com(\/deal\/(\d+))/;
 
-    render(issueElement: HTMLElement, linkElement: HTMLElement) {
+    render(_issueElement: HTMLElement, linkElement: HTMLElement) {
         let host = document.querySelector('[data-testid="followersButton"]'); 
         if (host) {
             let container = $$.create('span');
@@ -16,25 +16,28 @@ class Pipedrive implements WebToolIntegration {
 
             container.appendChild(span);
 
-            host.parentElement.insertBefore(container, host.parentElement.firstElementChild);
+            host.parentElement!.insertBefore(container, host.parentElement!.firstElementChild);
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-        let matches = source.fullUrl.match(this.matchUrl);
+    getIssue(_issueElement: HTMLElement, source: Source) {
+        let matches = source.fullUrl.match(this.matchUrl)!;
         let issueId = matches[2];
-        let issueName: string;
+        let issueName: string | undefined | null;
         
         let titleElement = document.querySelector('[data-testid="header-title"]');
-        var title = $$.try('textarea', titleElement);
+        const title = $$.try('textarea', titleElement);
         if (title) {
             issueName = title.textContent;
         }
 
-        let serviceUrl = source.protocol + source.host;
-        let issueUrl = matches[1];
+        const serviceType = 'Pipedrive';
+        const serviceUrl = source.protocol + source.host;
+        const issueUrl = matches[1];
 
-        return { issueId, issueName, issueUrl, serviceUrl, serviceType: 'Pipedrive' };
+        return {
+            issueId, issueName, issueUrl, serviceUrl, serviceType
+        } as WebToolIssue;
     }
 }
 

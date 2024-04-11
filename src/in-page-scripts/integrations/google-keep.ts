@@ -14,30 +14,29 @@ class GoogleKeep implements WebToolIntegration {
 
         if (issueElement.matches(this.issueElementSelector[0])) { // for checklist
             linkElement.classList.add('devart-timer-link-google-keep-item');
-            let btn = issueElement.querySelector('div[role="button"]:last-child');
-            if (btn) {
-                btn.parentElement.insertBefore(linkElement, btn);
-            }
+            const btn = issueElement.querySelector('div[role="button"]:last-child');
+            btn?.parentElement!.insertBefore(linkElement, btn);
         } else if (issueElement.matches(this.issueElementSelector[1])) { // for note
             linkElement.classList.add('devart-timer-link-google-keep-note');
-            let toolbar = issueElement.querySelector('[role="toolbar"]');
-            toolbar.appendChild(linkElement);
+            const toolbar = issueElement.querySelector('[role="toolbar"]');
+            toolbar?.appendChild(linkElement);
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
-        let issueName: string;
-        let issueUrl: string;
-        let issueId: string;
-        let serviceUrl = source.protocol + source.host;
+        let issueName: string | undefined | null;
+        let issueUrl: string | undefined;
+        let issueId: string | undefined;
+        const serviceUrl = source.protocol + source.host;
+        const serviceType = 'GoogleKeep';
 
         if (issueElement.matches(this.issueElementSelector[0])) { // if checklist
             issueName = $$.try('.notranslate', issueElement).textContent;
         } else if (issueElement.matches(this.issueElementSelector[1])) {
             let card = $$.closest('.XKSfm-L9AdLc', issueElement);
             if (card) {
-                issueName = $$('.notranslate', card).textContent;
+                issueName = $$('.notranslate', card)?.textContent;
             }
 
             let matches = source.fullUrl.match(/\/#[a-zA-Z]+\/([\w\.-]+)$/);
@@ -47,7 +46,9 @@ class GoogleKeep implements WebToolIntegration {
             }
         }
 
-        return { issueUrl, issueId, issueName, serviceUrl, serviceType: 'GoogleKeep' };
+        return {
+            issueUrl, issueId, issueName, serviceUrl, serviceType
+        } as WebToolIssue;
     }
 }
 

@@ -1,7 +1,7 @@
 function initShowPopupSelector() {
-    chrome.storage.sync.get(
-        <IExtensionSettings>{showPopup: Models.ShowPopupOption.Always},
-        (settings: IExtensionSettings) => {
+    browser.storage.sync.get(
+        { showPopup: Models.ShowPopupOption.Always } as IExtensionSettings,
+        settings => {
 
             document.body.style.visibility = 'visible'; // Prevent flickering (TE-128)
 
@@ -17,9 +17,9 @@ function initShowPopupSelector() {
 
             $('#show-popup-settings')
                 .append(items)
-                .val(settings.showPopup.toString())
+                .val((settings as IExtensionSettings).showPopup.toString())
                 .on('change', () => {
-                    chrome.storage.sync.set(<IExtensionSettings>{
+                    browser.storage.sync.set(<IExtensionSettings>{
                         showPopup: $('#show-popup-settings :selected').val()
                     });
                 })
@@ -58,9 +58,9 @@ function switchMenuItem(element: JQuery, tabBox: string, isScrollNeeded: boolean
 
 // Navigation Tabs
 function navTabs() {
-    $('.tabset a').on('click', function(e){
+    $('.tabset a').on('click', function (this: HTMLElement) {
         const tabBox = $(this).attr('href');
-        switchMenuItem(this, tabBox, true);
+        switchMenuItem($(this), tabBox, true);
     });
 }
 

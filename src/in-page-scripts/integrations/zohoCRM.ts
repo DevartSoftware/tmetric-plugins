@@ -36,7 +36,7 @@ class ZohoActivity implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, _source: Source) {
 
         let issueName = $$.try('#subvalue_SUBJECT, #entityNameInBCView', issueElement).textContent; // 1) task or call; 2) event
         if (!issueName) {
@@ -49,8 +49,11 @@ class ZohoActivity implements WebToolIntegration {
         }
 
         const tagNames = $$.all('.linktoTagA', issueElement).map(_ => _.textContent);
+        const serviceType = 'ZohoCRM';
 
-        return { serviceType: 'ZohoCRM', issueName, tagNames };
+        return {
+            serviceType, issueName, tagNames
+        } as WebToolIssue;
     }
 }
 
@@ -62,14 +65,14 @@ class ZohoProject implements WebToolIntegration {
 
     issueElementSelector = '#zpsDetailView .detail_rhs';
 
-    render(issueElement: HTMLElement, linkElement: HTMLElement) {
+    render(_issueElement: HTMLElement, linkElement: HTMLElement) {
         const panel = $$('#headerIconSection');
         if (panel) {
             panel.appendChild(linkElement);
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, _source: Source) {
 
         const issueName = $$.try('.detail-title-plain', issueElement).textContent;
 
@@ -77,8 +80,11 @@ class ZohoProject implements WebToolIntegration {
             || $$.try('.entity-project > a').textContent; // issues
 
         const tagNames = $$.all('.zptagslist > span', issueElement).map(_ => _.textContent);
+        const serviceType = 'ZohoCRM';
 
-        return { serviceType: 'ZohoCRM', issueName, projectName, tagNames };
+        return {
+            serviceType, issueName, projectName, tagNames
+        } as WebToolIssue;
     }
 }
 
@@ -100,7 +106,7 @@ class ZohoDesk implements WebToolIntegration {
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
         if (issueElement.matches(this.issueElementSelector[0])) { // Old version
-            const panel = $$('#caseSubject', issueElement).parentElement.parentElement;
+            const panel = $$('#caseSubject', issueElement)?.parentElement?.parentElement;
             panel?.insertBefore(linkElement, $$('.clboth', panel));
         } else { // New version (2022+)
             const prefix = this.getCssPrefix(issueElement);
@@ -110,7 +116,7 @@ class ZohoDesk implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
         const serviceType = 'ZohoCRM';
 
@@ -134,7 +140,9 @@ class ZohoDesk implements WebToolIntegration {
 
             const tagNames = $$.all('.tagBody a', issueElement).map(_ => _.textContent);
 
-            return { serviceType, serviceUrl, issueUrl, issueId, issueName, tagNames, projectName };
+            return {
+                serviceType, serviceUrl, issueUrl, issueId, issueName, tagNames, projectName
+            } as WebToolIssue;
         } else { // New version (2022+)
             const prefix = this.getCssPrefix(issueElement);
             const issueId = $$.try(prefix + 'ticketidwrapper-ticketId', issueElement).textContent;
@@ -148,7 +156,9 @@ class ZohoDesk implements WebToolIntegration {
 
             const tagNames = $$.all(`div[data-id="reqproperties"] ${prefix}tag-text`).map(_ => _.textContent);
 
-            return { serviceType, serviceUrl, issueUrl, issueId, issueName, tagNames, projectName };
+            return {
+                serviceType, serviceUrl, issueUrl, issueId, issueName, tagNames, projectName
+            } as WebToolIssue;
         }
     }
 }
@@ -167,17 +177,17 @@ class SalesIq implements WebToolIntegration {
         linkElement.classList.add('devart-timer-link-salesiq');
         let panel = $$('[data-zsqa="owner"]', issueElement);
         if (panel) {
-            panel.parentElement.insertBefore(linkElement, panel.nextSibling);
+            panel.parentElement!.insertBefore(linkElement, panel.nextSibling);
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
         const serviceType = 'ZohoCRM';
 
         const serviceUrl = source.protocol + source.host;
-        
-        let issueUrl: string;
+
+        let issueUrl: string | undefined;
 
         const match = this.matchUrl.exec(source.fullUrl)
 
@@ -195,7 +205,9 @@ class SalesIq implements WebToolIntegration {
             return;
         }
 
-        return { serviceType, serviceUrl, issueName, issueId, issueUrl };
+        return {
+            serviceType, serviceUrl, issueName, issueId, issueUrl
+        } as WebToolIssue;
     }
 }
 

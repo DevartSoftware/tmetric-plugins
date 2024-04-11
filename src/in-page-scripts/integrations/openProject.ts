@@ -4,7 +4,7 @@ class OpenProject implements WebToolIntegration {
 
     matchUrl = /(https?:\/\/[^\/]+).*\/work_packages\/\D*(\d+)/;
 
-    render(issueElement: HTMLElement, linkElement: HTMLElement) {
+    render(_issueElement: HTMLElement, linkElement: HTMLElement) {
         const detailedView = $$('.work-package--single-view');
         if (detailedView) {
             const infoWrapper = $$('.wp-info-wrapper');
@@ -17,9 +17,9 @@ class OpenProject implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(_issueElement: HTMLElement, source: Source) {
 
-        const match = source.fullUrl.match(this.matchUrl);
+        const match = source.fullUrl.match(this.matchUrl)!;
         const serviceUrl = $$.try<HTMLBaseElement>('base').href || match[1];
         const issueUrl = '/work_packages/' + match[2];
         const issueId = '#' + match[2];
@@ -29,7 +29,9 @@ class OpenProject implements WebToolIntegration {
             $$.try('.-project-context span a').textContent;
         const serviceType = 'OpenProject';
 
-        return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType };
+        return {
+            issueId, issueName, issueUrl, projectName, serviceUrl, serviceType
+        } as WebToolIssue;
     }
 }
 

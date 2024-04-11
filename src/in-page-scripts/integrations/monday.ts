@@ -11,7 +11,7 @@ class Monday implements WebToolIntegration {
         '.pulse-component-wrapper'
     ];
 
-    private _latestPulseElement: HTMLElement;
+    private _latestPulseElement: HTMLElement | undefined;
 
     constructor() {
         document.addEventListener('click', event => {
@@ -35,12 +35,12 @@ class Monday implements WebToolIntegration {
         });
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
-        let issueName: string;
-        let issueId: string;
-        let issueUrl: string;
-        let projectName: string;
+        let issueName: string | null | undefined;
+        let issueId: string | undefined; 
+        let issueUrl: string | undefined;
+        let projectName: string | null | undefined;
 
         if (issueElement.matches(this.issueElementSelector[0])) { // side panel on board page
             issueName = $$.try('.title-wrapper', issueElement).textContent;
@@ -92,6 +92,7 @@ class Monday implements WebToolIntegration {
         }
 
         const serviceUrl = source.protocol + source.host;
+        const serviceType = 'Monday';
 
         if (issueUrl) {
             issueUrl = $$.getRelativeUrl(serviceUrl, issueUrl);
@@ -104,7 +105,9 @@ class Monday implements WebToolIntegration {
             }
         }
 
-        return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Monday' };
+        return {
+            issueId, issueName, issueUrl, projectName, serviceUrl, serviceType
+        } as WebToolIssue;
     }
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {

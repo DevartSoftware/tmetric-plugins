@@ -21,7 +21,7 @@ class GoogleCalendar implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(_issueElement: HTMLElement, source: Source) {
 
         let issueName = $$.try('#mtb').textContent || // event popup -> event title
             (<any>$$.try('.ep-title input')).value || // event detailed view (event edit) -> event title
@@ -31,7 +31,7 @@ class GoogleCalendar implements WebToolIntegration {
         if (!issueName) {
             let iframe = <HTMLIFrameElement>$$('.bubblecontent iframe');
             if (iframe) {
-                let textArea = (<HTMLTextAreaElement>iframe.contentDocument.querySelector('textarea'));
+                let textArea = iframe.contentDocument?.querySelector('textarea');
                 if (textArea) {
                     issueName = textArea.value;
                 } else {
@@ -40,9 +40,12 @@ class GoogleCalendar implements WebToolIntegration {
             }
         }
 
-        let serviceUrl = source.protocol + source.host;
+        const serviceUrl = source.protocol + source.host;
+        const serviceType = 'GoogleCalendar';
 
-        return { issueName, serviceUrl, serviceType: 'GoogleCalendar' };
+        return {
+            issueName, serviceUrl, serviceType
+        } as WebToolIssue;
     }
 }
 
@@ -52,7 +55,7 @@ class NewGoogleCalendar implements WebToolIntegration {
 
     matchUrl = 'https://calendar.google.com/calendar/*';
 
-    render(issueElement: HTMLElement, linkElement: HTMLElement) {
+    render(_issueElement: HTMLElement, linkElement: HTMLElement) {
 
         // Find task deskription container and add link as its sibling
 
@@ -65,21 +68,22 @@ class NewGoogleCalendar implements WebToolIntegration {
         }
 
         // Event editor
-        container = $$.closest('.UXzdrb', $$('#xTiIn'));
+        container = $$.closest('.UXzdrb', $$('#xTiIn')!);
         if (container) {
             linkElement.style.marginLeft = '64px';
-            container.parentNode.insertBefore(linkElement, container.nextSibling);
+            container.parentNode!.insertBefore(linkElement, container.nextSibling);
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source) {
+    getIssue(_issueElement: HTMLElement, source: Source) {
 
         let issueName = $$.try('#rAECCd').textContent // Event, task or reminder popup
             || (<any>$$.try('#xTiIn')).value; // Event editor
 
         let serviceUrl = source.protocol + source.host;
+        const serviceType = 'GoogleCalendar';
 
-        return { issueName, serviceUrl, serviceType: 'GoogleCalendar' };
+        return { issueName, serviceUrl, serviceType };
     }
 }
 

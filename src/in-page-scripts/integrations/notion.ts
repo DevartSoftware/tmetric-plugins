@@ -16,20 +16,24 @@ class Notion implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
-        let issueId, issueName, issueUrl: string;
+    getIssue(issueElement: HTMLElement, source: Source) {
+
+        let issueId, issueName, issueUrl: string | undefined;
 
         const titleEl = $$('.notion-page-block > h1.notranslate', issueElement);
         if (titleEl) {
             issueName = titleEl.textContent || titleEl.getAttribute('placeholder');
-            const idAttr = titleEl.parentElement.getAttribute('data-block-id');
+            const idAttr = titleEl.parentElement?.getAttribute('data-block-id');
             issueId = idAttr && idAttr.replace(/-/g, '');
             issueUrl = issueId;
         }
 
         const serviceUrl = source.protocol + source.host
+        const serviceType = 'Notion';
 
-        return { issueId, issueName, issueUrl, serviceUrl, serviceType: 'Notion' }
+        return {
+            issueId, issueName, issueUrl, serviceUrl, serviceType
+        } as WebToolIssue
     }
 }
 

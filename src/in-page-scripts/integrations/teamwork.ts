@@ -23,7 +23,7 @@ class Teamwork implements WebToolIntegration {
         issueElement.appendChild(container);
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
         const issueName = $$.try('.w-task-row__name > span', issueElement).textContent || $$.try<HTMLInputElement>('.task-name > textarea').value;
         if (!issueName) {
@@ -31,8 +31,8 @@ class Teamwork implements WebToolIntegration {
         }
 
         // get identifier from href or from top task in single view
-        let issueId: string;
-        let issueUrl: string;
+        let issueId: string | undefined | null;
+        let issueUrl: string | undefined | null;
         const issueHref = $$.getAttribute('.w-task-row__name a[href*="tasks"]', 'href', issueElement);
 
         const matches = issueHref.match(/^.*tasks\/(\d+)$/);
@@ -44,16 +44,16 @@ class Teamwork implements WebToolIntegration {
         if (!issueId) {
             issueId = $$.try('.action_link').innerText;
         }
-        if (!issueUrl) {
+        if (!issueUrl && issueId) {
             issueUrl = 'tasks/' + issueId.substring(1);
         }
 
-        let projectName: string;
+        let projectName: string | undefined | null;
 
         // single project tasks view
         const projectNameElement = $$('.w-header-titles__project-name');
         if (projectNameElement) {
-            projectName = projectNameElement.firstChild.textContent;
+            projectName = projectNameElement.firstChild?.textContent;
         }
 
         // multi project tasks view
@@ -67,7 +67,7 @@ class Teamwork implements WebToolIntegration {
                     if (projectAnchor) {
                         projectName = Array.from(projectAnchor.childNodes)
                             .filter(_ => _.nodeType == document.TEXT_NODE)
-                            .map(_ => _.textContent.trim())
+                            .map(_ => (_.textContent || '').trim())
                             .join('');
                     }
                 }
@@ -91,7 +91,9 @@ class Teamwork implements WebToolIntegration {
 
         const serviceUrl = source.protocol + source.host;
 
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames };
+        return {
+            issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames
+        } as WebToolIssue;
     }
 }
 
@@ -115,7 +117,7 @@ class TeamworkDesk implements WebToolIntegration {
             if (buttons) {
                 const linkContainer = $$.create('div', 'devart-timer-link-teamwork-desk-ticket');
                 linkContainer.appendChild(linkElement);
-                buttons.parentElement.insertBefore(linkContainer, buttons);
+                buttons.parentElement!.insertBefore(linkContainer, buttons);
             }
         } else {
             const host = $$('.task-extras-container', issueElement);
@@ -126,9 +128,9 @@ class TeamworkDesk implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
-        let issueName: string, issueId: string, issueUrl: string, projectName: string;
+        let issueName, issueId, issueUrl, projectName: string | undefined | null;
 
         if (this.isTicketElement(issueElement)) {
             issueName = $$.try('.title__subject', issueElement).textContent;
@@ -152,7 +154,7 @@ class TeamworkDesk implements WebToolIntegration {
                 if (projectAnchor) {
                     projectName = Array.from(projectAnchor.childNodes)
                         .filter(_ => _.nodeType == document.TEXT_NODE)
-                        .map(_ => _.textContent.trim())
+                        .map(_ => (_.textContent || '').trim())
                         .join('');
                 }
             }
@@ -163,10 +165,11 @@ class TeamworkDesk implements WebToolIntegration {
         }
 
         const serviceType = 'Teamwork';
-
         const serviceUrl = source.protocol + source.host;
 
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+        return {
+            issueId, issueName, projectName, serviceType, serviceUrl, issueUrl
+        } as WebToolIssue;
     }
 }
 

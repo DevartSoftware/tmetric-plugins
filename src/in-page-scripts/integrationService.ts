@@ -47,6 +47,9 @@ class IntegrationService {
         // If it is found we should refresh links on a page.
         return $$.all('a.' + this.affix).some(link => {
             const linkTimer = this.parseLinkTimer(link);
+            if (!linkTimer) {
+                return false;
+            }
             this.checkTimerExternalTask(linkTimer);
             return !linkTimer.isStarted || this.isIssueStarted(linkTimer);
         });
@@ -68,7 +71,7 @@ class IntegrationService {
 
         this._possibleIntegrations.some(integration => {
 
-            let elements = [null] as HTMLElement[];
+            let elements = [null] as (HTMLElement | null)[];
             const selector = integration.issueElementSelector;
             if (selector) {
                 if (typeof selector === 'function') {
@@ -82,7 +85,7 @@ class IntegrationService {
                 const issue = integration.getIssue(element, source);
                 if (!issue || !issue.issueName && !issue.issueId && !issue.projectName) {
                     // Remove link when issue can not be parsed after DOM changes
-                    this.updateLink(element, null, null, null);
+                    this.updateLink(element);
                 } else {
                     // normalize urls
                     issue.serviceUrl = issue.serviceUrl ? issue.serviceUrl.replace(/\/+$/, '') : issue.serviceUrl;
@@ -101,15 +104,16 @@ class IntegrationService {
                     this.checkTimerExternalTask(issue);
 
                     if (!issue.issueUrl || !issue.serviceUrl || !issue.serviceType) {
-                        issue.issueUrl = null;
-                        issue.issueId = null;
+                        issue.issueUrl = undefined;
+                        issue.issueId = undefined;
                     }
 
                     if (issue.tagNames) {
-                        issue.tagNames = [...new Set(issue.tagNames
-                            .map(tagName => this.trimText(tagName, Models.Limits.maxTag))
-                            .filter(tagName => !!tagName))
-                        ];
+                        issue.tagNames = [...new Set(
+                            issue.tagNames
+                                .map(tagName => this.trimText(tagName, Models.Limits.maxTag))
+                                .filter(tagName => tagName!)
+                        )];
                     }
 
                     issues.push(issue);
@@ -170,13 +174,13 @@ class IntegrationService {
 
     private static _pendingIssuesDurations: {
         identifiers: WebToolIssueIdentifier[];
-        resolve: (data: WebToolIssueDuration[]) => void;
-        reject: (reason?: any) => void;
-    } = null;
+        resolve?: (data: WebToolIssueDuration[]) => void;
+        reject?: (reason?: any) => void;
+    } | null = null;
 
     static setIssuesDurations(durations) {
-        if (this._pendingIssuesDurations) {
-            const resolve = this._pendingIssuesDurations.resolve;
+        const resolve = this._pendingIssuesDurations?.resolve
+        if (resolve) {
             this._pendingIssuesDurations = null;
             resolve(durations);
         }
@@ -204,11 +208,11 @@ class IntegrationService {
             pendingDurations.identifiers.forEach(id => oldIdentifiers[this.makeIssueDurationKey(id)] = true);
 
             // Reject previous promise
-            pendingDurations.reject();
+            pendingDurations.reject?.();
         } else {
             pendingDurations = {
-                identifiers: []
-            } as typeof pendingDurations;
+                identifiers: [] as WebToolIssueIdentifier[]
+            };
         }
 
         // Find new identifiers
@@ -226,8 +230,10 @@ class IntegrationService {
 
         // Create new promise
         const promise = new Promise<WebToolIssueDuration[]>((resolve, reject) => {
-            pendingDurations.resolve = resolve;
-            pendingDurations.reject = reject;
+            if (pendingDurations) {
+                pendingDurations.resolve = resolve;
+                pendingDurations.reject = reject;
+            }
         });
 
         // Skip duplicated requests (TE-256, TE-277)
@@ -247,7 +253,7 @@ class IntegrationService {
         }
     }
 
-    private static trimText(text: string, maxLength: number) {
+    private static trimText(text: string | null | undefined, maxLength: number) {
         if (text) {
             // Remove zero-width spaces and trim
             text = text.replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
@@ -255,7 +261,7 @@ class IntegrationService {
                 text = text.substring(0, maxLength - 2) + '..';
             }
         }
-        return text || null;
+        return text || undefined;
     }
 
     private static durationToString(duration: number) {
@@ -274,22 +280,24 @@ class IntegrationService {
     }
 
     private static parseLinkTimer(link: HTMLElement) {
-        if (link) {
-            return JSON.parse(link.getAttribute('data-' + this.affix)) as WebToolIssueTimer & WebToolIssueDuration;
+        const attr = link?.getAttribute('data-' + this.affix);
+        if (attr) {
+            return JSON.parse(attr) as WebToolIssueTimer & WebToolIssueDuration;
         }
     }
 
     private static parseLinkSession(link: HTMLElement) {
-        if (link) {
-            return parseInt(link.getAttribute('data-session'));
+        const attr = link?.getAttribute('data-session')
+        if (attr) {
+            return parseInt(attr);
         }
     }
 
-    static updateLink(element: HTMLElement, integration: WebToolIntegration, newIssue: WebToolIssue, newIssueDuration: number) {
+    static updateLink(element: HTMLElement | null, integration?: WebToolIntegration, newIssue?: WebToolIssue, newIssueDuration?: number) {
 
-        const oldLink = $$('a.' + this.affix, element);
+        const oldLink = $$('a.' + this.affix, element || undefined);
 
-        if (!newIssue) {
+        if (!newIssue || !integration) {
             this.removeLink(oldLink);
             return;
         }
@@ -298,27 +306,27 @@ class IntegrationService {
 
         const newIssueTimer = {} as WebToolIssueTimer & WebToolIssueDuration;
         newIssueTimer.isStarted = !isIssueStarted;
-        newIssueTimer.showIssueId = integration.showIssueId;
-        newIssueTimer.duration = newIssueDuration;
+        newIssueTimer.showIssueId = integration?.showIssueId;
+        newIssueTimer.duration = newIssueDuration || 0;
 
         for (const i in newIssue) {
             newIssueTimer[i] = newIssue[i];
         }
 
-        let oldIssueTimer: WebToolIssueTimer & WebToolIssueDuration;
-        let oldSession: number;
+        let oldIssueTimer: WebToolIssueTimer & WebToolIssueDuration | undefined;
+        let oldSession: number | undefined;
         if (oldLink) {
             oldIssueTimer = this.parseLinkTimer(oldLink);
             oldSession = this.parseLinkSession(oldLink);
         }
 
-        if (oldSession > this.session) {
+        if (oldSession && oldSession > this.session) {
             // Issue created in newer session
             return;
         }
 
         if (this.isSameIssue(oldIssueTimer, newIssueTimer) &&
-            newIssueTimer.duration == oldIssueTimer.duration &&
+            newIssueTimer.duration == oldIssueTimer?.duration &&
             newIssueTimer.isStarted == oldIssueTimer.isStarted &&
             newIssueTimer.projectName == oldIssueTimer.projectName &&
             this.areSetsEqual(newIssueTimer.tagNames, oldIssueTimer.tagNames) &&
@@ -338,9 +346,9 @@ class IntegrationService {
         newLink.setAttribute('data-session', this.session.toString());
         newLink.href = '#';
         newLink.title = 'Track spent time via TMetric service';
-        newLink.onclick = function (this: HTMLAnchorElement, e) {
+        newLink.onclick = function (this, e) {
             // TE-342 - prevent keeping focus on timer button
-            this.blur();
+            (this as HTMLAnchorElement).blur?.();
             e.stopPropagation();
             window.sendBackgroundMessagee({ action: 'putTimer', data: newIssueTimer });
             return false;
@@ -355,7 +363,7 @@ class IntegrationService {
         }
         newLink.appendChild(span);
 
-        integration.render(element, newLink);
+        integration?.render(element, newLink);
     }
 
     static clearPage() {
@@ -379,7 +387,7 @@ class IntegrationService {
         }
     }
 
-    private static isSameIssue(oldIssue: WebToolIssue, newIssue: WebToolIssue) {
+    private static isSameIssue(oldIssue: WebToolIssue | undefined, newIssue: WebToolIssue)  {
 
         function normalizeServiceUrl(issue: WebToolIssue) {
             if (!issue.issueUrl) { // ignore service url for issue without external link (TE-540)
@@ -392,7 +400,7 @@ class IntegrationService {
             return url;
         }
 
-        function normalize(text: string) {
+        function normalize(text: string | null | undefined) {
             return (text || '').trim();
         }
 
@@ -402,9 +410,9 @@ class IntegrationService {
 
         return oldIssue &&
             oldIssue.issueId == newIssue.issueId &&
-            normalize(oldIssue.issueName) == normalize(newIssue.issueName) &&
+            normalize(oldIssue?.issueName) == normalize(newIssue.issueName) &&
             (oldIssue.issueName || oldIssue.projectName == newIssue.projectName) &&
-            normalize(oldIssue.description) == normalize(newIssue.description) &&
+            normalize(oldIssue?.description) == normalize(newIssue.description) &&
             normalizeServiceUrl(oldIssue) == normalizeServiceUrl(newIssue);
     }
 
@@ -449,7 +457,7 @@ class IntegrationService {
         return { fullUrl, protocol, host, path };
     }
 
-    private static areSetsEqual<T>(set1: T[], set2: T[]) {
+    private static areSetsEqual<T>(set1?: T[] | null, set2?: T[] | null) {
         set1 = set1 || [];
         set2 = set2 || [];
         if (set1.length != set2.length) {
@@ -460,7 +468,7 @@ class IntegrationService {
         return set2.every(item => hasValue[item && item.toString()]);
     }
 
-    private static removeLink(link: HTMLElement) {
+    private static removeLink(link: HTMLElement | null) {
         if (!link) {
             return;
         }

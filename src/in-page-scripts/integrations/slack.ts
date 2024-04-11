@@ -12,11 +12,11 @@ class Slack implements WebToolIntegration {
 
         if (actionsGroup) {
             linkElement.classList.add('devart-timer-link-slack', 'c-button-unstyled', 'c-icon_button', 'c-icon_button--size_small', 'c-message_actions__button');
-            actionsGroup.lastChild.before(linkElement);
+            actionsGroup.lastChild?.before(linkElement);
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
         let issueName;
         const getTextElement = (node: Node) => {
             let text = '';
@@ -31,7 +31,7 @@ class Slack implements WebToolIntegration {
                         return sumText + elText;
                     }, '');
             } else {
-                text = `${node.textContent.trim()} `;
+                text = `${node.textContent?.trim()} `;
             }
 
             return text;
@@ -51,8 +51,11 @@ class Slack implements WebToolIntegration {
         const projectName = $$.try('.p-view_header__channel_title').textContent;
 
         const serviceUrl = source.protocol + source.host
+        const serviceType = 'Slack';
 
-        return { issueName, projectName, serviceUrl, serviceType: 'Slack' }
+        return {
+            issueName, projectName, serviceUrl, serviceType
+        } as WebToolIssue;
     }
 }
 

@@ -15,7 +15,7 @@ class Shortcut implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
         const issueId = $$.try<HTMLInputElement>('.story-id input.clipboard', issueElement).value;
         const issueName = $$.try('h2.story-name', issueElement).textContent;
@@ -23,16 +23,11 @@ class Shortcut implements WebToolIntegration {
         const issueUrl = source.path.replace(/\/story\/.*/, '/story/' + issueId);
         const projectName = $$.try('.story-project .value', issueElement).textContent;
         const tagNames = $$.all('.story-labels .tag', issueElement).map(label => label.textContent);
+        const serviceType = 'Shortcut';
 
         return {
-            issueId,
-            issueName,
-            issueUrl,
-            projectName,
-            serviceUrl,
-            serviceType: 'Shortcut',
-            tagNames
-        };
+            issueId, issueName, issueUrl, projectName, serviceUrl, serviceType, tagNames
+        } as WebToolIssue;
     }
 }
 

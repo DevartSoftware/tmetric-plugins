@@ -9,42 +9,42 @@ class Trac implements WebToolIntegration {
     issueElementSelector = '#main > #content.ticket';
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        var host =
+        const host =
             $$('#trac-ticket-title > a', issueElement) || // ver < 1.0
             $$('.trac-id', issueElement); // ver >= 1.0
         if (host) {
             linkElement.classList.add('devart-timer-link-trac');
-            host.parentElement.appendChild(linkElement);
+            host.parentElement!.appendChild(linkElement);
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
-        var match = /^(.+)\/ticket\/(\d+)(#.*)?$/.exec(source.fullUrl);
+        const match = /^(.+)\/ticket\/(\d+)(#.*)?$/.exec(source.fullUrl);
         if (!match) {
             return;
         }
 
-        var issueId = '#' + match[2];
+        const issueId = '#' + match[2];
 
-        var issueName = $$.try('.summary', issueElement).textContent;
+        const issueName = $$.try('.summary', issueElement).textContent;
         if (!issueName) {
             return;
         }
 
         // split by EN DASH and get last part
-        var projectName = document.title.split('–').pop();
+        let projectName = document.title.split('–').pop();
         if (projectName) {
             projectName = projectName.trim();
         }
 
-        var serviceType = 'Trac';
+        const serviceType = 'Trac';
+        const serviceUrl = match[1];
+        const issueUrl = 'ticket/' + match[2];
 
-        var serviceUrl = match[1];
-
-        var issueUrl = 'ticket/' + match[2];
-
-        return { issueId, issueName, projectName, serviceType, serviceUrl, issueUrl };
+        return {
+            issueId, issueName, projectName, serviceType, serviceUrl, issueUrl
+        } as WebToolIssue;
     }
 }
 

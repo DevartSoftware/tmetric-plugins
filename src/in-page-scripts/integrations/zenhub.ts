@@ -10,27 +10,30 @@ class ZenHub implements WebToolIntegration {
         let actions = $$('.zhc-issue-meta__actions', issueElement);
         if (actions) {
             linkElement.classList.add('devart-timer-link-zenhub', 'zhc-btn', 'zhc-btn--secondary');
-            actions.firstChild.before(linkElement);
+            actions.firstChild?.before(linkElement);
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
-        let issueName: string;
-        let issueId: string;
+        let issueName: string | undefined;
+        let issueId: string | undefined;
 
         let issueTitle = $$.try('.zhc-issue-description__title', issueElement).textContent;
         if (issueTitle) {
             let splittedTitle = issueTitle.split('#');
             issueName = splittedTitle[0];
-            issueId = splittedTitle.length > 1 && splittedTitle[1];
+            issueId = splittedTitle.length > 1 ? splittedTitle[1] : undefined;
         }
 
-        let projectName = $$.try('.zhc-breadcrumbs__button__name', issueElement).textContent;
-        let issueUrl = source.path;
-        let serviceUrl = source.protocol + source.host;
+        const projectName = $$.try('.zhc-breadcrumbs__button__name', issueElement).textContent;
+        const issueUrl = source.path;
+        const serviceUrl = source.protocol + source.host;
+        const serviceType = 'ZenHub';
 
-        return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'ZenHub' }
+        return {
+            issueId, issueName, issueUrl, projectName, serviceUrl, serviceType
+        } as WebToolIssue;
     }
 }
 

@@ -11,22 +11,22 @@ class MicrosofOutlookOnline implements WebToolIntegration {
     issueElementSelector = '#app';
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        let container = $$('.ms-CommandBar-primaryCommand', issueElement) ||
-            $$( '#paddleContainer #\\31 -panel', issueElement);
+        const container = $$('.ms-CommandBar-primaryCommand', issueElement) ||
+            $$('#paddleContainer #\\31 -panel', issueElement);
         if (container) {
             linkElement.classList.add('devart-timer-link-microsoft-outlook-live');
             container.appendChild(linkElement);
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
         // mail subject in default mode
         let issueName = $$.try('[role=main] .allowTextSelection[role=heading]', issueElement).textContent;
 
         if (!issueName) {
             // mail subject in expanded mode
-            let issueNameInput = <HTMLInputElement>$$('.ms-TextField-field', issueElement);
+            const issueNameInput = <HTMLInputElement>$$('.ms-TextField-field', issueElement);
             issueName = issueNameInput && issueNameInput.value;
         }
 
@@ -34,9 +34,12 @@ class MicrosofOutlookOnline implements WebToolIntegration {
             return;
         }
 
-        let serviceUrl = source.protocol + source.host;
+        const serviceUrl = source.protocol + source.host;
+        const serviceType = 'MicrosoftOutlookOnline';
 
-        return { issueName, serviceUrl, serviceType: 'MicrosoftOutlookOnline' };
+        return {
+            issueName, serviceUrl, serviceType
+        } as WebToolIssue;
     }
 }
 

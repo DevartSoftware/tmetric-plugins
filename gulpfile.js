@@ -22,7 +22,7 @@ var dist = path.normalize(process.cwd() + '/dist/');
 
 var config = {
     distDir: dist,
-    keepDebug: false,
+    keepDebug: true,
     keepSources: false
 };
 
@@ -53,21 +53,18 @@ var chromeDir = distDir + 'chrome/';
 var chromeUnpackedDir = chromeDir + 'unpacked/';
 var firefoxDir = distDir + 'firefox/';
 var firefoxUnpackedDir = firefoxDir + 'unpacked/';
-var safariAppFolderName = 'TMetric for Safari';
-var safariAppExtensionFolderName = 'TMetric for Safari Extension';
-var safariDir = distDir + 'safari/';
-var safariExtensionDir = safariDir + safariAppExtensionFolderName + '/';
+var safariUnpackedDir = distDir + 'safari/';
 
 console.log('Start build');
 console.log(JSON.stringify(config, null, 2));
 
 var files = {
     common: [
-        'src/background/storage.js',    
+        'src/background/storage.js',
         'src/background/webToolDescriptions.js',
         'src/background/webToolManager.js',
+        'src/background/ajaxClient.js',
         'src/background/oidcClient.js',
-        'src/background/contentScriptsPolyfill.js',
         'src/background/contentScriptsRegistrator.js',
         'src/background/serverConnection.js',
         'src/background/signalRHubProxy.js',
@@ -97,21 +94,23 @@ var files = {
         'src/settings/settingsController.js',
         'src/background/backgroundBase.js',
         'src/background/extensionBase.js',
-        'src/background/simpleEvent.js',
-        'src/manifest.json'
+        'src/background/simpleEvent.js'
+
     ],
     chrome: [
+        'src/manifest.json',
+        'src/unified-ext.js',
+        'src/chrome-background-bundle.js',
         'src/background/chromeExtension.js',
     ],
     firefox: [
+        'src/unified-ext.js',
         'src/background/firefoxExtension.js'
     ],
     safari: [
-        'src/safari/**',
-        '!src/safari/**/*.ts',
-        '!src/safari/**/*.map',
-        '!src/safari/build/**',
-        '!src/safari/**/xcuserdata/**'
+        'src/unified-ext.js',
+        'src/background/safariExtension.js',
+        'src/safari/**'
     ]
 };
 
@@ -142,28 +141,23 @@ function stripDebugCommon(folder) {
         .pipe(gulp.dest(folder));
 }
 
-function modifyJSON(transform) {
+function modifyFile(transform) {
+    return through.obj(function (file, encoding, callback) {
 
-    return through.obj(function (jsonFile, encoding, callback) {
-
-        var file = jsonFile.clone();
+        file = file.clone();
         if (!file.isBuffer()) {
-            return reject(new Error('Invalid JSON: ' + e.message));
+            return reject(new Error('Invalid file: ' + e.message));
         }
 
-        var fileContent = file.contents.toString(encoding);
-        var obj;
-        try {
-            obj = JSON.parse(fileContent);
-        }
-        catch (e) {
-            return reject(new Error('Invalid JSON: ' + e.message));
-        }
-
-        var newManifest = transform(obj);
-        file.contents = Buffer.from(JSON.stringify(newManifest, null, 4));
+        let fileContent = file.contents.toString(encoding);
+        fileContent = transform(fileContent);
+        file.contents = Buffer.from(fileContent);
         callback(null, file);
     });
+}
+
+function modifyFileJSON(transform) {
+    return modifyFile(text => JSON.stringify(transform(JSON.parse(text)), null, '  '));
 }
 
 // =============================================================================
@@ -176,6 +170,7 @@ gulp.task('version', (callback) => {
         [
             'package.json',
             src + 'manifest.json',
+            src + 'manifest-v2/manifest.json',
             src + 'in-page-scripts/version.ts'
         ].forEach(file => replaceInFile(
             file,
@@ -205,9 +200,7 @@ gulp.task('clean:sources', () => {
         'src/in-page-scripts/**/*.js',
         'src/lib/*',
         'src/popup/*.js',
-        'src/settings/*.js',
-        'src/safari/**/*.js',
-        'src/safari/**/*.css'
+        'src/settings/*.js'
     ]);
 });
 
@@ -225,7 +218,8 @@ gulp.task('lib', () => {
         .src('node_modules/jquery/dist/jquery.min.js')
         .pipe(gulp.dest(lib));
     var signalr = gulp
-        .src('node_modules/@aspnet/signalr/dist/browser/signalr.min.js')
+        .src('node_modules/@microsoft/signalr/dist/webworker/signalr.min.js')
+        .pipe(modifyFile(text => text.replace(/\/\/\s*#\s*sourceMappingURL.+?\.map/, '')))
         .pipe(rename('signalr.min.js'))
         .pipe(gulp.dest(lib));
     var select2 = gulp
@@ -302,8 +296,19 @@ gulp.task('package:chrome', gulp.series('prepackage:chrome', packageChrome));
 // Tasks for building Firefox addon
 // =============================================================================
 
-function copyFilesFireFox() {
+function copyFilesFirefox() {
     return gulp.src(files.common.concat(files.firefox), { base: src })
+        .pipe(gulp.dest(firefoxUnpackedDir));
+}
+
+function copyManifestFirefox() {
+    return gulp.src(['src/manifest-v2/manifest.json'])
+        .pipe(gulp.dest(firefoxUnpackedDir));
+}
+
+function modifyManifestFirefox() {
+    return gulp.src(firefoxUnpackedDir + '/manifest.json')
+        .pipe(modifyFileJSON(json => ({applications: { gecko: { id: '@tmetric'} }, ...json})))
         .pipe(gulp.dest(firefoxUnpackedDir));
 }
 
@@ -311,29 +316,9 @@ function stripDebugFirefox() {
     return stripDebugCommon(firefoxUnpackedDir);
 }
 
-function modifyManifestFirefox() {
-    return gulp.src(firefoxUnpackedDir + '/manifest.json')
-        .pipe(modifyJSON(manifest => {
-
-            // Replace chromeExtension.js to firefoxExtension.js
-            var scripts = manifest['background']['scripts'];
-            var index = scripts.indexOf('background/chromeExtension.js');
-            scripts[index]= 'background/firefoxExtension.js';
-
-            // Set addon ID (TE-283)
-            manifest['applications'] = {
-                gecko: { id: '@tmetric' }
-            };
-
-            //delete manifest['options_ui']['open_in_tab'];
-            delete manifest['externally_connectable'];
-
-            return manifest;
-        }))
-        .pipe(gulp.dest(firefoxUnpackedDir));
-}
-
-gulp.task('prepackage:firefox', gulp.series(copyFilesFireFox, stripDebugFirefox, modifyManifestFirefox));
+gulp.task(
+    'prepackage:firefox',
+    gulp.series(copyFilesFirefox, copyManifestFirefox, stripDebugFirefox, modifyManifestFirefox));
 
 function packageFirefox() {
     var manifest = jsonfile.readFileSync(firefoxUnpackedDir + 'manifest.json');
@@ -345,120 +330,32 @@ function packageFirefox() {
 gulp.task('package:firefox', gulp.series('prepackage:firefox', packageFirefox));
 
 // =============================================================================
-// Tasks for building Safari App Extension xcode project
+// Tasks for building Safari extension
 // =============================================================================
 
-var safariSrcDir = src + 'safari/';
-var safariAppSrcDir = safariSrcDir + safariAppFolderName + '/';
-var safariAppExtensionSrcDir = safariSrcDir + safariAppExtensionFolderName + '/';
-
-function bundleScriptsSafari() {
-
-    var scriptFileName = 'script.js';
-    var scriptFile = safariAppExtensionSrcDir + scriptFileName;
-
-    var manifestFile = src + 'manifest.json';
-    var manifest = jsonfile.readFileSync(manifestFile);
-    var manifestScripts = manifest.content_scripts;
-
-    var integrationScriptsFolder = `${src}/in-page-scripts/integrations`;
-    var integrationScripts = fs.readdirSync(integrationScriptsFolder)
-        .filter(filename => filename.endsWith('.js'))
-        .map(filename => `in-page-scripts/integrations/${filename}`);
-
-    function loadFilesContent(filePaths) {
-        return filePaths.map(filePath => {
-            try {
-                let srcFilePath = path.normalize(src + filePath);
-                return `// ${filePath}\n\n${fs.readFileSync(srcFilePath)}`;
-            }
-            catch (err) {
-                console.log(`Not found file ${filePath} in folder ${src}.`);
-            }
-        }).join('\n\n');
-    }
-
-    return gulp.src([scriptFile])
-        .pipe(through.obj((file, encoding, callback) => {
-
-            let extensionContent = '';
-
-            // add web tool descriptions
-
-            extensionContent += '\n\n' + loadFilesContent(["background/webToolDescriptions.js"]);
-
-            // add script file content
-
-            extensionContent += `${file.contents.toString(encoding)}`;
-
-            // add common scripts
-
-            extensionContent += '\n\n' + loadFilesContent([
-                "in-page-scripts/utils.js",
-                "in-page-scripts/integrationService.js",
-                "in-page-scripts/page.js"
-            ]);
-
-            // add manifest scripts
-
-            manifestScripts.forEach(info => {
-                extensionContent += `\n\nif (shouldIncludeManifestScripts(${JSON.stringify(info, null, 4)})) {\n${loadFilesContent([info.js])}\n}`;
-            });
-
-            // add integrations scripts
-
-            integrationScripts.forEach(file => {
-                extensionContent += `\n\nif (shouldIncludeIntegrationScripts(${JSON.stringify(file, null, 4)})) {\n${loadFilesContent([file])}\n}`;
-            });
-
-            // add init script
-
-            extensionContent += '\n\n' + loadFilesContent([ "in-page-scripts/init.js" ]);
-
-            // combine file content
-
-            var combinedContent = '';
-            combinedContent += `\n\nfunction initTMetricExtension () {\n\n${extensionContent}\n\n}`;
-            combinedContent += `\n\nif (document.readyState == "loading") {\n\tdocument.addEventListener("DOMContentLoaded", initTMetricExtension);\n} else {\n\tinitTMetricExtension();\n}`;
-
-            // replace file content
-
-            file.contents = Buffer.from(combinedContent, encoding);
-
-            callback(null, file);
-
-        }))
-        .pipe(concat(scriptFileName))
-        .pipe(gulp.dest(safariAppExtensionSrcDir))
-}
-
-function bundleStylesSafari() {
-
-    var styleFileName = 'styles.css';
-    var styleFile = safariAppExtensionSrcDir + styleFileName;
-
-    return gulp.src([ 'src/css/timer-link.css' ], { base: src })
-        .pipe(concat(styleFileName))
-        .pipe(gulp.dest(safariAppExtensionSrcDir))
-}
-
 function copyFilesSafari() {
-    return gulp.src(files.safari, { base: safariSrcDir })
-        .pipe(gulp.dest(safariDir));
+    return gulp.src(files.common.concat(files.safari), { base: src })
+        .pipe(gulp.dest(safariUnpackedDir));
 }
 
 function stripDebugSafari() {
-    return stripDebugCommon(safariExtensionDir);
+    return stripDebugCommon(safariUnpackedDir);
 }
 
-gulp.task('prepackage:safari', gulp.series(
-    bundleScriptsSafari,
-    bundleStylesSafari,
-    copyFilesSafari,
-    stripDebugSafari
-));
+function copyManifestSafari() {
+    return gulp.src(['src/manifest-v2/manifest.json'])
+        .pipe(gulp.dest(safariUnpackedDir));
+}
 
-gulp.task('package:safari', gulp.series('prepackage:safari'));
+function modifyManifestSafari() {
+    return gulp.src(safariUnpackedDir + '/manifest.json')
+        .pipe(modifyFile(text => text.replace('/firefoxExtension.js', '/safariExtension.js')))
+        .pipe(gulp.dest(safariUnpackedDir));
+}
+
+gulp.task(
+    'package:safari',
+    gulp.series(copyFilesSafari, copyManifestSafari, stripDebugSafari, modifyManifestSafari));
 
 // =============================================================================
 // Task for building addons

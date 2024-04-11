@@ -1,9 +1,60 @@
 const enum ButtonState { start, stop, fixtimer, connect }
 const invalidProfileError = 'Profile not configured';
 
-async function getTestValues() {
+abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
 
-    const getUrl = async key => {
+    private _lastNotificationId: string | undefined;
+
+    private _buttonState = ButtonState.start;
+
+    private _loginTabId: number | undefined;
+
+    private _loginWinId: number | undefined;
+
+    private _loginWindowPending = false;
+
+    private _extraHours: Promise<number>;
+
+    private _timeEntries: Models.TimeEntry[] | undefined;
+
+    private _actionOnConnect: (() => void) | undefined;
+
+    private _badgeMessage: string | undefined;
+
+    private _badgeTimeout: number | undefined;
+
+    private _useBadgeNotifications = false;
+
+    /**
+     * @param message
+     */
+    protected override showError(message: string) {
+        void this.showNotification(message);
+    }
+
+    protected async injectVersionScript() {
+        if (!browser.scripting) {
+            return;
+        }
+        const tabs = await browser.tabs.query({ url: '*://*.tmetric.com/*' });
+        for (let tab of tabs) {
+            if (tab.id != null && (tab.url || '').indexOf('.tmetric.com') >= 0) {
+                browser.scripting.executeScript({
+                    target: {
+                        tabId: tab.id
+                    },
+                    files: [
+                        'unified-ext.js',
+                        tab.url!.indexOf('/extension/') >= 0 ?
+                            'in-page-scripts/authorizationCode.js' :
+                            'in-page-scripts/version.js'
+                    ]
+                });
+            }
+        }
+    }
+
+    private static async getUrl(key: string) {
         let url = await storage.getItem(key);
         if (!url) {
             return;
@@ -14,98 +65,49 @@ async function getTestValues() {
         return url;
     }
 
-    const extraHours = await storage.getItem('tmetric.extraHours');
-
-    return {
-        serviceUrl: await getUrl('tmetric.url'),
-        storageUrl: await getUrl('tmetric.storageUrl'),
-        authorityUrl: await getUrl('tmetric.authorityUrl'),
-        signalRUrl: await getUrl('tmetric.signalRUrl'),
-        extraHours: extraHours ? parseFloat(extraHours) : 0
-    } as TestValues;
-}
-
-abstract class ExtensionBase extends BackgroundBase {
-
-    protected override getConstants() {
-        const constants = super.getConstants();
-        return <Models.Constants>{
-            maxTimerHours: constants.maxTimerHours,
-            serviceUrl: this._testValues.serviceUrl || constants.serviceUrl,
-            storageUrl: this._testValues.storageUrl || constants.storageUrl,
-            authorityUrl: this._testValues.authorityUrl || constants.authorityUrl,
-            extensionName: this.getExtensionName(),
-            browserSchema: this.getBrowserSchema(),
-            extensionUUID: this.getExtensionUUID()
-        };
+    private static async getConstants(browserSchema: string, extensionUUID: string) {
+        return {
+            maxTimerHours: 12,
+            serviceUrl: await this.getUrl('tmetric.url') || 'https://app.tmetric.com/',
+            storageUrl: await this.getUrl('tmetric.storageUrl') || 'https://services.tmetric.com/storage/',
+            authorityUrl: await this.getUrl('tmetric.authorityUrl') || 'https://id.tmetric.com/',
+            extensionName: browser.runtime.getManifest().name,
+            browserSchema,
+            extensionUUID
+        } as Models.Constants;
     }
 
-    protected getExtensionName() {
-        return chrome.runtime.getManifest().name;
+    private static async getConnectionOptions(constants: Promise<Models.Constants>) {
+        const signalRUrl = await this.getUrl('tmetric.signalRUrl') || 'https://services.tmetric.com/signalr/';
+        const { serviceUrl, authorityUrl } = await constants;
+        return { serviceUrl, authorityUrl, signalRUrl };
     }
 
-    protected abstract getBrowserSchema(): string
+    constructor(browserSchema: string, extensionUUID: string, forceBadgeNotifications = false) {
 
-    protected abstract getExtensionUUID(): string
+        super(
+            ExtensionBase.getConstants(browserSchema, extensionUUID),
+            constants => new SignalRConnection(ExtensionBase.getConnectionOptions(constants)));
 
-    private createLoginDialog() {
-
-        chrome.tabs.create(
-            { url: OidcClient.getLoginUrl() } as chrome.tabs.CreateProperties,
-            tab => {
-                this.loginWinId = tab.windowId;
-                this.loginTabId = tab.id!;
-                this.loginWindowPending = false;
-            }
-        );
-    }
-
-    /**
-     * Show push notification
-     * @param message
-     * @param title
-     */
-    protected showNotification(message: string, title?: string) {
-        if (this.lastNotificationId) {
-            chrome.notifications.clear(this.lastNotificationId, () => { });
+        if (forceBadgeNotifications) {
+            this._useBadgeNotifications = true;
+        } else {
+            browser.runtime.getPlatformInfo().then(info => {
+                this._useBadgeNotifications = info.os == 'mac';
+            });
         }
-        title = title || 'TMetric';
-        const type = 'basic';
-        const iconUrl = 'images/icon80.png';
-        chrome.notifications.create(
-            '',
-            { title, message, type, iconUrl },
-            id => this.lastNotificationId = id);
-    }
 
-    protected lastNotificationId: string;
-
-    protected override connection: SignalRConnection;
-
-    private buttonState = ButtonState.start;
-
-    private loginTabId: number | undefined;
-
-    private loginWinId: number | undefined;
-
-    private loginWindowPending: boolean;
-
-    protected signalRUrl: string;
-
-    protected extraHours: number;
-
-    protected timeEntries: Models.TimeEntry[];
-
-    constructor(testValues: TestValues) {
-
-        super(testValues);
+        this._extraHours = (async () => {
+            const extraHours = await storage.getItem('tmetric.extraHours');
+            return extraHours ? parseFloat(extraHours) : 0
+        })();
 
         this.listenPopupAction<void, boolean>('isConnectionRetryEnabled', this.isConnectionRetryEnabledPopupAction);
         this.listenPopupAction<void, void>('retry', this.retryConnectionPopupAction);
 
         this.updateState();
 
-        this.connection.onUpdateTimer(async timer => {
+        this._connection.onUpdateTimer(async timer => {
 
             // looks like disconnect
             if (timer == null) {
@@ -124,32 +126,32 @@ abstract class ExtensionBase extends BackgroundBase {
 
             // timer should be received from server on connect
             if (timer) {
-                const action = this.actionOnConnect;
+                const action = this._actionOnConnect;
                 if (action) {
-                    this.actionOnConnect = undefined;
+                    this._actionOnConnect = undefined;
                     action();
                 }
             }
         });
 
-        this.connection.onUpdateTracker(timeEntries => {
-            this.timeEntries = timeEntries;
+        this._connection.onUpdateTracker(timeEntries => {
+            this._timeEntries = timeEntries;
             this.updateState();
         });
 
-        this.connection.onUpdateProfile(profile => {
+        this._connection.onUpdateProfile(profile => {
             this.userProfile = profile;
         });
 
-        this.connection.onUpdateActiveAccount(() => {
+        this._connection.onUpdateActiveAccount(() => {
             this.clearIssuesDurationsCache();
         });
 
-        this.connection.onInvalidateAccountScopeCache(accountId => {
+        this._connection.onInvalidateAccountScopeCache(accountId => {
             this.invalidateAccountScopeCache(accountId);
         });
 
-        this.connection.onRemoveExternalIssuesDurations(identifiers => {
+        this._connection.onRemoveExternalIssuesDurations(identifiers => {
             this.removeIssuesDurationsFromCache(identifiers);
         });
 
@@ -159,7 +161,7 @@ abstract class ExtensionBase extends BackgroundBase {
 
         this.registerTabsRemoveListener();
 
-        this.registerContentScripts();
+        this.contentScriptRegistrator.register();
 
         // Update hint once per minute
         const setUpdateTimeout = () => setTimeout(() => {
@@ -170,75 +172,40 @@ abstract class ExtensionBase extends BackgroundBase {
         setUpdateTimeout();
     }
 
-    protected override init() {
+    /**
+     * Show push notification
+     * @param message
+     */
+    protected override showNotification(message: string) {
 
-        super.init();
-
-        this.signalRUrl = this._testValues.signalRUrl || 'https://services.tmetric.com/signalr/';
-        this.extraHours = this._testValues.extraHours || 0;
-    }
-
-    protected override initConnection() {
-        this.connection = new SignalRConnection();
-        this.connection
-            .init({ serviceUrl: this.constants.serviceUrl, signalRUrl: this.signalRUrl, authorityUrl: this.constants.authorityUrl });
-    }
-
-    /** Handles messages from in-page scripts */
-    private onTabMessage(message: ITabMessage, tabId: number) {
-
-        this.sendToTabs({ action: message.action + '_callback' }, tabId);
-
-        switch (message.action) {
-
-            case 'getConstants':
-                this.sendToTabs({ action: 'setConstants', data: this.constants }, tabId);
-                break;
-
-            case 'getTimer':
-                this.sendToTabs({ action: 'setTimer', data: this.timer }, tabId);
-                break;
-
-            case 'putTimer':
-                this.putExternalTimer(message.data, undefined, tabId);
-                break;
-
-            case 'getIssuesDurations':
-                this.getIssuesDurations(message.data).then(durations => {
-
-                    // show extra time on link for test purposes
-                    if (this.extraHours && this.timer && this.timer.isStarted) {
-                        const activeDetails = this.timer.details;
-                        if (activeDetails && activeDetails.projectTask) {
-                            const activeTask = activeDetails.projectTask;
-                            for (let i = 0; i < durations.length; i++) {
-                                let duration = durations[i];
-                                if (duration.issueUrl == activeTask.relativeIssueUrl && duration.serviceUrl == activeTask.integrationUrl) {
-                                    duration = JSON.parse(JSON.stringify(duration));
-                                    duration.duration += this.extraHours * 3600000;
-                                    durations[i] = duration;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    this.sendToTabs({ action: 'setIssuesDurations', data: durations }, tabId);
-                });
-                break;
+        if (this._useBadgeNotifications) {
+            if (this._badgeTimeout) {
+                clearTimeout(this._badgeTimeout);
+                this._badgeTimeout = undefined;
+            }
+            this._badgeMessage = message;
+            this.updateState();
+            this._badgeTimeout = setTimeout(() => {
+                this._badgeMessage = undefined;
+                this._badgeTimeout = undefined;
+                this.updateState();
+            }, 10000);
         }
-    }
 
-    private getSettings() {
-        return new Promise<IExtensionSettings>((resolve) => {
-            chrome.storage.sync.get(
-                <IExtensionSettings>{ showPopup: Models.ShowPopupOption.Always },
-                resolve);
-        });
+        if (this._lastNotificationId) {
+            browser.notifications?.clear?.(this._lastNotificationId, () => { });
+        }
+        const options = {
+            title: 'TMetric',
+            message,
+            type: 'basic',
+            iconUrl: 'images/icon80.png'
+        } as chrome.notifications.NotificationOptions<true>;
+        browser.notifications?.create?.('', options, id => this._lastNotificationId = id);
     }
 
     protected override isLongTimer() {
-        return this.buttonState == ButtonState.fixtimer;
+        return this._buttonState == ButtonState.fixtimer;
     }
 
     protected override async shouldShowPopup(
@@ -249,8 +216,8 @@ abstract class ExtensionBase extends BackgroundBase {
         const matchedProjectCount = this.getTrackedProjects(scope).filter(p => p.projectName == timer.projectName).length;
         const requiredFields = scope.requiredFields;
 
-        const settings = await this.getSettings();
-        let showPopup = settings.showPopup || Models.ShowPopupOption.Always;
+        const settings = await browser.storage.sync.get(<IExtensionSettings>{ showPopup: Models.ShowPopupOption.Always });
+        let showPopup = (settings as IExtensionSettings).showPopup || Models.ShowPopupOption.Always;
 
         if (timer.serviceType === 'Shortcut') {
             // TODO: popup is not working on Shortcut pages (TMET-7517)
@@ -279,10 +246,10 @@ abstract class ExtensionBase extends BackgroundBase {
 
         const onFail = (status: AjaxStatus | string, showDialog: boolean) => {
 
-            this.actionOnConnect = undefined;
+            this._actionOnConnect = undefined;
 
             if (status == invalidProfileError && showDialog) {
-                chrome.tabs.create({ url: this.constants.serviceUrl });
+                this._constants.then(constants => browser.tabs.create({ url: constants.serviceUrl }));
             }
             // Zero status when server is unavailable or certificate fails (#59755). Show dialog in that case too.
             else if (!status
@@ -290,10 +257,10 @@ abstract class ExtensionBase extends BackgroundBase {
                 || status.statusCode == HttpStatusCode.Unauthorized
                 || status.statusCode == 0) {
 
-                const disconnectPromise = this.connection.disconnect();
+                const disconnectPromise = this._connection.disconnect();
                 if (showDialog) {
                     disconnectPromise.then(() => {
-                        this.actionOnConnect = () => onConnect(false);
+                        this._actionOnConnect = () => onConnect(false);
                         this.showLoginDialog();
                     });
                 }
@@ -319,8 +286,8 @@ abstract class ExtensionBase extends BackgroundBase {
             if (this.isLongTimer()) {
 
                 // ensure connection before page open to prevent login duplication (#67759)
-                this.actionOnConnect = () => this.fixTimer();
-                this.connection.getData().catch(status => onFail(status, showDialog));
+                this._actionOnConnect = () => this.fixTimer();
+                this._connection.getData().catch(status => onFail(status, showDialog));
                 return;
             }
 
@@ -329,43 +296,292 @@ abstract class ExtensionBase extends BackgroundBase {
 
         if (this.timer == null) {
             // connect before action to get actual state
-            this.actionOnConnect = () => onConnect(true);
-            this.connection.reconnect().catch(status => onFail(status, true));
+            this._actionOnConnect = () => onConnect(true);
+            this._connection.reconnect().catch(status => onFail(status, true));
         }
         else {
             onConnect(true);
         }
     }
 
-    private updateState() {
-        let state = ButtonState.connect;
-        let text = 'Not Connected';
-        if (this.timer) {
-            const todayTotal = 'Today Total - '
-                + this.durationToString(this.getDuration(this.timeEntries))
-                + ' hours';
-            if (this.timer.isStarted) {
-                if (this.getDuration(this.timer) > this.constants.maxTimerHours * 60 * 60000) {
-                    state = ButtonState.fixtimer;
-                    text = 'Started\nYou need to fix long-running timer';
-                }
-                else {
-                    state = ButtonState.stop;
-                    const description = this.timer.details.description || '(No task description)';
-                    text = `Started (${todayTotal})\n${description}`;
-                }
+    protected sendToTabs(message: ITabMessage, tabId?: number) {
+
+        console.log('sendToTabs', message.action, tabId);
+
+        if (tabId != null) {
+            browser.tabs.sendMessage(tabId, message)
+                .catch(error => {
+                    console.log(`sendToTabs ${tabId} failed: ${message.action}: ${error?.message || error}`)
+                });
+            return;
+        }
+
+        browser.tabs.query({}, tabs => tabs && tabs.forEach(tab => {
+            if (tab.id != null && tab.url && tab.url.startsWith('http')) {
+                browser.tabs.sendMessage(tab.id, message).catch(error => {
+                    // Ignore errors in broadcast messages
+                    console.log(`sendToTabs failed: ${message.action}: ${error?.message || error}`)
+                });
             }
-            else {
-                state = ButtonState.start;
-                text = 'Paused\n' + todayTotal;
+        }));
+    }
+
+    protected override async getActiveTabTitle() {
+        const tabs = await browser.tabs.query({ currentWindow: true, active: true });
+        const activeTab = tabs?.[0];
+        return activeTab?.title || null;
+    }
+
+    protected async getActiveTabId() {
+        const tabs = await browser.tabs.query({ currentWindow: true, active: true });
+        const activeTab = tabs?.[0];
+        return activeTab?.id || null;
+    }
+
+    protected async getActiveTabPossibleWebTool() {
+
+        const url = await this.getActiveTabUrl();
+        const origin = WebToolManager.toOrigin(url);
+        if (!origin) {
+            return;
+        }
+
+        if (await WebToolManager.isAllowed([origin])) {
+            return;
+        }
+
+        const isMatchUrl = (origin: string) => WebToolManager.isMatch(url, origin);
+
+        const webTools = getWebToolDescriptions();
+        const webTool = webTools.find(webTool => webTool.origins.some(isMatchUrl));
+        if (webTool) {
+            return <WebToolInfo>{
+                serviceType: webTool.serviceType,
+                serviceName: webTool.serviceName,
+                origins: webTool.allOriginsRequired ? webTool.origins : [origin]
+            };
+        }
+    }
+
+    protected override openPage(url: string) {
+
+        browser.tabs.query({ active: true, windowId: browser.windows.WINDOW_ID_CURRENT }, tabs => {
+
+            const currentWindowId = tabs && tabs.length && tabs[0].windowId;
+
+            // chrome.tabs.query do not support tab search with hashed urls
+            // https://developer.chrome.com/extensions/match_patterns
+            browser.tabs.query({ url: url.split('#')[0] + '*' }, tabs => {
+
+                // additional filtering by url and hash, if specified
+                const urlWithAnyHash = url.indexOf('#') < 0 ? url + '#' : '';
+                tabs = tabs.filter(tab => tab.url == url || urlWithAnyHash && tab.url?.startsWith(urlWithAnyHash));
+
+                if (tabs.length) {
+
+                    let
+                        anyWindowTab,
+                        anyWindowActiveTab,
+                        currentWindowTab,
+                        currentWindowActiveTab: chrome.tabs.Tab | undefined;
+                    for (let index = 0, size = tabs.length; index < size; index += 1) {
+                        anyWindowTab = tabs[index];
+                        if (anyWindowTab.active) {
+                            anyWindowActiveTab = anyWindowTab;
+                        }
+                        if (anyWindowTab.windowId == currentWindowId) {
+                            currentWindowTab = anyWindowTab;
+                            if (currentWindowTab.active) {
+                                currentWindowActiveTab = currentWindowTab;
+                            }
+                        }
+                    }
+
+                    const tabToActivate = currentWindowActiveTab || currentWindowTab || anyWindowActiveTab || anyWindowTab;
+                    browser.windows.update(tabToActivate.windowId, { focused: true });
+                    browser.tabs.update(tabToActivate.id, { active: true });
+                } else {
+                    browser.tabs.create({ active: true, windowId: currentWindowId, url });
+                }
+            });
+        });
+    }
+
+    protected override async reconnect(showLoginDialog: boolean) {
+        try {
+            await this._connection.reconnect();
+
+            const key = 'skipPermissionsSetup';
+            const skipPermissionsSetup = await new Promise<boolean>(resolve =>
+                browser.storage.local.get([key], result => resolve(result[key]))
+            );
+
+            if (!skipPermissionsSetup) {
+                browser.storage.local.set({ [key]: true });
+                const url = browser.runtime.getURL('permissions/check.html');
+                browser.tabs.create({ url, active: true });
             }
         }
-        this.buttonState = state;
-        this.setButtonIcon(state == ButtonState.stop || state == ButtonState.fixtimer ? 'active' : 'inactive', text);
+        catch (err) {
+            const constants = await this._constants;
+            if (err === invalidProfileError) {
+                browser.tabs.create({ url: this.getWebAppUrl(constants) });
+            } else if (showLoginDialog) {
+                this.showLoginDialog();
+            }
+        }
+    }
+
+    protected override registerMessageListener() {
+
+        browser.runtime.onMessageExternal.addListener((message: ITabMessage, _sender, sendResponse) => {
+            switch (message.action) {
+                case 'ping':
+                    sendResponse('pong');
+                    break;
+            }
+        });
+
+        browser.runtime.onMessage.addListener((
+            message: ITabMessage | IPopupRequest | IExtensionSettingsMessage,
+            sender: chrome.runtime.MessageSender,
+            senderResponse: (IPopupResponse) => void
+        ) => {
+
+            console.log(message);
+
+            // Popup requests
+            if ((message as IPopupRequest).sender === 'popup') {
+                this.onPopupRequest(message as IPopupRequest, senderResponse);
+                return !!senderResponse;
+            }
+
+            if ((message as IExtensionSettingsMessage).sender === 'settings') {
+                this.onPermissionsMessage(message as IExtensionSettingsMessage, senderResponse);
+                return !!senderResponse;
+            }
+
+            if (!sender.tab) {
+                return;
+            }
+
+            // Ignore login dialog
+            if (sender.tab.id == this._loginTabId) {
+                return;
+            }
+
+            // Tab page requests
+            const tabId = sender.tab.id;
+            if (tabId != null) {
+                this.onTabMessage(message, tabId);
+            }
+
+            senderResponse(null);
+        });
+    }
+
+    protected override openOptionsPagePopupAction() {
+        this.openOptionsPageUrl();
+        return Promise.resolve(null);
+    }
+
+    protected override showPopup(tabId?: number): void {
+        this.sendToTabs({ action: 'showPopup' }, tabId);
+    }
+
+    protected override hidePopup(tabId?: number): void {
+        this.sendToTabs({ action: 'hidePopup' }, tabId);
+    }
+
+    protected override async initializePopupAction(params: IPopupParams) {
+
+        // Forget about old action when user open popup again
+        this._actionOnConnect = undefined;
+        if (!this.timer && this._connection.canRetryConnection) {
+            await this._connection.retryConnection(true);
+        }
+        return await this.getPopupData(params);
+    }
+
+    /** Handles messages from in-page scripts */
+    private async onTabMessage(message: ITabMessage, tabId: number) {
+
+        console.log('onTabMessage', message.action + '_callback');
+        this.sendToTabs({ action: message.action + '_callback' }, tabId);
+
+        switch (message.action) {
+
+            case 'getConstants':
+                const constants = await this._constants;
+                this.sendToTabs({ action: 'setConstants', data: constants }, tabId);
+                break;
+
+            case 'getTimer':
+                this.sendToTabs({ action: 'setTimer', data: this.timer }, tabId);
+                break;
+
+            case 'putTimer':
+                this.putExternalTimer(message.data, undefined, tabId);
+                break;
+
+            case 'getIssuesDurations':
+                const durations = await this.getIssuesDurations(message.data);
+                const extraHours = await this._extraHours;
+
+                // show extra time on link for test purposes
+                if (extraHours && this.timer && this.timer.isStarted) {
+                    const activeDetails = this.timer.details;
+                    if (activeDetails && activeDetails.projectTask) {
+                        const activeTask = activeDetails.projectTask;
+                        for (let i = 0; i < durations.length; i++) {
+                            let duration = durations[i];
+                            if (duration.issueUrl == activeTask.relativeIssueUrl && duration.serviceUrl == activeTask.integrationUrl) {
+                                duration = JSON.parse(JSON.stringify(duration));
+                                duration.duration += extraHours * 3600000;
+                                durations[i] = duration;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                this.sendToTabs({ action: 'setIssuesDurations', data: durations }, tabId);
+                break;
+        }
+    }
+
+    private updateState() {
+        this._constants.then(constants => {
+            let state = ButtonState.connect;
+            let text = 'Not Connected';
+            if (this.timer) {
+                const todayTotal = 'Today Total - '
+                    + this.durationToString(this.getDuration(this._timeEntries))
+                    + ' hours';
+                if (this.timer.isStarted) {
+
+                    if (this.getDuration(this.timer) > constants.maxTimerHours * 60 * 60000) {
+                        state = ButtonState.fixtimer;
+                        text = 'Started\nYou need to fix long-running timer';
+                    }
+                    else {
+                        state = ButtonState.stop;
+                        const description = this.timer.details.description || '(No task description)';
+                        text = `Started (${todayTotal})\n${description}`;
+                    }
+                }
+                else {
+                    state = ButtonState.start;
+                    text = 'Paused\n' + todayTotal;
+                }
+            }
+            this._buttonState = state;
+            this.setButtonIcon(state == ButtonState.stop || state == ButtonState.fixtimer ? 'active' : 'inactive', text);
+        });
     }
 
     private getDuration(timer: Models.Timer): number
-    private getDuration(timeEntries: Models.TimeEntry[]): number
+    private getDuration(timeEntries: Models.TimeEntry[] | undefined): number
     private getDuration(arg: any): any {
         if (arg) {
             const now = new Date().getTime();
@@ -406,27 +622,27 @@ abstract class ExtensionBase extends BackgroundBase {
         return identifier.serviceUrl + '/' + identifier.issueUrl;
     }
 
-    protected getIssueDurationFromCache(identifier: WebToolIssueIdentifier): WebToolIssueDuration {
+    private getIssueDurationFromCache(identifier: WebToolIssueIdentifier): WebToolIssueDuration {
         return this._issuesDurationsCache[this.makeIssueDurationKey(identifier)];
     }
 
-    protected putIssuesDurationsToCache(durations: WebToolIssueDuration[]) {
+    private putIssuesDurationsToCache(durations: WebToolIssueDuration[]) {
         durations.forEach(duration => {
             this._issuesDurationsCache[this.makeIssueDurationKey(duration)] = duration;
         });
     }
 
-    protected removeIssuesDurationsFromCache(identifiers: WebToolIssueIdentifier[]) {
+    private removeIssuesDurationsFromCache(identifiers: WebToolIssueIdentifier[]) {
         identifiers.forEach(identifier => {
             delete this._issuesDurationsCache[this.makeIssueDurationKey(identifier)];
         });
     }
 
-    protected clearIssuesDurationsCache() {
+    private clearIssuesDurationsCache() {
         this._issuesDurationsCache = {};
     }
 
-    protected getIssuesDurations(identifiers: WebToolIssueIdentifier[]): Promise<WebToolIssueDuration[]> {
+    private getIssuesDurations(identifiers: WebToolIssueIdentifier[]): Promise<WebToolIssueDuration[]> {
 
         const durations = <WebToolIssueDuration[]>[];
         const fetchIdentifiers = <WebToolIssueIdentifier[]>[];
@@ -449,7 +665,7 @@ abstract class ExtensionBase extends BackgroundBase {
         }
 
         return new Promise<WebToolIssueDuration[]>(resolve => {
-            this.connection.fetchIssuesDurations(fetchIdentifiers)
+            this._connection.fetchIssuesDurations(fetchIdentifiers)
                 .then(fetchDurations => {
                     this.putIssuesDurationsToCache(fetchDurations);
                     resolve(durations.concat(fetchDurations));
@@ -460,200 +676,87 @@ abstract class ExtensionBase extends BackgroundBase {
         });
     }
 
-    protected showLoginDialog() {
+    private async showLoginDialog() {
 
-        if (this.loginWinId) {
+        if (this._loginWinId) {
 
-            chrome.tabs.query({ windowId: this.loginWinId }, tabs => {
-                const tab = tabs.find(tab => tab.id == this.loginTabId);
-                if (tab?.id != null &&
-                    tab?.url?.startsWith(this.constants.authorityUrl) &&
-                    this.loginWinId != null) {
-                    chrome.tabs.update(tab.id, { active: true });
-                    chrome.windows.update(this.loginWinId, { focused: true });
-                } else {
-                    this.loginWinId = undefined;
-                    this.loginTabId = undefined;
-                    this.showLoginDialog();
-                }
-            });
+            const tabs = await browser.tabs.query({ windowId: this._loginWinId });
+            const constants = await this._constants;
+
+            const tab = tabs.find(tab => tab.id == this._loginTabId);
+            if (tab?.url?.startsWith(constants.authorityUrl) && // login/register url
+                !tab.url.startsWith(constants.authorityUrl + 'extension/') && // failed callback url
+                tab.id != null) {
+                browser.tabs.update(tab.id, { active: true });
+                browser.windows.update(this._loginWinId, { focused: true });
+            } else {
+                this._loginWinId = undefined;
+                this._loginTabId = undefined;
+                this.showLoginDialog();
+            }
 
             return;
         }
 
-        chrome.windows.getLastFocused(() => {
-            if (this.loginWindowPending) {
-                return;
-            }
-            this.loginWindowPending = true;
-            try {
-                this.createLoginDialog();
-            }
-            catch (e) {
-                this.loginWindowPending = false;
-            }
-        });
+        if (this._loginWindowPending) {
+            return;
+        }
+        this._loginWindowPending = true;
+        try {
+            await this.createLoginDialog();
+        }
+        catch (e) {
+            this._loginWindowPending = false;
+        }
     }
 
     private setButtonIcon(icon: string, tooltip: string) {
-        chrome.browserAction.setIcon({
+        const action = browser.action || browser.browserAction;
+        if (this._useBadgeNotifications) {
+            const text = this._badgeMessage ? '!' : '';
+            if (text) {
+                action.setBadgeBackgroundColor?.({ color: '#F22' });
+                action.setBadgeTextColor?.({ color: '#FFF' });
+            }
+            action.setBadgeText?.({ text });
+        }
+        action.setIcon({
             path: {
                 '19': 'images/' + icon + '19.png',
                 '38': 'images/' + icon + '38.png'
             }
         });
-        chrome.browserAction.setTitle({ title: tooltip });
+        const title = this._badgeMessage ? `${this._badgeMessage}\n\n${tooltip}` : tooltip;
+        action.setTitle({ title });
     }
 
-    protected sendToTabs(message: ITabMessage, tabId?: number) {
+    private async createLoginDialog() {
 
-        if (tabId != null) {
-            chrome.tabs.sendMessage(tabId, message);
-            return;
-        }
+        const constants = await this._constants;
+        const url = `${constants.authorityUrl}extension/login.html`;
 
-        chrome.tabs.query({}, tabs => tabs && tabs.forEach(tab => {
-            if (tab.id != null && tab.url && tab.url.startsWith('http')) {
-                chrome.tabs.sendMessage(tab.id, message, () => {
-
-                    // Ignore errors in broadcast messages
-                    const error = chrome.runtime.lastError;
-                    if (error) {
-                        console.log(`${message.action}: ${error.message}`)
-                    }
-                });
-            }
-        }));
+        const tab = await (browser as any).tabs.create({ url } as chrome.tabs.CreateProperties);
+        this._loginWinId = tab.windowId;
+        this._loginTabId = tab.id!;
+        this._loginWindowPending = false;
     }
 
-    protected getActiveTabTitle() {
+    private getActiveTabUrl() {
         return new Promise<string | null>((resolve) => {
-            chrome.tabs.query({ currentWindow: true, active: true },
+            browser.tabs.query({ currentWindow: true, active: true },
                 function (tabs) {
                     const activeTab = tabs && tabs[0];
-                    const title = activeTab && activeTab.title || null;
-                    resolve(title);
-                });
-        });
-    }
-
-    protected getActiveTabId() {
-        return new Promise<number | null>((resolve) => {
-            chrome.tabs.query({ currentWindow: true, active: true },
-                function (tabs) {
-                    const activeTab = tabs && tabs[0];
-                    const id = activeTab && activeTab.id || null;
-                    resolve(id);
-                });
-        });
-    }
-
-    protected getActiveTabUrl() {
-        return new Promise<string | null>((resolve) => {
-            chrome.tabs.query({ currentWindow: true, active: true },
-                function (tabs) {
-                    const activeTab = tabs && tabs[0];
-                    const url = activeTab && activeTab.url || null;
+                    const url = activeTab?.url || null;
                     resolve(url);
                 });
         });
     }
 
-    protected async getActiveTabPossibleWebTool() {
-
-        const url = await this.getActiveTabUrl();
-        const origin = WebToolManager.toOrigin(url);
-        if (!origin) {
-            return;
-        }
-
-        if (await WebToolManager.isAllowed([origin])) {
-            return;
-        }
-
-        const isMatchUrl = (origin: string) => WebToolManager.isMatch(url, origin);
-
-        const webTools = getWebToolDescriptions();
-        const webTool = webTools.find(webTool => webTool.origins.some(isMatchUrl));
-        if (webTool) {
-            return <WebToolInfo>{
-                serviceType: webTool.serviceType,
-                serviceName: webTool.serviceName,
-                origins: webTool.allOriginsRequired ? webTool.origins : [origin]
-            };
-        }
-    }
-
-    protected override openPage(url: string) {
-
-        chrome.tabs.query({ active: true, windowId: chrome.windows.WINDOW_ID_CURRENT }, tabs => {
-
-            const currentWindowId = tabs && tabs.length && tabs[0].windowId;
-
-            // chrome.tabs.query do not support tab search with hashed urls
-            // https://developer.chrome.com/extensions/match_patterns
-            chrome.tabs.query({ url: url.split('#')[0] + '*' }, tabs => {
-                // filter tabs queried without hashes by actual url
-                const pageTabs = tabs && tabs.filter(tab => tab.url == url);
-                if (pageTabs && pageTabs.length) {
-
-                    let
-                        anyWindowTab,
-                        currentWindowTab,
-                        anyWindowActiveTab,
-                        currentWindowActiveTab
-                            : chrome.tabs.Tab | undefined;
-                    for (let index = 0, size = pageTabs.length; index < size; index += 1) {
-                        anyWindowTab = pageTabs[index];
-                        if (anyWindowTab.active) {
-                            anyWindowActiveTab = anyWindowTab;
-                        }
-                        if (anyWindowTab.windowId == currentWindowId) {
-                            currentWindowTab = anyWindowTab;
-                            if (currentWindowTab.active) {
-                                currentWindowActiveTab = currentWindowTab;
-                            }
-                        }
-                    }
-
-                    const tabToActivate = currentWindowActiveTab || currentWindowTab || anyWindowActiveTab || anyWindowTab;
-                    chrome.windows.update(tabToActivate.windowId, { focused: true });
-                    chrome.tabs.update(tabToActivate.id, { active: true });
-                } else {
-                    chrome.tabs.create({ active: true, windowId: currentWindowId, url });
-                }
-            });
-        });
-    }
-
-    protected override reconnect(showLoginDialog: boolean) {
-        this.connection.reconnect()
-            .then(async () => {
-                const key = 'skipPermissionsSetup';
-                const skipPermissionsSetup = await new Promise<boolean>(resolve =>
-                    chrome.storage.local.get([key], result => resolve(result[key]))
-                );
-
-                if (!skipPermissionsSetup) {
-                    chrome.storage.local.set({ [key]: true });
-                    const url = chrome.runtime.getURL('permissions/check.html');
-                    chrome.tabs.create({ url, active: true });
-                }
-            })
-            .catch(err => {
-                if (err === invalidProfileError) {
-                    chrome.tabs.create({ url: this.constants.serviceUrl });
-                } else if (showLoginDialog) {
-                    this.showLoginDialog();
-                }
-            });
-    }
-
     private registerInstallListener() {
-        chrome.runtime.onInstalled.addListener(async details => {
-            const neverLoggedIn = await OidcClient.neverLoggedIn();
+        browser.runtime.onInstalled.addListener(async details => {
+            const neverLoggedIn = await this._connection.ajaxClient.neverLoggedIn();
             if (!neverLoggedIn) {
-                chrome.storage.local.set({ 'skipPermissionsSetup': true });
+                browser.storage.local.set({ 'skipPermissionsSetup': true });
             }
             if (details.reason == 'install' ||
                 neverLoggedIn && details.reason == 'update') {
@@ -663,13 +766,13 @@ abstract class ExtensionBase extends BackgroundBase {
     }
 
     private registerStorageListener() {
-        chrome.storage.onChanged.addListener(async (changes) => {
+        browser.storage.onChanged.addListener(async (changes) => {
             const authorizationCode = changes['authorization_code'];
             if (authorizationCode && authorizationCode.newValue) {
-                if (this.loginTabId != null) {
-                    chrome.tabs.remove(this.loginTabId);
+                if (this._loginTabId != null) {
+                    browser.tabs.remove(this._loginTabId);
                 }
-                if (await OidcClient.authorize()) {
+                if (await this._connection.ajaxClient.authorize()) {
                     this.reconnect(false);
                 }
             }
@@ -677,17 +780,15 @@ abstract class ExtensionBase extends BackgroundBase {
     }
 
     private registerTabsRemoveListener() {
-        chrome.tabs.onRemoved.addListener((tabId) => {
-            if (tabId == this.loginTabId) {
-                this.loginTabId = undefined;
-                this.loginWinId = undefined;
+        browser.tabs.onRemoved.addListener((tabId) => {
+            if (tabId == this._loginTabId) {
+                this._loginTabId = undefined;
+                this._loginWinId = undefined;
             }
         });
     }
 
-    // permissions
-
-    private async onPermissionsMessage(message: ITabMessage, callback: (data: any) => void) {
+    private async onPermissionsMessage(message: IExtensionSettingsMessage, callback: (data: any) => void) {
         if (message.action == 'getIntegratedServices') {
             const items = await this.getIntegratedServices();
             callback(items);
@@ -697,8 +798,12 @@ abstract class ExtensionBase extends BackgroundBase {
     private async getIntegratedServices() {
         try {
 
-            const integrations = (await this.connection.getIntegrations()).filter(item => !!WebToolManager.toServiceUrl(item.serviceUrl));
-            const descriptions = getWebToolDescriptions().reduce((map, description) => (map[description.serviceType] = description) && map, <{ [serviceType: string]: WebToolDescription }>{});
+            const integrations = (await this._connection.getIntegrations())
+                .filter(item => !!WebToolManager.toServiceUrl(item.serviceUrl));
+            const descriptions = getWebToolDescriptions()
+                .reduce(
+                    (map, description) => (map[description.serviceType] = description) && map,
+                    <{ [serviceType: string]: WebToolDescription }>{});
 
             const serviceTypesMap = integrations.reduce((map, { serviceType, serviceUrl }) => {
 
@@ -711,7 +816,8 @@ abstract class ExtensionBase extends BackgroundBase {
                     // add additional origins
                     if (description.hasAdditionalOrigins) {
                         const serviceUrlNormalized = WebToolManager.toServiceUrl(serviceUrl);
-                        const isServiceUrlMatchKnownOrigin = description.origins.some(origin => WebToolManager.isMatch(serviceUrl, origin));
+                        const isServiceUrlMatchKnownOrigin = description.origins
+                            .some(origin => WebToolManager.isMatch(serviceUrl, origin));
                         if (serviceUrlNormalized && !isServiceUrlMatchKnownOrigin) {
                             map[serviceUrlNormalized] = serviceType;
                         }
@@ -728,82 +834,17 @@ abstract class ExtensionBase extends BackgroundBase {
     }
 
     private async openOptionsPageUrl() {
-        const url = chrome.runtime.getURL('settings/settings.html');
+        const url = browser.runtime.getURL('settings/settings.html');
         this.openPage(url);
     }
 
     private contentScriptRegistrator = new ContentScriptsRegistrator();
 
-    protected registerContentScripts() {
-        this.contentScriptRegistrator.register();
-    }
-
-    protected registerMessageListener() {
-
-        chrome.runtime.onMessageExternal.addListener((message: ITabMessage, _sender, sendResponse) => {
-            switch (message.action) {
-                case 'ping':
-                    sendResponse('pong');
-                    break;
-            }
-        });
-
-        chrome.runtime.onMessage.addListener((
-            message: ITabMessage | IPopupRequest | IExtensionSettingsMessage,
-            sender: chrome.runtime.MessageSender,
-            senderResponse: (IPopupResponse) => void
-        ) => {
-
-            console.log(message, sender)
-
-            // Popup requests
-            if (!sender.url || sender.url.startsWith(chrome.runtime.getURL('popup'))) {
-                this.onPopupRequest(message, senderResponse);
-                return !!senderResponse;
-            }
-
-            if (sender.url && (sender.url.startsWith(chrome.runtime.getURL('permissions')) || sender.url.startsWith(chrome.runtime.getURL('settings')))) {
-                this.onPermissionsMessage(message, senderResponse);
-                return !!senderResponse;
-            }
-
-            if (!sender.tab) {
-                return;
-            }
-
-            // Ignore login dialog
-            if (sender.tab.id == this.loginTabId) {
-                return;
-            }
-
-            // Tab page requests
-            const tabId = sender.tab.id;
-            if (tabId != null) {
-                this.onTabMessage(message, tabId);
-            }
-
-            senderResponse(null);
-        });
-    }
-
-    protected override openOptionsPagePopupAction() {
-        this.openOptionsPageUrl()
-        return Promise.resolve(null);
-    }
-
-    protected showPopup(tabId?: number): void {
-        this.sendToTabs({ action: 'showPopup' }, tabId);
-    }
-
-    protected hidePopup(tabId?: number): void {
-        this.sendToTabs({ action: 'hidePopup' }, tabId);
-    }
-
-    private isConnectionRetryEnabledPopupAction(): Promise<boolean> {
-        return this.connection.isConnectionRetryEnabled();
+    private isConnectionRetryEnabledPopupAction() {
+        return this._connection.isConnectionRetryEnabled();
     }
 
     private retryConnectionPopupAction() {
-        return this.connection.retryConnection();
+        return this._connection.retryConnection();
     }
 }

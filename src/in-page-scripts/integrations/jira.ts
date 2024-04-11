@@ -17,7 +17,7 @@ class Jira implements WebToolIntegration {
         } else {
             element = $$('#jira-frontend object'); // Old view
             if (element) {
-                element = element.parentElement.parentElement.parentElement;
+                element = element.parentElement?.parentElement?.parentElement || null;
             }
         }
 
@@ -76,14 +76,15 @@ class Jira implements WebToolIntegration {
             if (issueElement.matches('#ghx-detail-view')) {
                 linkElement.classList.add('devart-timer-link-minimal');
             }
-            anchor.parentElement.appendChild(linkElement);
+            anchor.parentElement!.append(linkElement);
             return;
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
-        const issueName = $$.try<HTMLInputElement>('#summary').value || $$.try('dd[data-field-id=summary], h1', issueElement).textContent;
+        const issueName = $$.try<HTMLInputElement>('#summary').value
+            || $$.try('dd[data-field-id=summary], h1', issueElement).textContent;
         if (!issueName) {
             return;
         }
@@ -95,21 +96,25 @@ class Jira implements WebToolIntegration {
         const serviceUrl = source.protocol + source.host + servicePath;
 
         let issueId = $$.searchParams(source.fullUrl)['selectedIssue'] // Board
-            || (source.path.match(/\/(?:issues|browse)\/([^\/]+)/) || [])[1]; // Other pages
+            || source.path.match(/\/(?:issues|browse)\/([^\/]+)/)?.[1]; // Other pages
 
-        issueId = issueId && /[^#]*/.exec(issueId)[0]; // trim hash
+        issueId = issueId && /[^#]*/.exec(issueId)?.[0]; // trim hash
         let issueUrl = issueId && ('/browse/' + issueId);
 
         // Support links in JIRA Service Desk (TE-498)
         if (!issueUrl) {
             issueUrl = $$.getAttribute(this.issueLinkSelector, 'href', issueElement);
             if (issueUrl) {
-                issueId = issueUrl.match(/\/browse\/(.*)/)[1];
+                issueId = issueUrl.match(/\/browse\/(.*)/)?.[1];
             }
         }
 
         const projectName = $$.try('.ghx-project', issueElement).textContent // side panel in backlog (TMET-8077)
-            || $$.try('#breadcrumbs-container a', null, el => el.getAttribute('href').split('/').some(v => v == 'projects')).textContent // when navigation bar collapsed
+            || $$.try(
+                '#breadcrumbs-container a',
+                null,
+                el => !!el.getAttribute('href')?.split('/')?.some(v => v == 'projects')
+            ).textContent // when navigation bar collapsed
             || $$.try('#project-name-val').textContent // separate task view (/browse/... URL)
             || $$.try('.project-title > a').textContent // old service desk and agile board
             || $$.try('.sd-notify-header').textContent // service desk form https://issues.apache.org/jira/servicedesk/agent/all
@@ -127,17 +132,20 @@ class Jira implements WebToolIntegration {
         }
 
         let tagNames = tags
-            .filter(el => /jql=labels|jql=project.+AND.+fixVersion/.test(el.getAttribute('href'))) // filter tags and versions
+            .filter(el => /jql=labels|jql=project.+AND.+fixVersion/.test(el.getAttribute('href') || '')) // filter tags and versions
             .map(el => el.textContent);
 
         if (!tagNames.length) {
             tagNames = ($$.try('dd[data-field-id=labels]', issueElement).textContent || '').split(','); // old interface
         }
 
-        return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Jira', tagNames };
+        const serviceType = 'Jira';
+        return {
+            issueId, issueName, issueUrl, projectName, serviceUrl, serviceType, tagNames
+        } as WebToolIssue;
     }
 
-    private getCommonAncestorLevel(issueElement: HTMLElement, otherElement: HTMLElement) {
+    private getCommonAncestorLevel(issueElement: HTMLElement | null, otherElement: HTMLElement) {
         for (let level = 0; issueElement; level++) {
             if (issueElement.contains(otherElement)) {
                 return level;
@@ -147,15 +155,15 @@ class Jira implements WebToolIntegration {
         return Number.MAX_SAFE_INTEGER;
     }
 
-    private getProjectNameFromProjectLink(issueElement: HTMLElement, issueId: string) {
+    private getProjectNameFromProjectLink(issueElement: HTMLElement, issueId: string | undefined) {
 
-        const projectId = (issueId || '').indexOf('-') > 0 && issueId.split('-')[0];
+        const projectId = (issueId || '').indexOf('-') > 0 && issueId!.split('-')[0];
         if (!projectId) {
             return;
         }
 
         // search for nearest project link (TMET-8562)
-        let link: HTMLElement;
+        let link: HTMLElement | undefined;
         let minAncestorLevel = Infinity;
         $$.all(`a[href="/browse/${projectId}"]`).forEach(x => {
             const level = this.getCommonAncestorLevel(issueElement, x);
@@ -182,14 +190,20 @@ class Jira implements WebToolIntegration {
 
     private getProjectNameFromNavigationBar() {
         // Find avatar element
-        const avatarElement = $$('#navigation-app span[role="img"], [data-test-id="navigation-apps.project-switcher-v2"] span[role="img"]', null, el => (el.style.backgroundImage || '').indexOf('projectavatar') >= 0);
+        const avatarElement = $$(
+            '#navigation-app span[role="img"], [data-test-id="navigation-apps.project-switcher-v2"] span[role="img"]',
+            null,
+            el => (el.style.backgroundImage || '').indexOf('projectavatar') >= 0);
 
         // Find avatar container
         const avatarContainer = avatarElement && $$.closest('div,span', avatarElement, el => !!el.innerText);
 
         // Find text node in avatar container
-        const projectNode = avatarContainer && $$.try('div,span', avatarContainer, el => el.textContent && !el.childElementCount);
-        if (projectNode && projectNode.offsetWidth) {
+        const projectNode = avatarContainer && $$(
+            'div,span',
+            avatarContainer,
+            el => !!el.textContent && !el.childElementCount);
+        if (projectNode?.offsetWidth) {
             return projectNode.textContent;
         }
     }

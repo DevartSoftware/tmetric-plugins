@@ -6,7 +6,7 @@ class Userecho implements WebToolIntegration {
 
     matchUrl = 'https://*.userecho.com/*';
 
-    render(issueElement: HTMLElement, linkElement: HTMLElement) {
+    render(_issueElement: HTMLElement, linkElement: HTMLElement) {
 
         let host = $$('.topic-actions-panel');
 
@@ -17,10 +17,14 @@ class Userecho implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(_issueElement: HTMLElement, source: Source) {
 
         let issue = $$('.topic-header a');
-        let issueName = issue?.textContent;
+        if (!issue) {
+            return;
+        }
+
+        let issueName = issue.textContent;
         if (!issueName) {
             return;
         }
@@ -30,17 +34,20 @@ class Userecho implements WebToolIntegration {
         // /communities/1/topics/1-good-an-idea
         // /knowledge-bases/2/articles/3-how-it-works
         // /helpdesks/3/tickets/4-change-status
-        let match = /^(\/[^\/]+\/\d+\/[^\/]+\/(\d+)-)/.exec(issueHref);
+        let match = /^(\/[^\/]+\/\d+\/[^\/]+\/(\d+)-)/.exec(issueHref!);
         if (!match) {
             return;
         }
 
-        let issueUrl = match[1];
-        let issueId = match[2];
-        let serviceUrl = source.protocol + source.host;
-        let projectName = $$.try('.navbar-brand').textContent;
+        const issueUrl = match[1];
+        const issueId = match[2];
+        const serviceUrl = source.protocol + source.host;
+        const serviceType = 'Userecho';
+        const projectName = $$.try('.navbar-brand').textContent;
 
-        return { issueId, issueName, issueUrl, projectName, serviceUrl, serviceType: 'Userecho' };
+        return {
+            issueId, issueName, issueUrl, projectName, serviceUrl, serviceType
+        } as WebToolIssue;
     }
 }
 

@@ -13,7 +13,7 @@ class MicrosoftOfficeOnline implements WebToolIntegration {
         let anchor = $$('.UsernameContainer', issueElement);
         if (anchor) {
             linkElement.classList.add('devart-timer-link-microsoft-office-live', 'cui-ctl-medium');
-            anchor.parentElement.insertBefore(linkElement, anchor.parentElement.firstElementChild);
+            anchor.parentElement!.insertBefore(linkElement, anchor.parentElement!.firstElementChild);
             return;
         }
 
@@ -26,10 +26,10 @@ class MicrosoftOfficeOnline implements WebToolIntegration {
         }
     }
 
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue {
+    getIssue(issueElement: HTMLElement, source: Source) {
 
-        let issueId: string;
-        let issueUrl: string;
+        let issueId: string | undefined;
+        let issueUrl: string | undefined;
 
         const link = $$('#SignoutLink') as HTMLAnchorElement;
         if (link) {
@@ -53,11 +53,8 @@ class MicrosoftOfficeOnline implements WebToolIntegration {
             // Word
 
             const resourceParam = (new URL(location.href)).searchParams.get('wopisrc');
-            const match = /^https:\/\/wopi\.onedrive\.com\/wopi\/files\/(.+)$/.exec(resourceParam);
-            if (match) {
-                issueId = match[1];
-            }
-
+            const match = /^https:\/\/wopi\.onedrive\.com\/wopi\/files\/(.+)$/.exec(resourceParam || '');
+            issueId = match?.[1];
         }
 
         if (issueId) {
@@ -71,7 +68,9 @@ class MicrosoftOfficeOnline implements WebToolIntegration {
 
         const serviceType = 'MicrosoftOfficeOnline';
 
-        return { issueName, issueId, issueUrl, serviceUrl, serviceType };
+        return {
+            issueName, issueId, issueUrl, serviceUrl, serviceType
+        } as WebToolIssue;
     }
 }
 

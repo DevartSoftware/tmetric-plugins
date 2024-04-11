@@ -64,7 +64,7 @@ class WebToolManager {
     static toUrlRegExp(url: string) {
         const pattern = '^' + url
             .replace(/[\/\.]/g, '\\$&')
-            .replace(/\*/g, '.+');
+            .replace(/\*/g, '.*');
         return new RegExp(pattern, 'i');
     }
 
@@ -79,22 +79,22 @@ class WebToolManager {
     }
 
     static async isAllowed(origins: string[]) {
-        return new Promise<boolean>(resolve => chrome.permissions.contains({ origins }, resolve));
+        return new Promise<boolean>(resolve => browser.permissions.contains({ origins }, resolve));
     }
 
     private static _getServiceTypes(callback?: (serviceTypes: ServiceTypesMap) => void) {
-        chrome.storage.local.get(
+        browser.storage.local.get(
             { serviceTypes: {} } as IExtensionLocalSettings,
-            ({ serviceTypes }: IExtensionLocalSettings) => {
-                this.serviceTypes = serviceTypes || {};
-                callback && callback(serviceTypes);
+            (value) => {
+                this.serviceTypes = (value as IExtensionLocalSettings).serviceTypes || {};
+                callback && callback(this.serviceTypes);
             }
         );
     }
 
     private static _setServiceTypes(serviceTypes: ServiceTypesMap, callback?: () => void) {
         this.serviceTypes = serviceTypes;
-        chrome.storage.local.set(
+        browser.storage.local.set(
             { serviceTypes: serviceTypes } as IExtensionLocalSettings,
             () => {
                 callback && callback();
@@ -119,7 +119,7 @@ class WebToolManager {
     }
 
     static serviceTypes: ServiceTypesMap = (() => {
-        chrome.storage.onChanged.addListener(WebToolManager.onStoreChange);
+        browser.storage.onChanged.addListener(WebToolManager.onStoreChange);
         WebToolManager._getServiceTypes();
         return {};
     })();

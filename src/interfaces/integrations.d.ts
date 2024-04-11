@@ -1,12 +1,13 @@
 interface WebToolIntegration {
     matchUrl?: string | RegExp | (string | RegExp)[];
-    match?: (source: Source) => boolean;
-    issueElementSelector?: string | string[] | (() => HTMLElement[]);
+    match?: (source: Source) => boolean | undefined;
     observeMutations?: boolean;
-    render(issueElement: HTMLElement, linkElement: HTMLElement);
-    getIssue(issueElement: HTMLElement, source: Source): WebToolIssue;
     showIssueId?: boolean;
+    issueElementSelector?: string | string[] | (() => (HTMLElement | null)[]);
+    render(issueElement: HTMLElement | null, linkElement: HTMLElement);
+    getIssue(issueElement: HTMLElement | null, source: Source): WebToolIssue | undefined;
 }
+
 
 interface Source {
 
@@ -55,8 +56,8 @@ interface WebToolDescription extends WebToolInfo {
 }
 
 interface WebToolIssueIdentifier {
-    serviceUrl?: string;
-    issueUrl?: string;
+    serviceUrl?: string | null;
+    issueUrl?: string | null;
 }
 
 interface WebToolIssueDuration extends WebToolIssueIdentifier {
@@ -64,22 +65,23 @@ interface WebToolIssueDuration extends WebToolIssueIdentifier {
 }
 
 interface WebToolIssue extends WebToolIssueIdentifier {
-    issueId?: string;
-    issueName?: string;
-    description?: string;
-    serviceType?: string;
-    projectName?: string;
-    tagNames?: string[];
+    issueId?: string | null;
+    issueName?: string | null;
+    description?: string | null;
+    serviceType?: string | null;
+    projectName?: string | null;
+    tagNames?: (string | null | undefined)[] | null;
 }
 
 interface WebToolIssueTimer extends WebToolIssue {
+    tagNames?: string[] | null;
     projectId?: number;
     isStarted: boolean;
     showIssueId?: boolean;
 }
 
 interface WebToolParsedIssue {
-    element: HTMLElement;
+    element: HTMLElement | null;
     issue: WebToolIssue;
 }
 
@@ -95,6 +97,7 @@ interface ITabMessage {
 }
 
 interface IPopupRequest {
+    sender: 'popup',
     action: string;
     data?: any;
 }
@@ -117,7 +120,7 @@ interface ITaskInfo {
 }
 
 interface IPopupParams {
-    accountId: number;
+    accountId: number | null;
     includeRecentTasks: boolean;
 }
 
@@ -145,7 +148,8 @@ interface IPopupTimerData {
 interface IAccountProjectMapping {
     accountId: number;
     projectName: string;
-    projectId: number;
+    projectId: number | null;
+    serviceType: string | null | undefined;
 }
 
 interface ITaskDescriptionMapping {
@@ -171,6 +175,7 @@ interface IExtensionLocalSettings {
 }
 
 interface IExtensionSettingsMessage {
+    sender: 'settings',
     action: string;
     data?: any;
 }
