@@ -1,16 +1,18 @@
-var argv = require('yargs').argv;
-var fs = require('fs');                         // Node.js File System module
-var path = require('path');                     // Node.js Path System module
-var del = require('del');                       // Delete files/folders using globs.
-var jsonfile = require('jsonfile');             // Easily read/write JSON files.
-var mergeStream = require('merge-stream');      // Create a stream that emits events from multiple other streams.
-var through = require('through2');
-var gulp = require('gulp');                     // The streaming build system.
-var concat = require('gulp-concat');            // Concatenates files.
-var less = require('gulp-less');                // A LESS plugin for Gulp
-var rename = require('gulp-rename');            // Simple file renaming methods.
-var stripDebug = require('gulp-strip-debug');   // Strip console and debugger statements from JavaScript code.
-var zip = require('gulp-zip');
+import yargs from 'yargs';
+import fs from 'fs';                         // Node.js File System module
+import path from 'path';                     // Node.js Path System module
+import del from 'del';                       // Delete files/folders using globs.
+import jsonfile from 'jsonfile';             // Easily read/write JSON files.
+import mergeStream from 'merge-stream';      // Create a stream that emits events from multiple other streams.
+import through from 'through2';
+import gulp from 'gulp';                     // The streaming build system.
+import concat from 'gulp-concat';            // Concatenates files.
+import less from 'gulp-less';                // A LESS plugin for Gulp
+import rename from 'gulp-rename';            // Simple file renaming methods.
+import stripDebug from 'gulp-strip-debug';   // Strip console and debugger statements from JavaScript code.
+import ts from 'gulp-typescript';            // Using typescript compiler for gulp.js
+import sourcemaps from 'gulp-sourcemaps';    // Using gulp source map plugin
+import zip from 'gulp-zip'
 
 // =============================================================================
 // Global variables
@@ -25,6 +27,8 @@ var config = {
     keepDebug: false,
     keepSources: false
 };
+
+const argv = yargs(process.argv).argv;
 
 if (argv.newversion) {
     config.version = argv.newversion;
@@ -132,8 +136,7 @@ function stripDebugCommon(folder) {
 
     return gulp.src([
             folder + '**/*.js',
-            '!' + folder + 'lib/**/*.js',
-            '!' + folder + '*APIBridge.js'
+            '!' + folder + 'lib/**/*.js'
     ], {
         base: folder
     })
@@ -234,13 +237,6 @@ gulp.task('lib', () => {
 // compile
 
 gulp.task('compile:ts', () => {
-
-    // Using typescript compiler for gulp.js
-    var ts = require('gulp-typescript');
-
-    // Gulp typescript compiler do not support source map options from tsconfig.json
-    // Using gulp source map plugin
-    var sourcemaps = require('gulp-sourcemaps');
 
     var project = ts.createProject('./src/tsconfig.json');
     var files = project.config.files.map(path => src + path);
