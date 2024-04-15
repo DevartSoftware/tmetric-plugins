@@ -345,7 +345,10 @@ function copyManifestSafari() {
 
 function modifyManifestSafari() {
     return gulp.src(safariUnpackedDir + '/manifest.json')
-        .pipe(modifyFile(text => text.replace('/firefoxExtension.js', '/safariExtension.js')))
+        .pipe(modifyFile(text => text
+            .replace('/firefoxExtension.js', '/safariExtension.js')
+            .replace(/(?<="name":\s*")[^"]+(?=")/, 'TMetric – Time & Productivity Tracker')
+        ))
         .pipe(gulp.dest(safariUnpackedDir));
 }
 
