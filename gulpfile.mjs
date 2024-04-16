@@ -216,22 +216,22 @@ gulp.task('clean', gulp.parallel('clean:sources', 'clean:dist'));
 // lib
 
 gulp.task('lib', () => {
-    var lib = src + 'lib/';
-    var jquery = gulp
+    const lib = src + 'lib/';
+    const jquery = gulp
         .src('node_modules/jquery/dist/jquery.min.js')
         .pipe(gulp.dest(lib));
-    var signalr = gulp
+    const signalr = gulp
         .src('node_modules/@microsoft/signalr/dist/webworker/signalr.min.js')
         .pipe(modifyFile(text => text.replace(/\/\/\s*#\s*sourceMappingURL.+?\.map/, '')))
         .pipe(rename('signalr.min.js'))
         .pipe(gulp.dest(lib));
-    var select2 = gulp
-        .src([
-            'node_modules/select2/dist/js/select2.full.min.js',
-            'node_modules/select2/dist/css/select2.min.css'
-        ])
+    const select2 = gulp
+        .src([ 'node_modules/select2/dist/js/select2.full.min.js' ])
         .pipe(gulp.dest(lib + 'select2/'));
-    return mergeStream(jquery, signalr, select2);
+    const select2css = gulp
+        .src([ 'node_modules/select2/dist/css/select2.min.css' ])
+        .pipe(gulp.dest(lib + 'select2/'));
+    return mergeStream(jquery, signalr, select2, select2css);
 });
 
 // compile
