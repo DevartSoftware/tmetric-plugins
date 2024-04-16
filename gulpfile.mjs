@@ -269,7 +269,7 @@ gulp.task('compile', gulp.parallel('compile:ts', 'compile:less'));
 // =============================================================================
 
 function copyFilesChrome() {
-    return gulp.src(files.common.concat(files.chrome), { base: src })
+    return gulp.src(files.common.concat(files.chrome), { base: src, encoding: false })
         .pipe(gulp.dest(chromeUnpackedDir));
 }
 
@@ -281,7 +281,7 @@ gulp.task('prepackage:chrome', gulp.series(copyFilesChrome, stripDebugChrome));
 
 function packageChrome() {
     var manifest = jsonfile.readFileSync(chromeUnpackedDir + 'manifest.json');
-    return gulp.src(chromeUnpackedDir + '**/*')
+    return gulp.src(chromeUnpackedDir + '**/*', { encoding: false } )
       .pipe(zip(manifest.short_name.toLowerCase() + '-' + manifest.version + '.zip'))
       .pipe(gulp.dest(chromeDir));
 }
@@ -293,7 +293,7 @@ gulp.task('package:chrome', gulp.series('prepackage:chrome', packageChrome));
 // =============================================================================
 
 function copyFilesFirefox() {
-    return gulp.src(files.common.concat(files.firefox), { base: src })
+    return gulp.src(files.common.concat(files.firefox), { base: src, encoding: false })
         .pipe(gulp.dest(firefoxUnpackedDir));
 }
 
@@ -318,7 +318,7 @@ gulp.task(
 
 function packageFirefox() {
     var manifest = jsonfile.readFileSync(firefoxUnpackedDir + 'manifest.json');
-    return gulp.src(firefoxUnpackedDir + '**/*')
+    return gulp.src(firefoxUnpackedDir + '**/*', { encoding: false })
         .pipe(zip(manifest.short_name.toLowerCase() + '-' +manifest.version + '.xpi'))
         .pipe(gulp.dest(firefoxDir));
 }
@@ -330,7 +330,7 @@ gulp.task('package:firefox', gulp.series('prepackage:firefox', packageFirefox));
 // =============================================================================
 
 function copyFilesSafari() {
-    return gulp.src(files.common.concat(files.safari), { base: src })
+    return gulp.src(files.common.concat(files.safari), { base: src, encoding: false })
         .pipe(gulp.dest(safariUnpackedDir));
 }
 
