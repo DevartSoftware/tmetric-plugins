@@ -22,7 +22,6 @@
   "permissions": [
     "activeTab",
     "tabs",
-    "webNavigation",
     "notifications",
     "storage",
     "scripting",
