@@ -1,7 +1,6 @@
 class PermissionManager {
 
     private async request(origins: string[]) {
-        origins = origins.filter(x => !this.isRequired(x));
         if (origins.length == 0) {
             return true;
         }

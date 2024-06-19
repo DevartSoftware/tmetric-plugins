@@ -8,7 +8,7 @@ class WebToolManager {
             return;
         }
 
-        const match = WebToolManager.urlRe.exec(input);
+        const match = input.match(WebToolManager.urlRe);
         if (!match) {
             return;
         }
