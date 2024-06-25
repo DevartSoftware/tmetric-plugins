@@ -106,7 +106,6 @@ class ContentScriptsRegistrator {
         // "https:∕∕*.easyredmine.com/*", "http:∕∕jira.server.local/*", "https:∕∕*.atlassian.com/*"
         const serviceUrls = Object.keys(serviceTypeByUrl);
 
-        const requiredRegexp = /^.*:\/\/.*\.tmetric\.com(?:\:\d+)?\/.*/i;
         const regexpByServiceTypeUrl = serviceUrls.reduce(
             (map, url) => (map[url] = WebToolManager.toUrlRegExp(url)) && map,
             {} as { [serviceUrl: string]: RegExp });
@@ -114,7 +113,7 @@ class ContentScriptsRegistrator {
         return serviceUrls.filter(url => {
 
             // ignore required "*.tmetric.com" permissions
-            if (!url || requiredRegexp.test(url)) {
+            if (!url) {
                 return false;
             }
 
