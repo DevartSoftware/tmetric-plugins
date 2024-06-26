@@ -135,8 +135,8 @@ function stripDebugCommon(folder) {
     }
 
     return gulp.src([
-            folder + '**/*.js',
-            '!' + folder + 'lib/**/*.js'
+        folder + '**/*.js',
+        '!' + folder + 'lib/**/*.js'
     ], {
         base: folder
     })
@@ -191,7 +191,7 @@ gulp.task('version', (callback) => {
 
 // clean
 
-function clean (input) {
+function clean(input) {
     return del(input, { force: true });
 }
 
@@ -215,7 +215,7 @@ gulp.task('clean', gulp.parallel('clean:sources', 'clean:dist'));
 
 // lib
 
-gulp.task('lib', () => {
+gulp.task('lib', async () => {
     const lib = src + 'lib/';
     const jquery = gulp
         .src('node_modules/jquery/dist/jquery.min.js')
@@ -226,10 +226,10 @@ gulp.task('lib', () => {
         .pipe(rename('signalr.min.js'))
         .pipe(gulp.dest(lib));
     const select2 = gulp
-        .src([ 'node_modules/select2/dist/js/select2.full.min.js' ])
+        .src(['node_modules/select2/dist/js/select2.full.min.js'])
         .pipe(gulp.dest(lib + 'select2/'));
     const select2css = gulp
-        .src([ 'node_modules/select2/dist/css/select2.min.css' ])
+        .src(['node_modules/select2/dist/css/select2.min.css'])
         .pipe(gulp.dest(lib + 'select2/'));
     return mergeStream(jquery, signalr, select2, select2css);
 });
@@ -281,9 +281,9 @@ gulp.task('prepackage:chrome', gulp.series(copyFilesChrome, stripDebugChrome));
 
 function packageChrome() {
     var manifest = jsonfile.readFileSync(chromeUnpackedDir + 'manifest.json');
-    return gulp.src(chromeUnpackedDir + '**/*', { encoding: false } )
-      .pipe(zip(manifest.short_name.toLowerCase() + '-' + manifest.version + '.zip'))
-      .pipe(gulp.dest(chromeDir));
+    return gulp.src(chromeUnpackedDir + '**/*', { encoding: false })
+        .pipe(zip(manifest.short_name.toLowerCase() + '-' + manifest.version + '.zip'))
+        .pipe(gulp.dest(chromeDir));
 }
 
 gulp.task('package:chrome', gulp.series('prepackage:chrome', packageChrome));
@@ -304,7 +304,7 @@ function copyManifestFirefox() {
 
 function modifyManifestFirefox() {
     return gulp.src(firefoxUnpackedDir + '/manifest.json')
-        .pipe(modifyFileJSON(json => ({applications: { gecko: { id: '@tmetric'} }, ...json})))
+        .pipe(modifyFileJSON(json => ({ applications: { gecko: { id: '@tmetric' } }, ...json })))
         .pipe(gulp.dest(firefoxUnpackedDir));
 }
 
@@ -319,7 +319,7 @@ gulp.task(
 function packageFirefox() {
     var manifest = jsonfile.readFileSync(firefoxUnpackedDir + 'manifest.json');
     return gulp.src(firefoxUnpackedDir + '**/*', { encoding: false })
-        .pipe(zip(manifest.short_name.toLowerCase() + '-' +manifest.version + '.xpi'))
+        .pipe(zip(manifest.short_name.toLowerCase() + '-' + manifest.version + '.xpi'))
         .pipe(gulp.dest(firefoxDir));
 }
 
