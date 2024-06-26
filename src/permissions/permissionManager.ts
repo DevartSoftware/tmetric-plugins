@@ -1,22 +1,38 @@
 class PermissionManager {
 
+    private async handleRequiredOrigins(key: string, origins: string[]) {
+        if (!origins?.length) {
+            return [];
+        }
+        const requiredOrigins = [] as string[];
+        const isRequired = /^.*:\/\/.*\.tmetric\.com(?:\:\d+)?\/.*/i;
+        origins = origins.filter(origin => {
+            if (!isRequired.test(origin)) {
+                return true;
+            }
+            requiredOrigins.push(origin);
+        });
+        if (requiredOrigins.length) {
+            // see ContentScriptsRegistrator (TMET-10408)
+            await browser.storage.session.set({ [key]: requiredOrigins });
+        }
+        return origins;
+    }
+
     private async request(origins: string[]) {
-        if (origins.length == 0) {
+        origins = await this.handleRequiredOrigins('requiredOriginsAdded', origins);
+        if (!origins.length) {
             return true;
         }
         return await browser.permissions.request({ origins });
     }
 
     private async remove(origins: string[]) {
-        origins = origins.filter(x => !this.isRequired(x));
-        if (origins.length == 0) {
-            return false;
+        origins = await this.handleRequiredOrigins('requiredOriginsRemoved', origins);
+        if (!origins.length) {
+            return true;
         }
         return await browser.permissions.remove({ origins })
-    }
-
-    private isRequired(origin: string) {
-        return /^.*:\/\/.*\.tmetric\.com(?:\:\d+)?\/.*/i.test(origin);
     }
 
     requestPermissions(serviceTypes: ServiceTypesMap) {
@@ -40,10 +56,6 @@ class PermissionManager {
 
     async cleanupPermissions() {
         const allPermissions = await browser.permissions.getAll();
-        const origins = (allPermissions.origins || []).filter(o => !this.isRequired(o));
-        if (origins.length == 0) {
-            return true;
-        }
-        return await browser.permissions.remove({ origins });
+        await this.remove(allPermissions.origins || []);
     }
 }

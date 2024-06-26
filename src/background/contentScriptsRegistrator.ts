@@ -18,9 +18,26 @@ class ContentScriptsRegistrator {
             });
             browser.permissions.onRemoved.addListener(async event => {
                 if (event.origins) {
-                    const serviceTypeByUrl = await WebToolManager.getServiceTypes();
-                    const affectedServiceUrls = await this.getAffectedUrls(serviceTypeByUrl, event.origins);
-                    this.unregister(affectedServiceUrls)
+                    this.unregister(event.origins);
+                }
+            });
+
+            // when user adds tmetric.com subdomain, permissions event not triggered (TMET-10408)
+            browser.storage.session.onChanged.addListener(async changes => {
+                const popOrigins = (key: string) => {
+                    const origins = changes[key]?.newValue as (string[] | undefined);
+                    if (origins?.length) {
+                        browser.storage.session.remove(key);
+                        return origins;
+                    }
+                }
+                let origins = popOrigins('requiredOriginsRemoved');
+                if (origins) {
+                    await this.unregister(origins);
+                }
+                origins = popOrigins('requiredOriginsAdded');
+                if (origins) {
+                    await this.register(origins);
                 }
             });
         }
@@ -73,7 +90,18 @@ class ContentScriptsRegistrator {
         return Array.prototype.map.call(url, c => c.charCodeAt(0).toString(16)).join('');
     }
 
-    async unregister(serviceUrls: string[]) {
+    async unregister(origins: string[]) {
+
+        // Urls can already be removed from the map, but they still need to be unregistered
+        const serviceTypeByUrl = Object.assign( 
+            {},
+            this.latestRegisterMap,
+            await WebToolManager.getServiceTypes());
+        const affectedServiceUrls = await this.getAffectedUrls(serviceTypeByUrl, origins);
+        await this.unregisterUrls(affectedServiceUrls);
+    }
+
+    private async unregisterUrls(serviceUrls: string[]) {
         if (!browser.scripting) {
             return;
         }
@@ -131,6 +159,8 @@ class ContentScriptsRegistrator {
         });
     }
 
+    latestRegisterMap: ServiceTypesMap = {};
+
     async register(origins?: string[]) {
 
         if (!browser.scripting) {
@@ -143,9 +173,10 @@ class ContentScriptsRegistrator {
         // "http ://jira.server.local/*": "Jira",
         // "https://*.atlassian.com/*": "Jira"
         const serviceTypeByUrl = await WebToolManager.getServiceTypes();
+        this.latestRegisterMap = serviceTypeByUrl;
         const affectedServiceUrls = await this.getAffectedUrls(serviceTypeByUrl, origins);
 
-        await this.unregister(affectedServiceUrls);
+        await this.unregisterUrls(affectedServiceUrls);
 
         // get permissions
         const permissionByServiceUrl = {} as { [serviceUrl: string]: boolean };
