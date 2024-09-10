@@ -86,7 +86,7 @@ class YouTrackLite implements WebToolIntegration {
 
         const serviceUrl = ($$.try('base') as HTMLBaseElement).href;
 
-        const linkElement = $$('[class^=idLink_] a', issueElement);
+        const linkElement = $$('[class^=sidebarContainer_] [class^=idLink_] a', issueElement) || $$('[class^=idLink_] a', issueElement);
 
         const issueId = linkElement && linkElement.textContent;
 
