@@ -144,12 +144,16 @@ class Todoist implements WebToolIntegration {
 
             projectName =
                 this.getProjectName($$.closest(this.dialogSelector, issueElement)) ||
-                $$.try('.project_item__name', issueElement).textContent || // Today, 7 Days
+                $$.try('.project_item__name', issueElement).textContent || // Today, 7 Days (old design)
                 $$.try('.project_link').textContent || // Project tab (new design)
                 $$.try('.task_list_item__project', issueElement).textContent || // Upcoming
                 $$.try('.pname', issueElement).textContent || // Project tab (old design)
-                $$.try('.view_header .view_header__content .simple_content').textContent || // project tab and inbox
-                $$.try('div[data-testid="large-header"] h1').textContent; // project tab and inbox
+                $$.try('.view_header .view_header__content .simple_content').textContent; // project tab and inbox
+
+            // TMET-10585 - on the Today and Upcoming pages do not get the project because it is very difficult to do it there
+            if (!projectName && !(source.path.includes('today') || source.path.includes('upcoming'))) {
+                projectName = $$.try('div[data-testid="large-header"] h1').textContent; // project tab and inbox
+            }
 
             if (projectName) {
                 projectName = projectName.split("/")[0];
