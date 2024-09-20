@@ -1,6 +1,6 @@
 class Figma implements WebToolIntegration {
 
-    matchUrl = 'https://www.figma.com/file/*';
+    matchUrl = 'https://www.figma.com/design/*';
 
     showIssueId = false;
 
