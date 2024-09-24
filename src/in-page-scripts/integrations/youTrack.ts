@@ -86,13 +86,13 @@ class YouTrackLite implements WebToolIntegration {
 
         const serviceUrl = ($$.try('base') as HTMLBaseElement).href;
 
-        const linkElement = $$('[class^=idLink_] a', issueElement);
+        const linkElement = $$('[class^=sidebarContainer_] [class^=idLink_] a', issueElement) || $$('[class^=idLink_] a', issueElement);
 
         const issueId = linkElement && linkElement.textContent;
 
         const issueUrl = linkElement && $$.getRelativeUrl(serviceUrl, linkElement.getAttribute('href')!);
 
-        const projectField = $$.try('div[aria-label="Project: "]', issueElement).textContent;
+        const projectField = $$.try('div[aria-label="Project"]', issueElement).textContent;
         const projectName = projectField ? projectField.substring('Project'.length) : null;
 
         const tagNames = $$.all('[class^=tags_] a', issueElement).map(_ => _.textContent);

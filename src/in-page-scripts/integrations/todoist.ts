@@ -7,7 +7,7 @@ class Todoist implements WebToolIntegration {
         '*://*.todoist.com/app*'
     ]; 
 
-    listItemSelector = '.task_item, .task_list_item';
+    listItemSelector = '.task_item, .task_list_item, .board_task';
 
     dialogSelector = '.side_panel, .detail_modal, div[role=dialog]';
 
@@ -27,6 +27,25 @@ class Todoist implements WebToolIntegration {
             if (host) {
                 linkElement.classList.add('devart-timer-link-todoist');
                 host.insertBefore(linkElement, $$('.column_project, .task_list_item__project', host));
+            } else {
+                const itemSelectors = this.listItemSelector.split(/\s*,\s*/); // split and trim
+                if (issueElement.matches(itemSelectors[1])) { // list view -> actions area
+                    host = $$('.task_list_item__actions', issueElement);
+                    if (host) {
+                        linkElement.classList.add('devart-timer-link-todoist', 'minimal');
+                        host.insertBefore(linkElement, host.firstElementChild);
+                    }
+                }
+
+                if (issueElement.matches(itemSelectors[2])) { // board view
+                    host = $$('.board_task__details_meta', issueElement);
+                    if (host) {
+                        linkElement.classList.add('devart-timer-link-todoist');
+                        const div = $$.create('div');
+                        div.appendChild(linkElement);
+                        host.appendChild(div);
+                    }
+                }
             }
         } else {
             let host = $$('.item_overview_sub', issueElement);
@@ -66,7 +85,9 @@ class Todoist implements WebToolIntegration {
             // <li class="task_item" id="item_123456789">
             // Beta, section Upcoming:
             // <li class="task_list_item" data-item-id="3523828033">
-            issueNumber = issueElement.id.split('_')[1] || issueElement.getAttribute('data-item-id');
+            // Board view:
+            // <div class="board_task" id="task-8359823011">
+            issueNumber = issueElement.id.split('_')[1] || issueElement.getAttribute('data-item-id') || issueElement.id.split('-')[1];
             if (!issueNumber) {
                 return;
             }
@@ -85,7 +106,7 @@ class Todoist implements WebToolIntegration {
             //    </div>
             //    ...
             //</div>
-            issueName = $$.try('.content > .text .task_item_content_text, .task_list_item__content .task_content', issueElement).textContent;
+            issueName = $$.try('.content > .text .task_item_content_text, .task_list_item__content .task_content, .task_content', issueElement).textContent;
 
             if (!issueName) {
                 issueName = $$
@@ -123,18 +144,28 @@ class Todoist implements WebToolIntegration {
 
             projectName =
                 this.getProjectName($$.closest(this.dialogSelector, issueElement)) ||
-                $$.try('.project_item__name', issueElement).textContent || // Today, 7 Days
+                $$.try('.project_item__name', issueElement).textContent || // Today, 7 Days (old design)
                 $$.try('.project_link').textContent || // Project tab (new design)
                 $$.try('.task_list_item__project', issueElement).textContent || // Upcoming
-                $$.try('.pname', issueElement).textContent || // Project tab (old design)
-                $$.try('.view_header .view_header__content .simple_content').textContent || // project tab and inbox
-                $$.try('div[data-testid="large-header"] h1').textContent; // project tab and inbox
+                $$.try('.pname', issueElement).textContent; // Project tab (old design)
+
+            // TMET-10585 - on the Today and Upcoming pages do not get the project because it is very difficult to do it there
+            if (!projectName && !(source.path.includes('today') || source.path.includes('upcoming'))) {
+                projectName =
+                    $$.try('.view_header .view_header__content .simple_content').textContent || // project tab and inbox
+                    $$.try('div[data-testid="large-header"] h1').textContent; // project tab and inbox
+            }
 
             if (projectName) {
                 projectName = projectName.split("/")[0];
             }
 
-            tagNames = $$.all('.label, .task_list_item__info_tags__label .simple_content', issueElement).map(label => label.textContent);
+            tagNames = $$.all(`
+                    .label, 
+                    .task_list_item__info_tags__label .simple_content, 
+                    .board_task__meta .simple_content, 
+                    .task_list_item__content .simple_content`, issueElement)
+                .map(label => label.textContent);
         } else {
 
             issueNumber = $$.getAttribute('ul[data-subitem-list-id]', 'data-subitem-list-id', issueElement);
