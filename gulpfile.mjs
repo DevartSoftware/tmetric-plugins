@@ -6,7 +6,6 @@ import jsonfile from 'jsonfile';             // Easily read/write JSON files.
 import mergeStream from 'merge-stream';      // Create a stream that emits events from multiple other streams.
 import through from 'through2';
 import gulp from 'gulp';                     // The streaming build system.
-import concat from 'gulp-concat';            // Concatenates files.
 import less from 'gulp-less';                // A LESS plugin for Gulp
 import rename from 'gulp-rename';            // Simple file renaming methods.
 import stripDebug from 'gulp-strip-debug';   // Strip console and debugger statements from JavaScript code.
