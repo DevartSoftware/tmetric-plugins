@@ -83,8 +83,8 @@ class Jira implements WebToolIntegration {
 
     getIssue(issueElement: HTMLElement, source: Source) {
 
-        const issueName = $$.try<HTMLInputElement>('#summary').value
-            || $$.try('dd[data-field-id=summary], h1, #summary-val h2', issueElement).textContent;
+        const issueName = $$<HTMLInputElement>('#summary')?.value
+            || $$('dd[data-field-id=summary], h1, #summary-val h2', issueElement)?.textContent;
         if (!issueName) {
             return;
         }
@@ -109,15 +109,15 @@ class Jira implements WebToolIntegration {
             }
         }
 
-        const projectName = $$.try('.ghx-project', issueElement).textContent // side panel in backlog (TMET-8077)
-            || $$.try(
+        const projectName = $$('.ghx-project', issueElement)?.textContent // side panel in backlog (TMET-8077)
+            || $$(
                 '#breadcrumbs-container a',
                 null,
                 el => !!el.getAttribute('href')?.split('/')?.some(v => v == 'projects')
-            ).textContent // when navigation bar collapsed
-            || $$.try('#project-name-val').textContent // separate task view (/browse/... URL)
-            || $$.try('.project-title > a').textContent // old service desk and agile board
-            || $$.try('.sd-notify-header').textContent // service desk form https://issues.apache.org/jira/servicedesk/agent/all
+            )?.textContent // when navigation bar collapsed
+            || $$('#project-name-val')?.textContent // separate task view (/browse/... URL)
+            || $$('.project-title > a')?.textContent // old service desk and agile board
+            || $$('.sd-notify-header')?.textContent // service desk form https://issues.apache.org/jira/servicedesk/agent/all
             || this.getProjectNameFromProjectLink(issueElement, issueId) // trying to find project link
             || this.getProjectNameFromAvatar(issueElement) // trying to find project avatar
             || this.getProjectNameFromNavigationBar(); // trying to find project name on navigation bar
@@ -126,7 +126,7 @@ class Jira implements WebToolIntegration {
         const tags = $$.all('a', issueElement);
 
         // find tags and versions on side panel of separate task view
-        const sidePanel = $$.try('#jira-issue-header-actions').parentElement;
+        const sidePanel = $$('#jira-issue-header-actions')?.parentElement;
         if (sidePanel) {
             tags.push(...$$.all('a', sidePanel));
         }
@@ -136,7 +136,7 @@ class Jira implements WebToolIntegration {
             .map(el => el.textContent);
 
         if (!tagNames.length) {
-            tagNames = ($$.try('dd[data-field-id=labels]', issueElement).textContent || '').split(','); // old interface
+            tagNames = ($$('dd[data-field-id=labels]', issueElement)?.textContent || '').split(','); // old interface
         }
 
         const serviceType = 'Jira';
@@ -185,7 +185,8 @@ class Jira implements WebToolIntegration {
     }
 
     private getProjectNameFromAvatar(issueElement: HTMLElement) {
-        return $$.try('img', issueElement, (img: HTMLImageElement) => /projectavatar/.test(img.src)).title;
+        const iconElement = $$('img', issueElement, (img: HTMLImageElement) => /project\/?avatar/.test(img.src));
+        return iconElement?.title || iconElement?.alt;
     }
 
     private getProjectNameFromNavigationBar() {
