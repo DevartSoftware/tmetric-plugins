@@ -45,9 +45,8 @@ class Monday implements WebToolIntegration {
         if (issueElement.matches(this.issueElementSelector[0])) { // side panel on board page
             issueName = $$('.title-wrapper', issueElement)?.textContent;
             issueUrl = source.path;
-            projectName =
-                $$('.board-header-main .board-name')?.textContent ||
-                $$('#board-header h2')?.textContent;
+            projectName = $$('.board-header-main .board-name')?.textContent
+                || $$('#board-header h2')?.textContent;
         } else if (issueElement.matches(this.issueElementSelector[1])) { // my week page (legacy)
             issueName = $$('.pulse-name-value', issueElement)?.textContent;
             projectName = $$('.open-pulse-in-board-link')?.innerText;
@@ -84,11 +83,10 @@ class Monday implements WebToolIntegration {
                     issueUrl = `${boardUrl}/pulses/${idMatch[1]}`;
                 }
             }
-            projectName =
-                $$('.board-header-main .board-name')?.textContent || // on boards page
-                $$('#board-header h2')?.textContent ||
-                $$('.pulse-component .file-breadcrumbs-component ol li:first-child', issueElement)?.textContent || // on My Work page
-                $$('.col-identifier-board', issueElement)?.textContent;// old My Work page
+            projectName = $$('.board-header-main .board-name')?.textContent // on boards page
+                || $$('#board-header h2')?.textContent // on new board page
+                || $$('.pulse-component .file-breadcrumbs-component ol li:first-child', issueElement)?.textContent // on My Work page
+                || $$('.col-identifier-board', issueElement)?.textContent;// old My Work page
         }
 
         if (!issueName) {
