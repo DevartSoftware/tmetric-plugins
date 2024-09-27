@@ -8,7 +8,7 @@ class GitLab implements WebToolIntegration {
     ];
 
     match() {
-        return !!$$(this.titleSelector);
+        return !!$$('.detail-page-description, .merge-request');
     }
 
     titleSelector = '.detail-page-description .title, .merge-request .detail-page-header .title';
@@ -87,11 +87,10 @@ class GitLab implements WebToolIntegration {
         }
 
         const projectNameNode = $$.findNode('.title .project-item-select-holder', Node.TEXT_NODE);
-        const projectName =
-            projectNameNode?.textContent || // New design (both new and old navigation)
-            $$.try('.context-header .sidebar-context-title').textContent || // Newest design
-            $$.try('.title > span > a:nth-last-child(2)').textContent || // Old design
-            GitLab.getProjectFromBreadcrumbs(serviceUrl, issueUrl);
+        const projectName = projectNameNode?.textContent // New design (both new and old navigation)
+            || $$('.context-header .sidebar-context-title')?.textContent // Newest design
+            || $$('.title > span > a:nth-last-child(2)')?.textContent // Old design
+            || GitLab.getProjectFromBreadcrumbs(serviceUrl, issueUrl);
 
         let tagNames = $$.all('.issuable-show-labels .gl-label[data-qa-label-name]').map(el => el.getAttribute('data-qa-label-name'));
         if (!tagNames.length) {
@@ -113,8 +112,8 @@ class GitLab implements WebToolIntegration {
     static getProjectFromBreadcrumbs(serviceUrl: string, issueUrl: string | undefined) {
         if (issueUrl && issueUrl.indexOf('/-/')! >= 0) {
             const projectUrl = serviceUrl.replace(/\/$/, '') + issueUrl.substring(0, issueUrl.indexOf('/-/'));
-            return $$<HTMLAnchorElement>('.breadcrumbs-list a', null, a => a.href == projectUrl)?.innerText || // Old design
-                $$<HTMLAnchorElement>('.breadcrumb a', null, a => a.href == projectUrl)?.innerText; // Newest design
+            return $$<HTMLAnchorElement>('.breadcrumbs-list a', null, a => a.href == projectUrl)?.innerText // Old design
+                || $$<HTMLAnchorElement>('.breadcrumb a', null, a => a.href == projectUrl)?.innerText; // Newest design
         }
     }
 }
@@ -159,7 +158,7 @@ class GitLabSidebar implements WebToolIntegration {
         }
 
         // Joining selectors from old and new sidebar with comma is problematic because layout with new sidebar contain also empty old sidebar.
-        const issueName = $$.try(isOldSidebar ? '.issuable-header-text > strong' : 'header > span', issueElement).textContent;
+        const issueName = $$(isOldSidebar ? '.issuable-header-text > strong' : 'header > span', issueElement)?.textContent;
         const serviceType = 'GitLab';
 
         let serviceUrl = $$<HTMLAnchorElement>('a#logo, a.tanuki-logo-container')?.href;
@@ -168,7 +167,7 @@ class GitLabSidebar implements WebToolIntegration {
         }
 
         // #123, MyProject#123
-        const issueFullId = $$.try(isOldSidebar ? '.issuable-header-text > span' : 'header ~ div', issueElement).textContent;
+        const issueFullId = $$(isOldSidebar ? '.issuable-header-text > span' : 'header ~ div', issueElement)?.textContent;
         let issueUrl: string | undefined;
         let issueId: string | undefined;
 
@@ -196,9 +195,8 @@ class GitLabSidebar implements WebToolIntegration {
             }
         }
 
-        const projectName =
-            $$('.sidebar-context-title')?.textContent ||
-            GitLab.getProjectFromBreadcrumbs(serviceUrl, issueUrl);
+        const projectName = $$('.sidebar-context-title')?.textContent
+            || GitLab.getProjectFromBreadcrumbs(serviceUrl, issueUrl);
 
         let tagNames = $$.all('.gl-label-text', issueElement).map(label => {
             const scopedLabel = $$.next('.gl-label-text-scoped', label);
