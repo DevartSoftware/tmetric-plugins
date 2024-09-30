@@ -4,27 +4,58 @@ class Trello implements WebToolIntegration {
 
     matchUrl = '*://trello.com/c/*';
 
-    issueElementSelector = [
-        '.window-sidebar > .window-module:last-of-type',
-        '.checklist-item-details'
+    issueElementSelectorForCheck = [
+        '[data-testid="card-back-move-card-button"]',
+        '[data-testid="check-item-name"]'
     ];
+
+    issueElementSelector = () =>
+        $$.all('[data-testid="check-item-name"]')
+            .concat(
+                $$.all('[data-testid="card-back-move-card-button"]')
+                    .map(element => element.parentElement?.parentElement)
+                    .filter((parent): parent is HTMLElement => parent !== null) // Убираем null и явно указываем тип
+            );
+
+
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
-        if (issueElement.matches(this.issueElementSelector[0])) {
+        if ($$(this.issueElementSelectorForCheck[0], issueElement)) {
             // cut 'timer' so that time can be visible if we have time
             const text = linkElement.lastElementChild!.textContent;
             if (/[0-9]/.test(text!)) {
                 linkElement.lastElementChild!.textContent = text!.replace(' timer', '');
             }
-            linkElement.classList.add('trello');
-            linkElement.classList.add('button-link');
-            issueElement.insertBefore(linkElement, $$('h3 ~ *', issueElement));
-        } else if (issueElement.matches(this.issueElementSelector[1])) { // for checklist
-            const wrapper = $$('.checklist-item-controls', issueElement);
-            if (wrapper) {
-                linkElement.classList.add('devart-timer-link-minimal', 'devart-timer-link-trello');
-                wrapper.appendChild(linkElement);
+
+            const moveCardButton = $$('[data-testid="card-back-move-card-button"]', issueElement);
+
+            if (moveCardButton) {
+                const moveCardButtonLi = moveCardButton.closest('li');
+
+                const buttonClasses = Array.from(moveCardButton.classList);
+
+                buttonClasses.forEach(className => {
+                    linkElement.classList.add(className);
+                    linkElement.classList.add('devart-timer-link-trello');
+                });
+
+                const newLi = document.createElement('li');
+
+                newLi.appendChild(linkElement);
+
+                if (moveCardButtonLi && moveCardButtonLi.parentNode) {
+                    moveCardButtonLi.parentNode.insertBefore(newLi, moveCardButtonLi);
+                }
+            }
+        } else if (issueElement.matches(this.issueElementSelectorForCheck[1])) { // for checklist
+
+            linkElement.classList.add('devart-timer-link-minimal', 'devart-timer-link-trello');
+
+            const element = $$('[data-testid="check-item-set-due-button"]', issueElement);
+
+            if (element) {
+                element.parentElement!.insertBefore(linkElement, element);
             }
         }
     }
@@ -48,7 +79,7 @@ class Trello implements WebToolIntegration {
         issueId = '#' + issueId;
 
         // <h2 class="window-title-text current hide-on-edit js-card-title">ISSUE_NAME</h2>
-        const issueName = $$.try('.window-title h2').textContent;
+        const issueName = $$.try('#card-back-name').textContent;
         if (!issueName) {
             return;
         }
@@ -60,11 +91,11 @@ class Trello implements WebToolIntegration {
 
         const issueUrl = '/c/' + match[1];
 
-        const tagNames = $$.all('.js-card-back-labels-container div[data-testid=card-label], button[data-testid=card-label]').map(label => label.textContent);
+        const tagNames = $$.all('span[data-testid="card-label"]').map(label => label.textContent);
 
         let description: string | undefined | null;
-        if (issueElement.matches(this.issueElementSelector[1])) {
-            description = $$.try('.checklist-item-details-text', issueElement).textContent;
+        if (issueElement.matches(this.issueElementSelectorForCheck[1])) {
+            description = issueElement.childNodes[0].textContent;
         }
 
         return {
