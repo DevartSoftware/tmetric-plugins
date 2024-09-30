@@ -29,8 +29,8 @@ class YouTrack implements WebToolIntegration {
     getIssue(issueElement: HTMLElement, _source: Source) {
 
         const issueName =
-            $$.try('.yt-issue-body__summary', issueElement).textContent || // single task
-            $$.try('yt-agile-card__summary > span', issueElement).textContent; // agile board
+            $$('.yt-issue-body__summary', issueElement)?.textContent || // single task
+            $$('yt-agile-card__summary > span', issueElement)?.textContent; // agile board
 
         if (!issueName) {
             return;
@@ -40,11 +40,11 @@ class YouTrack implements WebToolIntegration {
         const issueId = linkElement && linkElement.textContent;
         const issueUrl = linkElement && linkElement.getAttribute('href');
 
-        const projectName = $$.try('yt-issue-project', issueElement).textContent;
+        const projectName = $$('yt-issue-project', issueElement)?.textContent;
         const tagNames = $$.all('.yt-issue-tags__tag__name', issueElement).map(_ => _.textContent);
 
         const serviceType = 'YouTrack';
-        const serviceUrl = ($$.try('base') as HTMLBaseElement).href;
+        const serviceUrl = $$<HTMLBaseElement>('base')?.href;
 
         return {
             issueId, issueName, projectName, tagNames, serviceType, serviceUrl, issueUrl
@@ -65,8 +65,9 @@ class YouTrackLite implements WebToolIntegration {
     issueElementSelector = '[class^=ticketContent__]';
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        const host = $$('span[data-test="updater-info"]', issueElement) ||
-            $$('span[data-test="reporter-info"]', issueElement);
+        const host =
+            $$('[data-test="updater-info"]', issueElement) ||
+            $$('[data-test="reporter-info"]', issueElement);
         if (host) {
             linkElement.classList.add('devart-timer-link-youtrack-lite');
             host.parentElement!.appendChild(linkElement);
@@ -75,24 +76,24 @@ class YouTrackLite implements WebToolIntegration {
 
     getIssue(issueElement: HTMLElement, _source: Source) {
 
-        const issueName1 = $$.try('h1[data-test="ticket-summary"]', issueElement);
-        const issueName = issueName1.textContent;
-
+        const issueName = $$('h1[data-test="ticket-summary"]', issueElement)?.textContent;
         if (!issueName) {
             return;
         }
 
         const serviceType = 'YouTrack';
 
-        const serviceUrl = ($$.try('base') as HTMLBaseElement).href;
+        const serviceUrl = $$<HTMLBaseElement>('base')?.href;
 
-        const linkElement = $$('[class^=sidebarContainer_] [class^=idLink_] a', issueElement) || $$('[class^=idLink_] a', issueElement);
+        const linkElement =
+            $$('[class^=sidebarContainer_] [class^=idLink_] a', issueElement) ||
+            $$('[class^=idLink_] a', issueElement);
 
         const issueId = linkElement && linkElement.textContent;
 
-        const issueUrl = linkElement && $$.getRelativeUrl(serviceUrl, linkElement.getAttribute('href')!);
+        const issueUrl = linkElement && serviceUrl && $$.getRelativeUrl(serviceUrl, linkElement.getAttribute('href')!);
 
-        const projectField = $$.try('div[aria-label="Project"]', issueElement).textContent;
+        const projectField = $$('div[aria-label="Project"]', issueElement)?.textContent;
         const projectName = projectField ? projectField.substring('Project'.length) : null;
 
         const tagNames = $$.all('[class^=tags_] a', issueElement).map(_ => _.textContent);
@@ -124,17 +125,17 @@ class YouTrackOld implements WebToolIntegration {
             return;
         }
 
-        const issueId = $$.try('.issueId', issueElement).textContent;
+        const issueId = $$('.issueId', issueElement)?.textContent;
         if (!issueId) {
             return;
         }
 
-        const issueName = $$.try('.issue-summary', issueElement).textContent;
+        const issueName = $$('.issue-summary', issueElement)?.textContent;
         if (!issueName) {
             return;
         }
 
-        const projectName = $$.try('.fsi-properties .fsi-property .attribute.bold').textContent;
+        const projectName = $$('.fsi-properties .fsi-property .attribute.bold')?.textContent;
         const issueUrl = 'issue/' + issueId;
 
         const serviceType = 'YouTrack';
@@ -170,21 +171,24 @@ class YouTrackBoardOld implements WebToolIntegration {
             return;
         }
 
-        const issueId = $$.try('.sb-issue-edit-id', issueElement).textContent;
+        const issueId = $$('.sb-issue-edit-id', issueElement)?.textContent;
         if (!issueId) {
             return;
         }
 
         const issueName =
-            $$.try<HTMLInputElement>('.sb-issue-edit-summary input', issueElement).value || // logged in
-            $$.try('.sb-issue-edit-summary.sb-disabled', issueElement).textContent; // not logged in
+            $$<HTMLInputElement>('.sb-issue-edit-summary input', issueElement)?.value || // logged in
+            $$('.sb-issue-edit-summary.sb-disabled', issueElement)?.textContent; // not logged in
         if (!issueName) {
             return;
         }
 
         // project name can be resolved for logged in users only
         const projectSelector = $$('.sb-agile-dlg-projects');
-        const projectName = projectSelector ? $$.try('label[for=editAgileProjects_' + issueId.split('-')[0] + ']', projectSelector).textContent : null;
+        let projectName: string | null | undefined;
+        if (projectSelector) {
+            projectName = $$('label[for=editAgileProjects_' + issueId.split('-')[0] + ']', projectSelector)?.textContent;
+        }
 
         const serviceType = 'YouTrack';
         const serviceUrl = match[1];
