@@ -1,16 +1,22 @@
-const express = require('express');
+const http = require('http');
+const fs = require('fs');
 const opn = require('opn');
 
-let app = express();
+const html = fs.readFileSync('./issue.html', { encoding: 'utf8', flag: 'r' });
 
-app.get('/', function (req, res) {
-    res.redirect('/issue/123');
-}).get('/issue/123', (req, res) => {
-    res.sendFile('./issue.html', { root : __dirname});
-});
+function onRequest(request, response) {
+    if (request.url === '/favicon.ico') {
+        response.writeHead(404);
+    } else if (request.url === '/issue/123') {
+        response.writeHead(200, {"Context-Type": "text/html"});
+        response.write(html);
+    } else {
+        response.writeHead(302, { 'Location': '/issue/123' });
+    }
+    response.end();
+}
+http.createServer(onRequest).listen(2000);
 
-app.listen(2000, function () {
-    console.log('Open in browser: http://localhost:2000');
-    console.log('Press Ctrl+C to stop');
-    opn('http://localhost:2000');
-});
+console.log('Open in browser: http://localhost:2000');
+console.log('Press Ctrl+C to stop');
+opn('http://localhost:2000');
