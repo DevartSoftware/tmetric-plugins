@@ -5,14 +5,14 @@ class Trello implements WebToolIntegration {
     matchUrl = '*://trello.com/c/*';
 
     issueElementSelectorForCheck = [
-        '[data-testid="card-back-move-card-button"]',
+        '[data-testid="card-back-copy-card-button"]',
         '[data-testid="check-item-name"]'
     ];
 
     issueElementSelector = () =>
         $$.all('[data-testid="check-item-name"]')
             .concat(
-                $$.all('[data-testid="card-back-move-card-button"]')
+                $$.all('[data-testid="card-back-copy-card-button"]')
                     .map(element => element.parentElement?.parentElement)
                     .filter((parent): parent is HTMLElement => parent !== null) // Убираем null и явно указываем тип
             );
@@ -28,7 +28,7 @@ class Trello implements WebToolIntegration {
                 linkElement.lastElementChild!.textContent = text!.replace(' timer', '');
             }
 
-            const moveCardButton = $$('[data-testid="card-back-move-card-button"]', issueElement);
+            const moveCardButton = $$('[data-testid="card-back-move-card-button"]', issueElement) || $$('[data-testid="card-back-copy-card-button"]', issueElement);
 
             if (moveCardButton) {
                 const moveCardButtonLi = moveCardButton.closest('li');
@@ -52,11 +52,18 @@ class Trello implements WebToolIntegration {
 
             linkElement.classList.add('devart-timer-link-minimal', 'devart-timer-link-trello');
 
-            const element = $$('[data-testid="check-item-set-due-button"]', issueElement);
+            let element = $$('[data-testid="check-item-set-due-button"]', issueElement);
 
             if (element) {
                 element.parentElement!.insertBefore(linkElement, element);
             }
+            else {
+                element = $$('[data-testid="check-item-hover-buttons"]', issueElement);
+
+                if (element) {
+                    element.appendChild(linkElement);
+                }
+            }            
         }
     }
 
