@@ -557,6 +557,10 @@ const getWebToolDescriptions = function () {
             origins: ['https://trello.com/*'],
             scripts: {
                 js: ['in-page-scripts/integrations/trello.js']
+            },
+            embeddedScripts: {
+                js: ['in-page-scripts/integrations/trello-embed.js'],
+                runAt: 'document_start'
             }
         },
         {

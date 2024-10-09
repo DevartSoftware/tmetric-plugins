@@ -47,6 +47,7 @@ class ContentScriptsRegistrator {
         let origins = scripts.matches?.map(url => WebToolManager.toOrigin(url)!).filter(origin => origin);
         origins = [...new Set(origins)];
 
+        const runAt = scripts.runAt;
         return [
             {
                 id: 'tmetric_' + scriptId,
@@ -54,7 +55,7 @@ class ContentScriptsRegistrator {
                 js,
                 css,
                 allFrames: scripts.allFrames || false,
-                runAt: 'document_end'
+                runAt
             },
             {
                 id: 'tmetric_topmost_' + scriptId,
@@ -64,7 +65,7 @@ class ContentScriptsRegistrator {
                     'in-page-scripts/topmostPage.js'
                 ],
                 allFrames: false,
-                runAt: scripts.runAt
+                runAt
             }
         ] as chrome.scripting.RegisteredContentScript[];
     }
@@ -80,7 +81,7 @@ class ContentScriptsRegistrator {
         for (let url of serviceUrls) {
             const scriptId = this.getScriptId(url);
             try {
-                let ids = ['tmetric_' + scriptId, 'tmetric_topmost_' + scriptId];
+                let ids = ['', '_topmost', '_embed'].map(x => `tmetric${x}_${scriptId}`)
                 let scripts: chrome.scripting.RegisteredContentScript[] | undefined;
                 try {
                     scripts = (await browser.scripting.getRegisteredContentScripts({ ids }));
@@ -189,8 +190,23 @@ class ContentScriptsRegistrator {
                 js: (scripts.js || []),
                 css: (scripts.css || []),
                 matches: [serviceUrl],
+                runAt: scripts.runAt || 'document_end'
             } as chrome.scripting.RegisteredContentScript;
-            const scriptsOptions = this.addRequiredScriptOptions(this.getScriptId(serviceUrl), options);
+            const scriptId = this.getScriptId(serviceUrl);
+            const scriptsOptions = this.addRequiredScriptOptions(scriptId, options);
+
+            // embed script to main context (TMET-10664)
+            if (webToolDescription.embeddedScripts) {
+                scriptsOptions.push({
+                    id: 'tmetric_embed_' + scriptId,
+                    matches: [serviceUrl],
+                    js: webToolDescription.embeddedScripts.js || [],
+                    css: webToolDescription.embeddedScripts.css || [],
+                    allFrames: webToolDescription.embeddedScripts.allFrames,
+                    runAt: webToolDescription.embeddedScripts.runAt || 'document_end',
+                    world: 'MAIN'
+                });
+            }
 
             try {
                 await browser.scripting.registerContentScripts(scriptsOptions);

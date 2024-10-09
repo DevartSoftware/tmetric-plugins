@@ -28,7 +28,7 @@ type ContentScripts = {
     js?: string[];
     css?: string[];
     allFrames?: boolean;
-    runAt?: string;
+    runAt?: 'document_start' | 'document_end' | 'document_idle';
 };
 
 interface WebTool {
@@ -53,6 +53,7 @@ interface WebToolInfo extends WebTool {
 
 interface WebToolDescription extends WebToolInfo {
     scripts: ContentScripts;
+    embeddedScripts?: ContentScripts;
 }
 
 interface WebToolIssueIdentifier {
