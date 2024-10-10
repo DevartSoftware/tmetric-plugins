@@ -208,11 +208,17 @@ class ContentScriptsRegistrator {
                 });
             }
 
+            scriptsOptions.forEach(x => {
+                x.css?.length || delete x.css;
+                x.js?.length || delete x.js;
+            });
+
             try {
                 await browser.scripting.registerContentScripts(scriptsOptions);
             }
             catch (error) {
-                console.error('registerContentScripts', error);
+                const c = console;
+                c.error('registerContentScripts', error);
             }
         });
     }
