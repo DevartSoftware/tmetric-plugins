@@ -5,7 +5,8 @@ class YouTrack implements WebToolIntegration {
     matchUrl = [
         '*://*/issue/*',
         '*://*/issues',
-        '*://*/agiles/*'
+        '*://*/agiles/*',
+        '*://*/tickets/*'
     ];
 
     issueElementSelector = '.yt-issue-view, yt-agile-card';
@@ -59,7 +60,8 @@ class YouTrackLite implements WebToolIntegration {
     matchUrl = [
         '*://*/issue/*',
         '*://*/issues',
-        '*://*/agiles/*'
+        '*://*/agiles/*',
+        '*://*/tickets/*'
     ];
 
     issueElementSelector = '[class^=ticketContent__]';
@@ -104,101 +106,4 @@ class YouTrackLite implements WebToolIntegration {
     }
 }
 
-class YouTrackOld implements WebToolIntegration {
-
-    showIssueId = true;
-
-    matchUrl = '*://*/issue/*';
-
-    issueElementSelector = '.content_fsi .toolbar_fsi';
-
-    render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        issueElement.appendChild(linkElement);
-    }
-
-    getIssue(issueElement: HTMLElement, source: Source) {
-
-        // Full url:
-        // https://HOST/PATH/issue/ISSUE_ID#PARAMETERS
-        const match = /^(.+)\/issue\/(.+)$/.exec(source.fullUrl);
-        if (!match) {
-            return;
-        }
-
-        const issueId = $$('.issueId', issueElement)?.textContent;
-        if (!issueId) {
-            return;
-        }
-
-        const issueName = $$('.issue-summary', issueElement)?.textContent;
-        if (!issueName) {
-            return;
-        }
-
-        const projectName = $$('.fsi-properties .fsi-property .attribute.bold')?.textContent;
-        const issueUrl = 'issue/' + issueId;
-
-        const serviceType = 'YouTrack';
-        const serviceUrl = match[1];
-
-        return {
-            issueId, issueName, projectName, serviceType, serviceUrl, issueUrl
-        } as WebToolIssue;
-    }
-}
-
-class YouTrackBoardOld implements WebToolIntegration {
-
-    showIssueId = true;
-
-    matchUrl = '*://*/rest/agile/*/sprint/*';
-
-    issueElementSelector = '#editIssueDialog';
-
-    render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        const host = $$('.sb-issue-edit-id', issueElement);
-        if (host) {
-            host.parentElement!.insertBefore(linkElement, host.nextElementSibling);
-        }
-    }
-
-    getIssue(issueElement: HTMLElement, source: Source) {
-
-        // Full url:
-        // https://HOST/PATH/rest/agile/*/sprint/*
-        const match = /^(.+)\/rest\/agile\/(.+)$/.exec(source.fullUrl);
-        if (!match) {
-            return;
-        }
-
-        const issueId = $$('.sb-issue-edit-id', issueElement)?.textContent;
-        if (!issueId) {
-            return;
-        }
-
-        const issueName =
-            $$<HTMLInputElement>('.sb-issue-edit-summary input', issueElement)?.value || // logged in
-            $$('.sb-issue-edit-summary.sb-disabled', issueElement)?.textContent; // not logged in
-        if (!issueName) {
-            return;
-        }
-
-        // project name can be resolved for logged in users only
-        const projectSelector = $$('.sb-agile-dlg-projects');
-        let projectName: string | null | undefined;
-        if (projectSelector) {
-            projectName = $$('label[for=editAgileProjects_' + issueId.split('-')[0] + ']', projectSelector)?.textContent;
-        }
-
-        const serviceType = 'YouTrack';
-        const serviceUrl = match[1];
-
-        const issueUrl = 'issue/' + issueId;
-
-        return {
-            issueId, issueName, projectName, serviceType, serviceUrl, issueUrl
-        } as WebToolIssue;
-    }
-}
-
-IntegrationService.register(new YouTrack(), new YouTrackLite(), new YouTrackOld(), new YouTrackBoardOld());
+IntegrationService.register(new YouTrack(), new YouTrackLite());
