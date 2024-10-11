@@ -43,31 +43,32 @@ class Monday implements WebToolIntegration {
         let projectName: string | null | undefined;
 
         if (issueElement.matches(this.issueElementSelector[0])) { // side panel on board page
-            issueName = $$.try('.title-wrapper', issueElement).textContent;
+            issueName = $$('.title-wrapper', issueElement)?.textContent;
             issueUrl = source.path;
-            projectName = $$.try('.board-header-main .board-name').textContent;
+            projectName = $$('.board-header-main .board-name')?.textContent
+                || $$('#board-header h2')?.textContent;
         } else if (issueElement.matches(this.issueElementSelector[1])) { // my week page (legacy)
-            issueName = $$.try('.pulse-name-value', issueElement).textContent;
-            projectName = $$.try('.open-pulse-in-board-link').innerText;
+            issueName = $$('.pulse-name-value', issueElement)?.textContent;
+            projectName = $$('.open-pulse-in-board-link')?.innerText;
         } else if (issueElement.matches(this.issueElementSelector[2])) { // my work page
-            issueName = $$.try('.pulse-page-name-wrapper', issueElement).textContent;
+            issueName = $$('.pulse-page-name-wrapper', issueElement)?.textContent;
             issueUrl = this._latestPulseElement &&
-                $$.try<HTMLAnchorElement>('.board-cell-component a', this._latestPulseElement).href;
+                $$<HTMLAnchorElement>('.board-cell-component a', this._latestPulseElement)?.href;
             if (!issueUrl) { // if issue url didn't find, than parse id and create url manually
                 const idMatch = this._latestPulseElement?.id?.match(/row-pulse-+(\d+)-\w+/);
-                const boardUrl = $$.try<HTMLAnchorElement>('.open-pulse-in-board-link', issueElement).pathname;
+                const boardUrl = $$<HTMLAnchorElement>('.open-pulse-in-board-link', issueElement)?.pathname;
                 if (idMatch && boardUrl) {
                     issueUrl = `${boardUrl}/pulses/${idMatch[1]}`;
                 }
             }
 
-            projectName = $$.try('.open-pulse-in-board-link').innerText;
+            projectName = $$('.open-pulse-in-board-link')?.innerText;
         } else if (issueElement.matches(this.issueElementSelector[3])) { // list item in My Work and Boards pages
-            issueName = $$.try('.name-cell-text', issueElement).textContent;
+            issueName = $$('.name-cell-text', issueElement)?.textContent;
             // find issue ulr on 'My Work' page
-            issueUrl = $$.try<HTMLAnchorElement>('.pulse-component .board-cell-component a', issueElement).href;
+            issueUrl = $$<HTMLAnchorElement>('.pulse-component .board-cell-component a', issueElement)?.href;
             if (!issueUrl) { // if issue url didn't find, than parse id and create url manually
-                const rowId = $$.try('.pulse-component', issueElement).id;
+                const rowId = $$('.pulse-component', issueElement)?.id;
                 const idMatch = rowId?.match(/row-pulse-+(\d+)-\w+/);
                 let boardMatch = source.path?.match(/\/boards\/\d+/); // on boards page
                 let boardUrl = boardMatch ? boardMatch[0] : null;
@@ -82,9 +83,10 @@ class Monday implements WebToolIntegration {
                     issueUrl = `${boardUrl}/pulses/${idMatch[1]}`;
                 }
             }
-            projectName = $$.try('.board-header-main .board-name').textContent // on boards page
-                || $$.try('.pulse-component .file-breadcrumbs-component ol li:first-child', issueElement).textContent // on My Work page
-                || $$.try('.col-identifier-board', issueElement).textContent; // old My Work page
+            projectName = $$('.board-header-main .board-name')?.textContent // on boards page
+                || $$('#board-header h2')?.textContent // on new board page
+                || $$('.pulse-component .file-breadcrumbs-component ol li:first-child', issueElement)?.textContent // on My Work page
+                || $$('.col-identifier-board', issueElement)?.textContent;// old My Work page
         }
 
         if (!issueName) {

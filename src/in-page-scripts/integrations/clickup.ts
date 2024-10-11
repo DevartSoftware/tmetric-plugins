@@ -68,15 +68,19 @@ class Clickup implements WebToolIntegration {
         }
 
         let issueName = $$.try('.task-name__overlay').textContent
-            || $$.try('.cu-task-title__overlay', issueElement).textContent//v 3.0 - task detail page
-            || $$.try('.cu-task-row-main__link-text-inner', issueElement).textContent; //v 3.0 - tasks list
+            || $$.try('.cu-task-title__overlay', issueElement).textContent // v3.0 - task detail page
+            || $$.try('.cu-task-row-main__link-text-inner', issueElement).textContent; // v3.0 - tasks list
+
         let tags = $$.all('.cu-tags-view__container .cu-tags-view .cu-tags-select__name', issueElement);
 
-        if (tags.length == 0 && issueElement.matches(this.issueElementSelector[3])) {
-            tags = $$.all('.cu-task-hero-section__row-item .cu-tags-select__name', issueElement); //v 3.0 - task detail page
+        if (tags.length == 0 && issueElement.matches(this.issueElementSelector[3])) { // v3.0 - task detail page
+            tags = $$.all('cu-task-hero-section .cu-tags-select__name', issueElement);
+            if (tags.length == 0) {
+                tags = $$.all('.cu-task-hero-section__row-item .cu-tags-select__name', issueElement); 
+            }
         }
         if (tags.length == 0 && issueElement.matches(this.issueElementSelector[4])) {
-            tags = $$.all('.cu-tags-view__item .cu-tags-select__name', issueElement); //v 3.0 - tasks list
+            tags = $$.all('.cu-tags-view__item .cu-tags-select__name', issueElement); // v3.0 - tasks list
         }
 
         let description: string | null | undefined;
@@ -91,7 +95,7 @@ class Clickup implements WebToolIntegration {
                 }
             }
         } else if (issueElement.matches(this.issueElementSelector[2])) {
-            description = $$.try('.checklist2-row-item-name > p, :scope > p', issueElement).textContent; // v 2.0, v 1.0
+            description = $$.try('.checklist2-row-item-name > p, :scope > p', issueElement).textContent; // v2.0, v1.0
         }
 
         let projectName = $$.try('.breadcrumbs__link[data-category]').textContent;

@@ -83,8 +83,8 @@ class Jira implements WebToolIntegration {
 
     getIssue(issueElement: HTMLElement, source: Source) {
 
-        const issueName = $$.try<HTMLInputElement>('#summary').value
-            || $$.try('dd[data-field-id=summary], h1, #summary-val h2', issueElement).textContent;
+        const issueName = $$<HTMLInputElement>('#summary')?.value
+            || $$('dd[data-field-id=summary], h1, #summary-val h2', issueElement)?.textContent;
         if (!issueName) {
             return;
         }
@@ -109,24 +109,27 @@ class Jira implements WebToolIntegration {
             }
         }
 
-        const projectName = $$.try('.ghx-project', issueElement).textContent // side panel in backlog (TMET-8077)
-            || $$.try(
+        const projectKey = issueId?.match(/^\s*([^-]+)-/)?.[1];
+
+        const projectName = $$('.ghx-project', issueElement)?.textContent // side panel in backlog (TMET-8077)
+            || $$(
                 '#breadcrumbs-container a',
                 null,
                 el => !!el.getAttribute('href')?.split('/')?.some(v => v == 'projects')
-            ).textContent // when navigation bar collapsed
-            || $$.try('#project-name-val').textContent // separate task view (/browse/... URL)
-            || $$.try('.project-title > a').textContent // old service desk and agile board
-            || $$.try('.sd-notify-header').textContent // service desk form https://issues.apache.org/jira/servicedesk/agent/all
-            || this.getProjectNameFromProjectLink(issueElement, issueId) // trying to find project link
+            )?.textContent // when navigation bar collapsed
+            || $$('#project-name-val')?.textContent // separate task view (/browse/... URL)
+            || $$('.project-title > a')?.textContent // old service desk and agile board
+            || $$('.sd-notify-header')?.textContent // service desk form https://issues.apache.org/jira/servicedesk/agent/all
+            || this.getProjectNameFromProjectLink(issueElement, projectKey) // trying to find project link
             || this.getProjectNameFromAvatar(issueElement) // trying to find project avatar
-            || this.getProjectNameFromNavigationBar(); // trying to find project name on navigation bar
+            || this.getProjectNameFromNavigationBar() // trying to find project name on navigation bar
+            || this.getProjectNameFromSpaState(projectKey); // get project from js data
 
         // find tags and versions inside task element
         const tags = $$.all('a', issueElement);
 
         // find tags and versions on side panel of separate task view
-        const sidePanel = $$.try('#jira-issue-header-actions').parentElement;
+        const sidePanel = $$('#jira-issue-header-actions')?.parentElement;
         if (sidePanel) {
             tags.push(...$$.all('a', sidePanel));
         }
@@ -136,7 +139,7 @@ class Jira implements WebToolIntegration {
             .map(el => el.textContent);
 
         if (!tagNames.length) {
-            tagNames = ($$.try('dd[data-field-id=labels]', issueElement).textContent || '').split(','); // old interface
+            tagNames = ($$('dd[data-field-id=labels]', issueElement)?.textContent || '').split(','); // old interface
         }
 
         const serviceType = 'Jira';
@@ -155,17 +158,16 @@ class Jira implements WebToolIntegration {
         return Number.MAX_SAFE_INTEGER;
     }
 
-    private getProjectNameFromProjectLink(issueElement: HTMLElement, issueId: string | undefined) {
+    private getProjectNameFromProjectLink(issueElement: HTMLElement, projectKey: string | undefined) {
 
-        const projectId = (issueId || '').indexOf('-') > 0 && issueId!.split('-')[0];
-        if (!projectId) {
+        if (!projectKey) {
             return;
         }
 
         // search for nearest project link (TMET-8562)
         let link: HTMLElement | undefined;
         let minAncestorLevel = Infinity;
-        $$.all(`a[href="/browse/${projectId}"]`).forEach(x => {
+        $$.all(`a[href="/browse/${projectKey}"]`).forEach(x => {
             const level = this.getCommonAncestorLevel(issueElement, x);
             if (level < minAncestorLevel) {
                 minAncestorLevel = level;
@@ -185,7 +187,8 @@ class Jira implements WebToolIntegration {
     }
 
     private getProjectNameFromAvatar(issueElement: HTMLElement) {
-        return $$.try('img', issueElement, (img: HTMLImageElement) => /projectavatar/.test(img.src)).title;
+        const iconElement = $$('img', issueElement, (img: HTMLImageElement) => /project\/?avatar/.test(img.src));
+        return iconElement?.title || iconElement?.alt;
     }
 
     private getProjectNameFromNavigationBar() {
@@ -206,6 +209,35 @@ class Jira implements WebToolIntegration {
         if (projectNode?.offsetWidth) {
             return projectNode.textContent;
         }
+    }
+
+    private getProjectNameFromSpaState(projectKey: string | undefined) {
+
+        if (!projectKey) {
+            return;
+        }
+
+        let json = $$('script[data-ssr-data]')
+            ?.textContent
+            ?.match(/window.SPA_STATE=(.+[^;]);?\n/)
+            ?.[1]
+            ?.replace(/(":\s*)undefined([,\]\}])/g, '$1null$2');
+
+        if (!json) {
+            return
+        }
+
+        let spaState: any;
+        try {
+            spaState = JSON.parse(json)
+        }
+        catch {
+            return;
+        }
+
+        return spaState.PROJECT_CONTEXT?.[projectKey]?.data?.projectName
+            || spaState.NAVIGATION_SIDEBAR_JIRA_PROJECT?.['projectKey-' + projectKey]?.data?.jiraSoftwareNavData?.project?.name
+            || spaState.RESOURCE_TYPE_BUSINESS_PROJECT_DETAILS?.['RESOURCE_TYPE_BUSINESS_PROJECT_DETAILS_' + projectKey]?.data?.currentProject?.name;
     }
 }
 
