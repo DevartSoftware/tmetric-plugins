@@ -14,10 +14,8 @@ class Trello implements WebToolIntegration {
             .concat(
                 $$.all('[data-testid="card-back-copy-card-button"]')
                     .map(element => element.parentElement?.parentElement)
-                    .filter((parent): parent is HTMLElement => parent !== null) // Убираем null и явно указываем тип
+                    .filter((parent): parent is HTMLElement => parent != null)
             );
-
-
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
@@ -69,13 +67,31 @@ class Trello implements WebToolIntegration {
 
     getIssue(issueElement: HTMLElement, source: Source) {
 
-        // Full card url:
+        const serviceUrl = source.protocol + source.host;
+        const serviceType = 'Trello';
+
+        // full card url:
         // https://trello.com/c/CARD_ID/CARD_NUMBER-CARD_TITLE_DASHED_AND_LOWERCASED
-        // Effective card url:
+        // effective card url:
         // https://trello.com/c/CARD_ID
-        const match = /^\/c\/(.+)\/(\d+)-(.+)$/.exec(source.path);
+        const urlRegex = /^\/c\/(.+)\/(\d+)-(.+)$/;
+        let match = urlRegex.exec(source.path);
         if (!match) {
-            return;
+            // read the value from the meta tag that we fill in trello-embed.ts (TMET-10682)
+            const meta = $$<HTMLMetaElement>('head > meta[name=tmetric-issue-url]');
+            if (meta?.content?.startsWith(`${serviceUrl}${source.path}/`)) {
+                const path = meta.content.substring(serviceUrl.length);
+                match = urlRegex.exec(path);
+            } else {
+                meta && document.head.removeChild(meta);
+                const newMeta = document.createElement('meta');
+                newMeta.name = 'tmetric-issue-url';
+                newMeta.content = '';
+                document.head.appendChild(newMeta);
+            }
+            if (!match) {
+                return;
+            }
         }
 
         // match[2] is a 'CARD_NUMBER' from path
@@ -92,9 +108,6 @@ class Trello implements WebToolIntegration {
         }
 
         const projectName = $$.try('.board-header h1[data-testid=board-name-display]').textContent;
-
-        const serviceUrl = source.protocol + source.host;
-        const serviceType = 'Trello';
 
         const issueUrl = '/c/' + match[1];
 
