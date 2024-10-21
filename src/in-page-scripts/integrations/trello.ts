@@ -79,7 +79,8 @@ class Trello implements WebToolIntegration {
         if (!match) {
             // read the value from the meta tag that we fill in trello-embed.ts (TMET-10682)
             const meta = $$<HTMLMetaElement>('head > meta[name=tmetric-issue-url]');
-            if (meta?.content?.startsWith(`${serviceUrl}${source.path}/`)) {
+            const url = serviceUrl + source.path.replace(/\/*$/, '/'); // append a single slash
+            if (meta?.content?.startsWith(url)) {
                 const path = meta.content.substring(serviceUrl.length);
                 match = urlRegex.exec(path);
             } else {

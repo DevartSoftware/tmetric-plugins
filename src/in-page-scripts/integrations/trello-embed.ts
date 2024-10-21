@@ -13,8 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 HTMLElement.prototype.focus = () => { }; // ignore focus
             }
         });
-
-        mutation.removedNodes.forEach((node) => {
+        mutation.removedNodes.forEach(node => {
             if ((node as HTMLElement).id === 'tmetric-popup' && overriddenFocus) {
                 HTMLElement.prototype.focus = overriddenFocus;
             }
