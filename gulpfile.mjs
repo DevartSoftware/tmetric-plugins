@@ -133,12 +133,11 @@ function stripDebugCommon(folder) {
         return Promise.resolve();
     }
 
-    return gulp.src([
-        folder + '**/*.js',
-        '!' + folder + 'lib/**/*.js'
-    ], {
-        base: folder
-    })
+    return gulp
+        .src(
+            [ folder + '**/*.js', '!' + folder + 'lib/**/*.js'],
+            { base: folder, encoding: false }
+        )
         .pipe(stripDebug())
         .pipe(gulp.dest(folder));
 }
@@ -217,18 +216,18 @@ gulp.task('clean', gulp.parallel('clean:sources', 'clean:dist'));
 gulp.task('lib', async () => {
     const lib = src + 'lib/';
     const jquery = gulp
-        .src('node_modules/jquery/dist/jquery.min.js')
+        .src('node_modules/jquery/dist/jquery.min.js', { encoding: false })
         .pipe(gulp.dest(lib));
     const signalr = gulp
-        .src('node_modules/@microsoft/signalr/dist/webworker/signalr.min.js')
+        .src('node_modules/@microsoft/signalr/dist/webworker/signalr.min.js', { encoding: false })
         .pipe(modifyFile(text => text.replace(/\/\/\s*#\s*sourceMappingURL.+?\.map/, '')))
         .pipe(rename('signalr.min.js'))
         .pipe(gulp.dest(lib));
     const select2 = gulp
-        .src(['node_modules/select2/dist/js/select2.full.min.js'])
+        .src(['node_modules/select2/dist/js/select2.full.min.js'], { encoding: false })
         .pipe(gulp.dest(lib + 'select2/'));
     const select2css = gulp
-        .src(['node_modules/select2/dist/css/select2.min.css'])
+        .src(['node_modules/select2/dist/css/select2.min.css'], { encoding: false })
         .pipe(gulp.dest(lib + 'select2/'));
     return mergeStream(jquery, signalr, select2, select2css);
 });
@@ -240,7 +239,7 @@ gulp.task('compile:ts', () => {
     var project = ts.createProject('./src/tsconfig.json');
     var files = project.config.files.map(path => src + path);
 
-    let task = gulp.src(files, { base: src });
+    let task = gulp.src(files, { base: src, encoding: false });
 
     if (config.keepSources) {
         task = task.pipe(sourcemaps.init());
@@ -258,7 +257,10 @@ gulp.task('compile:ts', () => {
 });
 
 gulp.task('compile:less', () => {
-    return gulp.src('src/css/*.less').pipe(less()).pipe(gulp.dest(src + 'css/'));
+    return gulp
+        .src('src/css/*.less', { encoding: false })
+        .pipe(less())
+        .pipe(gulp.dest(src + 'css/'));
 });
 
 gulp.task('compile', gulp.parallel('compile:ts', 'compile:less'));
@@ -268,7 +270,8 @@ gulp.task('compile', gulp.parallel('compile:ts', 'compile:less'));
 // =============================================================================
 
 function copyFilesChrome() {
-    return gulp.src(files.common.concat(files.chrome), { base: src, encoding: false })
+    return gulp
+        .src(files.common.concat(files.chrome), { base: src, encoding: false })
         .pipe(gulp.dest(chromeUnpackedDir));
 }
 
@@ -280,7 +283,8 @@ gulp.task('prepackage:chrome', gulp.series(copyFilesChrome, stripDebugChrome));
 
 function packageChrome() {
     var manifest = jsonfile.readFileSync(chromeUnpackedDir + 'manifest.json');
-    return gulp.src(chromeUnpackedDir + '**/*', { encoding: false })
+    return gulp
+        .src(chromeUnpackedDir + '**/*', { encoding: false })
         .pipe(zip(manifest.short_name.toLowerCase() + '-' + manifest.version + '.zip'))
         .pipe(gulp.dest(chromeDir));
 }
@@ -292,17 +296,20 @@ gulp.task('package:chrome', gulp.series('prepackage:chrome', packageChrome));
 // =============================================================================
 
 function copyFilesFirefox() {
-    return gulp.src(files.common.concat(files.firefox), { base: src, encoding: false })
+    return gulp
+        .src(files.common.concat(files.firefox), { base: src, encoding: false })
         .pipe(gulp.dest(firefoxUnpackedDir));
 }
 
 function copyManifestFirefox() {
-    return gulp.src(['src/manifest-v2/manifest.json'])
+    return gulp
+        .src(['src/manifest-v2/manifest.json'], { encoding: false })
         .pipe(gulp.dest(firefoxUnpackedDir));
 }
 
 function modifyManifestFirefox() {
-    return gulp.src(firefoxUnpackedDir + '/manifest.json')
+    return gulp
+        .src(firefoxUnpackedDir + '/manifest.json', { encoding: false })
         .pipe(modifyFileJSON(json => ({ applications: { gecko: { id: '@tmetric' } }, ...json })))
         .pipe(gulp.dest(firefoxUnpackedDir));
 }
@@ -317,7 +324,8 @@ gulp.task(
 
 function packageFirefox() {
     var manifest = jsonfile.readFileSync(firefoxUnpackedDir + 'manifest.json');
-    return gulp.src(firefoxUnpackedDir + '**/*', { encoding: false })
+    return gulp
+        .src(firefoxUnpackedDir + '**/*', { encoding: false })
         .pipe(zip(manifest.short_name.toLowerCase() + '-' + manifest.version + '.xpi'))
         .pipe(gulp.dest(firefoxDir));
 }
@@ -329,7 +337,8 @@ gulp.task('package:firefox', gulp.series('prepackage:firefox', packageFirefox));
 // =============================================================================
 
 function copyFilesSafari() {
-    return gulp.src(files.common.concat(files.safari), { base: src, encoding: false })
+    return gulp
+        .src(files.common.concat(files.safari), { base: src, encoding: false })
         .pipe(gulp.dest(safariUnpackedDir));
 }
 
@@ -338,12 +347,14 @@ function stripDebugSafari() {
 }
 
 function copyManifestSafari() {
-    return gulp.src(['src/manifest-v2/manifest.json'])
+    return gulp
+        .src(['src/manifest-v2/manifest.json'], { encoding: false })
         .pipe(gulp.dest(safariUnpackedDir));
 }
 
 function modifyManifestSafari() {
-    return gulp.src(safariUnpackedDir + '/manifest.json')
+    return gulp
+        .src(safariUnpackedDir + '/manifest.json', { encoding: false })
         .pipe(modifyFile(text => text
             .replace('/firefoxExtension.js', '/safariExtension.js')
             .replace(/(?<="name":\s*")[^"]+(?=")/, 'TMetric – Time & Productivity Tracker')
