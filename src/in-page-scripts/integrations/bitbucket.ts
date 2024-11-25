@@ -12,17 +12,25 @@ class Bitbucket implements WebToolIntegration {
     }
 
     render(_issueElement: HTMLElement, linkElement: HTMLElement) {
-        const issueToolbar = $$('#issue-header .issue-toolbar');
-        const pullRequestHeading = $$('header h1');
 
+        const issueToolbar = $$('#issue-header .issue-toolbar');
         if (issueToolbar) {
             const linkContainer = $$.create('div', 'devart-timer-link-bitbucket', 'aui-buttons')
             linkElement.classList.add('aui-button');
             linkContainer.appendChild(linkElement);
             issueToolbar.insertBefore(linkContainer, issueToolbar.firstElementChild);
-        } else if (pullRequestHeading) {
-            linkElement.style.display = 'inline-block';
-            linkElement.style.marginTop = '1rem';
+            return;
+        }
+
+        const pullRequestActionPanel = $$('main [data-qa=pr-header-actions-drop-down-menu-styles]')?.parentElement;
+        if (pullRequestActionPanel) {
+            linkElement.style.marginTop = '6px';
+            pullRequestActionPanel.prepend(linkElement);
+            return;
+        }
+
+        let pullRequestHeading = $$('main h1');
+        if (pullRequestHeading) {
             pullRequestHeading.parentElement!.appendChild(linkElement);
         }
     }
