@@ -13,17 +13,8 @@ class Bitbucket implements WebToolIntegration {
 
     render(_issueElement: HTMLElement, linkElement: HTMLElement) {
 
-        const issueToolbar = $$('#issue-header .issue-toolbar');
-        if (issueToolbar) {
-            const linkContainer = $$.create('div', 'aui-buttons')
-            linkElement.classList.add('aui-button');
-            linkElement.style.marginRight = '10px'
-            linkContainer.appendChild(linkElement);
-            issueToolbar.insertBefore(linkContainer, issueToolbar.firstElementChild);
-            return;
-        }
-
         const toolbar =
+            $$('#issue-header .issue-toolbar') || // issue actions
             $$('main [data-qa=pr-header-actions-drop-down-menu-styles]')?.parentElement || // pull request actions
             $$('button[data-testid="commit-more-button--trigger"]')?.parentElement; // commit actions
         if (toolbar) {
