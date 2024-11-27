@@ -1,38 +1,52 @@
 class PermissionManager {
 
-    private async handleRequiredOrigins(key: string, origins: string[]) {
-        if (!origins?.length) {
-            return [];
-        }
-        const requiredOrigins = [] as string[];
-        const isRequired = /^.*:\/\/.*\.tmetric\.com(?:\:\d+)?\/.*/i;
-        origins = origins.filter(origin => {
-            if (!isRequired.test(origin)) {
-                return true;
-            }
-            requiredOrigins.push(origin);
-        });
-        if (requiredOrigins.length) {
+    private static _isRequired = /^.*:\/\/.*\.tmetric\.com(?:\:\d+)?\/.*/i;
+
+    private async pushChangesToStorage(key: string, origins: string[]) {
+        if (origins?.length) {
             // see ContentScriptsRegistrator (TMET-10408)
-            await browser.storage.session.set({ [key]: requiredOrigins });
+            await browser.storage.session.set({ [key]: origins });
         }
-        return origins;
     }
 
     private async request(origins: string[]) {
-        origins = await this.handleRequiredOrigins('requiredOriginsAdded', origins);
-        if (!origins.length) {
-            return true;
+        if (!origins?.length) {
+            return;
         }
-        return await browser.permissions.request({ origins });
+        const disabledOrigins = [] as string[];
+        const enabledOrigins = [] as string[];
+        for (const origin of origins) {
+            const isEnabled = PermissionManager._isRequired.test(origin)
+                || await browser.permissions.contains({ origins: [origin] });
+            (isEnabled ? enabledOrigins : disabledOrigins).push(origin);
+        }
+        await this.pushChangesToStorage('originsAdded', enabledOrigins);
+        if (disabledOrigins.length) {
+            const isEnabled = await browser.permissions.request({ origins: disabledOrigins });
+            if (isEnabled) {
+                await this.pushChangesToStorage('originsAdded', disabledOrigins);
+            }
+        }
     }
 
     private async remove(origins: string[]) {
-        origins = await this.handleRequiredOrigins('requiredOriginsRemoved', origins);
-        if (!origins.length) {
-            return true;
+        if (!origins?.length) {
+            return;
         }
-        return await browser.permissions.remove({ origins })
+        const disabledOrigins = [] as string[];
+        const enabledOrigins = [] as string[];
+        for (const origin of origins) {
+            const isEnabled = !PermissionManager._isRequired.test(origin)
+                && await browser.permissions.contains({ origins: [origin] });
+            (isEnabled ? enabledOrigins : disabledOrigins).push(origin);
+        }
+        await this.pushChangesToStorage('originsRemoved', disabledOrigins);
+        if (enabledOrigins.length) {
+            const isDisabled = await browser.permissions.remove({ origins: enabledOrigins });
+            if (isDisabled) {
+                await this.pushChangesToStorage('originsRemoved', enabledOrigins);
+            }
+        }
     }
 
     requestPermissions(serviceTypes: ServiceTypesMap) {
@@ -56,6 +70,7 @@ class PermissionManager {
 
     async cleanupPermissions() {
         const allPermissions = await browser.permissions.getAll();
-        await this.remove(allPermissions.origins || []);
+        const origins = (allPermissions.origins || []).filter(x => !PermissionManager._isRequired.test(x));
+        await this.remove(origins);
     }
 }

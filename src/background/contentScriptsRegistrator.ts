@@ -13,15 +13,6 @@ class ContentScriptsRegistrator {
 
             ContentScriptsRegistrator.instance = this;
 
-            browser.permissions.onAdded.addListener(async event => {
-                await this.register(event.origins);
-            });
-            browser.permissions.onRemoved.addListener(async event => {
-                if (event.origins) {
-                    this.unregister(event.origins);
-                }
-            });
-
             // when user adds tmetric.com subdomain, permissions event not triggered (TMET-10408)
             browser.storage.session.onChanged.addListener(async changes => {
                 const popOrigins = (key: string) => {
@@ -31,11 +22,11 @@ class ContentScriptsRegistrator {
                         return origins;
                     }
                 }
-                let origins = popOrigins('requiredOriginsRemoved');
+                let origins = popOrigins('originsRemoved');
                 if (origins) {
                     await this.unregister(origins);
                 }
-                origins = popOrigins('requiredOriginsAdded');
+                origins = popOrigins('originsAdded');
                 if (origins) {
                     await this.register(origins);
                 }
