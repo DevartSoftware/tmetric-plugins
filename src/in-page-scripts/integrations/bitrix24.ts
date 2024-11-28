@@ -15,7 +15,23 @@ class Bitrix24 implements WebToolIntegration {
 
     getIssue(_issueElement: HTMLElement, source: Source) {
 
-        const issueName = $$.try('#pagetitle').textContent;
+        // get issue name (TMET-10815)
+        let issueName: string | null = '';
+        const issueNameElement = $$('#pagetitle');
+        if (issueNameElement?.childNodes) {
+            for (let node of issueNameElement.childNodes) {
+                if (/task-popup-pagetitle-item/.test((node as Element).className)) {
+                    issueName = node.textContent;
+                    break;
+                }
+                if (!/actions/.test((node as Element).className)) {
+                    if (issueName) {
+                        issueName += ' ';
+                    }
+                    issueName += node.textContent;
+                }
+            }
+        }
 
         if (!issueName) {
             return;
