@@ -28,7 +28,7 @@ class Bitrix24 implements WebToolIntegration {
                     if (issueName) {
                         issueName += ' ';
                     }
-                    issueName += node.textContent;
+                    issueName += (node.textContent || '').trim();
                 }
             }
         }
