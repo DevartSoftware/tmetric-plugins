@@ -11,7 +11,7 @@ class PermissionManager {
 
     private async request(origins: string[]) {
         if (!origins?.length) {
-            return;
+            return true;
         }
         const disabledOrigins = [] as string[];
         const enabledOrigins = [] as string[];
@@ -21,12 +21,14 @@ class PermissionManager {
             (isEnabled ? enabledOrigins : disabledOrigins).push(origin);
         }
         await this.pushChangesToStorage('originsAdded', enabledOrigins);
-        if (disabledOrigins.length) {
-            const isEnabled = await browser.permissions.request({ origins: disabledOrigins });
-            if (isEnabled) {
-                await this.pushChangesToStorage('originsAdded', disabledOrigins);
-            }
+        if (!disabledOrigins.length) {
+            return true;
         }
+        const isEnabled = await browser.permissions.request({ origins: disabledOrigins });
+        if (isEnabled) {
+            await this.pushChangesToStorage('originsAdded', disabledOrigins);
+        }
+        return isEnabled;
     }
 
     private async remove(origins: string[]) {
