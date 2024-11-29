@@ -1,6 +1,8 @@
 class PermissionManager {
 
-    private static _isRequired = /^.*:\/\/.*\.tmetric\.com(?:\:\d+)?\/.*/i;
+    private static isOptionalOrigin(origin: string) {
+        return !/^.*:\/\/.*\.tmetric\.com(?:\:\d+)?\/.*/i.test(origin);
+    }
 
     private async pushChangesToStorage(key: string, origins: string[]) {
         if (origins?.length) {
@@ -14,8 +16,7 @@ class PermissionManager {
         if (!origins?.length) {
             return isSuccessful;
         }
-        const requestedOrigins = origins.filter(
-            origin => !PermissionManager._isRequired.test(origin));
+        const requestedOrigins = origins.filter(PermissionManager.isOptionalOrigin);
         if (requestedOrigins.length) {
             // it should be the first await after the user clicks (TMET-10822)
             isSuccessful = await browser.permissions.request({ origins: requestedOrigins });
@@ -23,25 +24,20 @@ class PermissionManager {
         if (isSuccessful) {
             await this.pushChangesToStorage('originsAdded', origins);
         }
+        return isSuccessful;
     }
 
     private async remove(origins: string[]) {
         if (!origins?.length) {
             return;
         }
-        const disabledOrigins = [] as string[];
-        const enabledOrigins = [] as string[];
-        for (const origin of origins) {
-            const isEnabled = !PermissionManager._isRequired.test(origin)
-                && await browser.permissions.contains({ origins: [origin] });
-            (isEnabled ? enabledOrigins : disabledOrigins).push(origin);
+        const requestedOrigins = origins.filter(PermissionManager.isOptionalOrigin);
+        let isSuccessful = true;
+        if (requestedOrigins.length) {
+            isSuccessful = await browser.permissions.remove({ origins: requestedOrigins });
         }
-        await this.pushChangesToStorage('originsRemoved', disabledOrigins);
-        if (enabledOrigins.length) {
-            const isDisabled = await browser.permissions.remove({ origins: enabledOrigins });
-            if (isDisabled) {
-                await this.pushChangesToStorage('originsRemoved', enabledOrigins);
-            }
+        if (isSuccessful) {
+            await this.pushChangesToStorage('originsRemoved', origins);
         }
     }
 
@@ -66,7 +62,7 @@ class PermissionManager {
 
     async cleanupPermissions() {
         const allPermissions = await browser.permissions.getAll();
-        const origins = (allPermissions.origins || []).filter(x => !PermissionManager._isRequired.test(x));
+        const origins = (allPermissions.origins || []).filter(PermissionManager.isOptionalOrigin);
         await this.remove(origins);
     }
 }
