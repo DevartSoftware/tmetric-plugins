@@ -10,25 +10,19 @@ class PermissionManager {
     }
 
     private async request(origins: string[]) {
+        let isSuccessful = true;
         if (!origins?.length) {
-            return true;
+            return isSuccessful;
         }
-        const disabledOrigins = [] as string[];
-        const enabledOrigins = [] as string[];
-        for (const origin of origins) {
-            const isEnabled = PermissionManager._isRequired.test(origin)
-                || await browser.permissions.contains({ origins: [origin] });
-            (isEnabled ? enabledOrigins : disabledOrigins).push(origin);
+        const requestedOrigins = origins.filter(
+            origin => !PermissionManager._isRequired.test(origin));
+        if (requestedOrigins.length) {
+            // it should be the first await after the user clicks (TMET-10822)
+            isSuccessful = await browser.permissions.request({ origins: requestedOrigins });
         }
-        await this.pushChangesToStorage('originsAdded', enabledOrigins);
-        if (!disabledOrigins.length) {
-            return true;
+        if (isSuccessful) {
+            await this.pushChangesToStorage('originsAdded', origins);
         }
-        const isEnabled = await browser.permissions.request({ origins: disabledOrigins });
-        if (isEnabled) {
-            await this.pushChangesToStorage('originsAdded', disabledOrigins);
-        }
-        return isEnabled;
     }
 
     private async remove(origins: string[]) {
