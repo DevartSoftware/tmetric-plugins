@@ -7,7 +7,6 @@ import mergeStream from 'merge-stream';      // Create a stream that emits event
 import through from 'through2';
 import gulp from 'gulp';                     // The streaming build system.
 import less from 'gulp-less';                // A LESS plugin for Gulp
-import rename from 'gulp-rename';            // Simple file renaming methods.
 import stripDebug from 'gulp-strip-debug';   // Strip console and debugger statements from JavaScript code.
 import ts from 'gulp-typescript';            // Using typescript compiler for gulp.js
 import sourcemaps from 'gulp-sourcemaps';    // Using gulp source map plugin
@@ -81,7 +80,10 @@ var files = {
         'src/in-page-scripts/topmostPage.js',
         'src/in-page-scripts/version.js',
         'src/in-page-scripts/utils.js',
-        'src/lib/**',
+        'src/lib/jquery.min.js',
+        'src/lib/signalr.min.js',
+        'src/lib/select2/select2.full.min.js',
+        'src/lib/select2/select2.min.css',
         'src/images/integrations/**',
         'src/images/*.*',
         'src/popup/popup.html',
@@ -98,7 +100,6 @@ var files = {
         'src/background/backgroundBase.js',
         'src/background/extensionBase.js',
         'src/background/simpleEvent.js'
-
     ],
     chrome: [
         'src/manifest.json',
@@ -142,7 +143,7 @@ function stripDebugCommon(folder) {
         .pipe(gulp.dest(folder));
 }
 
-function modifyFile(transform) {
+function modifyFile(transform = null) {
     return through.obj(function (file, encoding, callback) {
 
         file = file.clone();
@@ -151,7 +152,9 @@ function modifyFile(transform) {
         }
 
         let fileContent = file.contents.toString(encoding);
-        fileContent = transform(fileContent);
+        if (transform) {
+            fileContent = transform(fileContent);
+        }
         file.contents = Buffer.from(fileContent);
         callback(null, file);
     });
@@ -217,17 +220,19 @@ gulp.task('lib', async () => {
     const lib = src + 'lib/';
     const jquery = gulp
         .src('node_modules/jquery/dist/jquery.min.js', { encoding: false })
+        .pipe(modifyFile())
         .pipe(gulp.dest(lib));
     const signalr = gulp
         .src('node_modules/@microsoft/signalr/dist/webworker/signalr.min.js', { encoding: false })
         .pipe(modifyFile(text => text.replace(/\/\/\s*#\s*sourceMappingURL.+?\.map/, '')))
-        .pipe(rename('signalr.min.js'))
         .pipe(gulp.dest(lib));
     const select2 = gulp
         .src(['node_modules/select2/dist/js/select2.full.min.js'], { encoding: false })
+        .pipe(modifyFile())
         .pipe(gulp.dest(lib + 'select2/'));
     const select2css = gulp
         .src(['node_modules/select2/dist/css/select2.min.css'], { encoding: false })
+        .pipe(modifyFile())
         .pipe(gulp.dest(lib + 'select2/'));
     return mergeStream(jquery, signalr, select2, select2css);
 });
