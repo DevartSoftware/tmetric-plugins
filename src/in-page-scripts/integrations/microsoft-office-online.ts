@@ -61,8 +61,10 @@ class MicrosoftOfficeOnline implements WebToolIntegration {
             issueUrl = `edit?resid=${issueId}`;
         }
 
-        const issueName = $$.try('#BreadcrumbTitle', issueElement).textContent || // Exel, PowerPoint, OneNote, Word Preview Mode
-            $$.try('[data-unique-id="DocumentTitleContent"]', issueElement).textContent; // Word
+        const issueName = $$('#BreadcrumbTitle', issueElement)?.textContent || // Exel, PowerPoint, OneNote, Word Preview Mode
+            $$('[data-unique-id="DocumentTitleContent"]', issueElement)?.textContent || // Word filename dropwown 
+            $$<HTMLInputElement>('#CommitNewDocumentTitle')?.value || // Word filename editor
+            $$('#documentTitle')?.textContent?.trim(); // Word hidden filename 
 
         const serviceUrl = 'https://onedrive.live.com';
 
