@@ -61,7 +61,7 @@ class PopupController {
         return browser.sendToBackgroundReliably(
             request,
             { throwErrors: true }
-        ) as Promise<IPopupResponse>
+        ) as Promise<IMessageResponse>
     }
 
     /** @virtual */
@@ -111,9 +111,9 @@ class PopupController {
 
     // actions
 
-    protected wrapBackgroundAction<TData, TResult>(action: string) {
+    protected wrapBackgroundAction<TData, TResult>(action: PopupRequestAction) {
         return async (data?: TData) => {
-            let response: IPopupResponse;
+            let response: IMessageResponse;
             try {
                 response = await this.callBackground({ action, data, sender: 'popup' })
             }

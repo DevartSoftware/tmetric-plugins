@@ -4,13 +4,6 @@ class PermissionManager {
         return !/^.*:\/\/.*\.tmetric\.com(?:\:\d+)?\/.*/i.test(origin);
     }
 
-    private async pushChangesToStorage(key: string, origins: string[]) {
-        if (origins?.length) {
-            // see ContentScriptsRegistrator (TMET-10408)
-            await browser.storage.session.set({ [key]: origins });
-        }
-    }
-
     private async request(origins: string[]) {
         let isSuccessful = true;
         if (!origins?.length) {
@@ -22,7 +15,11 @@ class PermissionManager {
             isSuccessful = await browser.permissions.request({ origins: requestedOrigins });
         }
         if (isSuccessful) {
-            await this.pushChangesToStorage('originsAdded', origins);
+            await browser.sendToBackgroundReliably({
+                sender: 'permission',
+                action: 'originsAdded', // support tmetric.com subdomains (TMET-10408)
+                data: origins
+            } as IPermissionRequest);
         }
         return isSuccessful;
     }
@@ -37,7 +34,11 @@ class PermissionManager {
             isSuccessful = await browser.permissions.remove({ origins: requestedOrigins });
         }
         if (isSuccessful) {
-            await this.pushChangesToStorage('originsRemoved', origins);
+            await browser.sendToBackgroundReliably({
+                sender: 'permission',
+                action: 'originsRemoved',
+                data: origins
+            } as IPermissionRequest);
         }
     }
 

@@ -2,6 +2,10 @@ class ContentScriptsRegistrator {
 
     private static instance: ContentScriptsRegistrator;
 
+    private _pendingOrigins = {} as { [origin: string]: boolean; }
+
+    private _pendingTimer: number | undefined;
+
     constructor() {
 
         if (!browser.scripting) {
@@ -13,27 +17,65 @@ class ContentScriptsRegistrator {
 
             ContentScriptsRegistrator.instance = this;
 
-            // when user adds tmetric.com subdomain, permissions event not triggered (TMET-10408)
-            browser.storage.session.onChanged.addListener(async changes => {
-                const popOrigins = (key: string) => {
-                    const origins = changes[key]?.newValue as (string[] | undefined);
-                    if (origins?.length) {
-                        browser.storage.session.remove(key);
-                        return origins;
+            // Process with a delay to avoid double triggering (see handlePermissionMessage below)
+            const checkPendingOrigins = async () => {
+                if (this._pendingTimer) {
+                    clearTimeout(this._pendingTimer);
+                }
+                this._pendingTimer = setTimeout(async () => {
+                    this._pendingTimer = undefined;
+                    const removed = [] as string[];
+                    const added = [] as string[];
+                    for (let s in this._pendingOrigins) {
+                        (this._pendingOrigins[s] ? added : removed).push(s);
                     }
+                    this._pendingOrigins = {};
+                    if (removed.length) {
+                        await this.unregister(removed);
+                    }
+                    if (added.length) {
+                        await this.register(added);
+                    }
+                }, 500);
+            };
+
+            browser.permissions.onAdded.addListener(async event => {
+                if (event.origins) {
+                    this.setPending(event.origins, true);
+                    checkPendingOrigins();
                 }
-                let origins = popOrigins('originsRemoved');
-                if (origins) {
-                    await this.unregister(origins);
-                }
-                origins = popOrigins('originsAdded');
-                if (origins) {
-                    await this.register(origins);
+            });
+            browser.permissions.onRemoved.addListener(async event => {
+                if (event.origins) {
+                    this.setPending(event.origins, false);
+                    checkPendingOrigins();
                 }
             });
         }
 
         return ContentScriptsRegistrator.instance;
+    }
+
+    // Permission event does not always triggered (TMET-10408, TMET-10814),
+    // so we send an IPermissionRequest.
+    // However, permission events are also handled because the script
+    // may terminate before sending the IPermissionRequest(TMET-10830)
+    handlePermissionMessage(request: IPermissionRequest, callback: (response: IMessageResponse) => void) {
+        let promise: Promise<void> | undefined;
+        const action = request?.action;
+        if (request?.data?.length) {
+            this.removePending(request.data)
+            if (request.action === 'originsAdded') {
+                promise = this.register(request.data);
+            } else if (request.action === 'originsRemoved') {
+                promise = this.unregister(request.data);
+            }
+        }
+        if (promise) {
+            promise.then(() => callback({ action }));
+        } else {
+            callback({ action });
+        }
     }
 
     private addRequiredScriptOptions(scriptId: string, scripts: chrome.scripting.RegisteredContentScript) {
@@ -85,7 +127,7 @@ class ContentScriptsRegistrator {
     async unregister(origins: string[]) {
 
         // Urls can already be removed from the map, but they still need to be unregistered
-        const serviceTypeByUrl = Object.assign( 
+        const serviceTypeByUrl = Object.assign(
             {},
             this.latestRegisterMap,
             await WebToolManager.getServiceTypes());
@@ -242,5 +284,17 @@ class ContentScriptsRegistrator {
                 c.error('registerContentScripts', error);
             }
         });
+    }
+
+    setPending(origins: string[], isEnabled: boolean) {
+        for (let s of origins) {
+            this._pendingOrigins[s] = isEnabled;
+        }
+    }
+
+    removePending(origins: string[]) {
+        for (let s of origins) {
+            delete this._pendingOrigins[s];
+        }
     }
 }

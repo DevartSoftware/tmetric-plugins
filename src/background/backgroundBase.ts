@@ -341,7 +341,7 @@ abstract class BackgroundBase<TConnection extends ServerConnection = ServerConne
         this._popupActions[action] = handler;
     }
 
-    protected onPopupRequest(request: IPopupRequest, callback: (response: IPopupResponse) => void) {
+    protected onPopupRequest(request: IPopupRequest, callback: (response: IMessageResponse) => void) {
         const action = request.action;
         const handler = this._popupActions[action];
         if (action && handler) {

@@ -92,18 +92,65 @@ interface AjaxStatus {
     responseMessage: string;
 }
 
+type TabMessageAction =
+    | 'ping'
+    | 'getConstants'
+    | 'getTimer'
+    | 'putTimer'
+    | 'getIssuesDurations';
+
 interface ITabMessage {
-    action: string;
+    action: TabMessageAction;
     data?: any;
 }
+
+type TabMessageCallbackAction = `${TabMessageAction}_callback`
+    | 'setTimer'
+    | 'setIssuesDurations'
+    | 'setConstants'
+    | 'showPopup'
+    | 'hidePopup'
+    | 'initPage';
+
+interface ITabCallbackMessage {
+    action: TabMessageCallbackAction;
+    data?: any;
+}
+
+interface IPermissionRequest {
+    sender: 'permission',
+    action: 'originsAdded' | 'originsRemoved';
+    data: string[];
+}
+
+type PopupRequestAction =
+    | 'initialize'
+    | 'openTracker'
+    | 'openPage'
+    | 'login'
+    | 'isConnectionRetryEnabled'
+    | 'retry'
+    | 'fixTimer'
+    | 'putTimer'
+    | 'saveProjectMap'
+    | 'saveDescriptionMap'
+    | 'openOptionsPage'
+    | 'getRecentTasks'
+    | 'hideAllPopups';
 
 interface IPopupRequest {
     sender: 'popup',
-    action: string;
+    action: PopupRequestAction;
     data?: any;
 }
 
-interface IPopupResponse {
+interface IExtensionSettingsMessage {
+    sender: 'settings',
+    action: 'getIntegratedServices';
+    data?: any;
+}
+
+interface IMessageResponse {
     action: string;
     data?: any;
     error?: string;
@@ -173,10 +220,4 @@ interface ServiceUrlsMap {
 interface IExtensionLocalSettings {
     skipPermissionsRequest: boolean;
     serviceTypes: ServiceTypesMap
-}
-
-interface IExtensionSettingsMessage {
-    sender: 'settings',
-    action: string;
-    data?: any;
 }

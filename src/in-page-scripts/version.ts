@@ -42,7 +42,7 @@
 
     addMeta('tmetric-extension-version', extensionInfo.version);
 
-    browser.runtime.onMessage.addListener((message: ITabMessage) => {
+    browser.runtime.onMessage.addListener((message: ITabCallbackMessage) => {
         switch (message.action) {
             case 'setConstants':
                 addMeta('tmetric-extension-id', (message.data as Models.Constants).extensionUUID);

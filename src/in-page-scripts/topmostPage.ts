@@ -67,7 +67,7 @@ if (typeof document !== 'undefined') {
         }
     }
 
-    browser.runtime.onMessage.addListener((message: ITabMessage) => {
+    browser.runtime.onMessage.addListener((message: ITabCallbackMessage) => {
 
         switch (message.action) {
 

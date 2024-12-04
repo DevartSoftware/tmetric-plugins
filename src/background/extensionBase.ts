@@ -304,7 +304,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
         }
     }
 
-    protected sendToTabs(message: ITabMessage, tabId?: number) {
+    protected sendToTabs(message: ITabCallbackMessage, tabId?: number) {
 
         console.log('sendToTabs', message.action, tabId);
 
@@ -443,12 +443,17 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
         });
 
         browser.runtime.onMessage.addListener((
-            message: ITabMessage | IPopupRequest | IExtensionSettingsMessage,
+            message: ITabMessage | IPopupRequest | IExtensionSettingsMessage | IPermissionRequest,
             sender: chrome.runtime.MessageSender,
-            senderResponse: (IPopupResponse) => void
+            senderResponse: (response: IMessageResponse | null) => void
         ) => {
 
             console.log(message);
+
+            if ((message as IPermissionRequest).sender === 'permission') {
+                this.contentScriptRegistrator.handlePermissionMessage(message as IPermissionRequest, senderResponse);
+                return !!senderResponse; // true indicates that senderResponse is called later
+            }
 
             // Popup requests
             if ((message as IPopupRequest).sender === 'popup') {
@@ -473,7 +478,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
             // Tab page requests
             const tabId = sender.tab.id;
             if (tabId != null) {
-                this.onTabMessage(message, tabId);
+                this.onTabMessage(message as ITabMessage, tabId);
             }
 
             senderResponse(null);
@@ -507,7 +512,7 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
     private async onTabMessage(message: ITabMessage, tabId: number) {
 
         console.log('onTabMessage', message.action + '_callback');
-        this.sendToTabs({ action: message.action + '_callback' }, tabId);
+        this.sendToTabs({ action: (message.action + '_callback') as TabMessageCallbackAction }, tabId);
 
         switch (message.action) {
 

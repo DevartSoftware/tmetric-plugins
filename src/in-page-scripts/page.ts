@@ -20,7 +20,7 @@ if (typeof window != 'undefined' && !window.initPage) {
         /**
          * Retrieves messages from background script.
          */
-        function onBackgroundMessage(message: ITabMessage) {
+        function onBackgroundMessage(message: ITabCallbackMessage) {
 
             if (isFinalized) {
                 return;
