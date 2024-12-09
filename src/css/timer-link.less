@@ -59,16 +59,19 @@
 }
 
 .devart-timer-link-asana-subtask {
-    &.devart-timer-link-minimal {
-        opacity: 0;
 
-        .ItemRow:hover &:hover {
-            opacity: 1;
-        }
+    > .devart-timer-link-icon:before {
+        margin-top: 10px;
+    }
 
-        .ItemRow:hover &:not(:hover) {
-            opacity: .54;
-        }
+    opacity: 0;
+
+    .ItemRow:hover &:hover {
+        opacity: 1;
+    }
+
+    .ItemRow:hover &:not(:hover) {
+        opacity: .54;
     }
 }
 

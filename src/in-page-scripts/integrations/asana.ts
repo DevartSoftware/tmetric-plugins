@@ -5,8 +5,8 @@ class Asana implements WebToolIntegration {
     matchUrl = '*://app.asana.com/*/*';
 
     issueElementSelector = [
-        '.TaskPane',      // task
-        '.SubtaskTaskRow' // sub-task
+        '.TaskPane .TaskPaneToolbar', // task
+        '.TaskPane .SubtaskTaskRow' // sub-task
     ]
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
@@ -14,15 +14,10 @@ class Asana implements WebToolIntegration {
         if (issueElement.matches(this.issueElementSelector[0])) {
             const linkContainer = $$.create('div', 'devart-timer-link-asana');
             linkContainer.appendChild(linkElement);
-            const toolbar = $$('.TaskPaneToolbar', issueElement) as HTMLElement;
-            if (toolbar) {
-                const elementToAdd = $$('.TaskPaneToolbar-button', toolbar);
-                elementToAdd?.parentElement?.insertBefore(linkContainer, elementToAdd);
-            }
-        }
-
-        if (issueElement.matches(this.issueElementSelector[1])) {
-            const container = $$('.ItemRowTwoColumnStructure-right', issueElement);
+            const elementToAdd = $$('.TaskPaneToolbar-button', issueElement);
+            elementToAdd?.parentElement?.insertBefore(linkContainer, elementToAdd);
+        } else {
+            const container = $$('.SubtaskTaskRow-childContainer--rightChildren', issueElement);
             linkElement.classList.add('devart-timer-link-minimal', 'devart-timer-link-asana-subtask');
             container?.insertBefore(linkElement, container.firstElementChild);
         }
@@ -30,69 +25,50 @@ class Asana implements WebToolIntegration {
 
     getIssue(issueElement: HTMLElement, source: Source) {
 
-        const getChildQueryParam = (url: string) => {
-            const searchParams = new URLSearchParams(url);
-            return searchParams.get('child');
-        }
-
-        let description: string | undefined;
-
-        // Find root task
-        const rootTaskPane = $$.closest(this.issueElementSelector[0], issueElement);
-        if (!rootTaskPane) {
-            return;
-        }
-
-        let issueName = ($$.try('.TitleInput .SimpleTextarea, .TitleInput textarea', rootTaskPane) as HTMLTextAreaElement).value;
-        let id = getChildQueryParam(source.fullUrl);
-        let issuePath = source.path;
-
-        // Sub-tasks
-        if (issueElement.matches(this.issueElementSelector[1])) {
-
-            // Do not add link to empty sub-task
-            description = ($$.try('.SubtaskTaskRow textarea', issueElement) as HTMLTextAreaElement).value;
-            if (!description) {
+        const getIdFromUrl = (fullUrl: string) => {
+            if (!fullUrl) {
                 return;
             }
+            let [, relativePath, queryString] = fullUrl.match(/https:\/\/[^\/]+([^?]*)(\?.*)?/) || [];
+            // project task url:
+            // https://app.asana.com/0/234567890123456/1234567890123456
+            // project search url:
+            // https://app.asana.com/0/search/234567890123456/1234567890123456
+            // widget from home page:
+            // https://app.asana.com/0/home/765432109876544/1234567890123456
+            let id = /^\/\w+(?:\/search|\/home|\/inbox)?\/\d+\/(\d+)/.exec(relativePath)?.[1];
+            if (id) {
+                return id;
+            }
+            // task search:
+            // https://app.asana.com/0/search?q=Foo&searched_type=task&child=1234567890123456
+            return new URLSearchParams(queryString).get('child');
+        }
 
-            // Get root task for sub-sub-tasks
-            const rootTask = $$('.TaskAncestry-ancestor a', rootTaskPane) as HTMLAnchorElement;
-            if (rootTask) {
-                // Get issue name and path
-                issueName = rootTask.textContent || '';
-                id = getChildQueryParam(rootTask.href);
-                const match = /:\/\/[^\/]+(\/[^\?#]+)/.exec(rootTask.href);
-                if (match) {
-                    issuePath = match[1];
-                }
+        let issueName: string | undefined | null;
+        let description: string | undefined | null;
+        let id = getIdFromUrl(source.fullUrl);
+
+        let taskPane = $$.closest('.TaskPane', issueElement)!;
+        issueName = $$<HTMLTextAreaElement>('.TitleInput .SimpleTextarea, .TitleInput textarea', taskPane)?.value;
+
+        let rootTaskLink = $$<HTMLAnchorElement>('.TaskAncestry a.TaskAncestryBreadcrumb-navigationLink', taskPane);
+        if (rootTaskLink) {
+            let rootName = rootTaskLink.textContent
+            let rootId = getIdFromUrl(rootTaskLink.href);
+            if (rootName && rootId) {
+                description = issueName;
+                issueName = rootName;
+                id = rootId;
             }
         }
-
-        // Project url:
-        // https://app.asana.com/0/PROJECT_ID
-        // Project task url:
-        // https://app.asana.com/0/PROJECT_ID/TASK_ID
-        // Project search url:
-        // https://app.asana.com/0/search/PROJECT_ID/TASK_ID
-        // task search
-        // https://app.asana.com/0/search?sort=last_modified&predefined=TasksCreatedByMe&child=108409755682607
-        // widget from home page
-        // https://app.asana.com/0/home/70718296417223/1202781903310811
-        if (!id) {
-            const match = /^\/\w+(?:\/search|\/home|\/inbox)?\/\d+\/(\d+)/.exec(issuePath);
-            if (match) {
-                id = match[1];
-            }
+        
+        if (issueElement.matches(this.issueElementSelector[1])) {
+            description = $$('textarea', issueElement)?.textContent;
         }
-
-        let issueId: string | undefined;
-        let issueUrl: string | undefined;
-
-        if (id) {
-            issueId = '#' + id;
-            issueUrl = '/0/0/' + id;
-        }
+        
+        let issueId = id && ('#' + id);
+        let issueUrl = id && ('/0/0/' + id);
 
         const projectName =
             $$.try('.TaskProjectTokenPill-name').textContent || // task project name for latest Asana
@@ -103,7 +79,9 @@ class Asana implements WebToolIntegration {
         const serviceType = 'Asana';
         const serviceUrl = source.protocol + source.host;
 
-        const tagNames = $$.all('.TaskTags .Token, .TaskTags .TaskTagTokenPills-potPill').map(label => label.textContent);
+        const tagNames = $$
+            .all('.TaskTags .Token, .TaskTags .TaskTagTokenPills-potPill')
+            .map(label => label.textContent);
 
         return {
             issueId, issueName, projectName, serviceType, description, serviceUrl, issueUrl, tagNames
