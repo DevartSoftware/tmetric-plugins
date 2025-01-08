@@ -80,7 +80,7 @@ class GitHub implements WebToolIntegration {
         const serviceType = 'GitHub';
         const projectName = $$<HTMLAnchorElement>('.AppHeader-context-full ul > li a',
             null,
-            el => !!el.href.match(/a/))?.textContent;
+            el => !!el.href.match(/\/projects\/\d+$/))?.textContent;
         const tagNames = $$.all('div[data-testid="issue-labels"] > a > span:not(.sr-only):first-of-type')
             .map(label => label.textContent);
 
