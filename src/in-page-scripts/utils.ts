@@ -8,6 +8,7 @@ interface Utils {
     next<TElement extends HTMLElement>(selector: string, element: HTMLElement): TElement | null;
     getAttribute(selector: string, attributeName: string, element?: ParentNode | null): string;
     create<TElement extends HTMLElement>(tagName: string, ...classNames: string[]): TElement;
+    isVisible(element: HTMLElement): boolean;
     getRelativeUrl(baseUrl: string, fullUrl: string): string;
     findNode(selector: string, nodeType: number, element?: ParentNode | null): Node | null;
     findAllNodes(selector: string, nodeType: number | null, element?: ParentNode | null): Node[];
@@ -59,26 +60,32 @@ $$.all = function <TElement extends HTMLElement>(selector: string, element?: Par
     return result;
 };
 
-$$.visible = function <TElement extends HTMLElement>(selector: string, element?: ParentNode | null) {
-    return $$<TElement>(selector, element, el => {
+$$.isVisible = el => {
 
-        // Check display
-        if (!el.offsetWidth && !el.offsetHeight && !el.getClientRects().length) {
+    if (!el) {
+        return false;
+    }
+
+    // Check display
+    if (!el.offsetWidth && !el.offsetHeight && !el.getClientRects().length) {
+        return false;
+    }
+
+    // Check visibility
+    while (el) {
+        if (el === document.body) {
+            return true;
+        }
+        if (el.style.visibility === 'hidden' || el.style.visibility === 'collapse') {
             return false;
         }
+        el = el.parentElement as HTMLElement;
+    }
+    return false;
+}
 
-        // Check visibility
-        while (el) {
-            if (el === document.body) {
-                return true;
-            }
-            if (el.style.visibility === 'hidden' || el.style.visibility === 'collapse') {
-                return false;
-            }
-            el = el.parentElement as TElement;
-        }
-        return false;
-    });
+$$.visible = function <TElement extends HTMLElement>(selector: string, element?: ParentNode | null) {
+    return $$<TElement>(selector, element, $$.isVisible);
 };
 
 $$.closest = function <TElement extends HTMLElement>(selector: string, element: HTMLElement, condition: (el: TElement) => boolean) {

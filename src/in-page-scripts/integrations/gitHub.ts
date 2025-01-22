@@ -5,7 +5,11 @@ class GitHub implements WebToolIntegration {
     matchUrl = [
         /(https:\/\/github\.com)(\/.+\/(issues|pull)\/(\d+))/, // classic view
         /(https:\/\/github\.com)\/.+[&\?]issue=([^&]+)/ // project view (TMET-10899)
-    ]
+    ];
+
+    // GitHub may move some elements to an invisible area, in which case
+    // the button needs to be moved to the new visible parent (TMET-10939)
+    canBeRenderedRepeatedly = true;
 
     render(_issueElement: HTMLElement, linkElement: HTMLElement) {
 
@@ -15,13 +19,12 @@ class GitHub implements WebToolIntegration {
 
         const host = $$('.gh-header-actions');
         if (host) {
-            linkElement.style.display = 'inline-block'; // ZenHub hides action links by default
             host.insertBefore(linkElement, host.firstElementChild);
             return;
         }
 
         // project view
-        const firstHeaderButton = $$.visible('div[data-testid="issue-header"] button');
+        const firstHeaderButton = $$.visible('div[data-testid=issue-header] button');
         if (firstHeaderButton) {
             firstHeaderButton.parentElement!.insertBefore(linkElement, firstHeaderButton);
         }
@@ -34,13 +37,10 @@ class GitHub implements WebToolIntegration {
             return this.getProjectIssue(_issueElement, source);
         }
 
-        const issueName = $$.try('.js-issue-title').textContent;
+        const issueName = $$('[data-testid=issue-title]')?.textContent; // TMET-10938
         if (!issueName) {
             return;
         }
-
-        let projectName = $$.try('[itemprop=name]').textContent ||
-            $$.try('.AppHeader-context-full nav li:last-of-type .AppHeader-context-item-label').textContent;
 
         // https://github.com/NAMESPACE/PROJECT/issues/NUMBER
         // https://github.com/NAMESPACE/PROJECT/pull/NUMBER
@@ -49,8 +49,11 @@ class GitHub implements WebToolIntegration {
         const issueType = match[3];
         let issueId = match[4];
         issueId = (issueType == 'pull' ? '!' : '#') + issueId
+
         const serviceType = 'GitHub';
-        const tagNames = $$.all('.js-issue-labels .IssueLabel')
+        let projectName = $$.try('[itemprop=name]').textContent ||
+            $$.try('.AppHeader-context-full nav li:last-of-type .AppHeader-context-item-label').textContent;
+        const tagNames = $$.all('div[data-testid=issue-labels] > a > span:not(.sr-only):first-of-type')
             .map(label => label.textContent);
 
         return {
@@ -62,7 +65,7 @@ class GitHub implements WebToolIntegration {
 
         let issueId: string | undefined;
         let issueUrl: string | undefined;
-        const issueName = $$('h2 [data-testid="issue-title"]')?.textContent;
+        const issueName = $$('[data-testid=issue-title]')?.textContent;
         if (!issueName) {
             return;
         }
@@ -81,7 +84,7 @@ class GitHub implements WebToolIntegration {
         const projectName = $$<HTMLAnchorElement>('.AppHeader-context-full ul > li a',
             null,
             el => !!el.href.match(/\/projects\/\d+$/))?.textContent;
-        const tagNames = $$.all('div[data-testid="issue-labels"] > a > span:not(.sr-only):first-of-type')
+        const tagNames = $$.all('div[data-testid=issue-labels] > a > span:not(.sr-only):first-of-type')
             .map(label => label.textContent);
 
         return {

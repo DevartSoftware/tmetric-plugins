@@ -333,6 +333,9 @@ class IntegrationService {
             oldSession == this.session
         ) {
             // Issue is not changed and belong to same session (#67711)
+            if (integration.canBeRenderedRepeatedly && !$$.isVisible(oldLink!)) {
+                integration.render(element, oldLink!);
+            }
             return;
         }
 
