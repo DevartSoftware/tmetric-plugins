@@ -16,6 +16,7 @@
     "devDependencies": {
         "@types/chrome": "^0.0.260",
         "del": "3.0.0",
+        "glob-stream": "git+https://github.com/pavelhoral/glob-stream.git#81552cc1a024f597dd72da813ae8ef48a751577a",
         "gulp": "^5.0.0",
         "gulp-cli": "^3.0.0",
         "gulp-concat": "2.6.1",
