@@ -37,7 +37,7 @@ class GitHub implements WebToolIntegration {
             return this.getProjectIssue(_issueElement, source);
         }
 
-        const issueName = $$('[data-testid=issue-title]')?.textContent; // TMET-10938
+        const issueName = this.getIssueName();
         if (!issueName) {
             return;
         }
@@ -53,8 +53,7 @@ class GitHub implements WebToolIntegration {
         const serviceType = 'GitHub';
         let projectName = $$.try('[itemprop=name]').textContent ||
             $$.try('.AppHeader-context-full nav li:last-of-type .AppHeader-context-item-label').textContent;
-        const tagNames = $$.all('div[data-testid=issue-labels] > a > span:not(.sr-only):first-of-type')
-            .map(label => label.textContent);
+        const tagNames = this.getTagNames();
 
         return {
             issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames
@@ -65,7 +64,7 @@ class GitHub implements WebToolIntegration {
 
         let issueId: string | undefined;
         let issueUrl: string | undefined;
-        const issueName = $$('[data-testid=issue-title]')?.textContent;
+        const issueName = this.getIssueName();
         if (!issueName) {
             return;
         }
@@ -84,13 +83,22 @@ class GitHub implements WebToolIntegration {
         const projectName = $$<HTMLAnchorElement>('.AppHeader-context-full ul > li a',
             null,
             el => !!el.href.match(/\/projects\/\d+$/))?.textContent;
-        const tagNames = $$.all('div[data-testid=issue-labels] > a > span:not(.sr-only):first-of-type')
-            .map(label => label.textContent);
+        const tagNames = this.getTagNames();
 
         return {
             issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames
         } as WebToolIssue;
     }
+
+    private getIssueName = () =>
+        $$('[data-testid=issue-title]')?.textContent || // TMET-10938
+        $$.visible('.js-issue-title')?.textContent || // TMET-10953
+        $$.visible('[role=region] h2 bdi')?.textContent || // fallback
+        $$.visible('h1 bdi')?.textContent;
+
+    private getTagNames = () =>
+        $$.all('div[data-testid=issue-labels] > a > span:not(.sr-only):first-of-type')
+            .map(label => label.textContent);
 }
 
 IntegrationService.register(new GitHub());

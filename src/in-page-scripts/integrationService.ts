@@ -144,7 +144,7 @@ class IntegrationService {
             }
         });
 
-        return { issues, observeMutations: this._possibleIntegrations.some(i => i.observeMutations ?? true) };
+        return this._possibleIntegrations.some(i => i.observeMutations ?? true);
     }
 
     static updateIssues(integration: WebToolIntegration, issues: WebToolParsedIssue[]) {

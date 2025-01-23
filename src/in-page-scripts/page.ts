@@ -147,7 +147,7 @@ if (typeof window != 'undefined' && !window.initPage) {
             oldUrl = url;
             oldTitle = title;
 
-            const { issues, observeMutations } = IntegrationService.updateLinks(checkAllIntegrations);
+            const observeMutations = IntegrationService.updateLinks(checkAllIntegrations);
 
             if (!isFinalized && observeMutations && !mutationObserver) {
                 mutationObserver = new MutationObserver(parsePage);
