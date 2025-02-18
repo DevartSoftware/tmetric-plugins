@@ -5,7 +5,7 @@ class Hubspot implements WebToolIntegration {
     matchUrl = 'https://*.hubspot.com/*';
 
     issueElementSelector = [
-        '.private-panel__container',
+        '[data-selenium-test="edit-task-panel"]',
         '[data-selenium-test="timeline-card"]'
     ];
 
@@ -23,7 +23,7 @@ class Hubspot implements WebToolIntegration {
 
         // tasks on the contact/ticket page
         if (issueElement.matches(this.issueElementSelector[1])) {
-            const taskBody = $$('.uiList.private-list--inline', issueElement);
+            const taskBody = $$('[aria-label="Task Options"]', issueElement);
             if (taskBody) {
                 linkElement.classList.add('private-button--tertiary-light');
                 const li = $$.create('li');
