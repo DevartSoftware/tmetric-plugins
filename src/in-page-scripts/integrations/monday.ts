@@ -71,12 +71,15 @@ class Monday implements WebToolIntegration {
             // find issue ulr on 'My Work' page
             issueUrl = $$<HTMLAnchorElement>('.pulse-component .board-cell-component a', issueElement)?.href;
             if (!issueUrl) { // if issue url didn't find, then parse id and create url manually
-                const rowId = $$('.pulse-component', issueElement)?.id; // row-pulse-currentBoard-1831329683-1831330125-notplaceholder
-                const idMatch = rowId?.match(/\d+/g); // find digit groups
+                const rowId = $$('.pulse-component', issueElement)?.id;
+                // example rowId:
+                // row-pulse-currentBoard-1831329683-1831330125-notplaceholder
+                // row-pulse-1831330125
+                const idMatch = rowId?.match(/row-pulse-(?:\D*-)?(\d+)(?:-(\d+))?/); // find digit groups
                 const boardUrl = this.getBoardUrl(issueElement, source);
 
                 if (idMatch && boardUrl) {
-                    issueUrl = `${boardUrl}/pulses/${idMatch[1] || idMatch[0]}`;
+                    issueUrl = `${boardUrl}/pulses/${idMatch[2] || idMatch[1]}`;
                 }
             }
             projectName = $$('.board-header-main .board-name')?.textContent // on boards page
