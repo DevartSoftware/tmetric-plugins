@@ -8,10 +8,11 @@ class Monday implements WebToolIntegration {
         '.slide-panel-content',
         '.pulse-card-dialog-component',
         '.modal-slide-panel .pulse-values-and-header-wrapper',
-        '.pulse-component-wrapper'
+        '.pulse-component-wrapper',
+        '.modal-component-content'
     ];
 
-    private _latestPulseElement: HTMLElement | undefined;
+    private _latestClickedElement: HTMLElement | undefined;
 
     constructor() {
         document.addEventListener('click', event => {
@@ -19,17 +20,19 @@ class Monday implements WebToolIntegration {
             if (!element.matches) {
                 return;
             }
-            const pulseElement = $$.closest('.pulse-component', element);
+            const pulseElement = $$.closest('.pulse-component', element)
+            || $$.closest('[data-testid="list-item-renderer"]', element) // kanban board
+            || $$.closest('.calendar-event', element); // my work page -> calendar
             if (pulseElement) {
-                this._latestPulseElement = pulseElement; // remember pulse
-            } else if (this._latestPulseElement && element.parentElement) { // ignore unlinked elements
+                this._latestClickedElement = pulseElement; // remember pulse
+            } else if (this._latestClickedElement && element.parentElement) { // ignore unlinked elements
                 let selector = [
                     ...this.issueElementSelector, // ignore clicks within the task itself
                     '.dialog-node', // ignore pop-up dialogs (e.g. person selector)
                     '.system-notice-container' // ignore notices (e.g. popping undo)
                 ].join(',');
                 if (!$$.closest(selector, element)) {
-                    this._latestPulseElement = undefined; // forget pulse
+                    this._latestClickedElement = undefined; // forget pulse
                 }
             }
         });
@@ -52,10 +55,10 @@ class Monday implements WebToolIntegration {
             projectName = $$('.open-pulse-in-board-link')?.innerText;
         } else if (issueElement.matches(this.issueElementSelector[2])) { // my work page
             issueName = $$('.pulse-page-name-wrapper', issueElement)?.textContent;
-            issueUrl = this._latestPulseElement &&
-                $$<HTMLAnchorElement>('.board-cell-component a', this._latestPulseElement)?.href;
-            if (!issueUrl) { // if issue url didn't find, than parse id and create url manually
-                const idMatch = this._latestPulseElement?.id?.match(/row-pulse-+(\d+)-\w+/);
+            issueUrl = this._latestClickedElement &&
+                $$<HTMLAnchorElement>('.board-cell-component a', this._latestClickedElement)?.href;
+            if (!issueUrl) { // if issue url didn't find, then parse id and create url manually
+                const idMatch = this._latestClickedElement?.id?.match(/row-pulse-+(\d+)-\w+/);
                 const boardUrl = $$<HTMLAnchorElement>('.open-pulse-in-board-link', issueElement)?.pathname;
                 if (idMatch && boardUrl) {
                     issueUrl = `${boardUrl}/pulses/${idMatch[1]}`;
@@ -67,26 +70,48 @@ class Monday implements WebToolIntegration {
             issueName = $$('.name-cell-text', issueElement)?.textContent;
             // find issue ulr on 'My Work' page
             issueUrl = $$<HTMLAnchorElement>('.pulse-component .board-cell-component a', issueElement)?.href;
-            if (!issueUrl) { // if issue url didn't find, than parse id and create url manually
-                const rowId = $$('.pulse-component', issueElement)?.id;
-                const idMatch = rowId?.match(/row-pulse-+(\d+)-\w+/);
-                let boardMatch = source.path?.match(/\/boards\/\d+/); // on boards page
-                let boardUrl = boardMatch ? boardMatch[0] : null;
-                if (!boardUrl) {
-                    boardMatch = issueElement.className.match(/board-id-(\d+)/); // on My Work page
-                    if (boardMatch) {
-                        boardUrl = `/boards/${boardMatch[1]}`;
-                    }
-                }
+            if (!issueUrl) { // if issue url didn't find, then parse id and create url manually
+                const rowId = $$('.pulse-component', issueElement)?.id; // row-pulse-currentBoard-1831329683-1831330125-notplaceholder
+                const idMatch = rowId?.match(/\d+/g); // find digit groups
+                const boardUrl = this.getBoardUrl(issueElement, source);
 
                 if (idMatch && boardUrl) {
-                    issueUrl = `${boardUrl}/pulses/${idMatch[1]}`;
+                    issueUrl = `${boardUrl}/pulses/${idMatch[1] || idMatch[0]}`;
                 }
             }
             projectName = $$('.board-header-main .board-name')?.textContent // on boards page
                 || $$('#board-header h2')?.textContent // on new board page
                 || $$('.pulse-component .file-breadcrumbs-component ol li:first-child', issueElement)?.textContent // on My Work page
                 || $$('.col-identifier-board', issueElement)?.textContent;// old My Work page
+        } else if (issueElement.matches(this.issueElementSelector[4])) { // task modal window
+            issueName = $$('.item-page-name', issueElement)?.textContent;
+
+            const getIssueUrlFromKanban = () => {
+                const sortableItem = $$('[data-testid="sortable-item"]', this._latestClickedElement);
+                if (sortableItem) { // kanban board
+                    const itemId = sortableItem.getAttribute('data-listitemid');
+                    const idMatch = itemId?.match(/sortable-list-item-(\d+)/);
+                    const boardUrl = this.getBoardUrl(issueElement, source);
+                    if (idMatch && boardUrl) {
+                        return `${boardUrl}/pulses/${idMatch[1]}`;
+                    }
+                }
+            }
+
+            const getProjectNameFromCalendar = () => {
+                const content = this._latestClickedElement && $$('.title-wrapper', this._latestClickedElement)?.textContent;
+                const splitContent = content?.split('|'); // Task 1 | test Board
+                return splitContent ? splitContent[1] : null;
+            }
+
+            issueUrl = this._latestClickedElement &&
+                ($$<HTMLAnchorElement>('.board-cell-component a', this._latestClickedElement)?.href
+                || getIssueUrlFromKanban())
+                || source.path;
+            projectName = $$('.board-header-main .board-name')?.textContent // on boards page
+                || $$('#board-header h2')?.textContent // on new board page
+                || $$('.col-identifier-board')?.textContent // My Work page
+                || getProjectNameFromCalendar(); // My Work page -> calendar
         }
 
         if (!issueName) {
@@ -139,12 +164,31 @@ class Monday implements WebToolIntegration {
                 linkElement.classList.add('devart-timer-link-monday');
                 hostElement.insertBefore(linkElement, hostElement.firstChild);
             }
+        } else if (issueElement.matches(this.issueElementSelector[4])) { // task modal window
+            const hostElement = $$('.item-page-header-component__actions-bar', issueElement);
+            if (hostElement) {
+                // linkElement.classList.add('devart-timer-link-monday');
+                hostElement.insertBefore(linkElement, hostElement.firstChild);
+            }
         }
 
         if (!linkElement.parentElement && !isListPage) { // fallback - add as first element
             linkElement.style.paddingLeft = '10px';
             issueElement.insertBefore(linkElement, issueElement.firstChild);
         }
+    }
+
+    private getBoardUrl(issueElement: HTMLElement, source: Source) {
+        let boardMatch = source.path?.match(/\/boards\/\d+/); // on boards page
+        let boardUrl = boardMatch ? boardMatch[0] : null;
+        if (!boardUrl) {
+            boardMatch = issueElement.className.match(/board-id-(\d+)/); // on My Work page
+            if (boardMatch) {
+                boardUrl = `/boards/${boardMatch[1]}`;
+            }
+        }
+
+        return boardUrl;
     }
 }
 
