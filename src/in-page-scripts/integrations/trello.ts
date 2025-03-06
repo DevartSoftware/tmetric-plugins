@@ -5,28 +5,36 @@ class Trello implements WebToolIntegration {
     matchUrl = '*://trello.com/c/*';
 
     issueElementSelectorForCheck = [
-        '[data-testid="card-back-copy-card-button"]',
+        '[data-testid="card-back-copy-card-button"]', // issue card for logged-in user
+        '[data-testid="card-back-mirror-card-button"]', // issue card for logged-out user
         '[data-testid="check-item-name"]'
     ];
 
-    issueElementSelector = () =>
-        $$.all('[data-testid="check-item-name"]')
-            .concat(
-                $$.all('[data-testid="card-back-copy-card-button"]')
-                    .map(element => element.parentElement?.parentElement)
-                    .filter((parent): parent is HTMLElement => parent != null)
-            );
+    issueElementSelector = () => {
+
+        let element = $$(this.issueElementSelectorForCheck[0])?.parentElement?.parentElement || null;
+        if (!element) {
+            element = $$(this.issueElementSelectorForCheck[1])?.parentElement?.parentElement?.parentElement || null;
+        }
+
+        return [
+            $$.visible(this.issueElementSelectorForCheck[2]),
+            element
+        ];
+    }
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
-        if ($$(this.issueElementSelectorForCheck[0], issueElement)) {
+        if ($$(this.issueElementSelectorForCheck[0], issueElement) || $$(this.issueElementSelectorForCheck[1], issueElement)) {
             // cut 'timer' so that time can be visible if we have time
             const text = linkElement.lastElementChild!.textContent;
             if (/[0-9]/.test(text!)) {
                 linkElement.lastElementChild!.textContent = text!.replace(' timer', '');
             }
 
-            const moveCardButton = $$('[data-testid="card-back-move-card-button"]', issueElement) || $$('[data-testid="card-back-copy-card-button"]', issueElement);
+            const moveCardButton = $$('[data-testid="card-back-move-card-button"]', issueElement) ||
+                $$(this.issueElementSelectorForCheck[0], issueElement) ||
+                $$(this.issueElementSelectorForCheck[1], issueElement);
 
             if (moveCardButton) {
                 const moveCardButtonLi = moveCardButton.closest('li');
@@ -42,11 +50,11 @@ class Trello implements WebToolIntegration {
 
                 newLi.appendChild(linkElement);
 
-                if (moveCardButtonLi && moveCardButtonLi.parentNode) {
-                    moveCardButtonLi.parentNode.insertBefore(newLi, moveCardButtonLi);
+                if (moveCardButtonLi) {
+                    issueElement.prepend(newLi);
                 }
             }
-        } else if (issueElement.matches(this.issueElementSelectorForCheck[1])) { // for checklist
+        } else if (issueElement.matches(this.issueElementSelectorForCheck[2])) { // for checklist
 
             linkElement.classList.add('devart-timer-link-minimal', 'devart-timer-link-trello');
 
@@ -115,7 +123,7 @@ class Trello implements WebToolIntegration {
         const tagNames = $$.all('span[data-testid="card-label"]').map(label => label.textContent);
 
         let description: string | undefined | null;
-        if (issueElement.matches(this.issueElementSelectorForCheck[1])) {
+        if (issueElement.matches(this.issueElementSelectorForCheck[2])) {
             description = issueElement.childNodes[0].textContent;
         }
 
