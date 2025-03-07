@@ -5,27 +5,25 @@ class Trello implements WebToolIntegration {
     matchUrl = '*://trello.com/c/*';
 
     issueElementSelectorForCheck = [
-        '[data-testid="card-back-copy-card-button"]', // issue card for logged-in user
-        '[data-testid="card-back-mirror-card-button"]', // issue card for logged-out user
+        'li button[data-testid^="card-back-"]',
         '[data-testid="check-item-name"]'
     ];
 
     issueElementSelector = () => {
-
-        let element = $$(this.issueElementSelectorForCheck[0])?.parentElement?.parentElement || null;
-        if (!element) {
-            element = $$(this.issueElementSelectorForCheck[1])?.parentElement?.parentElement?.parentElement || null;
+        let element = $$(this.issueElementSelectorForCheck[0]);
+        if (element) {
+            element = element.closest('ul');
         }
 
         return [
-            $$.visible(this.issueElementSelectorForCheck[2]),
+            $$.visible(this.issueElementSelectorForCheck[1]),
             element
         ];
     }
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
-        if ($$(this.issueElementSelectorForCheck[0], issueElement) || $$(this.issueElementSelectorForCheck[1], issueElement)) {
+        if ($$(this.issueElementSelectorForCheck[0], issueElement)) {
             // cut 'timer' so that time can be visible if we have time
             const text = linkElement.lastElementChild!.textContent;
             if (/[0-9]/.test(text!)) {
@@ -33,8 +31,7 @@ class Trello implements WebToolIntegration {
             }
 
             const moveCardButton = $$('[data-testid="card-back-move-card-button"]', issueElement) ||
-                $$(this.issueElementSelectorForCheck[0], issueElement) ||
-                $$(this.issueElementSelectorForCheck[1], issueElement);
+                $$(this.issueElementSelectorForCheck[0], issueElement);
 
             if (moveCardButton) {
                 const moveCardButtonLi = moveCardButton.closest('li');
@@ -54,7 +51,7 @@ class Trello implements WebToolIntegration {
                     issueElement.prepend(newLi);
                 }
             }
-        } else if (issueElement.matches(this.issueElementSelectorForCheck[2])) { // for checklist
+        } else if (issueElement.matches(this.issueElementSelectorForCheck[1])) { // for checklist
 
             linkElement.classList.add('devart-timer-link-minimal', 'devart-timer-link-trello');
 
@@ -123,7 +120,7 @@ class Trello implements WebToolIntegration {
         const tagNames = $$.all('span[data-testid="card-label"]').map(label => label.textContent);
 
         let description: string | undefined | null;
-        if (issueElement.matches(this.issueElementSelectorForCheck[2])) {
+        if (issueElement.matches(this.issueElementSelectorForCheck[1])) {
             description = issueElement.childNodes[0].textContent;
         }
 
