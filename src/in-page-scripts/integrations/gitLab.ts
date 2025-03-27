@@ -8,44 +8,52 @@ class GitLab implements WebToolIntegration {
     ];
 
     match() {
-        return !!$$('.detail-page-description, .merge-request');
+        return !!$$('.detail-page-description, .merge-request, .work-item-view');
     }
 
-    titleSelector = '.detail-page-description .title, .merge-request .detail-page-header .title';
+    titleSelector = '.detail-page-description .title, .merge-request .detail-page-header .title, .work-item-view [data-testid="work-item-title"]';
 
     render(_issueElement: HTMLElement, linkElement: HTMLElement) {
 
         linkElement.classList.add('btn');
         linkElement.style.margin = 'auto'
         const header = $$('.detail-page-header');
-        if (!header) {
-            return;
-        }
 
-        // Merge request
-        const actionsGroup = $$.visible('.js-issuable-actions');
-        if (actionsGroup) {
-            linkElement.style.marginRight = '8px';
-            actionsGroup.insertBefore(linkElement, actionsGroup.firstChild);
-            return;
-        }
+        if (header) {
+            // Merge request
+            const actionsGroup = $$.visible('.js-issuable-actions');
+            if (actionsGroup) {
+                linkElement.style.marginRight = '8px';
+                actionsGroup.insertBefore(linkElement, actionsGroup.firstChild);
+                return;
+            }
 
-        // New design
-        const issueButton = $$.visible('.js-issuable-edit', header);
-        if (issueButton) {
-            linkElement.classList.add('btn-grouped');
-            issueButton.parentElement!.insertBefore(linkElement, issueButton);
-            return;
-        }
+            // New design
+            const issueButton = $$.visible('.js-issuable-edit', header);
+            if (issueButton) {
+                linkElement.classList.add('btn-grouped');
+                issueButton.parentElement!.insertBefore(linkElement, issueButton);
+                return;
+            }
 
-        // Old design
-        const buttons = $$('.issue-btn-group', header);
-        if (buttons) {
-            linkElement.classList.add('btn-grouped');
-            buttons.appendChild(linkElement);
-        } else {
+            // Old design
+            const buttons = $$('.issue-btn-group', header);
+            if (buttons) {
+                linkElement.classList.add('btn-grouped');
+                buttons.appendChild(linkElement);
+                return;
+            }
+
             linkElement.style.marginLeft = '1em';
             header.appendChild(linkElement);
+        } else {
+            // new design without header (sign in user)
+            const btnGroup = $$('[data-testid="work-item-actions-dropdown"]')?.parentElement?.parentElement;
+            if (!btnGroup) {
+                return;
+            }
+
+            btnGroup.insertBefore(linkElement, btnGroup.firstChild);
         }
     }
 
@@ -99,6 +107,7 @@ class GitLab implements WebToolIntegration {
                 '.issuable-show-labels .gl-label',
                 '.issuable-show-labels .badge',
                 '.labels .label',
+                '.work-item-attributes-item .gl-label'
             ]
                 .reduce((tags, selector) => tags.length ? tags : $$.all(selector), [] as HTMLElement[])
                 .map(label => label.textContent);
