@@ -4,12 +4,9 @@ class GitLab implements WebToolIntegration {
 
     matchUrl = [
         '*://*/issues/*',
+        '*://*/issues?show=*',
         '*://*/merge_requests/*'
     ];
-
-    match() {
-        return !!$$('.detail-page-description, .merge-request, .work-item-view');
-    }
 
     titleSelector = '.detail-page-description .title, .merge-request .detail-page-header .title, .work-item-view [data-testid="work-item-title"]';
 
@@ -58,11 +55,26 @@ class GitLab implements WebToolIntegration {
     }
 
     getIssue(_issueElement: HTMLElement, source: Source) {
+        if (!$$('.detail-page-description, .merge-request, .work-item-view')) {
+            return;
+        }
 
         // https://gitlab.com/NAMESPACE/PROJECT/issues/NUMBER
         // https://gitlab.com/NAMESPACE/PROJECT/issues/incident/NUMBER
         // https://gitlab.com/NAMESPACE/PROJECT/merge_requests/NUMBER
-        const match = /^(.+)\/(issues|issues\/incident|merge_requests)\/(\d+)$/.exec(source.path);
+        const regExp = /^(.+)\/(issues|issues\/incident|merge_requests)\/(\d+)$/;
+        let match = regExp.exec(source.path);
+        let issueLink;
+        // if match is null then a design is new and
+        // the url is https://gitlab.com/TestQAQC/project-with-issues-in-tmetric/-/issues?show=eyJpaWQiOiI1IiwiZn...
+        // try to find item ref link
+        if (!match) {
+            issueLink = $$<HTMLAnchorElement>('a[data-testid="work-item-drawer-ref-link"]', _issueElement)?.href;
+            if (issueLink != null) {
+                match = regExp.exec(issueLink);
+            }
+        }
+
         if (!match) {
             return;
         }
@@ -89,7 +101,7 @@ class GitLab implements WebToolIntegration {
             serviceUrl = source.protocol + source.host;
         }
 
-        let issueUrl = $$.getRelativeUrl(serviceUrl, source.fullUrl).match(/[^#]*/)?.[0]; // trim hash
+        let issueUrl = $$.getRelativeUrl(serviceUrl, issueLink ? issueLink : source.fullUrl).match(/[^#]*/)?.[0]; // trim hash
         if (issueType == 'issues/incident') {
             issueUrl = issueUrl?.replace('/incident', '');
         }
