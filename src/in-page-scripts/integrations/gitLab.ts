@@ -147,101 +147,161 @@ class GitLabSidebar implements WebToolIntegration {
 
     issueElementSelector = [
         '.right-sidebar', // old sidebar
-        '.gl-drawer-sidebar' // new sidebar
+        '.gl-drawer-sidebar', // new sidebar
+        '.work-item-view' // board with show issue (new version 2025)
     ];
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
-        const isOldSidebar = issueElement.matches(this.issueElementSelector[0]);
+        if (issueElement.matches(this.issueElementSelector[2])) { // board with show issue (new version 2025)
+            const btnGroup = $$('[data-testid="work-item-actions-dropdown"]')?.parentElement?.parentElement;
+            if (!btnGroup) {
+                return;
+            }
 
-        if (!$$.visible(this.issueElementSelector[isOldSidebar ? 0 : 1])) {
-            return;
-        }
+            linkElement.classList.add('btn');
+            linkElement.style.margin = 'auto';
 
-        const div = document.createElement('div');
-        linkElement.classList.add('btn', 'btn-default');
-        div.appendChild(linkElement);
+            btnGroup.insertBefore(linkElement, btnGroup.firstChild);
 
-        if (isOldSidebar) {
-            $$('.issuable-sidebar-header .issuable-header-text', issueElement)?.appendChild(div);
         } else {
-            div.classList.add('devart-timer-link-gitlab-container');
-            $$('header', issueElement)?.parentElement!.appendChild(div);
+            const isOldSidebar = issueElement.matches(this.issueElementSelector[0]);
+
+            if (!$$.visible(this.issueElementSelector[isOldSidebar ? 0 : 1])) {
+                return;
+            }
+
+            const div = document.createElement('div');
+            linkElement.classList.add('btn', 'btn-default');
+            div.appendChild(linkElement);
+
+            if (isOldSidebar) {
+                $$('.issuable-sidebar-header .issuable-header-text', issueElement)?.appendChild(div);
+            } else {
+                div.classList.add('devart-timer-link-gitlab-container');
+                $$('header', issueElement)?.parentElement!.appendChild(div);
+            }
         }
     }
 
     getIssue(issueElement: HTMLElement, source: Source) {
 
-        const isOldSidebar = issueElement.matches(this.issueElementSelector[0]);
+        if (issueElement.matches(this.issueElementSelector[2])) { // board with show issue (new version 2025)
+            if (!$$.visible(this.issueElementSelector[2])) {
+                return;
+            }
 
-        if (!$$.visible(this.issueElementSelector[isOldSidebar ? 0 : 1])) {
-            return;
-        }
+            let issueLink = $$<HTMLAnchorElement>('a[data-testid="work-item-drawer-ref-link"]')?.href;
+            let issueId;
+            if (issueLink != null) {
+                const match = /^(.*)\/(\d+)$/.exec(issueLink);
+                if (!match) {
+                    return;
+                }
 
-        // Joining selectors from old and new sidebar with comma is problematic because layout with new sidebar contain also empty old sidebar.
-        const issueName = $$(isOldSidebar ? '.issuable-header-text > strong' : 'header > span', issueElement)?.textContent;
-        const serviceType = 'GitLab';
+                // match[3] is a 'NUMBER' from path
+                issueId = `#${match[2]}`;
+            }
 
-        let serviceUrl = $$<HTMLAnchorElement>('a#logo, a.tanuki-logo-container')?.href;
-        if (!serviceUrl || !source.fullUrl.startsWith(serviceUrl)) {
-            serviceUrl = source.protocol + source.host;
-        }
+            if (!issueId) {
+                return;
+            }
 
-        // #123, MyProject#123
-        const issueFullId = $$(isOldSidebar ? '.issuable-header-text > span' : 'header ~ div', issueElement)?.textContent;
-        let issueUrl: string | undefined;
-        let issueId: string | undefined;
+            const issueName = $$('[data-testid="work-item-title"]', issueElement)?.textContent;
+            if (!issueName) {
+                return;
+            }
 
-        const idMatch = issueFullId && issueFullId.match(/\s*(.*)#(\d+)\s*/);
-        if (idMatch) {
+            const serviceType = 'GitLab';
 
-            const projectId = idMatch[1];
-            issueId = idMatch[2];
+            let serviceUrl = $$<HTMLAnchorElement>('a#logo, a.tanuki-logo-container')?.href;
+            if (!serviceUrl || !source.fullUrl.startsWith(serviceUrl)) {
+                serviceUrl = source.protocol + source.host;
+            }
 
-            // /MyGroup1/MyProject, /groups/MyGroup1/-
-            issueUrl = $$.getRelativeUrl(serviceUrl, source.fullUrl.match(this.matchUrl)![1]);
-            const groupIssueMatch = issueUrl.match(/\/groups\/(.+)\/-/);
-            if (groupIssueMatch) {
-                if (projectId) {
-                    issueUrl = `/${groupIssueMatch[1]}/${projectId}`;
-                } else {
-                    issueId = undefined; // Unknown group url (TE-304)
-                    issueUrl = undefined;
+            const issueUrl = $$.getRelativeUrl(serviceUrl, issueLink ? issueLink : source.fullUrl); //.match(/[^#]*/)?.[0]; // trim hash
+
+            const projectName = GitLab.getProjectFromBreadcrumbs(serviceUrl, issueUrl);
+
+            const tagNames = $$.all('.work-item-attributes-item .gl-label')
+                .map(label => label.textContent);
+
+            return {
+                issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames
+            } as WebToolIssue;
+
+        } else {
+            const isOldSidebar = issueElement.matches(this.issueElementSelector[0]);
+
+            if (!$$.visible(this.issueElementSelector[isOldSidebar ? 0 : 1])) {
+                return;
+            }
+
+            // Joining selectors from old and new sidebar with comma is problematic because layout with new sidebar contain also empty old sidebar.
+            const issueName = $$(isOldSidebar ? '.issuable-header-text > strong' : 'header > span', issueElement)?.textContent;
+            const serviceType = 'GitLab';
+
+            let serviceUrl = $$<HTMLAnchorElement>('a#logo, a.tanuki-logo-container')?.href;
+            if (!serviceUrl || !source.fullUrl.startsWith(serviceUrl)) {
+                serviceUrl = source.protocol + source.host;
+            }
+
+            // #123, MyProject#123
+            const issueFullId = $$(isOldSidebar ? '.issuable-header-text > span' : 'header ~ div', issueElement)?.textContent;
+            let issueUrl: string | undefined;
+            let issueId: string | undefined;
+
+            const idMatch = issueFullId && issueFullId.match(/\s*(.*)#(\d+)\s*/);
+            if (idMatch) {
+
+                const projectId = idMatch[1];
+                issueId = idMatch[2];
+
+                // /MyGroup1/MyProject, /groups/MyGroup1/-
+                issueUrl = $$.getRelativeUrl(serviceUrl, source.fullUrl.match(this.matchUrl)![1]);
+                const groupIssueMatch = issueUrl.match(/\/groups\/(.+)\/-/);
+                if (groupIssueMatch) {
+                    if (projectId) {
+                        issueUrl = `/${groupIssueMatch[1]}/${projectId}`;
+                    } else {
+                        issueId = undefined; // Unknown group url (TE-304)
+                        issueUrl = undefined;
+                    }
+                }
+
+                if (issueId) {
+                    issueUrl += `/issues/${issueId}`;
+                    issueId = '#' + issueId;
                 }
             }
 
-            if (issueId) {
-                issueUrl += `/issues/${issueId}`;
-                issueId = '#' + issueId;
+            const projectName = $$('.sidebar-context-title')?.textContent
+                || GitLab.getProjectFromBreadcrumbs(serviceUrl, issueUrl);
+
+            let tagNames = $$.all('.gl-label-text', issueElement).map(label => {
+                const scopedLabel = $$.next('.gl-label-text-scoped', label);
+                const segments = [label.textContent, scopedLabel?.textContent]
+                    .map(text => text?.trim() || '')
+                    .filter(text => text);
+                return segments.join('::')
+            });
+
+            if (!tagNames.length) {
+                tagNames = [
+                    '.issuable-show-labels .gl-label .gl-label-text',
+                    '.issuable-show-labels .gl-label',
+                    '.issuable-show-labels .badge',
+                    '.issuable-show-labels > a span',
+                ]
+                    .reduce((tags, selector) => tags.length ? tags : $$.all(selector), [] as HTMLElement[])
+                    .map(label => label.textContent!)
+                    .filter(text => text);
             }
+
+            return {
+                issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames
+            } as WebToolIssue;
         }
-
-        const projectName = $$('.sidebar-context-title')?.textContent
-            || GitLab.getProjectFromBreadcrumbs(serviceUrl, issueUrl);
-
-        let tagNames = $$.all('.gl-label-text', issueElement).map(label => {
-            const scopedLabel = $$.next('.gl-label-text-scoped', label);
-            const segments = [label.textContent, scopedLabel?.textContent]
-                .map(text => text?.trim() || '')
-                .filter(text => text);
-            return segments.join('::')
-        });
-
-        if (!tagNames.length) {
-            tagNames = [
-                '.issuable-show-labels .gl-label .gl-label-text',
-                '.issuable-show-labels .gl-label',
-                '.issuable-show-labels .badge',
-                '.issuable-show-labels > a span',
-            ]
-                .reduce((tags, selector) => tags.length ? tags : $$.all(selector), [] as HTMLElement[])
-                .map(label => label.textContent!)
-                .filter(text => text);
-        }
-
-        return {
-            issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames
-        } as WebToolIssue;
     }
 }
 
