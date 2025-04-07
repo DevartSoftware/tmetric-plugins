@@ -32,11 +32,13 @@ class Asana implements WebToolIntegration {
             let [, relativePath, queryString] = fullUrl.match(/https:\/\/[^\/]+([^?]*)(\?.*)?/) || [];
             // project task url:
             // https://app.asana.com/0/234567890123456/1234567890123456
+            // project task list
+            // https://app.asana.com/1/16212550146873/project/226553519236752/task/1160485810839479
             // project search url:
             // https://app.asana.com/0/search/234567890123456/1234567890123456
             // widget from home page:
             // https://app.asana.com/0/home/765432109876544/1234567890123456
-            let id = /^\/\w+(?:\/search|\/home|\/inbox)?\/\d+\/(\d+)/.exec(relativePath)?.[1];
+            let id = /^\/\w+(?:\/\d+)?(?:\/search|\/home|\/inbox|\/project)?\/\d+(?:\/task)?\/(\d+)/.exec(relativePath)?.[1];
             if (id) {
                 return id;
             }
