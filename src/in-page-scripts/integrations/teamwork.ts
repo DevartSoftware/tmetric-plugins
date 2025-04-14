@@ -11,7 +11,7 @@ class Teamwork implements WebToolIntegration {
         '.row-content-holder',
         '.task-detail-header',
         '[data-test-id="td-drawer"]', // New UI detail
-        '[data-quick-view-type="task"]', // New UI table, home/work
+        '.TasksTableTask', // New UI table, home/work
         '[data-task-detail-panel-id]'// New UI list
     ];
 
@@ -32,7 +32,7 @@ class Teamwork implements WebToolIntegration {
                 holder.parentElement?.parentElement?.appendChild(container);
             }
         }
-        else if (issueElement.matches(this.issueElementSelector[3])) { //new UI - table
+        else if (issueElement.matches(this.issueElementSelector[3])) { //new UI - table, home/work
             const holder = $$('.table-cell-task-quick-view', issueElement)
             if (holder) {
                 holder.insertBefore(container, holder.firstChild);
@@ -125,17 +125,22 @@ class Teamwork implements WebToolIntegration {
             }
         }
 
-        const projectBreadcrumb = $$('a[data-identifier="project"]', issueElement);
-        if (projectBreadcrumb) {
-            projectName = projectBreadcrumb.textContent?.trim();
+        //new UI - task detail
+        if (!projectName) {
+            const projectBreadcrumb = $$('a[data-identifier="project"]', issueElement); //new UI - task detail
+            if (projectBreadcrumb) {
+                projectName = projectBreadcrumb.textContent?.trim();
+            }
         }
 
+        // New UI home/work
         if (!projectName) {
-            projectName = $$('.TableViewRow__cell--project', issueElement)?.textContent?.trim();
+            projectName = $$('.TableViewRow__cell--project', issueElement)?.textContent?.trim(); 
         }
 
+        // New UI list,table
         if (!projectName) {
-            projectName = $$('[data-identifier="appshell-breadcrumbs-project-breadcrumbstoolbar-project"]')?.textContent?.trim();
+            projectName = $$('[data-identifier="appshell-breadcrumbs-project-breadcrumbstoolbar-project"]')?.textContent?.trim(); 
         }
 
         let tagNames = $$.all('.w-tags__tag-name', issueElement).map(_ => _.textContent);
@@ -143,17 +148,20 @@ class Teamwork implements WebToolIntegration {
             tagNames = $$.all('.task-detail-content .w-item-picker__item > button').map(_ => _.textContent);
         }
 
+        // New UI table, home/work
         if (tagNames.length == 0) {
             const tagList = $$('.task-tags', issueElement);
             tagNames = $$.all('.w-item-picker__item > button', tagList).map(_ => _.textContent);
         }
 
+        // New UI list
         if (tagNames.length == 0) {
             const tagList = $$('[data-identifier="list-view-tag-list"]', issueElement);
             tagNames = $$.all('.v-chip__content', tagList).map(_ => _.textContent);
         }
 
-        if (tagNames.length == 0) {
+        //new UI - task detail
+        if (tagNames.length == 0) { 
             const tagList = $$('[data-test-id="td-tag-list"]', issueElement);
             tagNames = $$.all('.v-chip__content', tagList).map(_ => _.textContent);
         }
