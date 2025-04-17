@@ -1,4 +1,6 @@
 class Linear implements WebToolIntegration {
+  showIssueId = true;
+
   matchUrl = ["*://linear.app/*"];
 
   match(source: Source): boolean {
@@ -9,31 +11,36 @@ class Linear implements WebToolIntegration {
     _issueElement: HTMLElement,
     source: Source
   ): WebToolIssue | undefined {
-    // Extract issue ID
-    const issueIdElement = document.querySelector('a[href*="/issue/"] span');
-    console.log(`issueIdElement: ${issueIdElement?.outerHTML}`);
-    const issueId = issueIdElement?.textContent?.trim();
-    console.log(`issueId: ${issueId}`);
-
     // Extract issue title
     const issueTitleElement = document.querySelector(
       'div[contenteditable="true"] > p'
     );
     const issueTitle = issueTitleElement?.textContent?.trim();
 
+    
+    const match = RegExp(/^\/([^/]+)\/issue\/([^/]+)\/(.+)$/).exec(source.path);
+    if (!match) {
+      return undefined;
+    }
+    
+    const [, workspace, issueId, issueTitleUrl] = match;
+    
     if (!issueId || !issueTitle) {
       return undefined;
     }
+    // Try to extract project name
+    const projectElement = document.querySelector(
+      `[href^="/${workspace}/project/"]`
+    );
+    const projectName = projectElement?.textContent?.trim() ?? undefined;
 
     return {
       issueId,
       issueName: issueTitle,
       serviceType: "Linear",
-      serviceUrl: source.protocol + "//" + source.host,
-      projectName:
-        document
-          .querySelector('[aria-label="Project"] span')
-          ?.textContent?.trim() ?? undefined, // Linear does not seem to have a direct project name in the provided HTML
+      serviceUrl: `${source.protocol}//${source.host}`,
+      issueUrl: `/${workspace}/issue/${issueId}/${issueTitleUrl}`,
+      projectName,
     };
   }
 
