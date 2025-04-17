@@ -269,6 +269,15 @@ const getWebToolDescriptions = function () {
             }
         },
         {
+            serviceType: 'Linear',
+            serviceName: 'Linear',
+            icon: 'linear.svg',
+            origins: ['https://*.linear.app/*'],
+            scripts: {
+                js: ['in-page-scripts/integrations/linear.js']
+            }
+        },
+        {
             serviceType: 'Megaplan',
             serviceName: 'Megaplan',
             icon: 'megaplan.svg',

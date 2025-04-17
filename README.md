@@ -28,6 +28,7 @@ web browsers are **Chrome**, **Firefox**, **Edge**, **Opera**, and **Safari**.
 * [JIRA Service Desk](https://www.atlassian.com/software/jira/service-desk)
 * [Kayako](https://kayako.com)
 * [Kissflow](https://kissflow.com)
+* [Linear](https://linear.app/)
 * [Megaplan](https://megaplan.ru)
 * [Microsoft Office Online](https://products.office.com/office-online)
 * [Microsoft Outlook Online](https://outlook.live.com)
