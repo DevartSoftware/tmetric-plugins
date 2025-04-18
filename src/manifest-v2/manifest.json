@@ -4,7 +4,7 @@
   "short_name": "TMetric",
   "description": "Simple time tracking extension to be more productive, complete projects on time and bill your clients correctly.",
   "author": "Devart",
-  "version": "5.0.13",
+  "version": "5.0.14",
   "icons": {
     "16": "images/icon16.png",
     "48": "images/icon48.png",

@@ -2,7 +2,7 @@
     "name": "TMetric",
     "license": "BSD-2-Clause",
     "description": "Browser extensions that integrate TMetric service with popular issue tracking systems.",
-    "version": "5.0.13",
+    "version": "5.0.14",
     "repository": {
         "type": "Git",
         "url": "https://github.com/DevartSoftware/tt-plugins.git"
