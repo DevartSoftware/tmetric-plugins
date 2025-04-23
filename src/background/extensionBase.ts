@@ -490,11 +490,11 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
         return Promise.resolve(null);
     }
 
-    protected override showPopup(tabId?: number): void {
+    protected override showPopup(tabId?: number) {
         this.sendToTabs({ action: 'showPopup' }, tabId);
     }
 
-    protected override hidePopup(tabId?: number): void {
+    protected override hidePopup(tabId?: number) {
         this.sendToTabs({ action: 'hidePopup' }, tabId);
     }
 

@@ -42,7 +42,7 @@ class Linear implements WebToolIntegration {
         } as WebToolIssue;
     }
 
-    render(_issueElement: HTMLElement, linkElement: HTMLElement): void {
+    render(_issueElement: HTMLElement, linkElement: HTMLElement) {
 
         // insert the TMetric button into the header
         const header = document.querySelector('header');

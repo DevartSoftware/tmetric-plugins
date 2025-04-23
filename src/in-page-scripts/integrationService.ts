@@ -178,7 +178,7 @@ class IntegrationService {
         reject?: (reason?: any) => void;
     } | null = null;
 
-    static setIssuesDurations(durations) {
+    static setIssuesDurations(durations: WebToolIssueDuration[]) {
         const resolve = this._pendingIssuesDurations?.resolve
         if (resolve) {
             this._pendingIssuesDurations = null;
