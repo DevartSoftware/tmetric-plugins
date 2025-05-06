@@ -52,7 +52,7 @@ class GitHub implements WebToolIntegration {
 
         const serviceType = 'GitHub';
         let projectName = $$.try('[itemprop=name]').textContent ||
-            $$.try('.AppHeader-context-full nav li:last-of-type .AppHeader-context-item-label').textContent;
+            $$.try('.AppHeader-context-full nav context-region-crumb:last-of-type .AppHeader-context-item-label').textContent;
         const tagNames = this.getTagNames();
 
         return {
