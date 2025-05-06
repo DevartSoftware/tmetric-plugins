@@ -254,12 +254,15 @@ class IntegrationService {
     }
 
     private static trimText(text: string | null | undefined, maxLength: number) {
-        if (text) {
-            // Remove zero-width spaces and trim
-            text = text.replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
-            if (text.length > maxLength) {
-                text = text.substring(0, maxLength - 2) + '..';
-            }
+        if (!text) {
+            return undefined;
+        }
+        text = text
+            .replace(/[\u200B-\u200D\uFEFF]/g, '') // remove zero-width spaces
+            .replace(/[\t\n\r ]+/g, ' ') // replace sequences of multiple spaces with a single one
+            .trim();
+        if (text.length > maxLength) {
+            text = text.substring(0, maxLength - 2) + '..';
         }
         return text || undefined;
     }
@@ -390,7 +393,7 @@ class IntegrationService {
         }
     }
 
-    private static isSameIssue(oldIssue: WebToolIssue | undefined, newIssue: WebToolIssue)  {
+    private static isSameIssue(oldIssue: WebToolIssue | undefined, newIssue: WebToolIssue) {
 
         function normalizeServiceUrl(issue: WebToolIssue) {
             if (!issue.issueUrl) { // ignore service url for issue without external link (TE-540)
