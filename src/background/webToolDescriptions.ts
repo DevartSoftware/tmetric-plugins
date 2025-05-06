@@ -654,7 +654,7 @@ const getWebToolDescriptions = function () {
             serviceType: 'ZohoCRM',
             serviceName: 'Zoho Suite',
             icon: 'zoho.svg',
-            keywords: 'zoho crm zoho projects zoho desk',
+            keywords: 'zoho crm zoho projects zoho desk zoho salesiq',
             origins: [
                 'https://*.zoho.com/*',
                 'https://*.zoho.eu/*'
