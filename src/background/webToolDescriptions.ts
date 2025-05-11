@@ -397,15 +397,6 @@ const getWebToolDescriptions = function () {
             }
         },
         {
-            serviceType: 'PivotalTracker',
-            serviceName: 'Pivotal Tracker',
-            icon: 'pivotal.svg',
-            origins: ['https://www.pivotaltracker.com/*'],
-            scripts: {
-                js: ['in-page-scripts/integrations/pivotalTracker.js']
-            }
-        },
-        {
             serviceType: 'Podio',
             serviceName: 'Podio',
             icon: 'podio.svg',
