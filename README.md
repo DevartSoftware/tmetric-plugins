@@ -39,7 +39,6 @@ web browsers are **Chrome**, **Firefox**, **Edge**, **Opera**, and **Safari**.
 * [Notion](https://www.notion.so)
 * [OpenProject](https://www.openproject.org)
 * [Pipedrive](https://www.pipedrive.com)
-* [Pivotal Tracker](https://www.pivotaltracker.com)
 * [Podio](https://podio.com)
 * [Producteev](https://www.producteev.com)
 * [Redmine](https://www.redmine.org)
