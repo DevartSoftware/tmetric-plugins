@@ -56,7 +56,7 @@ class Teamwork implements WebToolIntegration {
             || $$.try<HTMLInputElement>('.task-name > textarea').value
             || $$.try('.table-cell-task-name-link', issueElement)?.textContent?.trim() //new UI - table 
             || $$.try('span.text-h6', issueElement)?.textContent?.trim() //new UI - task detail
-            || $$.try('[data-identifer="list-view-task-name"]', issueElement)?.textContent?.trim(); //new UI - list
+            || $$.try('[data-identifier="list-view-task-name"]', issueElement)?.textContent?.trim(); //new UI - list
         if (!issueName) {
             return;
         }
