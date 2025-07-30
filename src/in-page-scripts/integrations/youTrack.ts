@@ -64,7 +64,7 @@ class YouTrackLite implements WebToolIntegration {
         '*://*/tickets/*'
     ];
 
-    issueElementSelector = '[class^=ticketContent__]';
+    issueElementSelector = '[class^=appContainer__]';
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
         const host =
