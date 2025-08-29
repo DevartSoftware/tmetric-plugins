@@ -199,8 +199,7 @@ class SalesIq implements WebToolIntegration {
 
         const issueId = $$('[data-zsqa]', issueElement, _ => !!_.dataset.zsqa?.startsWith('#'))?.dataset.zsqa;
 
-        const issueName = $$.try('[data-zsqa="question_msg"] [class^="line"] div:first-child', issueElement).textContent ||
-            $$.try('[data-zsqa="question_msg"] div>div>div:first-child', issueElement).textContent;
+        const issueName = $$.try('[data-zsqa="question_msg"]', issueElement).textContent;
 
         if (!issueName) {
             return;
