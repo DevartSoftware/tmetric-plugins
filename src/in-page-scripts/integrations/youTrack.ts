@@ -31,7 +31,7 @@ class YouTrack implements WebToolIntegration {
 
         const issueName =
             $$('.yt-issue-body__summary', issueElement)?.textContent || // single task
-            $$('yt-agile-card__summary > span', issueElement)?.textContent; // agile board
+            $$('.yt-agile-card__summary > span:last-child', issueElement)?.textContent; // agile board
 
         if (!issueName) {
             return;
