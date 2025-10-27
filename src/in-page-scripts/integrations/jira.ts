@@ -23,7 +23,7 @@ class Jira implements WebToolIntegration {
 
         return [
             $$.visible([
-                '#ghx-detail-view', // Issue sidebar
+                '[data-testid*="issue-layout.compact-layout"]', // Issue sidebar
                 '[role=dialog]', // Issue dialog
                 '#issue-content', // Old issues and filters
                 '.new-issue-container' // Issue
