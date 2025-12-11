@@ -8,6 +8,15 @@ class Figma implements WebToolIntegration {
         const toolbar = $$('[class*=toolbar_view--menuButtonNew]');
         if (toolbar) {
             linkElement.classList.add('devart-timer-link-figma');
+
+            if (toolbar.parentElement?.getAttribute('data-testid') === 'navigation-bar-top-section') {
+                linkElement.classList.add('minimal');
+            }
+
+            if (this.isDarkTheme()) {
+                linkElement.classList.add('secondary-color');
+            }
+
             toolbar.parentNode?.insertBefore(linkElement, toolbar.nextSibling);
         }
     }
@@ -27,6 +36,25 @@ class Figma implements WebToolIntegration {
             serviceUrl: source.protocol + source.host,
             projectName,
         } as WebToolIssue;
+    }
+
+    private isDarkTheme() {
+        // 1. find theme via preferred-theme attribute
+        const dataTheme = document.body.dataset.preferredTheme;
+        if (dataTheme) {
+            return dataTheme === 'dark';
+        }
+
+        // 2. find theme via classList
+        if (document.body.classList.contains('theme-dark')) {
+            return true;
+        }
+        if (document.body.classList.contains('theme-light')) {
+            return false;
+        }
+
+        // 3. system theme (fallback)
+        return window.matchMedia('(prefers-color-scheme: dark)').matches;
     }
 }
 

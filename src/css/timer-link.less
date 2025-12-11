@@ -493,12 +493,20 @@
         line-height: 1 !important;
     }
 
-    @media (prefers-color-scheme: dark) {
+    &.secondary-color {
       color: var(--color-text-toolbar-secondary) !important;
 
       &:hover {
         color: var( --color-text-toolbar-secondary-hover) !important;
         background-color: var(--bg-toolbar-hover) !important;
+      }
+    }
+
+    &.minimal {
+      margin: 0 !important;
+
+      .devart-timer-link-icon ~ span {
+        display: none;
       }
     }
 }
