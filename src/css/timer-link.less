@@ -487,16 +487,19 @@
     height: var(--toolbar-height) !important;
     line-height: var(--toolbar-height) !important;
     padding: 0 1rem !important;
-    color: var(--color-text-toolbar-secondary) !important;
     cursor: default !important;
 
     .devart-timer-link-icon {
         line-height: 1 !important;
     }
 
-    &:hover {
+    @media (prefers-color-scheme: dark) {
+      color: var(--color-text-toolbar-secondary) !important;
+
+      &:hover {
         color: var( --color-text-toolbar-secondary-hover) !important;
         background-color: var(--bg-toolbar-hover) !important;
+      }
     }
 }
 
