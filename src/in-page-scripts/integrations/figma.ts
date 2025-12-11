@@ -5,10 +5,10 @@ class Figma implements WebToolIntegration {
     showIssueId = false;
 
     render(_issueElement: HTMLElement, linkElement: HTMLElement) {
-        const toolbar = $$('[class*=toolbar_view--rightButtonGroup]');
+        const toolbar = $$('[class*=toolbar_view--menuButtonNew]');
         if (toolbar) {
             linkElement.classList.add('devart-timer-link-figma');
-            toolbar.insertBefore(linkElement, toolbar.firstElementChild);
+            toolbar.parentNode?.insertBefore(linkElement, toolbar.nextSibling);
         }
     }
 
