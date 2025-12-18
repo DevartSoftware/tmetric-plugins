@@ -30,14 +30,14 @@ class OidcClient extends AjaxClient {
         return json;
     }
 
-    private async getTokensByAuthorizationCode(authorizationCode) {
+    private async getTokensByAuthorizationCode(authorizationCode: string) {
         const authorityUrl = await this._authorityUrl;
         return await this.getTokensByAuthorizationInternal(
             authorityUrl,
             `client_id=browser_extension&grant_type=authorization_code&code=${authorizationCode}&redirect_uri=${authorityUrl}extension/callback.html`);
     }
 
-    private async getTokensByRefresh(refreshToken) {
+    private async getTokensByRefresh(refreshToken: string) {
         const authorityUrl = await this._authorityUrl;
         try {
             return await this.getTokensByAuthorizationInternal(
@@ -61,12 +61,10 @@ class OidcClient extends AjaxClient {
     }
 
     private setStorageValue(key: string, value: string | null) {
-        return new Promise((resolve) => {
-            const obj = {};
-            obj[key] = value;
-            browser.storage.local.set(obj, function () {
-                resolve(undefined);
-            });
+        return new Promise<void>((resolve) => {
+            browser.storage.local.set(
+                { [key]: value },
+                () => resolve());
         });
     }
 
@@ -96,7 +94,7 @@ class OidcClient extends AjaxClient {
                 return await this.ajaxInternal<TReq, TRes>(accessToken, url, method, dataReq);
             }
             catch (error) {
-                if (error.statusCode != 401) {
+                if ((error as AjaxStatus)?.statusCode != 401) {
                     throw error;
                 }
                 // Try to get new acces token with presaved refresh token

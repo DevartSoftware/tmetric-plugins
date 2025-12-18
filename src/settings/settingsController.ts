@@ -4,7 +4,6 @@ function initShowPopupSelector() {
         settings => {
 
             document.body.style.visibility = 'visible'; // Prevent flickering (TE-128)
-
             const showOptions = {
                 [Models.ShowPopupOption.Always]: 'Always',
                 [Models.ShowPopupOption.WhenProjectIsNotSpecified]: 'When project is not specified',
@@ -12,7 +11,9 @@ function initShowPopupSelector() {
             }
             let items = <JQuery[]>[];
             for (let option in showOptions) {
-                items.push($('<option />').text(showOptions[option]).val(option.toString()));
+                items.push($('<option />')
+                    .text(showOptions[option as unknown as Models.ShowPopupOption])
+                    .val(option.toString()));
             }
 
             $('#show-popup-settings')
@@ -42,7 +43,7 @@ function setIntegrationsScrollArea() {
     }
 }
 
-function switchMenuItem(element: JQuery, tabBox: string, isScrollNeeded: boolean = false ) {
+function switchMenuItem(element: JQuery, tabBox: string, isScrollNeeded: boolean = false) {
     if (!$(element).parent('li').hasClass('active')) {
         $('.tab-box.visible').hide().removeClass('visible');
         $('.tabset li.active').removeClass('active');

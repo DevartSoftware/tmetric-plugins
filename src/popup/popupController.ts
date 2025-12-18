@@ -118,7 +118,7 @@ class PopupController {
                 response = await this.callBackground({ action, data, sender: 'popup' })
             }
             catch (e) {
-                if (e.message == 'The message port closed before a response was received.') {
+                if ((e as any).message == 'The message port closed before a response was received.') {
                     response = await this.callBackground({ action, data, sender: 'popup' });
                 } else {
                     throw (e);

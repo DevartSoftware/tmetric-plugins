@@ -285,7 +285,7 @@ class IntegrationService {
     private static parseLinkTimer(link: HTMLElement) {
         const attr = link?.getAttribute('data-' + this.affix);
         if (attr) {
-            return JSON.parse(attr) as WebToolIssueTimer & WebToolIssueDuration;
+            return JSON.parse(attr) as WebToolIssueTimerWithDuration;
         }
     }
 
@@ -307,16 +307,16 @@ class IntegrationService {
 
         const isIssueStarted = this.isIssueStarted(newIssue);
 
-        const newIssueTimer = {} as WebToolIssueTimer & WebToolIssueDuration;
+        const newIssueTimer = {} as WebToolIssueTimerWithDuration;
         newIssueTimer.isStarted = !isIssueStarted;
         newIssueTimer.showIssueId = integration?.showIssueId;
         newIssueTimer.duration = newIssueDuration || 0;
 
         for (const i in newIssue) {
-            newIssueTimer[i] = newIssue[i];
+            newIssueTimer[i as keyof WebToolIssue] = newIssue[i as keyof WebToolIssue] as any;
         }
 
-        let oldIssueTimer: WebToolIssueTimer & WebToolIssueDuration | undefined;
+        let oldIssueTimer: WebToolIssueTimerWithDuration | undefined;
         let oldSession: number | undefined;
         if (oldLink) {
             oldIssueTimer = this.parseLinkTimer(oldLink);

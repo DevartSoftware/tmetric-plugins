@@ -43,10 +43,10 @@ class SignalRHubProxy {
         return !!this._connection;
     }
 
-    private _subscriptions: { [methodName: string]: (...args) => void } = {};
+    private _subscriptions: { [methodName: string]: (...args: any[]) => void } = {};
 
     private subscribe(methodName: string) {
-        const subscription = (...args) => {
+        const subscription = (...args: any[]) => {
             let handlers = this._handlers[methodName];
             if (handlers) {
                 handlers.forEach(_ => _(...args));
