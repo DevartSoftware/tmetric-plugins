@@ -5,19 +5,15 @@ class Figma implements WebToolIntegration {
     showIssueId = false;
 
     render(_issueElement: HTMLElement, linkElement: HTMLElement) {
-        const toolbar = $$('[class*=toolbar_view--menuButtonNew]');
+        const toolbar = $$('[class*=left_panel_island_container]');
         if (toolbar) {
             linkElement.classList.add('devart-timer-link-figma');
-
-            if (toolbar.parentElement?.getAttribute('data-testid') === 'navigation-bar-top-section') {
-                linkElement.classList.add('minimal');
-            }
 
             if (this.isDarkTheme()) {
                 linkElement.classList.add('secondary-color');
             }
 
-            toolbar.parentNode?.insertBefore(linkElement, toolbar.nextSibling);
+            toolbar.insertBefore(linkElement, toolbar.firstElementChild?.nextSibling || null);
         }
     }
 
