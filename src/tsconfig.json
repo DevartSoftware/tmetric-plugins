@@ -9,7 +9,6 @@
     "removeComments": true,
     "noImplicitOverride": true,
     "strict": true,
-    "noImplicitAny": false, //TODO: remove
     "typeRoots": [
       "./typings/@fake"
     ]
