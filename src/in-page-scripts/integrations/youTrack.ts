@@ -9,13 +9,12 @@ class YouTrack implements WebToolIntegration {
         '*://*/tickets/*'
     ];
 
-    issueElementSelector = '.yt-issue-view, yt-agile-card';
+    issueElementSelector = '.yt-issue-view';
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
         const host =
             $$('.yt-issue-view__meta-information', issueElement) ||
-            $$('.yt-issue-toolbar', issueElement) ||
-            $$('.yt-agile-card__summary', issueElement);
+            $$('.yt-issue-toolbar', issueElement);
 
         if (host) {
             linkElement.classList.add('devart-timer-link-youtrack');
@@ -30,8 +29,7 @@ class YouTrack implements WebToolIntegration {
     getIssue(issueElement: HTMLElement, _source: Source) {
 
         const issueName =
-            $$('.yt-issue-body__summary', issueElement)?.textContent || // single task
-            $$('.yt-agile-card__summary > span:last-child', issueElement)?.textContent; // agile board
+            $$('.yt-issue-body__summary', issueElement)?.textContent;
 
         if (!issueName) {
             return;
@@ -64,7 +62,7 @@ class YouTrackLite implements WebToolIntegration {
         '*://*/tickets/*'
     ];
 
-    issueElementSelector = '[class^=appContainer__]';
+    issueElementSelector = '[class^=ticketContentInner__]';
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
         const host =
