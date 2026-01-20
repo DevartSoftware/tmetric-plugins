@@ -46,9 +46,9 @@ class Monday implements WebToolIntegration {
         let projectName: string | null | undefined;
 
         if (issueElement.matches(this.issueElementSelector[0])) { // side panel on board page
-            issueName = $$('.title-wrapper', issueElement)?.textContent;
+            issueName = $$('.item-page-item-name', issueElement)?.textContent;
             issueUrl = source.path;
-            projectName = $$('.board-header-main .board-name')?.textContent
+            projectName = $$('[data-testid="board-info-container"]')?.textContent
                 || $$('#board-header h2')?.textContent;
         } else if (issueElement.matches(this.issueElementSelector[1])) { // my week page (legacy)
             issueName = $$('.pulse-name-value', issueElement)?.textContent;
@@ -144,9 +144,10 @@ class Monday implements WebToolIntegration {
         let isListPage = false;
 
         if (issueElement.matches(this.issueElementSelector[0])) { // side panel on board page
-            const hostElement = $$('.pulse_title', issueElement);
+            const hostElement = $$('.item-page-header-details-wrapper', issueElement);
             if (hostElement) {
-                hostElement.appendChild(linkElement);
+                linkElement.style.marginLeft = '8px';
+                hostElement.insertBefore(linkElement, hostElement.lastChild);
             }
         } else if (issueElement.matches(this.issueElementSelector[1])) { // my week page (legacy)
             const hostElement = $$('.link-to-pulse');
