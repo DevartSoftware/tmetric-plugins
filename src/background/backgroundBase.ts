@@ -335,7 +335,7 @@ abstract class BackgroundBase<TConnection extends ServerConnection = ServerConne
 
     // popup action listeners
 
-    private _popupActions = {};
+    private _popupActions = {} as { [action: string]: (data: any) => Promise<any> }
 
     protected listenPopupAction<TParams, TResult>(action: string, handler: (data: TParams) => Promise<TResult>) {
         this._popupActions[action] = handler;
@@ -370,7 +370,7 @@ abstract class BackgroundBase<TConnection extends ServerConnection = ServerConne
         return this.openTrackerPage()
     }
 
-    protected openPagePopupAction(url) {
+    protected openPagePopupAction(url: string) {
         return Promise.resolve(null).then(() => {
             this.openPage(url);
         });

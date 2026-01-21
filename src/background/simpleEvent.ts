@@ -1,6 +1,6 @@
 interface ISimpleEvent<T> {
-    (handler: (arg: T) => void);
-    emit(arg: T);
+    (handler: (arg: T) => void): void;
+    emit(arg: T): void;
 }
 
 class SimpleEvent {

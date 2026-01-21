@@ -18,7 +18,9 @@ class Notion implements WebToolIntegration {
 
     getIssue(issueElement: HTMLElement, source: Source) {
 
-        let issueId, issueName, issueUrl: string | undefined;
+        let issueId: string | null | undefined;
+        let issueName: string | null | undefined;
+        let issueUrl: string | null | undefined;
 
         const titleEl = $$('.notion-page-block > h1.notranslate', issueElement);
         if (titleEl) {

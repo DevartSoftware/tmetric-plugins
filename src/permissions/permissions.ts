@@ -142,10 +142,13 @@ $(document).ready(async () => {
         async function updatePermissions(input: JQuery) {
             try {
 
-                const checked = input.prop('checked');
-                const serviceType = input.prop('name');
-                const serviceUrls = input.data('serviceUrls');
-                const map = serviceUrls.reduce((map, url) => (map[url] = serviceType) && map, {} as ServiceTypesMap);
+                const checked = input.prop('checked') as boolean;
+                const serviceType = input.prop('name') as string;
+                const serviceUrls = input.data('serviceUrls') as string[];
+                const map = serviceUrls.reduce((map, url) => {
+                    map[url] = serviceType;
+                    return map;
+                }, {} as ServiceTypesMap);
 
                 if (checked) {
                     await permissionsManager.requestPermissions(map);

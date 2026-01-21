@@ -398,8 +398,12 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
                     }
 
                     const tabToActivate = currentWindowActiveTab || currentWindowTab || anyWindowActiveTab || anyWindowTab;
-                    browser.windows.update(tabToActivate.windowId, { focused: true });
-                    browser.tabs.update(tabToActivate.id, { active: true });
+                    if (tabToActivate) {
+                        browser.windows.update(tabToActivate.windowId, { focused: true });
+                        if (tabToActivate.id != null) {
+                            browser.tabs.update(tabToActivate.id, { active: true });
+                        }
+                    }
                 } else {
                     browser.tabs.create({ active: true, windowId: currentWindowId, url });
                 }

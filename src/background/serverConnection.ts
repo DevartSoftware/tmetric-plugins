@@ -20,7 +20,7 @@ class ServerConnection<TClient extends AjaxClient = AjaxClient> {
 
         this.waitAllRejects = <any>((promises: Promise<any>[]) => new Promise((resolve, reject) => {
 
-            let error = null;
+            let error: string | null = null;
             let pendingCounter = promises.length;
 
             promises.forEach(p => p

@@ -7,7 +7,7 @@ class AjaxClient {
 
     protected ajaxInternal<TReq, TRes>(token: string | null, url: string, method: string, dataReq?: TReq): Promise<TRes> {
 
-        const headers = {} as HeadersInit;
+        const headers = {} as Record<string, string>;
         const settings = { headers } as RequestInit;
         if (token) {
             headers['Authorization'] = 'Bearer ' + token;

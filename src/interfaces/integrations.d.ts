@@ -5,7 +5,7 @@ interface WebToolIntegration {
     showIssueId?: boolean;
     canBeRenderedRepeatedly?: boolean;
     issueElementSelector?: string | string[] | (() => (HTMLElement | null)[]);
-    render(issueElement: HTMLElement | null, linkElement: HTMLElement);
+    render(issueElement: HTMLElement | null, linkElement: HTMLElement): void;
     getIssue(issueElement: HTMLElement | null, source: Source): WebToolIssue | undefined;
 }
 
@@ -81,6 +81,8 @@ interface WebToolIssueTimer extends WebToolIssue {
     isStarted: boolean;
     showIssueId?: boolean;
 }
+
+type WebToolIssueTimerWithDuration = WebToolIssueTimer & WebToolIssueDuration;
 
 interface WebToolParsedIssue {
     element: HTMLElement | null;

@@ -78,7 +78,7 @@ class PopupController {
             this._projects = data.projects;
             this._clients = data.clients;
             this._tags = data.tags.filter(tag => !!tag).sort((a, b) => this.compareTags(a, b));
-            this._tagsByName = this._tags.reduce((map, tag) => (map[tag.tagName] = tag) && map, {});
+            this._tagsByName = this._tags.reduce((map, tag) => (map[tag.tagName] = tag) && map, {} as Record<string, Models.Tag>);
             this._constants = data.constants;
             this._canCreateProjects = data.canCreateProjects;
             this._canCreateTags = data.canCreateTags;
@@ -118,7 +118,7 @@ class PopupController {
                 response = await this.callBackground({ action, data, sender: 'popup' })
             }
             catch (e) {
-                if (e.message == 'The message port closed before a response was received.') {
+                if ((e as any).message == 'The message port closed before a response was received.') {
                     response = await this.callBackground({ action, data, sender: 'popup' });
                 } else {
                     throw (e);
@@ -913,7 +913,7 @@ class PopupController {
 
                     return <any>null;
                 },
-                createTag: (params) => {
+                createTag: (params: { term: string }) => {
                     const name = $.trim(params.term);
                     if (name) {
                         const foundOptions = $(query)
@@ -1048,7 +1048,7 @@ class PopupController {
         const toggleIcon = $('.fa', toggle);
         const menu = $('.dropdown-menu', dropdown);
 
-        function checkCloseClick(event) {
+        function checkCloseClick(event: JQueryEventObject) {
             if (!$(event.target).closest(dropdown).length) {
                 /* eslint-disable-next-line */
                 toggleDropdown(false);

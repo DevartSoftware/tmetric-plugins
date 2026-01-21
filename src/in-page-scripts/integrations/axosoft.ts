@@ -21,7 +21,7 @@ class Axosoft implements WebToolIntegration {
         'Feature': 'features',
         'Ticket': 'incidents',
         'Work Item': 'features'
-    };
+    } as Record<string, string>;
 
     getIssue(issueElement: HTMLElement, source: Source) {
 

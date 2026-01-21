@@ -4,7 +4,7 @@ class Zammad {
 
     matchUrl = /(.+:\/\/.+)(\/#ticket\/zoom\/(\d+))/;
 
-    getIssue(_issueElement, source) {
+    getIssue(_issueElement: HTMLElement, source: Source) {
         const issueName = $$.try('.ticket-title-update.js-objectTitle').textContent;
         if (!issueName) {
             return;
@@ -25,7 +25,7 @@ class Zammad {
         } as WebToolIssue;
     }
 
-    render(_issueElement, linkElement) {
+    render(_issueElement: HTMLElement, linkElement: HTMLElement) {
         const host = $$('.buttonDropdown.dropdown.dropdown--actions.dropup');
 
         if (host) {
