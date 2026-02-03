@@ -87,7 +87,10 @@ class YouTrackLite implements WebToolIntegration {
 
         const linkElement =
             $$('[class^=sidebarContainer_] [class^=idLink_] a', issueElement) ||
-            $$('[class^=idLink_] a', issueElement);
+            $$('[class^=idLink_] a', issueElement) ||
+            // Fallback: look for `idLink` on the entire page.
+            // It may be rendered outside `ticketContentInner` in some cases (e.g. full issue view).
+            $$('[class^=idLink_] a');
 
         const issueId = linkElement && linkElement.textContent;
 
