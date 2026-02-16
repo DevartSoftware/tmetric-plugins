@@ -2,7 +2,7 @@ class Bitrix24 implements WebToolIntegration {
 
     showIssueId = false;
 
-    matchUrl = 'https://*/*/tasks/task*'; // url of iframe
+    matchUrl = 'https://*/*/tasks/task/view/*'; // url of iframe for the existed task
 
     render(_issueElement: HTMLElement, linkElement: HTMLElement) {
 
