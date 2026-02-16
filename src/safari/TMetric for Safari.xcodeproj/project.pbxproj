@@ -7,21 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		522C90001B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80001B7CE2A20095EAF8; };
-		522C90002B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80002B7CE2A20095EAF8; };
-		522C90003B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80003B7CE2A20095EAF8; };
-		522C90004B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80004B7CE2A20095EAF8; };
-		522C90005B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80005B7CE2A20095EAF8; };
-		522C90006B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80006B7CE2A20095EAF8; };
-		522C90007B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80007B7CE2A20095EAF8; };
-		522C90008B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80008B7CE2A20095EAF8; };
-		522C90009B7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C80009B7CE2A20095EAF8; };
-		522C9000AB7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C8000AB7CE2A20095EAF8; };
-		522C9000BB7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C8000BB7CE2A20095EAF8; };
-		522C9000CB7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C8000CB7CE2A20095EAF8; };
-		522C9000DB7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C8000DB7CE2A20095EAF8; };
-		522C9000EB7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C8000EB7CE2A20095EAF8; };
-		522C9000FB7CE2A20095EAF8 = {isa = PBXBuildFile; fileRef = 522C8000FB7CE2A20095EAF8; };
+		522C90001B7CE2A20095EAF8 /* signalr.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 522C80001B7CE2A20095EAF8 /* signalr.min.js */; };
+		522C90002B7CE2A20095EAF8 /* unified-ext.js in Resources */ = {isa = PBXBuildFile; fileRef = 522C80002B7CE2A20095EAF8 /* unified-ext.js */; };
+		522C90003B7CE2A20095EAF8 /* storage.js in Resources */ = {isa = PBXBuildFile; fileRef = 522C80003B7CE2A20095EAF8 /* storage.js */; };
+		522C90004B7CE2A20095EAF8 /* ajaxClient.js in Resources */ = {isa = PBXBuildFile; fileRef = 522C80004B7CE2A20095EAF8 /* ajaxClient.js */; };
+		522C90005B7CE2A20095EAF8 /* oidcClient.js in Resources */ = {isa = PBXBuildFile; fileRef = 522C80005B7CE2A20095EAF8 /* oidcClient.js */; };
+		522C90006B7CE2A20095EAF8 /* webToolDescriptions.js in Resources */ = {isa = PBXBuildFile; fileRef = 522C80006B7CE2A20095EAF8 /* webToolDescriptions.js */; };
+		522C90007B7CE2A20095EAF8 /* webToolManager.js in Resources */ = {isa = PBXBuildFile; fileRef = 522C80007B7CE2A20095EAF8 /* webToolManager.js */; };
+		522C90008B7CE2A20095EAF8 /* contentScriptsRegistrator.js in Resources */ = {isa = PBXBuildFile; fileRef = 522C80008B7CE2A20095EAF8 /* contentScriptsRegistrator.js */; };
+		522C90009B7CE2A20095EAF8 /* simpleEvent.js in Resources */ = {isa = PBXBuildFile; fileRef = 522C80009B7CE2A20095EAF8 /* simpleEvent.js */; };
+		522C9000AB7CE2A20095EAF8 /* serverConnection.js in Resources */ = {isa = PBXBuildFile; fileRef = 522C8000AB7CE2A20095EAF8 /* serverConnection.js */; };
+		522C9000BB7CE2A20095EAF8 /* signalRHubProxy.js in Resources */ = {isa = PBXBuildFile; fileRef = 522C8000BB7CE2A20095EAF8 /* signalRHubProxy.js */; };
+		522C9000CB7CE2A20095EAF8 /* signalRConnection.js in Resources */ = {isa = PBXBuildFile; fileRef = 522C8000CB7CE2A20095EAF8 /* signalRConnection.js */; };
+		522C9000DB7CE2A20095EAF8 /* backgroundBase.js in Resources */ = {isa = PBXBuildFile; fileRef = 522C8000DB7CE2A20095EAF8 /* backgroundBase.js */; };
+		522C9000EB7CE2A20095EAF8 /* extensionBase.js in Resources */ = {isa = PBXBuildFile; fileRef = 522C8000EB7CE2A20095EAF8 /* extensionBase.js */; };
+		522C9000FB7CE2A20095EAF8 /* safariExtension.js in Resources */ = {isa = PBXBuildFile; fileRef = 522C8000FB7CE2A20095EAF8 /* safariExtension.js */; };
 		522C97462B7CE2A10095EAF8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 522C97452B7CE2A10095EAF8 /* AppDelegate.swift */; };
 		522C974A2B7CE2A10095EAF8 /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 522C97482B7CE2A10095EAF8 /* Main.html */; };
 		522C974C2B7CE2A10095EAF8 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 522C974B2B7CE2A10095EAF8 /* Icon.png */; };
@@ -69,21 +69,21 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		522C80001B7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = signalr.min.js; path = ../../lib/signalr.min.js; sourceTree = "<group>"; };
-		522C80002B7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = unified-ext.js; path = ../../unified-ext.js; sourceTree = "<group>"; };
-		522C80003B7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = storage.js; path = ../../background/storage.js; sourceTree = "<group>"; };
-		522C80004B7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = ajaxClient.js; path = ../../background/ajaxClient.js; sourceTree = "<group>"; };
-		522C80005B7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = oidcClient.js; path = ../../background/oidcClient.js; sourceTree = "<group>"; };
-		522C80006B7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = webToolDescriptions.js; path = ../../background/webToolDescriptions.js; sourceTree = "<group>"; };
-		522C80007B7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = webToolManager.js; path = ../../background/webToolManager.js; sourceTree = "<group>"; };
-		522C80008B7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = contentScriptsRegistrator.js; path = ../../background/contentScriptsRegistrator.js; sourceTree = "<group>"; };
-		522C80009B7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = simpleEvent.js; path = ../../background/simpleEvent.js; sourceTree = "<group>"; };
-		522C8000AB7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = serverConnection.js; path = ../../background/serverConnection.js; sourceTree = "<group>"; };
-		522C8000BB7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = signalRHubProxy.js; path = ../../background/signalRHubProxy.js; sourceTree = "<group>"; };
-		522C8000CB7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = signalRConnection.js; path = ../../background/signalRConnection.js; sourceTree = "<group>"; };
-		522C8000DB7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = backgroundBase.js; path = ../../background/backgroundBase.js; sourceTree = "<group>"; };
-		522C8000EB7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = extensionBase.js; path = ../../background/extensionBase.js; sourceTree = "<group>"; };
-		522C8000FB7CE2A20095EAF8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = safariExtension.js; path = ../../background/safariExtension.js; sourceTree = "<group>"; };
+		522C80001B7CE2A20095EAF8 /* signalr.min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = signalr.min.js; path = ../../lib/signalr.min.js; sourceTree = "<group>"; };
+		522C80002B7CE2A20095EAF8 /* unified-ext.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = "unified-ext.js"; path = "../../unified-ext.js"; sourceTree = "<group>"; };
+		522C80003B7CE2A20095EAF8 /* storage.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = storage.js; path = ../../background/storage.js; sourceTree = "<group>"; };
+		522C80004B7CE2A20095EAF8 /* ajaxClient.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = ajaxClient.js; path = ../../background/ajaxClient.js; sourceTree = "<group>"; };
+		522C80005B7CE2A20095EAF8 /* oidcClient.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = oidcClient.js; path = ../../background/oidcClient.js; sourceTree = "<group>"; };
+		522C80006B7CE2A20095EAF8 /* webToolDescriptions.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = webToolDescriptions.js; path = ../../background/webToolDescriptions.js; sourceTree = "<group>"; };
+		522C80007B7CE2A20095EAF8 /* webToolManager.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = webToolManager.js; path = ../../background/webToolManager.js; sourceTree = "<group>"; };
+		522C80008B7CE2A20095EAF8 /* contentScriptsRegistrator.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = contentScriptsRegistrator.js; path = ../../background/contentScriptsRegistrator.js; sourceTree = "<group>"; };
+		522C80009B7CE2A20095EAF8 /* simpleEvent.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = simpleEvent.js; path = ../../background/simpleEvent.js; sourceTree = "<group>"; };
+		522C8000AB7CE2A20095EAF8 /* serverConnection.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = serverConnection.js; path = ../../background/serverConnection.js; sourceTree = "<group>"; };
+		522C8000BB7CE2A20095EAF8 /* signalRHubProxy.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = signalRHubProxy.js; path = ../../background/signalRHubProxy.js; sourceTree = "<group>"; };
+		522C8000CB7CE2A20095EAF8 /* signalRConnection.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = signalRConnection.js; path = ../../background/signalRConnection.js; sourceTree = "<group>"; };
+		522C8000DB7CE2A20095EAF8 /* backgroundBase.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = backgroundBase.js; path = ../../background/backgroundBase.js; sourceTree = "<group>"; };
+		522C8000EB7CE2A20095EAF8 /* extensionBase.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = extensionBase.js; path = ../../background/extensionBase.js; sourceTree = "<group>"; };
+		522C8000FB7CE2A20095EAF8 /* safariExtension.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = safariExtension.js; path = ../../background/safariExtension.js; sourceTree = "<group>"; };
 		522C97422B7CE2A10095EAF8 /* TMetric for Safari.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "TMetric for Safari.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		522C97452B7CE2A10095EAF8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		522C97492B7CE2A10095EAF8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = ../Base.lproj/Main.html; sourceTree = "<group>"; };
@@ -197,21 +197,21 @@
 				522C97782B7CE2A20095EAF8 /* permissions */,
 				522C97792B7CE2A20095EAF8 /* manifest.json */,
 				522C977A2B7CE2A20095EAF8 /* lib */,
-				522C80001B7CE2A20095EAF8,
-				522C80002B7CE2A20095EAF8,
-				522C80003B7CE2A20095EAF8,
-				522C80004B7CE2A20095EAF8,
-				522C80005B7CE2A20095EAF8,
-				522C80006B7CE2A20095EAF8,
-				522C80007B7CE2A20095EAF8,
-				522C80008B7CE2A20095EAF8,
-				522C80009B7CE2A20095EAF8,
-				522C8000AB7CE2A20095EAF8,
-				522C8000BB7CE2A20095EAF8,
-				522C8000CB7CE2A20095EAF8,
-				522C8000DB7CE2A20095EAF8,
-				522C8000EB7CE2A20095EAF8,
-				522C8000FB7CE2A20095EAF8,
+				522C80001B7CE2A20095EAF8 /* signalr.min.js */,
+				522C80002B7CE2A20095EAF8 /* unified-ext.js */,
+				522C80003B7CE2A20095EAF8 /* storage.js */,
+				522C80004B7CE2A20095EAF8 /* ajaxClient.js */,
+				522C80005B7CE2A20095EAF8 /* oidcClient.js */,
+				522C80006B7CE2A20095EAF8 /* webToolDescriptions.js */,
+				522C80007B7CE2A20095EAF8 /* webToolManager.js */,
+				522C80008B7CE2A20095EAF8 /* contentScriptsRegistrator.js */,
+				522C80009B7CE2A20095EAF8 /* simpleEvent.js */,
+				522C8000AB7CE2A20095EAF8 /* serverConnection.js */,
+				522C8000BB7CE2A20095EAF8 /* signalRHubProxy.js */,
+				522C8000CB7CE2A20095EAF8 /* signalRConnection.js */,
+				522C8000DB7CE2A20095EAF8 /* backgroundBase.js */,
+				522C8000EB7CE2A20095EAF8 /* extensionBase.js */,
+				522C8000FB7CE2A20095EAF8 /* safariExtension.js */,
 				522C977D2B7CE2A20095EAF8 /* TMetric for Safari */,
 			);
 			name = Resources;
@@ -320,21 +320,21 @@
 				522C97852B7CE2A20095EAF8 /* manifest.json in Resources */,
 				522C97812B7CE2A20095EAF8 /* in-page-scripts in Resources */,
 				522C97892B7CE2A20095EAF8 /* TMetric for Safari in Resources */,
-				522C90001B7CE2A20095EAF8,
-				522C90002B7CE2A20095EAF8,
-				522C90003B7CE2A20095EAF8,
-				522C90004B7CE2A20095EAF8,
-				522C90005B7CE2A20095EAF8,
-				522C90006B7CE2A20095EAF8,
-				522C90007B7CE2A20095EAF8,
-				522C90008B7CE2A20095EAF8,
-				522C90009B7CE2A20095EAF8,
-				522C9000AB7CE2A20095EAF8,
-				522C9000BB7CE2A20095EAF8,
-				522C9000CB7CE2A20095EAF8,
-				522C9000DB7CE2A20095EAF8,
-				522C9000EB7CE2A20095EAF8,
-				522C9000FB7CE2A20095EAF8,
+				522C90001B7CE2A20095EAF8 /* signalr.min.js in Resources */,
+				522C90002B7CE2A20095EAF8 /* unified-ext.js in Resources */,
+				522C90003B7CE2A20095EAF8 /* storage.js in Resources */,
+				522C90004B7CE2A20095EAF8 /* ajaxClient.js in Resources */,
+				522C90005B7CE2A20095EAF8 /* oidcClient.js in Resources */,
+				522C90006B7CE2A20095EAF8 /* webToolDescriptions.js in Resources */,
+				522C90007B7CE2A20095EAF8 /* webToolManager.js in Resources */,
+				522C90008B7CE2A20095EAF8 /* contentScriptsRegistrator.js in Resources */,
+				522C90009B7CE2A20095EAF8 /* simpleEvent.js in Resources */,
+				522C9000AB7CE2A20095EAF8 /* serverConnection.js in Resources */,
+				522C9000BB7CE2A20095EAF8 /* signalRHubProxy.js in Resources */,
+				522C9000CB7CE2A20095EAF8 /* signalRConnection.js in Resources */,
+				522C9000DB7CE2A20095EAF8 /* backgroundBase.js in Resources */,
+				522C9000EB7CE2A20095EAF8 /* extensionBase.js in Resources */,
+				522C9000FB7CE2A20095EAF8 /* safariExtension.js in Resources */,
 				522C977E2B7CE2A20095EAF8 /* background in Resources */,
 				522C977F2B7CE2A20095EAF8 /* settings in Resources */,
 			);
@@ -525,8 +525,8 @@
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
-				MARKETING_VERSION = 5.0.22;
+				MACOSX_DEPLOYMENT_TARGET = 11.5;
+				MARKETING_VERSION = 5.0.23;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -556,8 +556,8 @@
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
-				MARKETING_VERSION = 5.0.22;
+				MACOSX_DEPLOYMENT_TARGET = 11.5;
+				MARKETING_VERSION = 5.0.23;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -593,8 +593,8 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
-				MARKETING_VERSION = 5.0.22;
+				MACOSX_DEPLOYMENT_TARGET = 11.5;
+				MARKETING_VERSION = 5.0.23;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -631,8 +631,8 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
-				MARKETING_VERSION = 5.0.22;
+				MACOSX_DEPLOYMENT_TARGET = 11.5;
+				MARKETING_VERSION = 5.0.23;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
