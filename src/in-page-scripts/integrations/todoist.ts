@@ -190,7 +190,7 @@ class Todoist implements WebToolIntegration {
 
         const serviceType = 'Todoist';
         const serviceUrl = source.protocol + source.host;
-        const issueUrl = 'showTask?id=' + issueNumber;
+        const issueUrl = `app/task/${issueNumber}`;
 
         return {
             issueId, issueName, projectName, serviceType, serviceUrl, issueUrl, tagNames
