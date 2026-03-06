@@ -76,6 +76,7 @@ class Asana implements WebToolIntegration {
             $$.try('.TaskProjectTokenPill-name').textContent || // task project name for latest Asana
             $$.try('.TaskProjectToken-projectName').textContent || // task project token
             $$.try('.TaskProjectPill-projectName, .TaskProjectToken-potTokenizerPill').textContent || // task project pill
+            $$.try('.TaskPaneFields-projectHeader').textContent || // side panel task -> project
             $$.try('.TaskAncestry-ancestorProject').textContent; // subtask project
 
         const serviceType = 'Asana';
