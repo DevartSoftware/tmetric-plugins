@@ -5,7 +5,7 @@ class Wrike implements WebToolIntegration {
     matchUrl = '*://*.wrike.com/workspace.htm*';
 
     issueElementSelector = [
-        '.work-item-view__header', // new design task modal
+        '.work-item-view', // new design task modal
         '.wspace-task-view',       // old design
         '.task-view'             // old design
     ]
@@ -27,7 +27,7 @@ class Wrike implements WebToolIntegration {
     }
 
     getIssue(issueElement: HTMLElement, source: Source) {
-        const issueNameElement = $$.try('wrike-task-title, work-item-title', issueElement); // new design 
+        const issueNameElement = $$.try('.work-item-header .work-item-title .text-field', issueElement); // new design
         let issueName = $$.try<HTMLTextAreaElement>('textarea.title-field, textarea.title__field', issueElement).value || issueNameElement.textContent;
 
         if (!issueName) {
@@ -37,7 +37,7 @@ class Wrike implements WebToolIntegration {
         let projectName = issueTags.length == 1 ? issueTags[0].textContent : null;
 
         if (!projectName) {
-            const projectTags = $$.all('wrike-task-parent-folders, wrike-folder-tag-label', issueElement); // new design 
+            const projectTags = $$.all('.work-item-location .chip__content', issueElement); // new design
             projectName = projectTags.length == 1 ? projectTags[0].textContent : null;
         }
         const params = $$.searchParams(document.location.hash);
