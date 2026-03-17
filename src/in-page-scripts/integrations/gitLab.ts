@@ -3,8 +3,8 @@ class GitLab implements WebToolIntegration {
     showIssueId = true;
 
     matchUrl = [
-        '*://*/issues/*',
-        '*://*/issues?show=*',
+        '*://*/work_items/*',
+        '*://*/work_items?show=*',
         '*://*/merge_requests/*'
     ];
 
@@ -59,14 +59,14 @@ class GitLab implements WebToolIntegration {
             return;
         }
 
-        // https://gitlab.com/NAMESPACE/PROJECT/issues/NUMBER
-        // https://gitlab.com/NAMESPACE/PROJECT/issues/incident/NUMBER
+        // https://gitlab.com/NAMESPACE/PROJECT/work_items/NUMBER
+        // https://gitlab.com/NAMESPACE/PROJECT/incident/incident/NUMBER
         // https://gitlab.com/NAMESPACE/PROJECT/merge_requests/NUMBER
-        const regExp = /^(.+)\/(issues|issues\/incident|merge_requests)\/(\d+)$/;
+        const regExp = /^(.+)\/(work_items|work_items\/incident|merge_requests)\/(\d+)$/;
         let match = regExp.exec(source.path);
         let issueLink;
         // if match is null then a design is new and
-        // the url is https://gitlab.com/TestQAQC/project-with-issues-in-tmetric/-/issues?show=eyJpaWQiOiI1IiwiZn...
+        // the url is https://gitlab.com/TestQAQC/project-with-issues-in-tmetric/-/work_items?show=eyJpaWQiOiI1IiwiZn...
         // try to find item ref link
         if (!match) {
             issueLink = $$<HTMLAnchorElement>('a[data-testid="work-item-drawer-ref-link"]', _issueElement)?.href;
@@ -102,7 +102,7 @@ class GitLab implements WebToolIntegration {
         }
 
         let issueUrl = $$.getRelativeUrl(serviceUrl, issueLink ? issueLink : source.fullUrl).match(/[^#]*/)?.[0]; // trim hash
-        if (issueType == 'issues/incident') {
+        if (issueType == 'work_items/incident') {
             issueUrl = issueUrl?.replace('/incident', '');
         }
 
