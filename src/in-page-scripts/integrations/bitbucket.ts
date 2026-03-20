@@ -16,6 +16,7 @@ class Bitbucket implements WebToolIntegration {
         const toolbar =
             $$('#issue-header .issue-toolbar') || // issue actions
             $$('main [data-qa=pr-header-actions-drop-down-menu-styles]')?.parentElement || // pull request actions
+            $$('[role="main"] [data-qa=pr-header-actions-drop-down-menu-styles]')?.parentElement || // pull request actions
             $$('button[data-testid="commit-more-button--trigger"]')?.parentElement; // commit actions
         if (toolbar) {
             Object.assign(linkElement.style, {
