@@ -95,6 +95,7 @@ const getWebToolDescriptions = function () {
             serviceName: 'ClickUp',
             icon: 'clickup.svg',
             origins: ['https://app.clickup.com/*'],
+            hasAdditionalOrigins: true,
             scripts: {
                 js: ['in-page-scripts/integrations/clickup.js']
             }

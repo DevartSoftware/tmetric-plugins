@@ -2,7 +2,7 @@ class Clickup implements WebToolIntegration {
 
     showIssueId = false;
 
-    matchUrl = '*://app.clickup.com';
+    matchUrl = '*://*.clickup.com';
 
     issueElementSelector = [
         '.cu-checklist-item__row', // v3 v4 check list item
