@@ -15,7 +15,7 @@ class Bitbucket implements WebToolIntegration {
 
         const toolbar =
             $$('#issue-header .issue-toolbar') || // issue actions
-            $$('main [data-qa=pr-header-actions-drop-down-menu-styles]')?.parentElement || // pull request actions
+            $$('[role="main"]  [data-qa=pr-header-actions-drop-down-menu-styles]')?.parentElement || // pull request actions
             $$('[role="main"] [data-qa=pr-header-actions-drop-down-menu-styles]')?.parentElement || // pull request actions
             $$('button[data-testid="commit-more-button--trigger"]')?.parentElement; // commit actions
         if (toolbar) {
@@ -27,7 +27,7 @@ class Bitbucket implements WebToolIntegration {
             return;
         }
 
-        let fallbackHeading = $$('main h1');
+        let fallbackHeading = $$('[role="main"] h1');
         if (fallbackHeading) {
             fallbackHeading.parentElement!.appendChild(linkElement);
         }
@@ -72,7 +72,7 @@ class Bitbucket implements WebToolIntegration {
             issueName = $$.try('#issue-title').textContent;
         } else if (issueType == 'pull-requests') {
             issueId = '!' + issueNumber;
-            issueName = $$.try('main h1').textContent;
+            issueName = $$.try('[role="main"] h1').textContent;
         } else if (issueType == 'commits') {
             issueId = issueNumber.substring(0, 7);
             issueName = 'Commit ' + issueNumber.substring(0, 12);
@@ -84,7 +84,7 @@ class Bitbucket implements WebToolIntegration {
 
         // <a href="/account/user/almtoolsteam/projects/CR">Code Review</a>
         const projectName = $$.try(
-            'main nav a',
+            '[role="main"] nav a',
             null,
             el => /.+\/projects\/.+/.test(el.getAttribute('href')!)
         ).textContent;
