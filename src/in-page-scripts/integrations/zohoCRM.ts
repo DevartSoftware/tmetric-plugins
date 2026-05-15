@@ -7,11 +7,11 @@ class ZohoActivity implements WebToolIntegration {
         "https://*/*crm/*"
     ];
 
-    issueElementSelector = '#kventitydetailspage, .task-detailview'; // 1) kanban view; 2) list view
+    issueElementSelector = '#kventitydetailspage, .task-detailview, crm-detail-view'; // 1) kanban view; 2) old list view; 3) new list view
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
-        linkElement.classList.add('newwhitebtn', 'dIB', 'mR0');
+        linkElement.classList.add('newwhitebtn', 'dIB');
 
         const eventInfoTable = $$('.eventInfo table', issueElement);
         if (eventInfoTable) {
@@ -33,22 +33,30 @@ class ZohoActivity implements WebToolIntegration {
             if (tbody) {
                 tbody.appendChild(tr);
             }
+            return;
+        }
+
+        // New UI: insert into the action bar
+        const actionsBar = $$('crm-detailview-actions', issueElement);
+        if (actionsBar) {
+            linkElement.style.marginRight = '8px';
+            actionsBar.insertBefore(linkElement, actionsBar.firstChild);
         }
     }
 
     getIssue(issueElement: HTMLElement, _source: Source) {
 
-        let issueName = $$.try('#subvalue_SUBJECT, #entityNameInBCView', issueElement).textContent; // 1) task or call; 2) event
+        let issueName = $$.try('#subvalue_SUBJECT, #entityNameInBCView, #titlecard_SUBJECT', issueElement).textContent; // 1) task or call; 2) event (old UI); 3) event (new UI)
         if (!issueName) {
             return;
         }
 
-        const contactName = $$.try('#subvalue_CONTACTID', issueElement).textContent;
+        const contactName = $$.try('#subvalue_CONTACTID .cxLookupCompLink, #subvalue_CONTACTID', issueElement).textContent?.trim();
         if (contactName) {
             issueName += ` - ${contactName}`;
         }
 
-        const tagNames = $$.all('.linktoTagA', issueElement).map(_ => _.textContent);
+        const tagNames = $$.all('.linktoTagA, crm-tag-component a', issueElement).map(_ => _.textContent?.trim()).filter(_ => !!_);
         const serviceType = 'ZohoCRM';
 
         return {
