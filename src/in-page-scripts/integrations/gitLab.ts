@@ -10,7 +10,7 @@ class GitLab implements WebToolIntegration {
         '*://*/merge_requests/*'
     ];
 
-    titleSelector = '.detail-page-description .title, .merge-request .detail-page-header .title, .work-item-view [data-testid="work-item-title"]';
+    titleSelector = '.detail-page-description .title, .merge-request .detail-page-header .title, .work-item-view [data-testid="work-item-title"], header [data-testid="work-item-title"]';
 
     render(_issueElement: HTMLElement, linkElement: HTMLElement) {
 
@@ -153,12 +153,13 @@ class GitLabSidebar implements WebToolIntegration {
     issueElementSelector = [
         '.right-sidebar', // old sidebar
         '.gl-drawer-sidebar', // new sidebar
-        '.work-item-view' // board with show issue (new version 2025)
+        '.work-item-view', // board with show issue (new version 2025)
+        '.work-item-detail-panel', // board with show issue (new version 2026)
     ];
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
 
-        if (issueElement.matches(this.issueElementSelector[2])) { // board with show issue (new version 2025)
+        if (issueElement.matches(this.issueElementSelector[2]) || issueElement.matches(this.issueElementSelector[3])) { // board with show issue (new version 2025 and 2026)
             const btnGroup = $$('[data-testid="work-item-actions-dropdown"]')?.parentElement?.parentElement;
             if (!btnGroup) {
                 return;
@@ -191,8 +192,8 @@ class GitLabSidebar implements WebToolIntegration {
 
     getIssue(issueElement: HTMLElement, source: Source) {
 
-        if (issueElement.matches(this.issueElementSelector[2])) { // board with show issue (new version 2025)
-            if (!$$.visible(this.issueElementSelector[2])) {
+        if (issueElement.matches(this.issueElementSelector[2]) || issueElement.matches(this.issueElementSelector[3])) { // board with show issue (new version 2025 and 2026)
+            if (!$$.visible(this.issueElementSelector[2]) && !$$.visible(this.issueElementSelector[3])) {
                 return;
             }
 
