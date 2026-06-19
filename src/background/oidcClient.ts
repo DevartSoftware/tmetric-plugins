@@ -46,6 +46,7 @@ class OidcClient extends AjaxClient {
         }
         catch (e) {
             if ((e as AjaxStatus).statusCode == HttpStatusCode.BadRequest) {
+                browser.storage.local.remove('access_token');
                 throw { statusCode: HttpStatusCode.Unauthorized } as AjaxStatus;
             }
             throw e;
