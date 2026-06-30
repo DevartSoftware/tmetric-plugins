@@ -28,7 +28,7 @@ class GitLab implements WebToolIntegration {
             }
 
             // New design for Issue gitlab v19.1.1
-            const issueButtonV19 = $$.visible('.page-heading-actions > div', header);
+            const issueButtonV19 = $$('.page-heading-actions > div');
             if (issueButtonV19) {
                 linkElement.classList.add('btn-grouped');
                 issueButtonV19.parentElement!.insertBefore(linkElement, issueButtonV19);
