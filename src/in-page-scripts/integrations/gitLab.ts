@@ -27,6 +27,14 @@ class GitLab implements WebToolIntegration {
                 return;
             }
 
+            // New design for Issue gitlab v19.1.1
+            const issueButtonV19 = $$.visible('.page-heading-actions > div', header);
+            if (issueButtonV19) {
+                linkElement.classList.add('btn-grouped');
+                issueButtonV19.parentElement!.insertBefore(linkElement, issueButtonV19);
+                return;
+            }
+
             // New design
             const issueButton = $$.visible('.js-issuable-edit', header);
             if (issueButton) {
