@@ -32,10 +32,13 @@ class Linear implements WebToolIntegration {
             ?.textContent;
 
         // try to extract labels
-        const tagNames = $$.all('[aria-hidden="true"][color]')
-            .map(tagIcon => tagIcon.parentElement)
-            .filter(tag => !!$$.closest('div', tag!.parentElement!, parent => !!parent.textContent?.startsWith('Labels')))
-            .map(tag => tag?.textContent);
+        const labelsContainer = $$.all('[data-details-pane-section-content="true"]')
+            .find(content => content.previousElementSibling?.textContent?.trim() === 'Labels');
+        const tagNames = labelsContainer
+            ? $$.all('[aria-hidden="true"][style*="background"]', labelsContainer)
+                .map(dot => dot.parentElement?.textContent?.trim())
+                .filter(name => !!name)
+            : [];
 
         return {
             issueId, issueName, serviceType, serviceUrl, issueUrl, projectName, tagNames
