@@ -27,9 +27,9 @@ class Linear implements WebToolIntegration {
         const issueUrl = `/${workspace}/issue/${issueId}`
 
         // try to extract project name
-        const projectName = $$(`[data-discover="true"][href^="/${workspace}/project"]`)
-            ?.parentElement
-            ?.textContent;
+        const projectIcon = $$('button[data-detail-button="true"] use[href="#Project"]');
+        const projectButton = projectIcon && $$.closest<HTMLButtonElement>('button', projectIcon as unknown as HTMLElement);
+        const projectName = projectButton?.querySelector('span')?.textContent?.trim();
 
         // try to extract labels
         const labelsContainer = $$.all('[data-details-pane-section-content="true"]')
