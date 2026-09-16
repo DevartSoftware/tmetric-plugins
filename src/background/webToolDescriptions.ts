@@ -318,10 +318,14 @@ const getWebToolDescriptions = function () {
             origins: [
                 'https://outlook.live.com/*',
                 'https://outlook.office.com/*',
-                'https://outlook.office365.com/*'
+                'https://outlook.office365.com/*',
+                'https://outlook.cloud.microsoft/*'
             ],
             scripts: {
-                js: ['in-page-scripts/integrations/microsoft-outlook-online.js']
+                js: ['in-page-scripts/integrations/microsoft-outlook-online.js'],
+                // Outlook opens a message in a popup window ("Open in new window") that stays at
+                // about:blank and never navigates, so matching only fires on origin ancestry
+                matchOriginAsFallback: true
             }
         },
         {

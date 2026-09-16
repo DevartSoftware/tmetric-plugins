@@ -105,6 +105,7 @@ class ContentScriptsRegistrator {
                 js,
                 css,
                 allFrames: scripts.allFrames || false,
+                matchOriginAsFallback: scripts.matchOriginAsFallback || false,
                 runAt
             },
             {
@@ -115,6 +116,7 @@ class ContentScriptsRegistrator {
                     'in-page-scripts/topmostPage.js'
                 ],
                 allFrames: false,
+                matchOriginAsFallback: scripts.matchOriginAsFallback || false,
                 runAt
             }
         ] as chrome.scripting.RegisteredContentScript[];
@@ -253,6 +255,7 @@ class ContentScriptsRegistrator {
                 js: (scripts.js || []),
                 css: (scripts.css || []),
                 matches: [serviceUrl],
+                matchOriginAsFallback: scripts.matchOriginAsFallback,
                 runAt: scripts.runAt || 'document_end'
             } as chrome.scripting.RegisteredContentScript;
             const scriptId = this.getScriptId(serviceUrl);

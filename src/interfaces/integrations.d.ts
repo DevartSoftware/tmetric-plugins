@@ -29,6 +29,8 @@ type ContentScripts = {
     js?: string[];
     css?: string[];
     allFrames?: boolean;
+    /** Run in about:blank/about:srcdoc documents whose origin ancestry matches (e.g. popup windows opened via window.open that never navigate) */
+    matchOriginAsFallback?: boolean;
     runAt?: 'document_start' | 'document_end' | 'document_idle';
 };
 

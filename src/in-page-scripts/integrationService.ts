@@ -56,7 +56,13 @@ class IntegrationService {
     }
 
     static updateLinks(checkAllIntegrations: boolean) {
-        const source = this.getSourceInfo(document.URL);
+        // Some services (e.g. Outlook "open in new window") open a popup that never navigates away
+        // from "about:blank"; such a document still inherits the opener's origin (location.origin),
+        // so fall back to that to be able to match/build the source url
+        const documentUrl = document.URL;
+        const url = /^about:(blank|srcdoc)$/.test(documentUrl) && location.origin && location.origin !== 'null' ?
+            location.origin : documentUrl;
+        const source = this.getSourceInfo(url);
 
         if (!this._possibleIntegrations || checkAllIntegrations) {
             this._possibleIntegrations = this._allIntegrations;

@@ -317,7 +317,9 @@ abstract class ExtensionBase extends BackgroundBase<SignalRConnection> {
         }
 
         browser.tabs.query({}, tabs => tabs && tabs.forEach(tab => {
-            if (tab.id != null && tab.url && tab.url.startsWith('http')) {
+            // "about:blank" covers popout windows (e.g. Outlook "open in new window") that never navigate
+            // away from it but still host our content scripts via matchOriginAsFallback
+            if (tab.id != null && tab.url && (tab.url.startsWith('http') || tab.url === 'about:blank')) {
                 browser.tabs.sendMessage(tab.id, message).catch(error => {
                     // Ignore errors in broadcast messages
                     console.log(`sendToTabs failed: ${message.action}: ${error?.message || error}`)
