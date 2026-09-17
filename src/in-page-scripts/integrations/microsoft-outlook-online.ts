@@ -13,11 +13,24 @@ class MicrosofOutlookOnline implements WebToolIntegration {
     issueElementSelector = () => [$$('#app') || document.body];
 
     render(issueElement: HTMLElement, linkElement: HTMLElement) {
-        const container = $$('.ms-CommandBar-primaryCommand', issueElement) ||
-            $$('#paddleContainer [id$="-panel"]', issueElement);
-        if (container) {
-            linkElement.classList.add('devart-timer-link-microsoft-outlook-live');
-            container.appendChild(linkElement);
+        linkElement.classList.add('devart-timer-link-microsoft-outlook-live');
+
+        const classicContainer = $$('.ms-CommandBar-primaryCommand', issueElement);
+        if (classicContainer) {
+            classicContainer.appendChild(linkElement);
+            return;
+        }
+
+        const layoutToggle = $$('#RibbonModeToggle', issueElement);
+        const chevronContainer = layoutToggle && layoutToggle.parentElement;
+        if (chevronContainer && chevronContainer.parentElement) {
+            chevronContainer.parentElement.insertBefore(linkElement, chevronContainer);
+            return;
+        }
+
+        const fallbackContainer = $$('#paddleContainer [id$="-panel"]', issueElement);
+        if (fallbackContainer) {
+            fallbackContainer.appendChild(linkElement);
         }
     }
 
